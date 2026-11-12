@@ -1,3 +1,6 @@
+import amazonMouseMxImg from '../assets/images/amazon_mouse_mx_1792276213882.jpg';
+import amazonScreenbarLightImg from '../assets/images/amazon_screenbar_light_1792276214090.jpg';
+
 export interface AmazonProduct {
   id: string;
   title: string;
@@ -37,7 +40,7 @@ export const AMAZON_PRODUCTS: AmazonProduct[] = [
     deliveryInfo: 'FREE One-Day Delivery with Prime',
     commissionEstimate: 'Earns ~$4.00 - $9.90',
     commissionRate: '4% - 10%',
-    image: '/src/assets/images/amazon_mouse_mx_1792276213882.jpg',
+    image: amazonMouseMxImg,
     features: [
       'Quiet Clicks technology reduces click noise by 90%',
       '8,000 DPI track-on-glass optical sensor for dual 4K monitors',
@@ -61,7 +64,7 @@ export const AMAZON_PRODUCTS: AmazonProduct[] = [
     deliveryInfo: 'FREE Two-Day Delivery with Prime',
     commissionEstimate: 'Earns ~$7.16 - $17.90',
     commissionRate: '4% - 10%',
-    image: '/src/assets/images/amazon_screenbar_light_1792276214090.jpg',
+    image: amazonScreenbarLightImg,
     features: [
       'Patented asymmetrical optical design eliminates screen glare entirely',
       'Wireless precision desktop dial for stepless dimming & 2700K-6500K color temperature',

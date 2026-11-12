@@ -1,3 +1,8 @@
+import deskMatImg from '../assets/images/product_desk_mat_1792262853724.jpg';
+import ancHeadphonesImg from '../assets/images/product_anc_headphones_1792262854275.jpg';
+import growthBundleImg from '../assets/images/product_growth_bundle_1792262856034.jpg';
+import heroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
+
 export interface Product {
   id: string;
   title: string;
@@ -41,7 +46,7 @@ export const PRODUCTS: Product[] = [
       { label: 'Cable Channel', value: 'Embedded Neodymium N52 Magnet' },
       { label: 'Weight', value: '620 grams' }
     ],
-    image: '/src/assets/images/product_desk_mat_1792262853724.jpg'
+    image: deskMatImg
   },
   {
     id: 'mrs-anc-headphones',
@@ -67,7 +72,7 @@ export const PRODUCTS: Product[] = [
       { label: 'Noise Reduction', value: 'Quad-mic array up to -38dB' },
       { label: 'Connectivity', value: 'Bluetooth 5.3 + USB-C DAC + 3.5mm' }
     ],
-    image: '/src/assets/images/product_anc_headphones_1792262854275.jpg'
+    image: ancHeadphonesImg
   },
   {
     id: 'mrs-growth-bundle',
@@ -94,7 +99,7 @@ export const PRODUCTS: Product[] = [
       { label: 'Templates', value: '42 Email Scripts + 15 Contract Templates' },
       { label: 'License', value: 'Personal & Commercial Project Usage' }
     ],
-    image: '/src/assets/images/product_growth_bundle_1792262856034.jpg'
+    image: growthBundleImg
   },
   {
     id: 'mrs-vertical-mouse',
@@ -120,7 +125,7 @@ export const PRODUCTS: Product[] = [
       { label: 'Hand Orientation', value: 'Right-handed anatomical curve' },
       { label: 'Switch Durability', value: '20 Million Silent Clicks' }
     ],
-    image: '/src/assets/images/product_desk_mat_1792262853724.jpg'
+    image: deskMatImg
   },
   {
     id: 'mrs-usb-dock-stand',
@@ -146,7 +151,7 @@ export const PRODUCTS: Product[] = [
       { label: 'Power Delivery', value: 'USB-C PD 3.0 up to 100W input' },
       { label: 'Load Capacity', value: 'Tested up to 8.5 kg static weight' }
     ],
-    image: '/src/assets/images/mrs_hero_workspace_1792262853659.jpg'
+    image: heroWorkspaceImg
   },
   {
     id: 'mrs-troubleshoot-toolkit',
@@ -173,6 +178,6 @@ export const PRODUCTS: Product[] = [
       { label: 'Updates', value: 'Weekly patches for new OS updates' },
       { label: 'Skill Level', value: 'Beginner to Intermediate (Clean GUI)' }
     ],
-    image: '/src/assets/images/product_growth_bundle_1792262856034.jpg'
+    image: growthBundleImg
   }
 ];

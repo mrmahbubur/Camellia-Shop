@@ -1,3 +1,6 @@
+import amazonMouseMxImg from '../assets/images/amazon_mouse_mx_1792276213882.jpg';
+import amazonScreenbarLightImg from '../assets/images/amazon_screenbar_light_1792276214090.jpg';
+
 export interface ProductSpec {
   label: string;
   value: string;
@@ -81,9 +84,9 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     affiliateUrl: 'https://link.amazon/B0ae4X6pk',
     inStock: true,
     stockCount: 19,
-    mainImage: '/src/assets/images/amazon_mouse_mx_1792276213882.jpg',
+    mainImage: amazonMouseMxImg,
     galleryImages: [
-      '/src/assets/images/amazon_mouse_mx_1792276213882.jpg',
+      amazonMouseMxImg,
       'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80'
     ],
     description: 'The industry-standard productivity mouse engineered for coders, designers, and digital power users. Features 8,000 DPI track-on-glass sensor, MagSpeed 1,000 lines/sec electromagnetic scroll wheel, and whisper-quiet switches.',
@@ -131,9 +134,9 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     affiliateUrl: 'https://link.amazon/B0dPHChnk',
     inStock: true,
     stockCount: 14,
-    mainImage: '/src/assets/images/amazon_screenbar_light_1792276214090.jpg',
+    mainImage: amazonScreenbarLightImg,
     galleryImages: [
-      '/src/assets/images/amazon_screenbar_light_1792276214090.jpg'
+      amazonScreenbarLightImg
     ],
     description: 'Engineered for night coding, writing, and creative work. The ScreenBar Halo clamps onto flat or curved monitors without adhesives, casting precise asymmetrical light onto your desk with zero screen glare.',
     highlights: [

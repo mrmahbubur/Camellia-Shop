@@ -1,6 +1,7 @@
 import { ArrowRight, ShieldCheck, Zap, Sparkles, TrendingUp, ShoppingCart, Heart, ExternalLink } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { useCharity } from '../context/CharityContext';
+import mrsHeroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
 
 interface HeroProps {
   onExploreStore: () => void;
@@ -130,7 +131,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
           <div className="lg:col-span-5 relative flex items-center">
             <div className="w-full relative rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl bg-slate-800">
               <img
-                src="/src/assets/images/mrs_hero_workspace_1792262853659.jpg"
+                src={mrsHeroWorkspaceImg}
                 alt="MRS Digital Entrepreneur High Performance Workspace"
                 className="w-full h-[340px] sm:h-[420px] lg:h-full object-cover"
                 referrerPolicy="no-referrer"
