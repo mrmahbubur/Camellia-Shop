@@ -1,3 +1,4 @@
+import React from 'react';
 import { ArrowRight, ShieldCheck, Zap, Sparkles, TrendingUp, ShoppingCart, Heart, ExternalLink } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { useCharity } from '../context/CharityContext';
@@ -13,7 +14,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
   const { selectedCause, setIsCharityModalOpen, charityEnabled, pledgePercentage } = useCharity();
 
   const handleBrowseAllAccessories = () => {
-    setSelectedCategory('All Accessories');
+    setSelectedCategory('All Departments (Mega Store)');
     onExploreStore();
   };
 
@@ -70,7 +71,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
                 className="px-4 py-3.5 text-sm font-semibold text-slate-400 hover:text-white transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
-                <span>ROI Simulator</span>
+                <span>ROI Calculator</span>
               </button>
 
               <a
@@ -121,7 +122,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Prime 1-2 Day Express Delivery &amp; Instant Vaults</span>
+                <span>Prime 1-2 Day Express Delivery &amp; Verified Tech Deals</span>
               </div>
             </div>
 

@@ -13,8 +13,10 @@ export interface PlacedOrder {
   date: string;
   customerName: string;
   email: string;
+  phone?: string;
   address: string;
   city: string;
+  notes?: string;
   paymentMethod: string;
   items: CartItem[];
   subtotal: number;
@@ -48,6 +50,8 @@ interface CartContextType {
   freeShippingProgress: number;
   placedOrder: PlacedOrder | null;
   setPlacedOrder: (order: PlacedOrder | null) => void;
+  orderHistory: PlacedOrder[];
+  recordPlacedOrder: (order: PlacedOrder) => void;
   activeNotification: string | null;
   dismissNotification: () => void;
   showNotification: (msg: string) => void;
@@ -66,14 +70,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem('mrs_cart');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [orderHistory, setOrderHistory] = useState<PlacedOrder[]>(() => {
+    try {
+      const saved = localStorage.getItem('mrs_order_history');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [currency, setCurrency] = useState<Currency>('USD');
+  const [currency, setCurrencyState] = useState<Currency>(() => {
+    try {
+      const saved = localStorage.getItem('mrs_currency') as Currency | null;
+      return saved && CURRENCY_RATES[saved] ? saved : 'USD';
+    } catch {
+      return 'USD';
+    }
+  });
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
@@ -86,6 +110,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Storage unavailable in private mode
     }
   }, [cart]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('mrs_order_history', JSON.stringify(orderHistory));
+    } catch {
+      // Storage unavailable
+    }
+  }, [orderHistory]);
+
+  const setCurrency = (c: Currency) => {
+    setCurrencyState(c);
+    try {
+      localStorage.setItem('mrs_currency', c);
+    } catch {
+      // Storage unavailable
+    }
+  };
+
+  const recordPlacedOrder = (order: PlacedOrder) => {
+    setOrderHistory((prev) => [order, ...prev].slice(0, 20));
+    setPlacedOrder(order);
+  };
 
   const showNotification = (msg: string) => {
     setActiveNotification(msg);
@@ -108,7 +154,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return [...prev, { product, quantity }];
     });
-    showNotification(`Added "${product.title}" to your cart`);
+    showNotification(`Added "${product.title}" to your bag`);
   };
 
   const updateQuantity = (productId: string, delta: number) => {
@@ -127,7 +173,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeFromCart = (productId: string) => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
-    showNotification('Item removed from cart');
+    showNotification('Item removed from bag');
   };
 
   const clearCart = () => {
@@ -141,12 +187,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (trimmed === 'MRSLAUNCH') {
       setCouponCode('MRSLAUNCH');
       setDiscountPercent(15);
-      showNotification('Coupon MRSLAUNCH applied: 15% discount!');
+      showNotification('Coupon MRSLAUNCH applied: 15% discount');
       return { success: true, message: '15% discount applied successfully!' };
     } else if (trimmed === 'SHAHIN10') {
       setCouponCode('SHAHIN10');
       setDiscountPercent(10);
-      showNotification('Coupon SHAHIN10 applied: 10% discount!');
+      showNotification('Coupon SHAHIN10 applied: 10% discount');
       return { success: true, message: '10% discount applied successfully!' };
     } else {
       return { success: false, message: 'Invalid promotional code. Try MRSLAUNCH' };
@@ -209,6 +255,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         freeShippingProgress,
         placedOrder,
         setPlacedOrder,
+        orderHistory,
+        recordPlacedOrder,
         activeNotification,
         dismissNotification,
         showNotification

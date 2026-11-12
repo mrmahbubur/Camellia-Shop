@@ -158,11 +158,17 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   {product.category}
                 </span>
 
-                <div className="flex items-center gap-1 text-slate-700">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span className="font-bold tabular-nums">{product.rating}</span>
-                  <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()} verified ratings)</span>
-                </div>
+                {product.rating > 0 ? (
+                  <div className="flex items-center gap-1 text-slate-700">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span className="font-bold tabular-nums">{product.rating}</span>
+                    <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()} verified ratings)</span>
+                  </div>
+                ) : (
+                  <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                    Saved Custom Listing
+                  </span>
+                )}
               </div>
 
               {/* Title */}
@@ -173,14 +179,14 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               {/* Price & Savings Strip */}
               <div className="flex items-baseline gap-3 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
                 <span className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums tracking-tight">
-                  {formatPrice(product.price)}
+                  {product.price > 0 ? formatPrice(product.price) : 'Partner Pricing'}
                 </span>
-                {product.originalPrice && (
+                {product.originalPrice && product.price > 0 && (
                   <span className="text-sm text-slate-400 line-through font-mono tabular-nums">
                     {formatPrice(product.originalPrice)}
                   </span>
                 )}
-                {savingsAmount > 0 && (
+                {savingsAmount > 0 && product.price > 0 && (
                   <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
                     Save {formatPrice(savingsAmount)} ({savingsPercent}% OFF)
                   </span>
@@ -255,42 +261,51 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               {/* Tab 3: Verified Reviews */}
               {activeTab === 'reviews' && (
                 <div className="space-y-3 mb-6 text-xs max-h-52 overflow-y-auto pr-1">
-                  {product.reviews.map((r, i) => (
-                    <div key={i} className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">{r.author}</span>
-                        <span className="text-slate-400 text-[11px]">{r.date}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-amber-500">
-                        {Array.from({ length: r.rating }).map((_, idx) => (
-                          <Star key={idx} className="w-3 h-3 fill-current" />
-                        ))}
-                        {r.verifiedAmazonPurchase && (
-                          <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded ml-1 font-semibold">
-                            Amazon Verified Purchase
-                          </span>
-                        )}
-                      </div>
-                      <div className="font-semibold text-slate-800 text-[11px]">{r.title}</div>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">"{r.comment}"</p>
+                  {product.reviews.length === 0 ? (
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-slate-500 text-xs">
+                      No local reviews recorded for this custom listing. View live customer reviews directly on {product.originStore}.
                     </div>
-                  ))}
+                  ) : (
+                    product.reviews.map((r, i) => (
+                      <div key={i} className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900">{r.author}</span>
+                          <span className="text-slate-400 text-[11px]">{r.date}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-amber-500">
+                          {Array.from({ length: r.rating }).map((_, idx) => (
+                            <Star key={idx} className="w-3 h-3 fill-current" />
+                          ))}
+                          {r.verifiedAmazonPurchase && (
+                            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded ml-1 font-semibold">
+                              Amazon Verified Purchase
+                            </span>
+                          )}
+                        </div>
+                        <div className="font-semibold text-slate-800 text-[11px]">{r.title}</div>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">&quot;{r.comment}&quot;</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
 
-              {/* Tab 4: Amazon Buyer Guarantee */}
+              {/* Tab 4: Partner Buyer Guarantee */}
               {activeTab === 'guarantee' && (
                 <div className="p-4 bg-amber-50/70 rounded-xl border border-amber-200/80 mb-6 text-xs text-amber-950 space-y-2">
                   <div className="font-bold flex items-center gap-1.5 text-amber-900">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>Official Amazon A-to-z Buyer Guarantee</span>
+                    <span>
+                      {product.originStore === 'Shopz BD'
+                        ? 'Official Shopz BD Referral Fulfillment'
+                        : 'Official Amazon A-to-z Buyer Guarantee'}
+                    </span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-700">
-                    Purchases routed through our official link are covered by Amazon's 30-day hassle-free return window, authentic manufacturer warranty, and 256-bit encrypted payment security.
+                    {product.originStore === 'Shopz BD'
+                      ? 'Purchases routed through our Shopz BD referral link include official courier tracking and genuine product warranty across Bangladesh.'
+                      : 'Purchases routed through our official link are covered by Amazon’s 30-day hassle-free return window, authentic manufacturer warranty, and official Amazon checkout.'}
                   </p>
-                  <div className="text-[10px] text-slate-500 font-mono">
-                    Affiliate cookie active for 24 hours on all cart items.
-                  </div>
                 </div>
               )}
             </div>
@@ -307,61 +322,70 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <span className="text-[10px] bg-amber-200/60 px-2 py-0.5 rounded text-amber-950 font-bold">Verified Prime</span>
               </div>
 
-              {/* Primary Amazon Affiliate Purchase Button */}
+              {/* Primary Partner Purchase Button */}
               <a
                 href={getAffiliateBuyUrl(product)}
                 target="_blank"
                 rel="noreferrer noopener sponsored"
                 onClick={() => recordAffiliateClick(product.id)}
-                className="w-full py-3.5 px-4 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-extrabold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap"
+                className={`w-full py-3.5 px-4 font-extrabold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
+                  product.originStore === 'Shopz BD'
+                    ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                    : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
+                }`}
               >
                 <ShoppingCart className="w-4 h-4" />
-                <span>Buy on Amazon Prime · {formatPrice(product.price)}</span>
+                <span>
+                  {product.originStore === 'Shopz BD' ? 'Buy on Shopz BD' : 'Buy on Amazon Prime'}
+                  {product.price > 0 ? ` · ${formatPrice(product.price)}` : ''}
+                </span>
                 <ExternalLink className="w-4 h-4 text-slate-900 ml-1" />
               </a>
 
               {/* Secondary Direct Bag Action */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center border border-slate-200 rounded-lg bg-slate-50">
+              {product.price > 0 && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center border border-slate-200 rounded-lg bg-slate-50">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3 py-2 text-slate-600 hover:bg-slate-200 rounded-l-lg transition-colors cursor-pointer"
+                    >
+                      -
+                    </button>
+                    <span className="px-3 text-xs font-bold font-mono tabular-nums text-slate-800">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3 py-2 text-slate-600 hover:bg-slate-200 rounded-r-lg transition-colors cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 text-slate-600 hover:bg-slate-200 rounded-l-lg transition-colors"
+                    onClick={handleDirectAdd}
+                    className="flex-1 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                   >
-                    -
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>Add to Store Bag</span>
                   </button>
-                  <span className="px-3 text-xs font-bold font-mono tabular-nums text-slate-800">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-2 text-slate-600 hover:bg-slate-200 rounded-r-lg transition-colors"
-                  >
-                    +
-                  </button>
+
+                  {onToggleCompare && (
+                    <button
+                      onClick={() => onToggleCompare(product)}
+                      className={`p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
+                        isCompared
+                          ? 'bg-amber-100 border-amber-300 text-amber-900'
+                          : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+                      }`}
+                      title={isCompared ? 'Remove from comparison' : 'Compare product'}
+                    >
+                      <Layers className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
-
-                <button
-                  onClick={handleDirectAdd}
-                  className="flex-1 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
-                >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>Add to Store Bag</span>
-                </button>
-
-                {onToggleCompare && (
-                  <button
-                    onClick={() => onToggleCompare(product)}
-                    className={`p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
-                      isCompared
-                        ? 'bg-amber-100 border-amber-300 text-amber-900'
-                        : 'border-slate-200 hover:bg-slate-100 text-slate-600'
-                    }`}
-                    title={isCompared ? 'Remove from comparison' : 'Compare product'}
-                  >
-                    <Layers className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+              )}
 
               {/* Guarantees Strip */}
               <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 text-center pt-2">

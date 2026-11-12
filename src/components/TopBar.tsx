@@ -68,17 +68,17 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             <button
               onClick={handleAmazonDealsClick}
               className="text-slate-900 font-bold hover:text-amber-600 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer bg-amber-50 text-amber-950 px-2.5 py-1 rounded-md border border-amber-200/80"
-              title="Show Amazon Prime Deals"
+              title="Filter Electronics & Gadgets"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Amazon Deals</span>
+              <span>Prime Tech</span>
             </button>
 
             <button
               onClick={() => handleNavClick('store')}
               className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer font-semibold"
             >
-              Shop Anything
+              Shop Catalog
             </button>
             <button
               onClick={() => handleNavClick('amazon-products')}
@@ -250,7 +250,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 onClick={() => handleNavClick('roi-calculator')}
                 className="text-left px-3 py-2 rounded-md hover:bg-slate-50 hover:text-slate-900"
               >
-                Profit & ROI Simulator
+                Profit &amp; ROI Calculator
               </button>
               <button
                 onClick={() => handleNavClick('guides')}

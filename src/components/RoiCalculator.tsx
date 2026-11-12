@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calculator, ArrowRight, DollarSign, Percent, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight, DollarSign, Percent, Users, Download, RotateCcw } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 interface BusinessModelConfig {
@@ -66,7 +66,7 @@ interface RoiCalculatorProps {
 }
 
 export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }) => {
-  const { formatPrice } = useCart();
+  const { formatPrice, currency } = useCart();
   const [selectedModelId, setSelectedModelId] = useState<string>('digital-templates');
 
   const activeModel = useMemo(() => {
@@ -78,7 +78,6 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
   const [averageOrderValue, setAverageOrderValue] = useState<number>(activeModel.defaultAov);
   const [monthlyOverhead, setMonthlyOverhead] = useState<number>(activeModel.defaultOverhead);
 
-  // When model changes, update defaults
   const handleModelChange = (model: BusinessModelConfig) => {
     setSelectedModelId(model.id);
     setMonthlyVisitors(model.defaultVisitors);
@@ -87,7 +86,6 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
     setMonthlyOverhead(model.defaultOverhead);
   };
 
-  // Live calculations
   const monthlyOrders = Math.round((monthlyVisitors * conversionRate) / 100);
   const grossMonthlyRevenue = monthlyOrders * averageOrderValue;
   const netMonthlyProfit = Math.max(
@@ -100,23 +98,74 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
       ? Math.round((netMonthlyProfit / grossMonthlyRevenue) * 100)
       : 0;
 
+  const handleExportReport = () => {
+    const content = [
+      `MRS DIGITAL — UNIT ECONOMICS PROJECTION (${currency})`,
+      `Model: ${activeModel.name}`,
+      `Date: ${new Date().toLocaleDateString('en-US')}`,
+      ``,
+      `INPUT PARAMETERS:`,
+      `- Monthly Targeted Visitors: ${monthlyVisitors.toLocaleString()}`,
+      `- Conversion Rate: ${conversionRate.toFixed(1)}%`,
+      `- Average Order Value: ${formatPrice(averageOrderValue)}`,
+      `- Monthly Overhead: ${formatPrice(monthlyOverhead)}`,
+      ``,
+      `CALCULATED RESULTS:`,
+      `- Estimated Monthly Orders: ${monthlyOrders}`,
+      `- Gross Monthly Revenue: ${formatPrice(grossMonthlyRevenue)}`,
+      `- Estimated Net Monthly Profit: ${formatPrice(netMonthlyProfit)} (~${profitMarginPercent}% margin)`,
+      `- Calculated Annual Run-Rate: ${formatPrice(annualRunRate)}`
+    ].join('\n');
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `mrs-roi-${activeModel.id}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section id="roi-calculator" className="py-16 bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="max-w-3xl mb-10">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-            <span>Interactive Tool</span>
-            <span aria-hidden="true">·</span>
-            <span>Real Financial Math</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+              <span>Interactive Tool</span>
+              <span aria-hidden="true">·</span>
+              <span>Real Financial Math</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 [text-wrap:balance]">
+              Online Business Revenue &amp; Profit Calculator
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Calculate actual unit economics before building. Select a business model and adjust inputs to compute projected monthly net income and annual run rate.
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 [text-wrap:balance]">
-            Online Business Revenue &amp; Profit Simulator
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Experiment with actual unit economics before building. Select a verified business model and adjust inputs to calculate projected monthly net income and annual run rate.
-          </p>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleModelChange(activeModel)}
+              className="px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleExportReport}
+              className="px-3.5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Summary</span>
+            </button>
+          </div>
         </div>
 
         {/* Business Model Selector Tabs */}

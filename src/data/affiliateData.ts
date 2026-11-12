@@ -113,7 +113,7 @@ export const AFFILIATE_DEALS: AffiliateDeal[] = [
     badge: 'Ergonomic Choice',
     description: 'Commercial-grade dual-motor lift system with 355 lbs weight capacity, solid bamboo worktop, and anti-collision sensor to prevent repetitive strain.',
     keyBenefits: [
-      'Whisper-quiet dual motors (&lt; 45dB) with 4 memory presets',
+      'Whisper-quiet dual motors (< 45dB) with 4 memory presets',
       'Heavy-duty carbon steel frame with 15-year warranty',
       'Built-in cable management tray and wireless charging port'
     ],

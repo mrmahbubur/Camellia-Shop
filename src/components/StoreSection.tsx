@@ -9,10 +9,8 @@ import {
   ExternalLink,
   Grid,
   List,
-  Sparkles,
   Package,
   Compass,
-  Truck,
   ShieldCheck,
   Cpu,
   Layers,
@@ -20,9 +18,11 @@ import {
   Headphones,
   Laptop,
   Zap,
-  CheckCircle2,
   PlusCircle,
-  Building2
+  Building2,
+  Trash2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { useProducts } from '../context/ProductsContext';
@@ -31,15 +31,18 @@ import { ModernProductModal } from './ModernProductModal';
 import { ProductCompareDock } from './ProductCompareDock';
 
 export const StoreSection: React.FC = () => {
-  const { formatPrice, addToCart } = useCart();
+  const { formatPrice, addToCart, showNotification } = useCart();
   const {
     products,
     selectedCategory,
     setSelectedCategory,
     highlightedProductId,
     getAffiliateBuyUrl,
+    getAmazonSearchAffiliateUrl,
+    getShopzSearchAffiliateUrl,
     recordAffiliateClick,
-    autoIncludeProductByVisitorChoice,
+    addCustomAffiliateItem,
+    removeCustomProduct,
     amazonStoreUrl,
     shopzStoreUrl
   } = useProducts();
@@ -51,15 +54,21 @@ export const StoreSection: React.FC = () => {
   const [primeOnly, setPrimeOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
 
-  // Automatic visitor choice inclusion state
-  const [visitorInput, setVisitorInput] = useState<string>('');
+  // Live partner store search query
+  const [partnerQuery, setPartnerQuery] = useState<string>('');
   const [targetPlatform, setTargetPlatform] = useState<'Amazon' | 'Shopz BD'>('Amazon');
-  const [autoAddToast, setAutoAddToast] = useState<string | null>(null);
+
+  // Collapsible custom listing form (real user-supplied product URL + price)
+  const [showAddCustomForm, setShowAddCustomForm] = useState<boolean>(false);
+  const [customTitle, setCustomTitle] = useState<string>('');
+  const [customUrl, setCustomUrl] = useState<string>('');
+  const [customPrice, setCustomPrice] = useState<string>('');
+  const [customCategory, setCustomCategory] = useState<ProductCategory>('Electronics & Gadgets');
+  const [customStore, setCustomStore] = useState<'Amazon' | 'Shopz BD'>('Amazon');
 
   const [activeQuickViewProduct, setActiveQuickViewProduct] = useState<EcomProduct | null>(null);
   const [comparedProducts, setComparedProducts] = useState<EcomProduct[]>([]);
 
-  // Amazon-styled departments
   const categories: ProductCategory[] = [
     'All Departments (Mega Store)',
     'Electronics & Gadgets',
@@ -71,7 +80,6 @@ export const StoreSection: React.FC = () => {
     'Shopz BD Tech Deals'
   ];
 
-  // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
       'All Departments (Mega Store)': products.length
@@ -147,26 +155,32 @@ export const StoreSection: React.FC = () => {
     setSortBy('featured');
   };
 
-  // Trigger Automatic Visitor Product Inclusion
-  const handleAutoInclude = (keyword: string, platform: 'Amazon' | 'Shopz BD') => {
-    if (!keyword.trim()) return;
-    const added = autoIncludeProductByVisitorChoice(keyword, platform);
-    setAutoAddToast(`Auto-included "${added.title}" into catalog via ${platform}! Tracking active.`);
-    setTimeout(() => setAutoAddToast(null), 4500);
-
-    // Scroll to item
-    setTimeout(() => {
-      const el = document.getElementById(`product-${added.id}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 100);
+  const handleAddCustomProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customTitle.trim() || !customUrl.trim()) return;
+    const numericPrice = parseFloat(customPrice) || 0;
+    const added = addCustomAffiliateItem({
+      title: customTitle.trim(),
+      affiliateUrl: customUrl.trim(),
+      price: numericPrice,
+      category: customCategory,
+      originStore: customStore
+    });
+    setCustomTitle('');
+    setCustomUrl('');
+    setCustomPrice('');
+    setShowAddCustomForm(false);
+    showNotification(`Saved "${added.title}" to your catalog`);
   };
+
+  const livePartnerSearchHref =
+    targetPlatform === 'Shopz BD'
+      ? getShopzSearchAffiliateUrl(partnerQuery)
+      : getAmazonSearchAffiliateUrl(partnerQuery);
 
   return (
     <section id="store" className="py-16 bg-slate-50 border-b border-slate-200 scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Section Header with Amazon & Shopz BD Verified Storefront */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
@@ -177,18 +191,18 @@ export const StoreSection: React.FC = () => {
               </span>
               <span aria-hidden="true">·</span>
               <span className="text-slate-900 font-bold bg-amber-100 px-2 py-0.5 rounded text-[11px]">
-                {products.length} Products In Stock
+                {products.length} Curated Products
               </span>
               <span aria-hidden="true">·</span>
               <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-200/60">
-                100% Commission Tracked
+                100% Partner Tracked
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 [text-wrap:balance]">
               Shop Prime Gear &amp; Shopz BD Electronics
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl">
-              Curated hardware across Amazon Associate Storefront and Shopz BD official referral channel. All orders ship with genuine manufacturer warranties, official invoice, and buyer protection.
+              Curated hardware across our Amazon Associates Storefront and Shopz BD official referral channel. All partner purchases ship with manufacturer warranties and full buyer protection.
             </p>
           </div>
 
@@ -197,6 +211,7 @@ export const StoreSection: React.FC = () => {
               href={amazonStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => recordAffiliateClick()}
               className="flex items-center gap-1.5 text-xs text-amber-950 bg-amber-400 hover:bg-amber-300 font-extrabold px-3 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
             >
               <Package className="w-4 h-4 text-slate-950" />
@@ -208,6 +223,7 @@ export const StoreSection: React.FC = () => {
               href={shopzStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => recordAffiliateClick()}
               className="flex items-center gap-1.5 text-xs text-emerald-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold px-3 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
             >
               <Building2 className="w-4 h-4 text-emerald-950" />
@@ -217,25 +233,23 @@ export const StoreSection: React.FC = () => {
           </div>
         </div>
 
-        {/* =========================================================================
-            AUTOMATIC SYSTEM: INCLUDE PRODUCTS BY VISITOR'S CHOICE AUTOMATICALLY
-            ========================================================================= */}
+        {/* LIVE PARTNER STORE SEARCH & CUSTOM LINK PINNING BAR */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-5 mb-8 shadow-md border border-slate-700">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
             <div>
               <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
-                <Sparkles className="w-4 h-4" />
-                <span>Automatic Product Inclusion Engine (Visitor's Choice)</span>
+                <Search className="w-4 h-4" />
+                <span>Direct Partner Store Search</span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
-                Looking for a specific device? Auto-include it into the catalog instantly.
+                Search live Amazon Prime &amp; Shopz BD listings directly
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Type what you want to buy, select your preferred platform, and our system automatically derives verified specs, images, and generates your tracking link.
+                Enter any hardware model to filter our catalog below or jump directly into verified search results on Amazon or Shopz BD.
               </p>
             </div>
 
-            {/* Platform Switcher & Input */}
+            {/* Platform Switcher & Direct Live Search Trigger */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <div className="flex bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0">
                 <button
@@ -265,72 +279,130 @@ export const StoreSection: React.FC = () => {
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="e.g., 'Anker GaN 65W', 'QCY Earbuds', 'Keychron Wrist Rest'..."
-                  value={visitorInput}
-                  onChange={(e) => setVisitorInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleAutoInclude(visitorInput, targetPlatform);
-                      setVisitorInput('');
-                    }
+                  placeholder="e.g., 'Anker GaN 65W', 'QCY Earbuds'..."
+                  value={partnerQuery}
+                  onChange={(e) => {
+                    setPartnerQuery(e.target.value);
+                    setSearchQuery(e.target.value);
                   }}
-                  className="px-3.5 py-2 bg-slate-950/80 border border-slate-600 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-amber-400 min-w-[220px]"
+                  className="px-3.5 py-2 bg-slate-950/80 border border-slate-600 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-amber-400 min-w-[210px]"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleAutoInclude(visitorInput, targetPlatform);
-                    setVisitorInput('');
-                  }}
-                  disabled={!visitorInput.trim()}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0"
+                <a
+                  href={livePartnerSearchHref}
+                  target="_blank"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick()}
+                  className={`px-4 py-2 font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                    targetPlatform === 'Shopz BD'
+                      ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+                  }`}
                 >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  <span>Auto-Include</span>
-                </button>
+                  <span>Search {targetPlatform}</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
           </div>
 
-          {/* Quick Click Visitor Choice Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none pt-2 border-t border-slate-800 text-xs">
-            <span className="text-[11px] font-bold text-slate-400 shrink-0">Popular Visitor Choices:</span>
-            {[
-              { label: 'Wireless ANC Earbuds', store: 'Amazon' as const },
-              { label: 'Baseus 100W Power Bank', store: 'Shopz BD' as const },
-              { label: 'Custom Mechanical Keyboard', store: 'Amazon' as const },
-              { label: 'Haylou AMOLED Smartwatch', store: 'Shopz BD' as const },
-              { label: '4K Ergonomic Monitor', store: 'Amazon' as const },
-              { label: 'Soundcore Motion+ Speaker', store: 'Shopz BD' as const },
-              { label: 'ScreenBar Desk Light Bar', store: 'Amazon' as const }
-            ].map((chip) => (
-              <button
-                key={chip.label}
-                type="button"
-                onClick={() => handleAutoInclude(chip.label, chip.store)}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer text-[11px]"
-              >
-                <span>+</span>
-                <span>{chip.label}</span>
-                <span className="text-[9px] px-1 py-0.2 rounded bg-slate-900 text-amber-400 font-mono">
-                  {chip.store}
-                </span>
-              </button>
-            ))}
+          {/* Direct Live Search Chips & Custom Pin Trigger */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800 text-xs">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <span className="text-[11px] font-bold text-slate-400 shrink-0">Quick Live Searches:</span>
+              {[
+                { label: 'Wireless ANC Earbuds', store: 'Amazon' as const },
+                { label: 'Baseus 100W Power Bank', store: 'Shopz BD' as const },
+                { label: 'Mechanical Keyboard', store: 'Amazon' as const },
+                { label: 'AMOLED Smartwatch', store: 'Shopz BD' as const },
+                { label: '4K USB-C Monitor', store: 'Amazon' as const },
+                { label: 'Soundcore Speaker', store: 'Shopz BD' as const }
+              ].map((chip) => (
+                <a
+                  key={chip.label}
+                  href={
+                    chip.store === 'Shopz BD'
+                      ? getShopzSearchAffiliateUrl(chip.label)
+                      : getAmazonSearchAffiliateUrl(chip.label)
+                  }
+                  target="_blank"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick()}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer text-[11px]"
+                >
+                  <span>{chip.label}</span>
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-slate-900 text-amber-400 font-mono">
+                    {chip.store} ↗
+                  </span>
+                </a>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAddCustomForm((prev) => !prev)}
+              className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-600 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Save Custom Product Link</span>
+              {showAddCustomForm ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
           </div>
 
-          {/* Toast Notification */}
-          {autoAddToast && (
-            <div className="mt-3 p-2.5 bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{autoAddToast}</span>
-            </div>
+          {/* Collapsible Form to Save Real Partner URL + Exact Title & Price */}
+          {showAddCustomForm && (
+            <form
+              onSubmit={handleAddCustomProduct}
+              className="mt-4 pt-4 border-t border-slate-700/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 text-xs"
+            >
+              <input
+                type="text"
+                required
+                placeholder="Exact Product Title *"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                className="lg:col-span-3 px-3 py-2 bg-slate-950/90 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-amber-400"
+              />
+              <input
+                type="url"
+                required
+                placeholder="Amazon or Shopz BD Product URL *"
+                value={customUrl}
+                onChange={(e) => setCustomUrl(e.target.value)}
+                className="lg:col-span-4 px-3 py-2 bg-slate-950/90 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-amber-400"
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Price (USD)"
+                value={customPrice}
+                onChange={(e) => setCustomPrice(e.target.value)}
+                className="lg:col-span-2 px-3 py-2 bg-slate-950/90 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-amber-400"
+              />
+              <select
+                value={customStore}
+                onChange={(e) => {
+                  const val = e.target.value as 'Amazon' | 'Shopz BD';
+                  setCustomStore(val);
+                  if (val === 'Shopz BD') setCustomCategory('Shopz BD Tech Deals');
+                }}
+                className="lg:col-span-1 px-2 py-2 bg-slate-950/90 border border-slate-600 rounded-lg text-white focus:outline-hidden"
+              >
+                <option value="Amazon">Amazon</option>
+                <option value="Shopz BD">Shopz BD</option>
+              </select>
+              <button
+                type="submit"
+                className="lg:col-span-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg transition-colors cursor-pointer"
+              >
+                Save to Catalog
+              </button>
+            </form>
           )}
         </div>
 
         {/* DEPARTMENT TABS & STORE FILTER */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs mb-8 space-y-4">
-          
           {/* Row 1: Department Tabs */}
           <div className="flex items-center justify-between gap-4 flex-wrap pb-3 border-b border-slate-100">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none max-w-full">
@@ -365,9 +437,7 @@ export const StoreSection: React.FC = () => {
                     <span>{c}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono tabular-nums ${
-                        isSelected
-                          ? 'bg-slate-800 text-amber-400'
-                          : 'bg-slate-100 text-slate-500'
+                        isSelected ? 'bg-slate-800 text-amber-400' : 'bg-slate-100 text-slate-500'
                       }`}
                     >
                       {count}
@@ -404,30 +474,26 @@ export const StoreSection: React.FC = () => {
 
           {/* Row 2: Search, Store Filter, Price Slider & Sort */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs">
-            
-            {/* Search Input */}
             <div className="relative flex-1 max-w-lg">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search anything: 'keyboard', 'airpods', 'smartwatch', 'ssd', 'speaker'..."
+                placeholder="Filter catalog: 'keyboard', 'airpods', 'smartwatch', 'ssd', 'speaker'..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 focus:bg-white text-xs"
+                className="w-full pl-8 pr-14 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 focus:bg-white text-xs"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
                 >
                   Clear
                 </button>
               )}
             </div>
 
-            {/* Controls Cluster */}
             <div className="flex flex-wrap items-center gap-3">
-              
               {/* Store Filter Tabs */}
               <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
                 <button
@@ -493,7 +559,7 @@ export const StoreSection: React.FC = () => {
                 <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                   className="bg-slate-50 border border-slate-200 text-slate-800 rounded-lg py-1.5 px-2 text-xs focus:ring-1 focus:ring-slate-900 focus:outline-hidden cursor-pointer"
                 >
                   <option value="featured">Featured Deals</option>
@@ -503,33 +569,48 @@ export const StoreSection: React.FC = () => {
                   <option value="discount">Biggest Discount</option>
                 </select>
               </div>
-
             </div>
           </div>
         </div>
 
-        {/* RESULTS: Grid View Mode */}
+        {/* RESULTS */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 p-8">
             <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-800 mb-1">No products match your criteria</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
-              Try adjusting your search terms, price slider, or click below to auto-include matching items!
+            <h3 className="text-base font-bold text-slate-800 mb-1">No curated items match those filters</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto mb-5">
+              Reset your local filters or search Amazon Prime and Shopz BD directly for live partner stock.
             </p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={handleClearFilters}
                 className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 Reset All Filters
               </button>
-              {searchQuery && (
-                <button
-                  onClick={() => handleAutoInclude(searchQuery, targetPlatform)}
-                  className="px-4 py-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-extrabold hover:bg-amber-400 transition-colors cursor-pointer"
-                >
-                  Auto-Include "{searchQuery}"
-                </button>
+              {searchQuery.trim() && (
+                <>
+                  <a
+                    href={getAmazonSearchAffiliateUrl(searchQuery)}
+                    target="_blank"
+                    rel="noreferrer noopener sponsored"
+                    onClick={() => recordAffiliateClick()}
+                    className="px-4 py-2 bg-[#FF9900] text-slate-950 rounded-xl text-xs font-extrabold hover:bg-[#e88b00] transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <span>Search &quot;{searchQuery}&quot; on Amazon</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <a
+                    href={getShopzSearchAffiliateUrl(searchQuery)}
+                    target="_blank"
+                    rel="noreferrer noopener sponsored"
+                    onClick={() => recordAffiliateClick()}
+                    className="px-4 py-2 bg-emerald-500 text-slate-950 rounded-xl text-xs font-extrabold hover:bg-emerald-400 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <span>Search &quot;{searchQuery}&quot; on Shopz BD</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </>
               )}
             </div>
           </div>
@@ -570,6 +651,21 @@ export const StoreSection: React.FC = () => {
                       {product.badge || (isShopz ? 'Shopz BD Deal' : "Amazon's Choice")}
                     </span>
 
+                    {/* Remove button for user-saved custom product links */}
+                    {product.isUserAdded && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCustomProduct(product.id);
+                        }}
+                        title="Remove saved listing"
+                        className="absolute top-3 right-3 p-1.5 bg-slate-900/80 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+
                     {/* Prime or Express Shipping Badge */}
                     {product.primeEligible ? (
                       <span className="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
@@ -578,7 +674,7 @@ export const StoreSection: React.FC = () => {
                       </span>
                     ) : isShopz ? (
                       <span className="absolute bottom-3 left-3 bg-emerald-950/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
-                        <span>⚡ Express BD Courier</span>
+                        <span>Express BD Courier</span>
                       </span>
                     ) : null}
 
@@ -598,24 +694,27 @@ export const StoreSection: React.FC = () => {
                   {/* Body Metadata & Details */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      {/* Category & Star Rating */}
                       <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
                         <span className="uppercase tracking-wider text-[11px] font-semibold text-slate-400 truncate max-w-[150px]">
                           {product.category}
                         </span>
-                        <div className="flex items-center gap-1 text-slate-700 shrink-0">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          <span className="font-bold tabular-nums text-slate-900">{product.rating}</span>
-                          <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()})</span>
-                        </div>
+                        {product.rating > 0 ? (
+                          <div className="flex items-center gap-1 text-slate-700 shrink-0">
+                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                            <span className="font-bold tabular-nums text-slate-900">{product.rating}</span>
+                            <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()})</span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Saved Link
+                          </span>
+                        )}
                       </div>
 
-                      {/* Product Title */}
                       <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors">
                         {product.title}
                       </h3>
 
-                      {/* Snippet Description */}
                       <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">
                         {product.description}
                       </p>
@@ -626,16 +725,15 @@ export const StoreSection: React.FC = () => {
                       <div className="flex items-baseline justify-between">
                         <div className="flex items-baseline gap-2">
                           <span className="text-xl font-extrabold text-slate-900 font-mono tabular-nums">
-                            {formatPrice(product.price)}
+                            {product.price > 0 ? formatPrice(product.price) : 'Partner Price'}
                           </span>
-                          {product.originalPrice && (
+                          {product.originalPrice && product.price > 0 && (
                             <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
                               {formatPrice(product.originalPrice)}
                             </span>
                           )}
                         </div>
 
-                        {/* Compare Checkbox */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -652,18 +750,15 @@ export const StoreSection: React.FC = () => {
                         </button>
                       </div>
 
-                      {/* Assurance Badge */}
                       <div className="text-[10px] bg-slate-50 px-2 py-1 rounded-lg border border-slate-200/70 font-semibold flex items-center justify-between">
                         <span className="flex items-center gap-1 text-slate-700">
                           <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                          <span>{isShopz ? 'Shopz BD Genuine Warranty' : 'Amazon Prime 1-2 Day Express'}</span>
+                          <span>{isShopz ? 'Shopz BD Referral Link' : 'Amazon Partner Fulfillment'}</span>
                         </span>
-                        <span className="font-mono text-emerald-700">In Stock</span>
+                        <span className="font-mono text-emerald-700">Verified</span>
                       </div>
 
-                      {/* Dual Action Buttons */}
                       <div className="flex items-center gap-2">
-                        {/* Direct Buy On Partner Platform */}
                         <a
                           href={affiliateUrl}
                           target="_blank"
@@ -683,39 +778,39 @@ export const StoreSection: React.FC = () => {
                           <ExternalLink className="w-3 h-3" />
                         </a>
 
-                        {/* Direct Bag Action */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addToCart(
-                              {
-                                id: product.id,
-                                title: product.title,
-                                category: 'Workspace Gear',
-                                price: product.price,
-                                originalPrice: product.originalPrice,
-                                rating: product.rating,
-                                reviewsCount: product.reviewsCount,
-                                inStock: product.inStock,
-                                stockCount: product.stockCount,
-                                badge: product.badge,
-                                description: product.description,
-                                highlights: product.highlights,
-                                specs: product.specs,
-                                image: product.mainImage,
-                                isDigital: product.isDigital
-                              },
-                              1
-                            );
-                          }}
-                          className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors cursor-pointer"
-                          title="Add to Shopping Bag"
-                        >
-                          <ShoppingBag className="w-4 h-4" />
-                        </button>
+                        {product.price > 0 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(
+                                {
+                                  id: product.id,
+                                  title: product.title,
+                                  category: 'Workspace Gear',
+                                  price: product.price,
+                                  originalPrice: product.originalPrice,
+                                  rating: product.rating,
+                                  reviewsCount: product.reviewsCount,
+                                  inStock: product.inStock,
+                                  stockCount: product.stockCount,
+                                  badge: product.badge,
+                                  description: product.description,
+                                  highlights: product.highlights,
+                                  specs: product.specs,
+                                  image: product.mainImage,
+                                  isDigital: product.isDigital
+                                },
+                                1
+                              );
+                            }}
+                            className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors cursor-pointer"
+                            title="Add to Shopping Bag"
+                          >
+                            <ShoppingBag className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
-
                   </div>
                 </div>
               );
@@ -735,7 +830,6 @@ export const StoreSection: React.FC = () => {
                   onClick={() => setActiveQuickViewProduct(product)}
                   className="group bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-xl p-4 sm:p-5 transition-all duration-300 flex flex-col md:flex-row items-center justify-between gap-6 cursor-pointer relative"
                 >
-                  {/* Image */}
                   <div className="w-full md:w-48 aspect-4/3 rounded-xl overflow-hidden bg-slate-100 shrink-0 relative flex items-center justify-center">
                     <img
                       src={product.mainImage}
@@ -754,20 +848,21 @@ export const StoreSection: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Middle Content */}
                   <div className="flex-1 w-full">
                     <div className="flex items-center gap-3 mb-1 text-xs">
                       <span className="uppercase tracking-wider font-semibold text-slate-400 text-[11px]">
                         {product.category}
                       </span>
                       <span className="font-mono text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded text-[10px]">
-                        {isShopz ? 'Shopz BD Referral' : `ASIN: ${product.asin || 'Amazon Verified'}`}
+                        {isShopz ? 'Shopz BD Referral' : `ASIN: ${product.asin || 'Amazon Partner'}`}
                       </span>
-                      <div className="flex items-center gap-1 text-slate-700">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span className="font-bold tabular-nums text-slate-900">{product.rating}</span>
-                        <span className="text-slate-400">({product.reviewsCount.toLocaleString()})</span>
-                      </div>
+                      {product.rating > 0 && (
+                        <div className="flex items-center gap-1 text-slate-700">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <span className="font-bold tabular-nums text-slate-900">{product.rating}</span>
+                          <span className="text-slate-400">({product.reviewsCount.toLocaleString()})</span>
+                        </div>
+                      )}
                     </div>
 
                     <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug group-hover:text-amber-600 transition-colors">
@@ -779,17 +874,16 @@ export const StoreSection: React.FC = () => {
                     </p>
 
                     <div className="text-[11px] text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 inline-block font-medium">
-                      ✓ {isShopz ? 'Shopz BD 100% Authentic Stock & Courier Express' : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}
+                      ✓ {isShopz ? 'Shopz BD Official Storefront Referral' : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}
                     </div>
                   </div>
 
-                  {/* Right Actions */}
                   <div className="w-full md:w-56 shrink-0 flex flex-col justify-between items-start md:items-end border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 space-y-3">
                     <div className="text-left md:text-right w-full">
                       <div className="text-2xl font-black text-slate-900 font-mono tabular-nums">
-                        {formatPrice(product.price)}
+                        {product.price > 0 ? formatPrice(product.price) : 'Partner Price'}
                       </div>
-                      {product.originalPrice && (
+                      {product.originalPrice && product.price > 0 && (
                         <div className="text-xs text-slate-400 line-through font-mono">
                           {formatPrice(product.originalPrice)}
                         </div>
@@ -822,37 +916,38 @@ export const StoreSection: React.FC = () => {
                         <ExternalLink className="w-3 h-3" />
                       </a>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(
-                            {
-                              id: product.id,
-                              title: product.title,
-                              category: 'Workspace Gear',
-                              price: product.price,
-                              originalPrice: product.originalPrice,
-                              rating: product.rating,
-                              reviewsCount: product.reviewsCount,
-                              inStock: product.inStock,
-                              stockCount: product.stockCount,
-                              badge: product.badge,
-                              description: product.description,
-                              highlights: product.highlights,
-                              specs: product.specs,
-                              image: product.mainImage,
-                              isDigital: product.isDigital
-                            },
-                            1
-                          );
-                        }}
-                        className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors cursor-pointer"
-                        title="Add to Shopping Bag"
-                      >
-                        <ShoppingBag className="w-4 h-4" />
-                      </button>
+                      {product.price > 0 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(
+                              {
+                                id: product.id,
+                                title: product.title,
+                                category: 'Workspace Gear',
+                                price: product.price,
+                                originalPrice: product.originalPrice,
+                                rating: product.rating,
+                                reviewsCount: product.reviewsCount,
+                                inStock: product.inStock,
+                                stockCount: product.stockCount,
+                                badge: product.badge,
+                                description: product.description,
+                                highlights: product.highlights,
+                                specs: product.specs,
+                                image: product.mainImage,
+                                isDigital: product.isDigital
+                              },
+                              1
+                            );
+                          }}
+                          className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors cursor-pointer"
+                          title="Add to Shopping Bag"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
-
                   </div>
                 </div>
               );
@@ -860,21 +955,18 @@ export const StoreSection: React.FC = () => {
           </div>
         )}
 
-        {/* Floating Product Comparison Dock */}
         <ProductCompareDock
           comparedProducts={comparedProducts}
           onRemove={(id) => setComparedProducts((prev) => prev.filter((p) => p.id !== id))}
           onClear={() => setComparedProducts([])}
         />
 
-        {/* Modern Detailed Product Quick View Modal */}
         <ModernProductModal
           product={activeQuickViewProduct}
           onClose={() => setActiveQuickViewProduct(null)}
           onToggleCompare={handleToggleCompare}
           isCompared={comparedProducts.some((p) => p.id === activeQuickViewProduct?.id)}
         />
-
       </div>
     </section>
   );

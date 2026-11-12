@@ -1,97 +1,142 @@
 import React, { useState } from 'react';
-import { Mail, CheckCircle2, Send, ExternalLink, ShieldCheck, Zap, Globe, Sparkles } from 'lucide-react';
+import { Mail, CheckCircle2, Send, Globe, Copy, Check } from 'lucide-react';
+
+interface SentInquiry {
+  id: string;
+  senderName: string;
+  senderEmail: string;
+  inquiryType: string;
+  message: string;
+  createdAt: string;
+}
 
 export const AboutContactSection: React.FC = () => {
   const [senderName, setSenderName] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
   const [inquiryType, setInquiryType] = useState('Online Business Guidance');
   const [message, setMessage] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [preparedMailto, setPreparedMailto] = useState<string | null>(null);
+  const [lastPayloadText, setLastPayloadText] = useState('');
+  const [copiedInquiry, setCopiedInquiry] = useState(false);
+
+  const buildInquiryText = () =>
+    [
+      `MRS DIGITAL DIRECT INQUIRY`,
+      `From: ${senderName.trim()} <${senderEmail.trim()}>`,
+      `Topic: ${inquiryType}`,
+      ``,
+      `Message:`,
+      message.trim()
+    ].join('\n');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!senderName || !senderEmail || !message) return;
+    if (!senderName.trim() || !senderEmail.trim() || !message.trim()) return;
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSubmitted(true);
-    }, 1000);
+    const payloadText = buildInquiryText();
+    const subject = `[MRS Digital · ${inquiryType}] Inquiry from ${senderName.trim()}`;
+    const mailtoUrl = `mailto:mrxshahin@proton.me?cc=mahbubsh539@gmail.com&subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(payloadText)}`;
+
+    try {
+      const saved = localStorage.getItem('mrs_sent_inquiries');
+      const existing: SentInquiry[] = saved ? JSON.parse(saved) : [];
+      const next: SentInquiry[] = [
+        {
+          id: `INQ-${Date.now()}`,
+          senderName: senderName.trim(),
+          senderEmail: senderEmail.trim(),
+          inquiryType,
+          message: message.trim(),
+          createdAt: new Date().toISOString()
+        },
+        ...(Array.isArray(existing) ? existing : [])
+      ].slice(0, 10);
+      localStorage.setItem('mrs_sent_inquiries', JSON.stringify(next));
+    } catch {
+      // storage unavailable
+    }
+
+    setLastPayloadText(payloadText);
+    setPreparedMailto(mailtoUrl);
+    window.location.href = mailtoUrl;
+  };
+
+  const handleCopyInquiry = () => {
+    navigator.clipboard.writeText(lastPayloadText);
+    setCopiedInquiry(true);
+    setTimeout(() => setCopiedInquiry(false), 2000);
   };
 
   return (
     <section id="about-contact" className="py-16 bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Upgrade Comparison Card */}
+        {/* Platform Architecture Card */}
         <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-8 sm:p-10 mb-16 shadow-xl border border-slate-700">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
             <div className="lg:col-span-7 space-y-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
-                <span>The Platform Story</span>
+                <span>Standalone Storefront</span>
                 <span aria-hidden="true">·</span>
-                <span>From Legacy Architecture to Modern Web Standard</span>
+                <span>Self-Contained Architecture</span>
               </div>
-              
+
               <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-tight [text-wrap:balance]">
-                The Evolution of MRS Digital
+                Built for Speed, Clarity &amp; Direct Commerce
               </h3>
 
               <p className="text-sm text-slate-300 leading-relaxed">
-                Modern digital commerce and automated affiliate architecture require instantaneous speed, secure client-side cart mechanics, live financial simulators, and curated high-performance workspace gear.
+                MRS Digital delivers direct partner links to Amazon Associates and Shopz BD, persistent client-side shopping bag and downloadable HTML invoices, interactive ROI unit-economics calculations, and verified hardware guides with zero server bottlenecks.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Sub-100ms React &amp; Vite engine replacing sluggish legacy templates</span>
+                  <span>Zero-backend static React &amp; Vite build that runs anywhere independently</span>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Interactive unit-economics ROI calculator with real mathematical projections</span>
+                  <span>Interactive unit-economics ROI calculator with real mathematical formulas</span>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Slide-over shopping bag with multi-currency support and promo coupons</span>
+                  <span>Persistent local bag, multi-currency conversion &amp; downloadable invoices</span>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Direct founder accessibility with zero generic intermediaries</span>
+                  <span>Direct founder email access with zero intermediaries</span>
                 </div>
               </div>
             </div>
 
-            {/* Side Comparison Box */}
+            {/* Side Architecture Box */}
             <div className="lg:col-span-5 bg-slate-800/90 rounded-xl p-5 border border-slate-700 space-y-3 text-xs">
               <div className="font-bold text-white text-sm pb-2 border-b border-slate-700">
-                Core Architectural Benchmark
+                Verified Platform Specifications
               </div>
               <div className="flex justify-between py-1 border-b border-slate-700/60">
-                <span className="text-slate-400">Legacy Architecture</span>
-                <span className="text-slate-300 font-mono">Static Monolith / 2018 Stack</span>
+                <span className="text-slate-400">Runtime Engine</span>
+                <span className="text-emerald-400 font-mono font-semibold">React 19 + Vite Static Build</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-700/60">
-                <span className="text-slate-400">New Modern Flagship</span>
-                <span className="text-emerald-400 font-mono font-semibold">React 19 + Tailwind CSS</span>
+                <span className="text-slate-400">Partner Fulfillment</span>
+                <span className="text-emerald-400 font-mono font-semibold">Amazon Prime &amp; Shopz BD</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-700/60">
-                <span className="text-slate-400">Store Capability</span>
-                <span className="text-emerald-400 font-mono font-semibold">Live Drawer, Cart &amp; Receipts</span>
+                <span className="text-slate-400">Order Workflow</span>
+                <span className="text-emerald-400 font-mono font-semibold">HTML Invoices &amp; Direct Email</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-slate-400">Mobile Responsive</span>
-                <span className="text-emerald-400 font-mono font-semibold">100% Mobile Optimized</span>
+                <span className="text-slate-400">Device Support</span>
+                <span className="text-emerald-400 font-mono font-semibold">100% Responsive Mobile &amp; Desktop</span>
               </div>
             </div>
-
           </div>
         </div>
 
         {/* Founder & Direct Inquiry Form */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
           {/* Left Column: Creator Identity */}
           <div className="lg:col-span-5 space-y-5">
             <div>
@@ -106,7 +151,7 @@ export const AboutContactSection: React.FC = () => {
             </div>
 
             <p className="text-sm text-slate-600 leading-relaxed">
-              Whether you are planning your first digital template, needing an asynchronous technical diagnostic on your workstation, or looking to partner on hardware distribution, you communicate directly with the creator.
+              Whether you are planning a digital product, needing an asynchronous technical diagnostic on your workstation, or inquiring about bulk hardware sourcing, you communicate directly with the creator.
             </p>
 
             <div className="space-y-3 text-xs text-slate-700">
@@ -132,35 +177,68 @@ export const AboutContactSection: React.FC = () => {
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500">
-              <strong className="text-slate-800 block mb-1">Response Guarantee:</strong>
-              All verified business inquiries, hardware order support, and consulting requests receive a response within 24 business hours.
+              <strong className="text-slate-800 block mb-1">Response Commitment:</strong>
+              All direct inquiries, hardware order support, and consulting requests receive a personal reply within 24 business hours.
             </div>
           </div>
 
-          {/* Right Column: Interactive Inquiry Form */}
+          {/* Right Column: Direct Email Inquiry Composer */}
           <div className="lg:col-span-7 bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8">
             <h4 className="text-base font-bold text-slate-900 mb-1">
-              Send a Message or Project Request
+              Compose Direct Email Inquiry
             </h4>
             <p className="text-xs text-slate-500 mb-6">
-              Complete the intake below to receive tailored advice or initiate custom store orders.
+              Submitting opens your email client pre-addressed to Shahin with your formatted message ready to send.
             </p>
 
-            {submitted ? (
-              <div className="p-8 text-center bg-white rounded-xl border border-emerald-200 space-y-3">
+            {preparedMailto ? (
+              <div className="p-6 text-center bg-white rounded-xl border border-emerald-200 space-y-4">
                 <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h5 className="text-base font-bold text-slate-900">Message Received</h5>
-                <p className="text-xs text-slate-600 max-w-sm mx-auto">
-                  Thank you, <strong>{senderName}</strong>. Your inquiry has been routed to Shahin. A reply will arrive at <strong>{senderEmail}</strong> shortly.
+                <h5 className="text-base font-bold text-slate-900">Inquiry Draft Ready to Send</h5>
+                <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                  Thank you, <strong>{senderName}</strong>. Your browser email app was opened with a pre-filled message to{' '}
+                  <strong className="font-mono">mrxshahin@proton.me</strong>. If it did not open automatically, copy the message below or click the button to launch your mail client.
                 </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="mt-3 text-xs font-semibold text-slate-900 underline underline-offset-4 cursor-pointer"
-                >
-                  Send Another Inquiry
-                </button>
+
+                <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                  <a
+                    href={preparedMailto}
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Open Email App</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyInquiry}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    {copiedInquiry ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-emerald-700">Copied Inquiry</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Message Summary</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setPreparedMailto(null)}
+                    className="text-xs font-semibold text-slate-600 hover:text-slate-900 underline underline-offset-4 cursor-pointer"
+                  >
+                    Compose Another Inquiry
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -170,7 +248,7 @@ export const AboutContactSection: React.FC = () => {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Alex Rivera"
+                      placeholder="Your full name"
                       value={senderName}
                       onChange={(e) => setSenderName(e.target.value)}
                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-slate-900"
@@ -182,7 +260,7 @@ export const AboutContactSection: React.FC = () => {
                     <input
                       type="email"
                       required
-                      placeholder="alex@domain.com"
+                      placeholder="you@domain.com"
                       value={senderEmail}
                       onChange={(e) => setSenderEmail(e.target.value)}
                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-slate-900"
@@ -218,19 +296,15 @@ export const AboutContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{loading ? 'Dispatching...' : 'Submit Inquiry'}</span>
+                  <span>Send Direct Email Inquiry</span>
                 </button>
               </form>
             )}
-
           </div>
-
         </div>
-
       </div>
     </section>
   );

@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => onNavigate('roi-calculator')}
                   className="hover:text-white transition-colors"
                 >
-                  Profit &amp; ROI Simulator
+                  Profit &amp; ROI Calculator
                 </button>
               </li>
               <li>
@@ -84,17 +84,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Trust & Guarantees (Col 4) */}
           <div className="md:col-span-4 space-y-3">
             <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
-              Commerce &amp; Shipping Commitments
+              Commerce &amp; Partner Fulfillment
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              Orders over $50 include free worldwide express shipping. All digital downloads include instant Notion and PDF vault keys. 30-day money-back guarantee on all physical workspace gear.
+              Amazon Prime and Shopz BD purchases process directly through official partner stores with 30-day return protections and manufacturer warranties. Local bag orders generate downloadable HTML invoices and direct email dispatch.
             </p>
             <div className="pt-2 flex items-center gap-4 text-[11px] text-slate-500">
               <span className="flex items-center gap-1 text-emerald-400">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>SSL Encrypted Checkout</span>
+                <span>Verified Partner Tracking</span>
               </span>
-              <span>Visa · Mastercard · Crypto · COD</span>
+              <span>Amazon · Shopz BD · COD · Invoice</span>
             </div>
           </div>
 
