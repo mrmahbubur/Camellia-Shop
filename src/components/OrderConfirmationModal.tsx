@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, Printer, X, Package, Download, Mail, Copy, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+
+const escapeHtml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 export const OrderConfirmationModal: React.FC = () => {
   const { placedOrder, setPlacedOrder, formatPrice } = useCart();
   const [copiedSummary, setCopiedSummary] = useState(false);
+
+  useEffect(() => {
+    if (!placedOrder) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPlacedOrder(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [placedOrder, setPlacedOrder]);
 
   if (!placedOrder) return null;
 
@@ -50,14 +67,14 @@ export const OrderConfirmationModal: React.FC = () => {
       .map(
         (item) => `
           <tr>
-            <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;">${item.product.title}</td>
+            <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(item.product.title)}</td>
             <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">${item.quantity}</td>
-            <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:right;">${formatPrice(
+            <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:right;">${escapeHtml(formatPrice(
               item.product.price
-            )}</td>
-            <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;">${formatPrice(
+            ))}</td>
+            <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;">${escapeHtml(formatPrice(
               item.product.price * item.quantity
-            )}</td>
+            ))}</td>
           </tr>`
       )
       .join('');
@@ -66,7 +83,7 @@ export const OrderConfirmationModal: React.FC = () => {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Invoice ${placedOrder.orderId} - MRS Digital</title>
+  <title>Invoice ${escapeHtml(placedOrder.orderId)} - MRS Digital</title>
 </head>
 <body style="font-family:system-ui,-apple-system,sans-serif;color:#0f172a;max-width:720px;margin:40px auto;padding:24px;line-height:1.5;">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:16px;margin-bottom:24px;">
@@ -75,16 +92,16 @@ export const OrderConfirmationModal: React.FC = () => {
       <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Official Order Summary &amp; Invoice</p>
     </div>
     <div style="text-align:right;font-size:13px;">
-      <div><strong>Order ID:</strong> ${placedOrder.orderId}</div>
-      <div><strong>Date:</strong> ${placedOrder.date}</div>
+      <div><strong>Order ID:</strong> ${escapeHtml(placedOrder.orderId)}</div>
+      <div><strong>Date:</strong> ${escapeHtml(placedOrder.date)}</div>
     </div>
   </div>
   <div style="background:#f8fafc;padding:16px;border-radius:8px;margin-bottom:24px;font-size:13px;">
-    <div><strong>Customer:</strong> ${placedOrder.customerName} (${placedOrder.email})</div>
-    ${placedOrder.phone ? `<div><strong>Phone:</strong> ${placedOrder.phone}</div>` : ''}
-    <div><strong>Delivery Address:</strong> ${placedOrder.address}</div>
-    <div><strong>Settlement:</strong> ${placedOrder.paymentMethod}</div>
-    ${placedOrder.notes ? `<div><strong>Notes:</strong> ${placedOrder.notes}</div>` : ''}
+    <div><strong>Customer:</strong> ${escapeHtml(placedOrder.customerName)} (${escapeHtml(placedOrder.email)})</div>
+    ${placedOrder.phone ? `<div><strong>Phone:</strong> ${escapeHtml(placedOrder.phone)}</div>` : ''}
+    <div><strong>Delivery Address:</strong> ${escapeHtml(placedOrder.address)}</div>
+    <div><strong>Settlement:</strong> ${escapeHtml(placedOrder.paymentMethod)}</div>
+    ${placedOrder.notes ? `<div><strong>Notes:</strong> ${escapeHtml(placedOrder.notes)}</div>` : ''}
   </div>
   <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;">
     <thead>
@@ -137,8 +154,14 @@ export const OrderConfirmationModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="relative bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] overflow-y-auto">
+    <div
+      onClick={() => setPlacedOrder(null)}
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] overflow-y-auto"
+      >
         {/* Top Header Banner */}
         <div className="bg-slate-900 text-white p-6 text-center relative">
           <button

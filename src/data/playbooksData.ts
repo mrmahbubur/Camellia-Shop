@@ -94,5 +94,25 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     toolsStack: ['Loom / CleanShot X', 'Cal.com / Stripe', 'Figma / Markdown Checklist', 'Tally Forms'],
     mrsTip: 'Async consulting preserves your freedom. You record audits whenever you have peak focus, with zero schedule fatigue or time-zone friction.'
+  },
+  {
+    id: 'ecommerce-hardware',
+    title: 'Physical Desk Gear & Curated E-Commerce Storefront',
+    subtitle: 'Pair high-margin ergonomic desk accessories with Amazon Associates and regional partner fulfillment.',
+    timeToFirstDollar: '14-30 Days',
+    startupCapital: '$150 - $400',
+    marginRate: '52%',
+    difficulty: 'Intermediate',
+    monthlyPotential: '$2,000 - $12,000/mo',
+    overview: 'Combine signature workspace hardware kits with tracked Amazon Prime and regional electronics referrals so shoppers can either check out locally or buy direct through verified partner links.',
+    coreMechanism: 'Curate problem-solving workstation bundles (desk mats, monitor arms, GaN chargers), publish real setup breakdowns, and route high-intent buyers to direct checkout or partner storefronts.',
+    milestones: [
+      { step: '01. Curate High-Margin Core SKUs', description: 'Select 6-10 complementary ergonomic accessories with strong repeat demand and low return rates.', duration: 'Days 1-5' },
+      { step: '02. Produce Authentic Desk Setup Media', description: 'Photograph real lighting, cable management, and desk ergonomics to establish immediate buyer trust.', duration: 'Days 6-12' },
+      { step: '03. Launch Storefront & Partner Routing', description: 'Offer instant invoice/COD request options alongside Amazon Prime and Shopz BD partner checkout links.', duration: 'Days 13-20' },
+      { step: '04. Optimize Bundles & Cart AOV', description: 'Pair digital setup guides with physical desk gear to lift average order value by 25-40%.', duration: 'Day 21+' }
+    ],
+    toolsStack: ['React + Vite Storefront', 'Amazon Associates', 'Shopz BD Partner Program', 'Canva / Figma'],
+    mrsTip: 'Always pair high-ticket hardware with an entry-level accessory like a desk mat or GaN cable organizer so first-time visitors convert without hesitation.'
   }
 ];

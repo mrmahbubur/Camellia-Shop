@@ -62,6 +62,7 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, Er
 
 const MainLayout: React.FC = () => {
   const { activeNotification, dismissNotification } = useCart();
+  const [selectedPlaybookId, setSelectedPlaybookId] = React.useState<string | null>(null);
 
   const handleNavigate = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -94,10 +95,13 @@ const MainLayout: React.FC = () => {
         <AffiliateHubSection />
 
         <RoiCalculator
-          onSelectPlaybook={() => handleNavigate('blueprints')}
+          onSelectPlaybook={(playbookId) => {
+            setSelectedPlaybookId(playbookId);
+            handleNavigate('blueprints');
+          }}
         />
 
-        <PlaybooksSection />
+        <PlaybooksSection selectedPlaybookId={selectedPlaybookId} />
 
         <TechGuidesSection />
 

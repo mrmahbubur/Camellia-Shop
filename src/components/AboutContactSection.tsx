@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, CheckCircle2, Send, Globe, Copy, Check } from 'lucide-react';
+import { Mail, CheckCircle2, Send, Globe, Copy, Check, Trash2, Clock } from 'lucide-react';
 
 interface SentInquiry {
   id: string;
@@ -18,6 +18,16 @@ export const AboutContactSection: React.FC = () => {
   const [preparedMailto, setPreparedMailto] = useState<string | null>(null);
   const [lastPayloadText, setLastPayloadText] = useState('');
   const [copiedInquiry, setCopiedInquiry] = useState(false);
+  const [sentInquiries, setSentInquiries] = useState<SentInquiry[]>(() => {
+    try {
+      const saved = localStorage.getItem('mrs_sent_inquiries');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
 
   const buildInquiryText = () =>
     [
@@ -39,20 +49,18 @@ export const AboutContactSection: React.FC = () => {
       subject
     )}&body=${encodeURIComponent(payloadText)}`;
 
+    const newEntry: SentInquiry = {
+      id: `INQ-${Date.now()}`,
+      senderName: senderName.trim(),
+      senderEmail: senderEmail.trim(),
+      inquiryType,
+      message: message.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    const next = [newEntry, ...sentInquiries].slice(0, 10);
+    setSentInquiries(next);
     try {
-      const saved = localStorage.getItem('mrs_sent_inquiries');
-      const existing: SentInquiry[] = saved ? JSON.parse(saved) : [];
-      const next: SentInquiry[] = [
-        {
-          id: `INQ-${Date.now()}`,
-          senderName: senderName.trim(),
-          senderEmail: senderEmail.trim(),
-          inquiryType,
-          message: message.trim(),
-          createdAt: new Date().toISOString()
-        },
-        ...(Array.isArray(existing) ? existing : [])
-      ].slice(0, 10);
       localStorage.setItem('mrs_sent_inquiries', JSON.stringify(next));
     } catch {
       // storage unavailable
@@ -61,6 +69,31 @@ export const AboutContactSection: React.FC = () => {
     setLastPayloadText(payloadText);
     setPreparedMailto(mailtoUrl);
     window.location.href = mailtoUrl;
+  };
+
+  const handleDeleteInquiry = (id: string) => {
+    const next = sentInquiries.filter((item) => item.id !== id);
+    setSentInquiries(next);
+    try {
+      localStorage.setItem('mrs_sent_inquiries', JSON.stringify(next));
+    } catch {
+      // storage unavailable
+    }
+  };
+
+  const buildMailtoForInquiry = (inq: SentInquiry) => {
+    const body = [
+      `MRS DIGITAL DIRECT INQUIRY`,
+      `From: ${inq.senderName} <${inq.senderEmail}>`,
+      `Topic: ${inq.inquiryType}`,
+      ``,
+      `Message:`,
+      inq.message
+    ].join('\n');
+    const subject = `[MRS Digital · ${inq.inquiryType}] Inquiry from ${inq.senderName}`;
+    return `mailto:mrxshahin@proton.me?cc=mahbubsh539@gmail.com&subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
   };
 
   const handleCopyInquiry = () => {
@@ -180,6 +213,47 @@ export const AboutContactSection: React.FC = () => {
               <strong className="text-slate-800 block mb-1">Response Commitment:</strong>
               All direct inquiries, hardware order support, and consulting requests receive a personal reply within 24 business hours.
             </div>
+
+            {sentInquiries.length > 0 && (
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2.5">
+                <div className="flex items-center justify-between font-bold text-slate-800">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Saved Inquiry History ({sentInquiries.length})</span>
+                  </span>
+                </div>
+                <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                  {sentInquiries.map((inq) => (
+                    <div
+                      key={inq.id}
+                      className="p-2.5 bg-white rounded-lg border border-slate-200/80 flex items-start justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-900 truncate">{inq.inquiryType}</div>
+                        <div className="text-[11px] text-slate-500 line-clamp-1">{inq.message}</div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <a
+                          href={buildMailtoForInquiry(inq)}
+                          title="Re-open in email app"
+                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold"
+                        >
+                          Email
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteInquiry(inq.id)}
+                          aria-label="Delete saved inquiry"
+                          className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Direct Email Inquiry Composer */}

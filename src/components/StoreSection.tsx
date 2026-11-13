@@ -157,11 +157,17 @@ export const StoreSection: React.FC = () => {
 
   const handleAddCustomProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customTitle.trim() || !customUrl.trim()) return;
+    const title = customTitle.trim();
+    const url = customUrl.trim();
+    if (!title || !url) return;
+    if (!/^https?:\/\//i.test(url)) {
+      showNotification('Please enter a valid URL starting with https:// or http://');
+      return;
+    }
     const numericPrice = parseFloat(customPrice) || 0;
     const added = addCustomAffiliateItem({
-      title: customTitle.trim(),
-      affiliateUrl: customUrl.trim(),
+      title,
+      affiliateUrl: url,
       price: numericPrice,
       category: customCategory,
       originStore: customStore
@@ -169,6 +175,8 @@ export const StoreSection: React.FC = () => {
     setCustomTitle('');
     setCustomUrl('');
     setCustomPrice('');
+    setCustomStore('Amazon');
+    setCustomCategory('Electronics & Gadgets');
     setShowAddCustomForm(false);
     showNotification(`Saved "${added.title}" to your catalog`);
   };
@@ -384,8 +392,9 @@ export const StoreSection: React.FC = () => {
                 onChange={(e) => {
                   const val = e.target.value as 'Amazon' | 'Shopz BD';
                   setCustomStore(val);
-                  if (val === 'Shopz BD') setCustomCategory('Shopz BD Tech Deals');
+                  setCustomCategory(val === 'Shopz BD' ? 'Shopz BD Tech Deals' : 'Electronics & Gadgets');
                 }}
+                aria-label="Partner Store"
                 className="lg:col-span-1 px-2 py-2 bg-slate-950/90 border border-slate-600 rounded-lg text-white focus:outline-hidden"
               >
                 <option value="Amazon">Amazon</option>
@@ -397,6 +406,23 @@ export const StoreSection: React.FC = () => {
               >
                 Save to Catalog
               </button>
+              <div className="sm:col-span-2 lg:col-span-12 flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-1">
+                <span>Department:</span>
+                <select
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value as ProductCategory)}
+                  aria-label="Product Department"
+                  className="px-2.5 py-1 bg-slate-950/90 border border-slate-600 rounded-md text-white focus:outline-hidden"
+                >
+                  {categories
+                    .filter((c) => c !== 'All Departments (Mega Store)')
+                    .map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </form>
           )}
         </div>
@@ -822,6 +848,7 @@ export const StoreSection: React.FC = () => {
             {filteredProducts.map((product) => {
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isShopz = product.originStore === 'Shopz BD';
+              const isCompared = comparedProducts.some((p) => p.id === product.id);
 
               return (
                 <div
@@ -845,6 +872,19 @@ export const StoreSection: React.FC = () => {
                       >
                         {product.badge}
                       </span>
+                    )}
+                    {product.isUserAdded && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCustomProduct(product.id);
+                        }}
+                        title="Remove saved listing"
+                        className="absolute top-2 right-2 p-1.5 bg-slate-900/80 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     )}
                   </div>
 
@@ -873,8 +913,25 @@ export const StoreSection: React.FC = () => {
                       {product.description}
                     </p>
 
-                    <div className="text-[11px] text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 inline-block font-medium">
-                      ✓ {isShopz ? 'Shopz BD Official Storefront Referral' : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="text-[11px] text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 inline-block font-medium">
+                        ✓ {isShopz ? 'Shopz BD Official Storefront Referral' : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleCompare(product);
+                        }}
+                        className={`flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                          isCompared
+                            ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold'
+                            : 'bg-white border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                        }`}
+                      >
+                        <Layers className="w-3 h-3" />
+                        <span>{isCompared ? 'Compared' : 'Compare'}</span>
+                      </button>
                     </div>
                   </div>
 

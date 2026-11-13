@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layers, X, ExternalLink, Star } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { useCart } from '../context/CartContext';
@@ -18,6 +18,15 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
   const { formatPrice } = useCart();
   const { getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsModalOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isModalOpen]);
 
   if (comparedProducts.length === 0) return null;
 
@@ -70,8 +79,14 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
 
       {/* Comparison Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 sm:p-8">
+        <div
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 sm:p-8"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wider text-amber-600 mb-1">

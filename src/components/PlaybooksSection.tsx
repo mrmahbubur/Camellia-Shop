@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, CheckCircle2, Clock, DollarSign, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { PLAYBOOKS, Playbook } from '../data/playbooksData';
 
-export const PlaybooksSection: React.FC = () => {
+interface PlaybooksSectionProps {
+  selectedPlaybookId?: string | null;
+}
+
+export const PlaybooksSection: React.FC<PlaybooksSectionProps> = ({ selectedPlaybookId }) => {
   const [expandedPlaybookId, setExpandedPlaybookId] = useState<string>(PLAYBOOKS[0].id);
+
+  useEffect(() => {
+    if (selectedPlaybookId && PLAYBOOKS.some((p) => p.id === selectedPlaybookId)) {
+      setExpandedPlaybookId(selectedPlaybookId);
+    }
+  }, [selectedPlaybookId]);
 
   const toggleExpand = (id: string) => {
     setExpandedPlaybookId(expandedPlaybookId === id ? '' : id);

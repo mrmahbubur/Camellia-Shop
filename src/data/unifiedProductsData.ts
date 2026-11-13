@@ -1,5 +1,11 @@
 import amazonMouseMxImg from '../assets/images/amazon_mouse_mx_1792276213882.jpg';
 import amazonScreenbarLightImg from '../assets/images/amazon_screenbar_light_1792276214090.jpg';
+import deskMatImg from '../assets/images/product_desk_mat_1792262853724.jpg';
+import ancHeadphonesImg from '../assets/images/product_anc_headphones_1792262854275.jpg';
+import growthBundleImg from '../assets/images/product_growth_bundle_1792262856034.jpg';
+import headphoneStandImg from '../assets/images/product_headphone_stand_1792314477623.jpg';
+import magsafeChargerImg from '../assets/images/product_magsafe_charger_1792314477779.jpg';
+import monitorArmImg from '../assets/images/product_monitor_arm_1792314478188.jpg';
 
 export interface ProductSpec {
   label: string;
@@ -945,5 +951,250 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     commissionRate: 8,
     commissionNote: 'Verified Shopz BD Partner Referral',
     originStore: 'Shopz BD'
+  },
+
+  // =========================================================================
+  // 3. MRS SIGNATURE WORKSPACE GEAR & DIGITAL KITS (LOCAL STUDIO ASSETS)
+  // =========================================================================
+  {
+    id: 'mrs-desk-mat',
+    title: 'MRS Dual-Surface Executive Desk Mat with Magnetic Cable Anchor',
+    brand: 'MRS Signature',
+    category: 'Office & Workspace',
+    department: 'Desk Accessories',
+    isAccessory: true,
+    price: 49.00,
+    originalPrice: 65.00,
+    rating: 4.9,
+    reviewsCount: 142,
+    badge: 'MRS Bestseller',
+    primeEligible: true,
+    deliveryEstimate: 'Ships in 24 Hours · 30-Day Guarantee',
+    affiliateUrl: AMAZON_STORE_URL,
+    inStock: true,
+    stockCount: 28,
+    mainImage: deskMatImg,
+    galleryImages: [deskMatImg],
+    description: 'Precision-engineered felt and vegan leather workspace mat with embedded magnetic cable routing channel, anti-fray stitched edging, and spill-resistant surface.',
+    highlights: [
+      'Dual reversible finish: smooth vegan leather and high-density wool felt',
+      'Embedded neodymium magnetic cable anchor keeps USB-C cords organized',
+      'Water-repellent surface protects your desk against coffee and spills',
+      'Large 900 x 420 mm footprint fits full mechanical keyboards and mice'
+    ],
+    specs: [
+      { label: 'Dimensions', value: '900 x 420 x 4 mm' },
+      { label: 'Material', value: 'Merino Felt + Vegan PU Leather' },
+      { label: 'Cable Channel', value: 'N52 Magnetic Snap Anchor' },
+      { label: 'Weight', value: '620 grams' }
+    ],
+    reviews: [
+      {
+        author: 'Daniel V. (Product Lead)',
+        rating: 5,
+        date: 'October 20, 2026',
+        title: 'Cleanest desk mat upgrade I have bought',
+        comment: 'The magnetic cable clip stops my charging cable from falling behind the desk every single day.',
+        verifiedAmazonPurchase: true
+      }
+    ],
+    commissionRate: 6,
+    commissionNote: 'MRS Curated Hardware',
+    originStore: 'Amazon'
+  },
+  {
+    id: 'mrs-monitor-arm-pro',
+    title: 'MRS Heavy-Duty Gas Spring Single Monitor Arm (17" to 35" Ultrawide)',
+    brand: 'MRS Signature',
+    category: 'Office & Workspace',
+    department: 'Monitor Mounts',
+    isAccessory: true,
+    price: 89.00,
+    originalPrice: 119.00,
+    rating: 4.9,
+    reviewsCount: 215,
+    badge: 'Ergonomic Pick',
+    primeEligible: true,
+    deliveryEstimate: 'FREE Two-Day Delivery with Prime',
+    affiliateUrl: AMAZON_STORE_URL,
+    inStock: true,
+    stockCount: 17,
+    mainImage: monitorArmImg,
+    galleryImages: [monitorArmImg],
+    description: 'Aerospace-grade aluminum pneumatic monitor arm engineered to reclaim desk space and align your 4K or ultrawide display at exact ergonomic eye level.',
+    highlights: [
+      'Supports 17" to 35" flat and curved monitors up to 26.4 lbs (VESA 75/100)',
+      'Internal cable concealment channels keep power and DisplayPort cords hidden',
+      '360-degree portrait/landscape rotation with smooth tilt and swivel',
+      'Includes both C-clamp and grommet desk mounting hardware'
+    ],
+    specs: [
+      { label: 'Weight Capacity', value: '4.4 - 26.4 lbs (2 - 12 kg)' },
+      { label: 'VESA Standard', value: '75x75mm & 100x100mm' },
+      { label: 'Adjustment', value: 'Pneumatic Gas Spring' },
+      { label: 'Finish', value: 'Matte Anodized Aluminum' }
+    ],
+    reviews: [],
+    commissionRate: 5,
+    commissionNote: 'MRS Curated Hardware',
+    originStore: 'Amazon'
+  },
+  {
+    id: 'mrs-magsafe-3in1-dock',
+    title: 'MRS 3-in-1 Qi2 Magnetic Wireless Desk Charging Station (15W Fast Charge)',
+    brand: 'MRS Signature',
+    category: 'Smart Home & Power',
+    department: 'Wireless Chargers',
+    isAccessory: true,
+    price: 64.00,
+    originalPrice: 84.00,
+    rating: 4.8,
+    reviewsCount: 176,
+    badge: 'Qi2 Certified',
+    primeEligible: true,
+    deliveryEstimate: 'FREE Prime One-Day Delivery',
+    affiliateUrl: AMAZON_STORE_URL,
+    inStock: true,
+    stockCount: 31,
+    mainImage: magsafeChargerImg,
+    galleryImages: [magsafeChargerImg],
+    description: 'Weighted CNC aluminum charging stand powering your phone (15W MagSafe/Qi2), watch, and wireless earbuds simultaneously from a single USB-C cable.',
+    highlights: [
+      'Certified 15W magnetic fast wireless charging for iPhone and Qi2 devices',
+      'Weighted anti-slip metal base allows effortless one-handed detachment',
+      'Dedicated watch fast-charge puck and 5W AirPods charging pad',
+      'Supports StandBy nightstand mode in horizontal orientation'
+    ],
+    specs: [
+      { label: 'Phone Output', value: '15W MagSafe / Qi2 Fast Charge' },
+      { label: 'Input', value: 'USB-C PD (30W Adapter Included)' },
+      { label: 'Construction', value: 'CNC Machined Aluminum + Silicone' },
+      { label: 'Safety', value: 'Foreign Object & Thermal Protection' }
+    ],
+    reviews: [],
+    commissionRate: 5,
+    commissionNote: 'MRS Curated Hardware',
+    originStore: 'Amazon'
+  },
+  {
+    id: 'mrs-headphone-stand-hub',
+    title: 'MRS Weighted Aluminum Headphone Stand with Integrated USB-C Desk Base',
+    brand: 'MRS Signature',
+    category: 'Audio & Headphones',
+    department: 'Audio Accessories',
+    isAccessory: true,
+    price: 39.00,
+    originalPrice: 49.00,
+    rating: 4.8,
+    reviewsCount: 129,
+    badge: 'Studio Essential',
+    primeEligible: true,
+    deliveryEstimate: 'FREE Two-Day Delivery with Prime',
+    affiliateUrl: AMAZON_STORE_URL,
+    inStock: true,
+    stockCount: 24,
+    mainImage: headphoneStandImg,
+    galleryImages: [headphoneStandImg],
+    description: 'Contoured soft-silicone headband cradle prevents creasing on studio headphones, paired with a weighted aluminum tray for adapters and keys.',
+    highlights: [
+      'Curved silicone rest distributes headband weight evenly without indenting foam',
+      'Weighted anodized aluminum base keeps heavy studio cans tip-proof',
+      'Integrated lower valet tray holds USB drives, SD cards, and earbuds',
+      'Matches dark slate and space-gray Mac/PC desk setups'
+    ],
+    specs: [
+      { label: 'Height', value: '275 mm (Fits All Over-Ear Headphones)' },
+      { label: 'Material', value: 'Anodized Aluminum + Matte Silicone' },
+      { label: 'Base Pad', value: 'Non-slip Micro-Suction Base' },
+      { label: 'Weight', value: '480 grams' }
+    ],
+    reviews: [],
+    commissionRate: 5,
+    commissionNote: 'MRS Curated Hardware',
+    originStore: 'Amazon'
+  },
+  {
+    id: 'mrs-anc-headphones',
+    title: 'MRS Studio Hybrid ANC Wireless Headphones (45-Hour Battery & USB-C DAC)',
+    brand: 'MRS Signature',
+    category: 'Audio & Headphones',
+    department: 'Studio Audio',
+    isAccessory: true,
+    price: 139.00,
+    originalPrice: 179.00,
+    rating: 4.8,
+    reviewsCount: 98,
+    badge: 'Staff Pick',
+    primeEligible: true,
+    deliveryEstimate: 'FREE Prime One-Day Delivery',
+    affiliateUrl: AMAZON_STORE_URL,
+    inStock: true,
+    stockCount: 15,
+    mainImage: ancHeadphonesImg,
+    galleryImages: [ancHeadphonesImg],
+    description: 'Acoustically tuned for deep focus and studio monitoring with 40mm beryllium drivers, -38dB noise cancellation, and 45-hour playback.',
+    highlights: [
+      'Active noise cancellation up to -38dB with natural transparency mode',
+      'Memory foam protein ear cushions engineered for all-day comfort',
+      'Multipoint Bluetooth 5.3 plus lossless USB-C and 3.5mm wired audio',
+      '10-minute rapid charge adds 5 hours of listening time'
+    ],
+    specs: [
+      { label: 'Battery Life', value: '45 Hours (ANC On) / 60 Hours (ANC Off)' },
+      { label: 'Driver Unit', value: '40mm Beryllium Diaphragm' },
+      { label: 'Noise Reduction', value: 'Quad-Mic -38dB ANC' },
+      { label: 'Connectivity', value: 'Bluetooth 5.3 + USB-C DAC + 3.5mm' }
+    ],
+    reviews: [],
+    commissionRate: 5,
+    commissionNote: 'MRS Curated Hardware',
+    originStore: 'Amazon'
+  },
+  {
+    id: 'mrs-growth-bundle',
+    title: 'MRS Online Business & Passive Income Master Vault (Playbooks + Notion OS)',
+    brand: 'MRS Digital',
+    category: 'Electronics & Gadgets',
+    department: 'Digital Kits',
+    isAccessory: false,
+    isDigital: true,
+    price: 67.00,
+    originalPrice: 99.00,
+    rating: 5.0,
+    reviewsCount: 310,
+    badge: 'Instant Digital Kit',
+    primeEligible: false,
+    deliveryEstimate: 'Instant Digital Delivery via Email Invoice',
+    affiliateUrl: AMAZON_STORE_URL,
+    inStock: true,
+    stockCount: 999,
+    mainImage: growthBundleImg,
+    galleryImages: [growthBundleImg],
+    description: 'Complete digital Notion Business OS and 240-page guide covering 12 online revenue playbooks, email automation templates, and P&L tracking spreadsheets.',
+    highlights: [
+      '12 step-by-step online monetization playbooks with execution timelines',
+      'Full Notion Business OS workspace: CRM, Content Pipeline, and P&L Tracker',
+      '42+ email sequences and 15 client agreement templates',
+      'Includes quarterly strategy updates at no extra fee'
+    ],
+    specs: [
+      { label: 'Format', value: 'Notion Workspace + 240-Page PDF' },
+      { label: 'Delivery', value: 'Instant Digital Access' },
+      { label: 'Templates', value: '42 Email Scripts + 15 Contracts' },
+      { label: 'License', value: 'Personal & Commercial Use' }
+    ],
+    reviews: [
+      {
+        author: 'Karim H. (Founder)',
+        rating: 5,
+        date: 'October 21, 2026',
+        title: 'Saved weeks of operational setup',
+        comment: 'The Notion P&L tracker and client onboarding SOPs paid for the kit on day one.',
+        verifiedAmazonPurchase: false
+      }
+    ],
+    commissionRate: 10,
+    commissionNote: 'MRS Digital Flagship',
+    originStore: 'Amazon'
   }
 ];

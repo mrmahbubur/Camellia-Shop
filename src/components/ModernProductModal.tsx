@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Star, Check, ShoppingCart, ShoppingBag, ShieldCheck, Zap, Truck, ArrowRight, ExternalLink, Layers, Award, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Star, Check, ShoppingCart, ShoppingBag, ShieldCheck, Zap, Truck, ArrowRight, ExternalLink, Layers, Award, Clock, Copy } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
@@ -23,6 +23,22 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'reviews' | 'guarantee'>('highlights');
   const [quantity, setQuantity] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+    setActiveTab('highlights');
+    setQuantity(1);
+    setCopiedLink(false);
+  }, [product?.id]);
+
+  useEffect(() => {
+    if (!product) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [product, onClose]);
 
   if (!product) return null;
 
@@ -56,14 +72,22 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(product.affiliateUrl);
+    navigator.clipboard.writeText(getAffiliateBuyUrl(product));
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const isShopz = product.originStore === 'Shopz BD';
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
-      <div className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200"
+      >
         
         {/* Floating Close Button */}
         <button
@@ -230,7 +254,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                     activeTab === 'guarantee' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Amazon Buyer Policy
+                  {isShopz ? 'Shopz BD Policy' : 'Amazon Buyer Policy'}
                 </button>
               </div>
 
@@ -313,34 +337,67 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
             {/* DUAL PURCHASE ACTIONS (High-Converting Conversion Engine) */}
             <div className="pt-4 border-t border-slate-200 space-y-3">
               
-              {/* Official Amazon Prime Buyer Protection Badge */}
-              <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-xs flex items-center justify-between text-amber-950 font-medium">
+              {/* Official Partner Buyer Protection Badge */}
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between font-medium ${
+                isShopz
+                  ? 'bg-emerald-50 border-emerald-200/80 text-emerald-950'
+                  : 'bg-amber-50 border-amber-200/80 text-amber-950'
+              }`}>
                 <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Official Amazon Prime Fulfillment · 30-Day A-to-z Guarantee</span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    {isShopz
+                      ? 'Official Shopz BD Referral Fulfillment · Express Courier Tracking'
+                      : 'Official Amazon Prime Fulfillment · 30-Day A-to-z Guarantee'}
+                  </span>
                 </span>
-                <span className="text-[10px] bg-amber-200/60 px-2 py-0.5 rounded text-amber-950 font-bold">Verified Prime</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
+                  isShopz ? 'bg-emerald-200/70 text-emerald-950' : 'bg-amber-200/60 text-amber-950'
+                }`}>
+                  {isShopz ? 'Shopz BD Verified' : 'Verified Prime'}
+                </span>
               </div>
 
-              {/* Primary Partner Purchase Button */}
-              <a
-                href={getAffiliateBuyUrl(product)}
-                target="_blank"
-                rel="noreferrer noopener sponsored"
-                onClick={() => recordAffiliateClick(product.id)}
-                className={`w-full py-3.5 px-4 font-extrabold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
-                  product.originStore === 'Shopz BD'
-                    ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
-                    : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
-                }`}
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>
-                  {product.originStore === 'Shopz BD' ? 'Buy on Shopz BD' : 'Buy on Amazon Prime'}
-                  {product.price > 0 ? ` · ${formatPrice(product.price)}` : ''}
-                </span>
-                <ExternalLink className="w-4 h-4 text-slate-900 ml-1" />
-              </a>
+              {/* Primary Partner Purchase Button + Copy Link */}
+              <div className="flex items-center gap-2">
+                <a
+                  href={getAffiliateBuyUrl(product)}
+                  target="_blank"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick(product.id)}
+                  className={`flex-1 py-3.5 px-4 font-extrabold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
+                    isShopz
+                      ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
+                  }`}
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>
+                    {isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon Prime'}
+                    {product.price > 0 ? ` · ${formatPrice(product.price)}` : ''}
+                  </span>
+                  <ExternalLink className="w-4 h-4 text-slate-900 ml-1" />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  title="Copy tracked partner link"
+                  className="py-3.5 px-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-600" />
+                      <span className="text-emerald-700">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span className="hidden sm:inline">Copy Link</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* Secondary Direct Bag Action */}
               {product.price > 0 && (
@@ -391,11 +448,11 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 text-center pt-2">
                 <div className="flex flex-col items-center">
                   <Truck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>Prime 1-2 Day</span>
+                  <span>{isShopz ? 'Express 24-48h' : 'Prime 1-2 Day'}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>30-Day Returns</span>
+                  <span>{isShopz ? 'Verified BD Seller' : '30-Day Returns'}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Award className="w-3.5 h-3.5 text-slate-400 mb-0.5" />

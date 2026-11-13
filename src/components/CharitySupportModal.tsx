@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Heart,
   X,
@@ -25,6 +25,15 @@ export const CharitySupportModal: React.FC = () => {
     pledgePercentage
   } = useCharity();
 
+  useEffect(() => {
+    if (!isCharityModalOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsCharityModalOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isCharityModalOpen, setIsCharityModalOpen]);
+
   if (!isCharityModalOpen) return null;
 
   const getCauseIcon = (name: string, isSelected: boolean) => {
@@ -48,9 +57,13 @@ export const CharitySupportModal: React.FC = () => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="charity-modal-title"
+      onClick={() => setIsCharityModalOpen(false)}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in"
     >
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+      >
         {/* Header */}
         <div className="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-600 p-6 text-white flex items-start justify-between relative">
           <div>

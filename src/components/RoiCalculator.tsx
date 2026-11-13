@@ -57,7 +57,7 @@ const BUSINESS_MODELS: BusinessModelConfig[] = [
     defaultOverhead: 350,
     marginMultiplier: 0.52,
     description: 'Direct-to-consumer ergonomic accessories, desk mats, and audio gear.',
-    linkedPlaybookId: 'mrs-desk-mat'
+    linkedPlaybookId: 'ecommerce-hardware'
   }
 ];
 
@@ -66,7 +66,7 @@ interface RoiCalculatorProps {
 }
 
 export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }) => {
-  const { formatPrice, currency } = useCart();
+  const { formatPrice, currency, showNotification } = useCart();
   const [selectedModelId, setSelectedModelId] = useState<string>('digital-templates');
 
   const activeModel = useMemo(() => {
@@ -126,6 +126,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    showNotification(`Exported ${activeModel.name} ROI summary (.txt)`);
   };
 
   return (

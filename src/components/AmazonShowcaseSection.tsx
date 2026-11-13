@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { ExternalLink, Star, Check, Zap, ShoppingCart, TrendingUp, ShieldCheck, ArrowRight, Info } from 'lucide-react';
-import { AMAZON_PRODUCTS, AmazonProduct } from '../data/amazonProductsData';
+import { ExternalLink, Star, Check, Zap, ShoppingCart, ShoppingBag, ShieldCheck, Info } from 'lucide-react';
+import { AMAZON_PRODUCTS } from '../data/amazonProductsData';
 import { useCart } from '../context/CartContext';
+import { useProducts } from '../context/ProductsContext';
 
 export const AmazonShowcaseSection: React.FC = () => {
-  const { formatPrice } = useCart();
+  const { formatPrice, addToCart } = useCart();
+  const { recordAffiliateClick } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showProfitExplainer, setShowProfitExplainer] = useState(false);
 
@@ -194,17 +196,49 @@ export const AmazonShowcaseSection: React.FC = () => {
                     <span>{product.deliveryInfo}</span>
                   </div>
 
-                  {/* Direct Buy On Amazon Button with user affiliate link */}
-                  <a
-                    href={product.affiliateUrl}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="w-full py-2.5 px-3 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    <span>Buy on Amazon (Prime)</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  {/* Direct Buy On Amazon + Add to Bag */}
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={product.affiliateUrl}
+                      target="_blank"
+                      rel="noreferrer noopener sponsored"
+                      onClick={() => recordAffiliateClick(product.id)}
+                      className="flex-1 py-2.5 px-3 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <span>Buy on Amazon (Prime)</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        addToCart(
+                          {
+                            id: product.id,
+                            title: product.title,
+                            category: 'Workspace Gear',
+                            price: product.price,
+                            originalPrice: product.originalPrice,
+                            rating: product.rating,
+                            reviewsCount: product.reviewsCount,
+                            inStock: true,
+                            stockCount: 25,
+                            badge: product.badge,
+                            description: product.description,
+                            highlights: product.features,
+                            specs: [{ label: 'ASIN', value: product.asin }],
+                            image: product.image
+                          },
+                          1
+                        )
+                      }
+                      title="Add to Shopping Bag"
+                      className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition-colors cursor-pointer shrink-0"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
               </div>

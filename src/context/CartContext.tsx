@@ -52,6 +52,7 @@ interface CartContextType {
   setPlacedOrder: (order: PlacedOrder | null) => void;
   orderHistory: PlacedOrder[];
   recordPlacedOrder: (order: PlacedOrder) => void;
+  removeSavedOrder: (orderId: string) => void;
   activeNotification: string | null;
   dismissNotification: () => void;
   showNotification: (msg: string) => void;
@@ -131,6 +132,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const recordPlacedOrder = (order: PlacedOrder) => {
     setOrderHistory((prev) => [order, ...prev].slice(0, 20));
     setPlacedOrder(order);
+  };
+
+  const removeSavedOrder = (orderId: string) => {
+    setOrderHistory((prev) => prev.filter((o) => o.orderId !== orderId));
   };
 
   const showNotification = (msg: string) => {
@@ -257,6 +262,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPlacedOrder,
         orderHistory,
         recordPlacedOrder,
+        removeSavedOrder,
         activeNotification,
         dismissNotification,
         showNotification

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { ExternalLink, Tag, Check, ShieldCheck, Sparkles, SlidersHorizontal, ArrowUpRight, DollarSign, Layers } from 'lucide-react';
-import { AFFILIATE_DEALS, AffiliateDeal } from '../data/affiliateData';
+import { AFFILIATE_DEALS } from '../data/affiliateData';
 import { useAffiliate } from '../context/AffiliateContext';
+import { useProducts } from '../context/ProductsContext';
 
 export const AffiliateHubSection: React.FC = () => {
   const { getAutomatedUrl } = useAffiliate();
+  const { recordAffiliateClick } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
@@ -144,7 +146,8 @@ export const AffiliateHubSection: React.FC = () => {
                   <a
                     href={affiliateUrl}
                     target="_blank"
-                    rel="noreferrer noopener"
+                    rel="noreferrer noopener sponsored"
+                    onClick={() => recordAffiliateClick(deal.id)}
                     className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                   >
                     <span>Claim Exclusive Deal</span>

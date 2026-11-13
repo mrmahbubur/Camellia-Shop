@@ -62,8 +62,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             </span>
           </button>
 
-          {/* Zone 2: 4-5 Clean single-line text navigation links */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+          {/* Zone 2: Clean single-line text navigation links */}
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-5 text-xs xl:text-sm font-medium text-slate-600">
             {/* Amazon Prime Deals Showing Option */}
             <button
               onClick={handleAmazonDealsClick}
@@ -96,13 +96,13 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
               onClick={() => handleNavClick('blueprints')}
               className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer"
             >
-              Income Playbooks
+              Playbooks
             </button>
             <button
               onClick={() => handleNavClick('roi-calculator')}
               className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer"
             >
-              Profit Calculator
+              Calculator
             </button>
             <button
               onClick={() => handleNavClick('guides')}
@@ -163,7 +163,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -173,7 +173,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3">
+          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <span className="text-xs text-slate-500">Currency</span>
               <div className="flex items-center gap-1 text-xs">
