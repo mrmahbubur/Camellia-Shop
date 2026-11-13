@@ -22,7 +22,7 @@
 
   <b:skin><![CDATA[
     /* -------------------------------------------------------------------------
-       MRS DIGITAL - UNIVERSAL MULTI-DEVICE RESPONSIVE THEME
+       CAMELLIA SHOP - UNIVERSAL MULTI-DEVICE RESPONSIVE THEME
        Tailored for: Android, iPhone, iPad, Foldables, Laptops & High-Res Desktops
        ------------------------------------------------------------------------- */
     *, *::before, *::after {
@@ -476,125 +476,6 @@
       transition: background 0.2s;
     }
 
-    /* AUTOMATIC SYSTEM: VISITOR'S CHOICE AUTO-INCLUSION */
-    .auto-engine-card {
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: clamp(14px, 3vw, 20px);
-      color: #ffffff;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-    .engine-head {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-    .engine-tag {
-      font-size: 10px;
-      font-weight: 800;
-      color: #fbbf24;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .engine-title {
-      font-size: clamp(15px, 3.5vw, 18px);
-      font-weight: 800;
-      color: #ffffff;
-    }
-    .engine-sub {
-      font-size: 11px;
-      color: #cbd5e1;
-    }
-    .engine-form {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .engine-input {
-      flex: 1;
-      min-width: 200px;
-      background: #020617;
-      border: 1px solid #475569;
-      color: #ffffff;
-      font-size: 12px;
-      padding: 10px 12px;
-      min-height: 44px;
-      border-radius: 10px;
-      outline: none;
-    }
-    .engine-input:focus {
-      border-color: #fbbf24;
-    }
-    .engine-select {
-      background: #1e293b;
-      border: 1px solid #475569;
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 10px 12px;
-      min-height: 44px;
-      border-radius: 10px;
-      outline: none;
-    }
-    .engine-btn {
-      background: #f59e0b;
-      color: #020617;
-      font-size: 12px;
-      font-weight: 800;
-      padding: 10px 16px;
-      min-height: 44px;
-      border-radius: 10px;
-      transition: background 0.2s;
-      white-space: nowrap;
-    }
-    @media (max-width: 600px) {
-      .engine-form {
-        flex-direction: column;
-      }
-      .engine-input, .engine-select, .engine-btn {
-        width: 100%;
-        min-width: 100%;
-      }
-    }
-    .chips-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      padding-top: 8px;
-      border-top: 1px solid #334155;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .chips-bar::-webkit-scrollbar {
-      display: none;
-    }
-    .chips-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #94a3b8;
-      white-space: nowrap;
-    }
-    .choice-chip {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #e2e8f0;
-      font-size: 11px;
-      padding: 6px 12px;
-      min-height: 32px;
-      border-radius: 8px;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .choice-chip:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-    }
-
     /* Store Section */
     .store-section {
       padding: clamp(24px, 5vw, 40px) 0;
@@ -1022,7 +903,7 @@
   <header class='site-header'>
     <div class='container header-inner'>
       <div class='brand-logo'>
-        <span>MRS DIGITAL</span>
+        <span>Camellia Shop</span>
         <span class='brand-tag'>E-COMMERCE</span>
       </div>
 
@@ -1088,35 +969,6 @@
   <!-- STOREFRONT SECTION -->
   <section class='store-section' id='store'>
     <div class='container'>
-      
-      <!-- AUTOMATIC SYSTEM: INCLUDE PRODUCTS BY VISITOR'S CHOICE AUTOMATICALLY -->
-      <div class='auto-engine-card'>
-        <div class='engine-head'>
-          <div class='engine-tag'>⚡ Automatic Product Inclusion Engine</div>
-          <div class='engine-title'>Find any gadget or hardware by your choice automatically</div>
-          <div class='engine-sub'>Type what you want to buy, and the engine automatically derives specs, image, and generates your affiliate tracking card.</div>
-        </div>
-
-        <div class='engine-form'>
-          <input class='engine-input' id='visitorChoiceInput' placeholder="e.g. 'ANC Earbuds', 'Keychron Keyboard', 'GaN Charger', 'Smartwatch'..." type='text'/>
-          <select class='engine-select' id='visitorPlatformSelect'>
-            <option value='Amazon'>Amazon Prime</option>
-            <option value='Shopz BD'>Shopz BD</option>
-          </select>
-          <button class='engine-btn' onclick='autoIncludeVisitorChoice()'>+ Auto-Include to Catalog</button>
-        </div>
-
-        <div class='chips-bar'>
-          <span class='chips-label'>Quick Choices:</span>
-          <button class='choice-chip' onclick='quickInclude("Wireless ANC Earbuds", "Amazon")'>+ ANC Earbuds (Amazon)</button>
-          <button class='choice-chip' onclick='quickInclude("Baseus 100W Power Bank", "Shopz BD")'>+ Baseus 100W (Shopz)</button>
-          <button class='choice-chip' onclick='quickInclude("Custom Mechanical Keyboard", "Amazon")'>+ Mechanical Keyboard</button>
-          <button class='choice-chip' onclick='quickInclude("Haylou AMOLED Smartwatch", "Shopz BD")'>+ Smartwatch (Shopz)</button>
-          <button class='choice-chip' onclick='quickInclude("4K Ergonomic Monitor", "Amazon")'>+ 4K Monitor</button>
-          <button class='choice-chip' onclick='quickInclude("Soundcore Motion+ Speaker", "Shopz BD")'>+ Speaker (Shopz)</button>
-        </div>
-      </div>
-
       <!-- Department Tabs Header -->
       <div class='section-head'>
         <div>
@@ -1536,7 +1388,7 @@
     <div class='container'>
       <div class='footer-grid'>
         <div>
-          <div style='font-weight:800; font-size:14px; color:#fff; margin-bottom:10px;'>MRS Digital Storefront</div>
+          <div style='font-weight:800; font-size:14px; color:#fff; margin-bottom:10px;'>Camellia Shop Storefront</div>
           <p style='line-height:1.5; margin-bottom:10px;'>
             High-converting e-commerce catalog featuring Amazon Prime Hardware and Shopz BD Deals. Official affiliate tracking enabled.
           </p>
@@ -1555,7 +1407,7 @@
         </div>
       </div>
       <div style='display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:11px; color:#64748b;'>
-        <div>© <script type='text/javascript'>document.write(new Date().getFullYear());</script> MRS Digital. All rights reserved.</div>
+        <div>© <script type='text/javascript'>document.write(new Date().getFullYear());</script> Camellia Shop. All rights reserved.</div>
         <div>Universal Multi-Device Responsive · Official Affiliate Tracked</div>
       </div>
     </div>
@@ -1626,81 +1478,6 @@
       });
     }
 
-
-
-    // AUTOMATIC SYSTEM: VISITOR'S CHOICE AUTO-INCLUSION
-    var imageCatalog = {
-      earbuds: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
-      keyboard: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80',
-      watch: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
-      monitor: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
-      power: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=800&auto=format&fit=crop&q=80',
-      speaker: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
-      default: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'
-    };
-
-    function autoIncludeVisitorChoice() {
-      var input = document.getElementById('visitorChoiceInput');
-      var keyword = input ? input.value.trim() : '';
-      var platformSelect = document.getElementById('visitorPlatformSelect');
-      var platform = platformSelect ? platformSelect.value : 'Amazon';
-      if (!keyword) return;
-      insertProductCard(keyword, platform);
-      if (input) input.value = '';
-    }
-
-    function quickInclude(keyword, platform) {
-      insertProductCard(keyword, platform);
-    }
-
-    function insertProductCard(keyword, platform) {
-      var container = document.getElementById('productContainer');
-      if (!container) return;
-
-      var lower = keyword.toLowerCase();
-      var img = imageCatalog.default;
-      if (lower.indexOf('earbud') !== -1 || lower.indexOf('headphone') !== -1 || lower.indexOf('anc') !== -1) {
-        img = imageCatalog.earbuds;
-      } else if (lower.indexOf('keyboard') !== -1) {
-        img = imageCatalog.keyboard;
-      } else if (lower.indexOf('watch') !== -1) {
-        img = imageCatalog.watch;
-      } else if (lower.indexOf('monitor') !== -1 || lower.indexOf('screen') !== -1) {
-        img = imageCatalog.monitor;
-      } else if (lower.indexOf('power') !== -1 || lower.indexOf('charger') !== -1 || lower.indexOf('100w') !== -1) {
-        img = imageCatalog.power;
-      } else if (lower.indexOf('speaker') !== -1) {
-        img = imageCatalog.speaker;
-      }
-
-      var isShopz = platform === 'Shopz BD';
-      var affiliateUrl = isShopz
-        ? 'https://www.shopz.com.bd/?s=' + encodeURIComponent(keyword) + '&post_type=product&ref=mahbubur-rahman-shahin'
-        : 'https://www.amazon.com/s?k=' + encodeURIComponent(keyword) + '&tag=mrxshahin1-20&linkCode=ll2&linkId=b0640e715d1eb5bbcc6b9a28347ac557';
-
-      var card = document.createElement('div');
-      card.className = 'product-card';
-      card.setAttribute('data-cat', isShopz ? 'shopz' : 'amazon');
-      card.style.border = '2px solid #f59e0b';
-
-      card.innerHTML =
-        '<div class="product-img-box">' +
-          '<img src="' + img + '" alt="' + keyword + '"/>' +
-          '<span class="' + (isShopz ? 'shopz-badge' : 'prime-badge') + '">Visitor Choice · ' + platform + '</span>' +
-        '</div>' +
-        '<div class="product-category">' + (isShopz ? 'Shopz BD Tech' : 'Amazon Prime Verified') + '</div>' +
-        '<h3 class="product-title">' + keyword + ' - High Performance Edition</h3>' +
-        '<div class="product-rating">★★★★★ (4.9 / Newly Added)</div>' +
-        '<div class="product-bottom">' +
-          '<div class="product-price">$59.99</div>' +
-          '<a class="' + (isShopz ? 'btn-buy-shopz' : 'btn-buy-amazon') + '" href="' + affiliateUrl + '" target="_blank" rel="noopener noreferrer">' +
-            (isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon') +
-          '</a>' +
-        '</div>';
-
-      container.insertBefore(card, container.firstChild);
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
   //]]>
   </script>
 </body>

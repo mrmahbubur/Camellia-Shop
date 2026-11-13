@@ -3,6 +3,7 @@ import { Layers, X, ExternalLink, Star } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
+import { ResilientImage } from './ResilientImage';
 
 interface ProductCompareDockProps {
   comparedProducts: EcomProduct[];
@@ -33,44 +34,45 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
   return (
     <>
       {/* Sticky Bottom Dock */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-4 animate-fade-in max-w-xl w-[92%] sm:w-auto">
-        <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold text-white">Compare</span>
+      <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-40 bg-slate-900 dark:bg-slate-800 text-white px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-2.5 sm:gap-4 animate-fade-in sm:max-w-xl sm:w-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <Layers className="w-4 h-4 text-amber-400 shrink-0" />
+          <span className="text-xs font-bold text-white hidden xs:inline">Compare</span>
           <span className="text-[11px] font-mono text-slate-400">({comparedProducts.length}/3)</span>
         </div>
 
         {/* Thumbnails */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
           {comparedProducts.map((p) => (
-            <div key={p.id} className="relative group">
-              <img
+            <div key={p.id} className="relative group shrink-0">
+              <ResilientImage
                 src={p.mainImage}
                 alt={p.title}
-                className="w-9 h-9 object-cover rounded-lg border border-slate-700 bg-white"
+                className="w-8 h-8 sm:w-9 sm:h-9 object-cover rounded-lg border border-slate-700 bg-white"
               />
               <button
                 onClick={() => onRemove(p.id)}
-                className="absolute -top-1.5 -right-1.5 bg-slate-800 text-slate-300 hover:text-white rounded-full p-0.5 cursor-pointer"
+                className="absolute -top-1 -right-1 bg-slate-800 text-slate-200 hover:text-white rounded-full p-0.5 cursor-pointer border border-slate-600"
                 title="Remove"
+                aria-label={`Remove ${p.title}`}
               >
-                <X className="w-3 h-3" />
+                <X className="w-2.5 h-2.5" />
               </button>
             </div>
           ))}
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            className="px-3 sm:px-3.5 min-h-[36px] py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-lg transition-colors cursor-pointer whitespace-nowrap"
           >
-            Compare Specs
+            Compare
           </button>
           <button
             onClick={onClear}
-            className="text-[11px] text-slate-400 hover:text-white underline cursor-pointer"
+            className="text-[11px] text-slate-300 hover:text-white underline cursor-pointer px-1 py-1"
           >
             Clear
           </button>
@@ -81,58 +83,64 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
       {isModalOpen && (
         <div
           onClick={() => setIsModalOpen(false)}
-          className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 sm:p-8"
+            className="relative bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90dvh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-8"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-amber-600 mb-1">
+                <div className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
                   Side-by-Side Product Comparison
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
                   Compare Specs &amp; Partner Pricing
                 </h3>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full cursor-pointer"
+                aria-label="Close comparison"
+                className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-full cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Comparison Matrix Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
+              <table className="w-full min-w-[520px] text-xs text-left">
                 <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="p-3 bg-slate-50 font-bold text-slate-700 w-1/4">Feature</th>
+                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                    <th className="p-3 bg-slate-50 dark:bg-slate-800/70 font-bold text-slate-700 dark:text-slate-200 w-1/4">
+                      Feature
+                    </th>
                     {comparedProducts.map((p) => (
-                      <th key={p.id} className="p-3 font-bold text-slate-900 text-center">
-                        <img
+                      <th key={p.id} className="p-3 font-bold text-slate-900 dark:text-white text-center">
+                        <ResilientImage
                           src={p.mainImage}
                           alt={p.title}
-                          className="w-16 h-16 object-cover rounded-lg mx-auto mb-2 border border-slate-200"
+                          className="w-16 h-16 object-cover rounded-lg mx-auto mb-2 border border-slate-200 dark:border-slate-700"
                         />
                         <div className="line-clamp-2 text-xs font-semibold">{p.title}</div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr>
-                    <td className="p-3 font-semibold text-slate-600 bg-slate-50">Price</td>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Price
+                    </td>
                     {comparedProducts.map((p) => (
-                      <td key={p.id} className="p-3 text-center font-mono font-bold text-sm text-slate-900">
+                      <td key={p.id} className="p-3 text-center font-mono font-bold text-sm text-slate-900 dark:text-white">
                         {p.price > 0 ? formatPrice(p.price) : 'Partner Pricing'}
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 font-semibold text-slate-600 bg-slate-50">Customer Rating</td>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Customer Rating
+                    </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center">
                         {p.rating > 0 ? (
@@ -148,17 +156,21 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 font-semibold text-slate-600 bg-slate-50">Category</td>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Category
+                    </td>
                     {comparedProducts.map((p) => (
-                      <td key={p.id} className="p-3 text-center text-slate-700 font-medium">
+                      <td key={p.id} className="p-3 text-center text-slate-700 dark:text-slate-300 font-medium">
                         {p.category}
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 font-semibold text-slate-600 bg-slate-50">Fulfillment</td>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Fulfillment
+                    </td>
                     {comparedProducts.map((p) => (
-                      <td key={p.id} className="p-3 text-center text-emerald-700 font-semibold">
+                      <td key={p.id} className="p-3 text-center text-emerald-700 dark:text-emerald-400 font-semibold">
                         {p.originStore === 'Shopz BD'
                           ? 'Shopz BD Courier'
                           : p.primeEligible
@@ -168,7 +180,9 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 font-semibold text-slate-600 bg-slate-50">Direct Purchase Outlet</td>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Direct Purchase Outlet
+                    </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center">
                         <a
@@ -176,7 +190,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                           target="_blank"
                           rel="noreferrer noopener sponsored"
                           onClick={() => recordAffiliateClick(p.id)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-2 text-slate-950 font-bold rounded-lg text-xs shadow-xs ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-2 text-slate-950 font-bold rounded-lg text-xs shadow-xs whitespace-nowrap ${
                             p.originStore === 'Shopz BD'
                               ? 'bg-emerald-500 hover:bg-emerald-400'
                               : 'bg-[#FF9900] hover:bg-[#e88b00]'
@@ -192,10 +206,10 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
               </table>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end pb-[env(safe-area-inset-bottom)]">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800"
+                className="px-5 min-h-[42px] py-2 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 rounded-lg text-xs font-semibold hover:bg-slate-800 dark:hover:bg-amber-300 cursor-pointer"
               >
                 Close Comparison
               </button>

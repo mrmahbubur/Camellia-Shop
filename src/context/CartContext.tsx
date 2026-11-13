@@ -189,10 +189,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const applyCoupon = (code: string) => {
     const trimmed = code.trim().toUpperCase();
-    if (trimmed === 'MRSLAUNCH') {
-      setCouponCode('MRSLAUNCH');
+    if (trimmed === 'CAMELLIA15' || trimmed === 'MRSLAUNCH') {
+      setCouponCode(trimmed);
       setDiscountPercent(15);
-      showNotification('Coupon MRSLAUNCH applied: 15% discount');
+      showNotification(`Coupon ${trimmed} applied: 15% discount`);
       return { success: true, message: '15% discount applied successfully!' };
     } else if (trimmed === 'SHAHIN10') {
       setCouponCode('SHAHIN10');
@@ -200,7 +200,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       showNotification('Coupon SHAHIN10 applied: 10% discount');
       return { success: true, message: '10% discount applied successfully!' };
     } else {
-      return { success: false, message: 'Invalid promotional code. Try MRSLAUNCH' };
+      return { success: false, message: 'Invalid promotional code. Try CAMELLIA15' };
     }
   };
 

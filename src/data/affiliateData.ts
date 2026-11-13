@@ -69,7 +69,7 @@ export const AFFILIATE_DEALS: AffiliateDeal[] = [
     discountText: 'Prime Free 2-Day Shipping',
     promoCode: 'AMZ-B0AE4',
     badge: 'Amazon Official Link',
-    description: 'High-performance workspace gear curated by Shahin. Verified for deep productivity, low latency, and marathon digital creation.',
+    description: 'High-performance workspace gear curated by M R S (@mrxshahin). Verified for deep productivity, low latency, and marathon digital creation.',
     keyBenefits: [
       'Direct official Amazon Prime 1-2 day express fulfillment',
       '30-Day A-to-z buyer protection and hassle-free returns',

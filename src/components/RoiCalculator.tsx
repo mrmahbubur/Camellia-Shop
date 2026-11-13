@@ -100,7 +100,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
 
   const handleExportReport = () => {
     const content = [
-      `MRS DIGITAL — UNIT ECONOMICS PROJECTION (${currency})`,
+      `CAMELLIA SHOP — UNIT ECONOMICS PROJECTION (${currency})`,
       `Model: ${activeModel.name}`,
       `Date: ${new Date().toLocaleDateString('en-US')}`,
       ``,
@@ -121,7 +121,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `mrs-roi-${activeModel.id}.txt`;
+    link.download = `camellia-shop-roi-${activeModel.id}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -130,30 +130,32 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
   };
 
   return (
-    <section id="roi-calculator" className="py-16 bg-white border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+    <section
+      id="roi-calculator"
+      className="py-12 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               <span>Interactive Tool</span>
               <span aria-hidden="true">·</span>
               <span>Real Financial Math</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 [text-wrap:balance]">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               Online Business Revenue &amp; Profit Calculator
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               Calculate actual unit economics before building. Select a business model and adjust inputs to compute projected monthly net income and annual run rate.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <button
               type="button"
               onClick={() => handleModelChange(activeModel)}
-              className="px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 min-h-[40px] py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
@@ -161,7 +163,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
             <button
               type="button"
               onClick={handleExportReport}
-              className="px-3.5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 min-h-[40px] py-2 text-xs font-semibold text-white dark:text-slate-950 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export Summary</span>
@@ -170,7 +172,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
         </div>
 
         {/* Business Model Selector Tabs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-8">
           {BUSINESS_MODELS.map((model) => {
             const isSelected = model.id === selectedModelId;
             return (
@@ -179,12 +181,16 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
                 onClick={() => handleModelChange(model)}
                 className={`p-3.5 text-left rounded-xl border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                    : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
+                    ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 border-slate-900 dark:border-amber-400 shadow-xs'
+                    : 'bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <div className="text-xs font-semibold line-clamp-1 mb-1">{model.name}</div>
-                <div className={`text-[11px] line-clamp-2 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                <div
+                  className={`text-[11px] line-clamp-2 ${
+                    isSelected ? 'text-slate-300 dark:text-slate-800' : 'text-slate-500 dark:text-slate-400'
+                  }`}
+                >
                   {model.description}
                 </div>
               </button>
@@ -193,19 +199,16 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
         </div>
 
         {/* Calculator Body Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Left Column: Sliders & Parameter Controls (7 cols) */}
-          <div className="lg:col-span-7 bg-slate-50 p-6 rounded-2xl border border-slate-200/80 space-y-6">
-            
-            {/* Control 1: Monthly Visitors */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+          {/* Left Column: Sliders */}
+          <div className="lg:col-span-7 bg-slate-50 dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-6">
             <div>
-              <div className="flex justify-between items-center text-xs mb-2">
-                <label className="font-semibold text-slate-700 flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-slate-500" />
-                  Monthly Targeted Visitors / Inbound Leads
+              <div className="flex justify-between items-center gap-2 text-xs mb-2">
+                <label className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span>Monthly Targeted Visitors</span>
                 </label>
-                <span className="font-mono font-bold text-slate-900 tabular-nums">
+                <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                   {monthlyVisitors.toLocaleString()} / mo
                 </span>
               </div>
@@ -216,23 +219,22 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
                 step="100"
                 value={monthlyVisitors}
                 onChange={(e) => setMonthlyVisitors(Number(e.target.value))}
-                className="w-full accent-slate-900 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                className="w-full accent-slate-900 dark:accent-amber-400 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
               />
-              <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                <span>300 (Micro audience)</span>
-                <span>25,000 (Medium brand)</span>
-                <span>50,000+ (Established)</span>
+              <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
+                <span>300 (Micro)</span>
+                <span>25,000 (Medium)</span>
+                <span>50,000+ (Scale)</span>
               </div>
             </div>
 
-            {/* Control 2: Conversion Rate */}
             <div>
-              <div className="flex justify-between items-center text-xs mb-2">
-                <label className="font-semibold text-slate-700 flex items-center gap-1.5">
-                  <Percent className="w-3.5 h-3.5 text-slate-500" />
-                  Visitor-to-Buyer Conversion Rate
+              <div className="flex justify-between items-center gap-2 text-xs mb-2">
+                <label className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                  <Percent className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span>Visitor-to-Buyer Conversion Rate</span>
                 </label>
-                <span className="font-mono font-bold text-slate-900 tabular-nums">
+                <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                   {conversionRate.toFixed(1)}%
                 </span>
               </div>
@@ -243,23 +245,22 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
                 step="0.1"
                 value={conversionRate}
                 onChange={(e) => setConversionRate(Number(e.target.value))}
-                className="w-full accent-slate-900 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                className="w-full accent-slate-900 dark:accent-amber-400 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
               />
-              <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                <span>0.5% (Cold traffic)</span>
-                <span>2.0% - 3.0% (Industry avg)</span>
-                <span>8.0% (High trust)</span>
+              <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
+                <span>0.5% (Cold)</span>
+                <span>2.0% - 3.0% (Avg)</span>
+                <span>8.0% (High Trust)</span>
               </div>
             </div>
 
-            {/* Control 3: Average Order Value */}
             <div>
-              <div className="flex justify-between items-center text-xs mb-2">
-                <label className="font-semibold text-slate-700 flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-slate-500" />
-                  Average Ticket Size / Order Value
+              <div className="flex justify-between items-center gap-2 text-xs mb-2">
+                <label className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span>Average Order Value</span>
                 </label>
-                <span className="font-mono font-bold text-slate-900 tabular-nums">
+                <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                   {formatPrice(averageOrderValue)}
                 </span>
               </div>
@@ -270,22 +271,21 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
                 step="5"
                 value={averageOrderValue}
                 onChange={(e) => setAverageOrderValue(Number(e.target.value))}
-                className="w-full accent-slate-900 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                className="w-full accent-slate-900 dark:accent-amber-400 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
               />
-              <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                <span>$15 (Micro-eBook)</span>
-                <span>$65 (Playbook/Gear)</span>
-                <span>$500 (Diagnostic Sprint)</span>
+              <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
+                <span>$15 (Micro)</span>
+                <span>$65 (Gear/Guide)</span>
+                <span>$500 (Agency)</span>
               </div>
             </div>
 
-            {/* Control 4: Monthly Overhead */}
             <div>
-              <div className="flex justify-between items-center text-xs mb-2">
-                <label className="font-semibold text-slate-700">
-                  Estimated Monthly SaaS &amp; Hosting Overhead
+              <div className="flex justify-between items-center gap-2 text-xs mb-2">
+                <label className="font-semibold text-slate-700 dark:text-slate-200">
+                  Monthly SaaS &amp; Hosting Overhead
                 </label>
-                <span className="font-mono font-bold text-slate-900 tabular-nums">
+                <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                   {formatPrice(monthlyOverhead)} / mo
                 </span>
               </div>
@@ -296,29 +296,26 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
                 step="10"
                 value={monthlyOverhead}
                 onChange={(e) => setMonthlyOverhead(Number(e.target.value))}
-                className="w-full accent-slate-900 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                className="w-full accent-slate-900 dark:accent-amber-400 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
               />
             </div>
-
           </div>
 
-          {/* Right Column: Calculated Projections Card (5 cols) */}
-          <div className="lg:col-span-5 bg-slate-900 text-white p-7 rounded-2xl shadow-xl flex flex-col justify-between">
-            
+          {/* Right Column: Calculated Projections Card */}
+          <div className="lg:col-span-5 bg-slate-900 dark:bg-slate-900 text-white p-5 sm:p-7 rounded-2xl shadow-xl border border-slate-800 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+              <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-800 mb-6">
                 <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
                   Projected Financial Run-Rate
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">
+                <span className="text-[11px] text-slate-400 font-mono shrink-0">
                   {monthlyOrders} Orders/Mo
                 </span>
               </div>
 
-              {/* Main Net Profit Metric */}
               <div className="mb-6">
                 <div className="text-xs text-slate-400 mb-1">Estimated Net Monthly Profit</div>
-                <div className="text-4xl font-bold font-mono tabular-nums text-white tracking-tight">
+                <div className="text-3xl sm:text-4xl font-bold font-mono tabular-nums text-white tracking-tight break-words">
                   {formatPrice(netMonthlyProfit)}
                   <span className="text-sm font-normal text-slate-400"> / month</span>
                 </div>
@@ -327,21 +324,20 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
                 </div>
               </div>
 
-              {/* Breakdown List with Tabular Figures */}
               <div className="space-y-3 py-4 border-y border-slate-800 text-xs">
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span className="text-slate-400">Gross Monthly Volume</span>
                   <span className="font-mono tabular-nums font-semibold text-slate-200">
                     {formatPrice(grossMonthlyRevenue)}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span className="text-slate-400">Calculated Annual Run-Rate</span>
                   <span className="font-mono tabular-nums font-semibold text-amber-300">
                     {formatPrice(annualRunRate)} / year
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span className="text-slate-400">Estimated Tool &amp; Server Fees</span>
                   <span className="font-mono tabular-nums text-slate-400">
                     - {formatPrice(monthlyOverhead)}
@@ -350,8 +346,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
               </div>
             </div>
 
-            {/* Action Card Bottom */}
-            <div className="mt-8 pt-4">
+            <div className="mt-6 sm:mt-8 pt-4">
               <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 mb-4">
                 <div className="text-xs font-semibold text-slate-200 mb-1">
                   Recommended Action Plan:
@@ -364,18 +359,15 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onSelectPlaybook }
               {onSelectPlaybook && (
                 <button
                   onClick={() => onSelectPlaybook(activeModel.linkedPlaybookId)}
-                  className="w-full py-3 px-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full min-h-[44px] py-3 px-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  <span>View Step-by-Step {activeModel.name} Playbook</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span className="truncate">View {activeModel.name} Playbook</span>
+                  <ArrowRight className="w-4 h-4 shrink-0" />
                 </button>
               )}
             </div>
-
           </div>
-
         </div>
-
       </div>
     </section>
   );

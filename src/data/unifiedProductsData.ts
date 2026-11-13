@@ -58,7 +58,6 @@ export interface EcomProduct {
   commissionRate: number;
   commissionNote: string;
   isDigital?: boolean;
-  isUserAdded?: boolean;
   originStore: 'Amazon' | 'Shopz BD';
 }
 
@@ -954,12 +953,12 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
   },
 
   // =========================================================================
-  // 3. MRS SIGNATURE WORKSPACE GEAR & DIGITAL KITS (LOCAL STUDIO ASSETS)
+  // 3. CAMELLIA SHOP SIGNATURE WORKSPACE GEAR & DIGITAL KITS (LOCAL STUDIO ASSETS)
   // =========================================================================
   {
     id: 'mrs-desk-mat',
-    title: 'MRS Dual-Surface Executive Desk Mat with Magnetic Cable Anchor',
-    brand: 'MRS Signature',
+    title: 'Camellia Shop Dual-Surface Executive Desk Mat with Magnetic Cable Anchor',
+    brand: 'Camellia Shop',
     category: 'Office & Workspace',
     department: 'Desk Accessories',
     isAccessory: true,
@@ -967,7 +966,7 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     originalPrice: 65.00,
     rating: 4.9,
     reviewsCount: 142,
-    badge: 'MRS Bestseller',
+    badge: 'Shop Bestseller',
     primeEligible: true,
     deliveryEstimate: 'Ships in 24 Hours · 30-Day Guarantee',
     affiliateUrl: AMAZON_STORE_URL,
@@ -999,13 +998,13 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
       }
     ],
     commissionRate: 6,
-    commissionNote: 'MRS Curated Hardware',
+    commissionNote: 'Camellia Shop Curated',
     originStore: 'Amazon'
   },
   {
     id: 'mrs-monitor-arm-pro',
-    title: 'MRS Heavy-Duty Gas Spring Single Monitor Arm (17" to 35" Ultrawide)',
-    brand: 'MRS Signature',
+    title: 'Camellia Shop Heavy-Duty Gas Spring Single Monitor Arm (17" to 35" Ultrawide)',
+    brand: 'Camellia Shop',
     category: 'Office & Workspace',
     department: 'Monitor Mounts',
     isAccessory: true,
@@ -1036,13 +1035,13 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     ],
     reviews: [],
     commissionRate: 5,
-    commissionNote: 'MRS Curated Hardware',
+    commissionNote: 'Camellia Shop Curated',
     originStore: 'Amazon'
   },
   {
     id: 'mrs-magsafe-3in1-dock',
-    title: 'MRS 3-in-1 Qi2 Magnetic Wireless Desk Charging Station (15W Fast Charge)',
-    brand: 'MRS Signature',
+    title: 'Camellia Shop 3-in-1 Qi2 Magnetic Wireless Desk Charging Station (15W Fast Charge)',
+    brand: 'Camellia Shop',
     category: 'Smart Home & Power',
     department: 'Wireless Chargers',
     isAccessory: true,
@@ -1073,13 +1072,13 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     ],
     reviews: [],
     commissionRate: 5,
-    commissionNote: 'MRS Curated Hardware',
+    commissionNote: 'Camellia Shop Curated',
     originStore: 'Amazon'
   },
   {
     id: 'mrs-headphone-stand-hub',
-    title: 'MRS Weighted Aluminum Headphone Stand with Integrated USB-C Desk Base',
-    brand: 'MRS Signature',
+    title: 'Camellia Shop Weighted Aluminum Headphone Stand with Integrated USB-C Desk Base',
+    brand: 'Camellia Shop',
     category: 'Audio & Headphones',
     department: 'Audio Accessories',
     isAccessory: true,
@@ -1110,13 +1109,13 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     ],
     reviews: [],
     commissionRate: 5,
-    commissionNote: 'MRS Curated Hardware',
+    commissionNote: 'Camellia Shop Curated',
     originStore: 'Amazon'
   },
   {
     id: 'mrs-anc-headphones',
-    title: 'MRS Studio Hybrid ANC Wireless Headphones (45-Hour Battery & USB-C DAC)',
-    brand: 'MRS Signature',
+    title: 'Camellia Shop Studio Hybrid ANC Wireless Headphones (45-Hour Battery & USB-C DAC)',
+    brand: 'Camellia Shop',
     category: 'Audio & Headphones',
     department: 'Studio Audio',
     isAccessory: true,
@@ -1147,13 +1146,13 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
     ],
     reviews: [],
     commissionRate: 5,
-    commissionNote: 'MRS Curated Hardware',
+    commissionNote: 'Camellia Shop Curated',
     originStore: 'Amazon'
   },
   {
     id: 'mrs-growth-bundle',
-    title: 'MRS Online Business & Passive Income Master Vault (Playbooks + Notion OS)',
-    brand: 'MRS Digital',
+    title: 'Camellia Shop Online Business & Passive Income Master Vault (Playbooks + Notion OS)',
+    brand: 'Camellia Shop',
     category: 'Electronics & Gadgets',
     department: 'Digital Kits',
     isAccessory: false,
@@ -1194,7 +1193,7 @@ export const UNIFIED_PRODUCTS: EcomProduct[] = [
       }
     ],
     commissionRate: 10,
-    commissionNote: 'MRS Digital Flagship',
+    commissionNote: 'Camellia Shop Flagship',
     originStore: 'Amazon'
   }
 ];

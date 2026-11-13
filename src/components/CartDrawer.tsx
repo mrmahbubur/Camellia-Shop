@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, Tag, Truck, FileText } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { CheckoutModal } from './CheckoutModal';
+import { ResilientImage } from './ResilientImage';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -61,21 +62,20 @@ export const CartDrawer: React.FC = () => {
     <>
       <div
         onClick={() => setIsCartOpen(false)}
-        className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs flex justify-end"
+        className="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-xs flex justify-end"
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between"
+          className="w-full max-w-md bg-white dark:bg-slate-900 h-dvh shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800"
         >
-          
           {/* Header */}
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-slate-800" />
-              <h2 className="text-base font-bold text-slate-900">
+              <ShoppingBag className="w-5 h-5 text-slate-800 dark:text-amber-400" />
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
                 Your Shopping Bag
               </h2>
-              <span className="text-xs font-mono text-slate-500">
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
                 ({cart.reduce((sum, item) => sum + item.quantity, 0)})
               </span>
             </div>
@@ -83,31 +83,35 @@ export const CartDrawer: React.FC = () => {
             <button
               onClick={() => setIsCartOpen(false)}
               aria-label="Close bag"
-              className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+              className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Free Shipping Progress Indicator */}
-          <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
-            <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
-                <Truck className="w-3.5 h-3.5 text-slate-500" />
+          <div className="px-4 sm:px-5 py-3 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-2 text-xs mb-1.5">
+              <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium min-w-0">
+                <Truck className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
                 {freeShippingProgress >= 100 ? (
-                  <span className="text-emerald-700 font-semibold">Eligible for FREE Express Shipping</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold truncate">
+                    Eligible for FREE Express Shipping
+                  </span>
                 ) : (
-                  <span>
+                  <span className="truncate">
                     Add <strong>{formatPrice(Math.max(0, freeShippingThresholdUSD - subtotalUSD))}</strong> for FREE shipping
                   </span>
                 )}
               </span>
-              <span className="font-mono text-slate-500 tabular-nums">{freeShippingProgress}%</span>
+              <span className="font-mono text-slate-500 dark:text-slate-400 tabular-nums shrink-0">
+                {freeShippingProgress}%
+              </span>
             </div>
-            <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all duration-300 rounded-full ${
-                  freeShippingProgress >= 100 ? 'bg-emerald-500' : 'bg-slate-900'
+                  freeShippingProgress >= 100 ? 'bg-emerald-500' : 'bg-slate-900 dark:bg-amber-400'
                 }`}
                 style={{ width: `${freeShippingProgress}%` }}
               />
@@ -115,25 +119,27 @@ export const CartDrawer: React.FC = () => {
           </div>
 
           {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 sm:space-y-4">
             {cart.length === 0 ? (
-              <div className="text-center py-16 space-y-3">
-                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+              <div className="text-center py-14 space-y-3">
+                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
                   <ShoppingBag className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-medium text-slate-700">Your bag is currently empty.</p>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Your bag is currently empty.
+                </p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mx-auto">
                   Explore curated Amazon Prime and Shopz BD hardware to add items to your bag or open direct partner checkout.
                 </p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-2 text-xs font-semibold text-slate-950 underline underline-offset-4 cursor-pointer"
+                  className="mt-2 text-xs font-semibold text-slate-950 dark:text-amber-400 underline underline-offset-4 cursor-pointer"
                 >
                   Continue Browsing
                 </button>
                 {orderHistory.length > 0 && (
-                  <div className="pt-4 border-t border-slate-100 mt-4 text-left space-y-2">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 text-left space-y-2">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5" />
                       <span>Saved Orders ({orderHistory.length})</span>
                     </div>
@@ -141,7 +147,7 @@ export const CartDrawer: React.FC = () => {
                       {orderHistory.map((ord) => (
                         <div
                           key={ord.orderId}
-                          className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs"
+                          className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 text-xs"
                         >
                           <button
                             type="button"
@@ -149,10 +155,12 @@ export const CartDrawer: React.FC = () => {
                               setIsCartOpen(false);
                               setPlacedOrder(ord);
                             }}
-                            className="text-left flex-1 min-w-0 cursor-pointer hover:text-amber-700"
+                            className="text-left flex-1 min-w-0 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400"
                           >
-                            <div className="font-mono font-bold text-slate-900 truncate">{ord.orderId}</div>
-                            <div className="text-[11px] text-slate-500">
+                            <div className="font-mono font-bold text-slate-900 dark:text-white truncate">
+                              {ord.orderId}
+                            </div>
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400">
                               {ord.date} · {formatPrice(ord.total)}
                             </div>
                           </button>
@@ -160,7 +168,7 @@ export const CartDrawer: React.FC = () => {
                             type="button"
                             onClick={() => removeSavedOrder(ord.orderId)}
                             aria-label={`Remove saved order ${ord.orderId}`}
-                            className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                            className="p-2 text-slate-400 hover:text-red-500 cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -175,38 +183,39 @@ export const CartDrawer: React.FC = () => {
                 {cart.map((item) => (
                   <div
                     key={item.product.id}
-                    className="flex gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200/70 items-center justify-between"
+                    className="flex gap-3 sm:gap-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 items-center justify-between"
                   >
-                    <img
+                    <ResilientImage
                       src={item.product.image}
                       alt={item.product.title}
-                      className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200"
+                      className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
                       referrerPolicy="no-referrer"
                     />
 
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-semibold text-slate-900 truncate mb-1">
+                      <h4 className="text-xs font-semibold text-slate-900 dark:text-white truncate mb-1">
                         {item.product.title}
                       </h4>
-                      <div className="text-xs font-mono font-bold text-slate-800 tabular-nums mb-2">
+                      <div className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums mb-2">
                         {formatPrice(item.product.price)}
                       </div>
 
-                      {/* Quantity Controls */}
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center border border-slate-200 bg-white rounded-md">
+                        <div className="flex items-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-md">
                           <button
                             onClick={() => updateQuantity(item.product.id, -1)}
-                            className="px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-100"
+                            className="min-h-[34px] min-w-[32px] px-2 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            aria-label="Decrease quantity"
                           >
                             -
                           </button>
-                          <span className="px-2 text-xs font-mono tabular-nums text-slate-800">
+                          <span className="px-2 text-xs font-mono tabular-nums text-slate-800 dark:text-white">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(item.product.id, 1)}
-                            className="px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-100"
+                            className="min-h-[34px] min-w-[32px] px-2 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            aria-label="Increase quantity"
                           >
                             +
                           </button>
@@ -214,7 +223,7 @@ export const CartDrawer: React.FC = () => {
 
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-slate-400 hover:text-red-600 p-1 transition-colors"
+                          className="text-slate-400 hover:text-red-500 p-2 transition-colors cursor-pointer"
                           aria-label="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -222,27 +231,27 @@ export const CartDrawer: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="text-xs font-mono font-bold text-slate-900 tabular-nums">
+                    <div className="text-xs font-mono font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                       {formatPrice(item.product.price * item.quantity)}
                     </div>
                   </div>
                 ))}
 
                 {orderHistory.length > 0 && (
-                  <div className="pt-3 border-t border-slate-100">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={() => {
                         setIsCartOpen(false);
                         setPlacedOrder(orderHistory[0]);
                       }}
-                      className="w-full px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-between cursor-pointer"
+                      className="w-full min-h-[40px] px-3 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-between cursor-pointer"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-slate-500" />
-                        <span>View Saved Invoice ({orderHistory[0].orderId})</span>
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <FileText className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                        <span className="truncate">View Saved Invoice ({orderHistory[0].orderId})</span>
                       </span>
-                      <span className="font-mono text-[11px] text-slate-500">
+                      <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
                         {orderHistory.length} saved
                       </span>
                     </button>
@@ -254,19 +263,17 @@ export const CartDrawer: React.FC = () => {
 
           {/* Footer & Checkout Area */}
           {cart.length > 0 && (
-            <div className="p-5 border-t border-slate-200 bg-white space-y-4">
-              
-              {/* Promo Code Input */}
+            <div className="p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4">
               <div>
                 {couponCode ? (
-                  <div className="flex items-center justify-between text-xs p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800">
+                  <div className="flex items-center justify-between text-xs p-2.5 bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 rounded-lg text-emerald-800 dark:text-emerald-200">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Tag className="w-3.5 h-3.5" />
                       Coupon: <strong>{couponCode}</strong> ({discountPercent}% off)
                     </span>
                     <button
                       onClick={removeCoupon}
-                      className="text-xs text-emerald-700 hover:text-emerald-950 underline cursor-pointer"
+                      className="text-xs text-emerald-700 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white underline cursor-pointer"
                     >
                       Remove
                     </button>
@@ -275,14 +282,14 @@ export const CartDrawer: React.FC = () => {
                   <form onSubmit={handleApplyCoupon} className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Promo Code (Try: MRSLAUNCH)"
+                      placeholder="Promo Code (Try: CAMELLIA15)"
                       value={inputCoupon}
                       onChange={(e) => setInputCoupon(e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-slate-900"
+                      className="flex-1 min-w-0 min-h-[40px] px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400"
                     />
                     <button
                       type="submit"
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                      className="px-3.5 min-h-[40px] py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer shrink-0"
                     >
                       Apply
                     </button>
@@ -290,55 +297,51 @@ export const CartDrawer: React.FC = () => {
                 )}
 
                 {couponFeedback && !couponCode && (
-                  <p className={`text-[11px] mt-1 ${couponFeedback.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <p className={`text-[11px] mt-1 ${couponFeedback.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                     {couponFeedback.text}
                   </p>
                 )}
               </div>
 
-              {/* Price Calculation */}
               <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between text-slate-600">
+                <div className="flex justify-between text-slate-600 dark:text-slate-400">
                   <span>Subtotal</span>
                   <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
                 </div>
                 {discountUSD > 0 && (
-                  <div className="flex justify-between text-emerald-600">
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                     <span>Discount ({discountPercent}%)</span>
                     <span className="font-mono tabular-nums">-{formatPrice(discountUSD)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-600">
+                <div className="flex justify-between text-slate-600 dark:text-slate-400">
                   <span>Shipping</span>
                   <span className="font-mono tabular-nums">
                     {shippingUSD === 0 ? 'FREE' : formatPrice(shippingUSD)}
                   </span>
                 </div>
-                <div className="flex justify-between text-slate-900 font-bold text-sm pt-2 border-t border-slate-100">
+                <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm pt-2 border-t border-slate-100 dark:border-slate-800">
                   <span>Estimated Total</span>
                   <span className="font-mono tabular-nums">{formatPrice(totalUSD)}</span>
                 </div>
               </div>
 
-              {/* Checkout Trigger */}
               <button
                 onClick={handleProceedToCheckout}
-                className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+                className="w-full min-h-[46px] py-3 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
               >
                 <span>Order Invoice &amp; Partner Checkout · {formatPrice(totalUSD)}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </button>
 
-              <p className="text-[11px] text-center text-slate-400">
+              <p className="text-[11px] text-center text-slate-400 dark:text-slate-500">
                 Downloadable HTML invoice &amp; direct partner store links included
               </p>
             </div>
           )}
-
         </div>
       </div>
 
-      {/* Checkout Modal Form */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}

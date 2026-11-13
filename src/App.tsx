@@ -21,6 +21,7 @@ import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { CharityProvider } from './context/CharityContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { CharitySupportModal } from './components/CharitySupportModal';
 import { Check, X } from 'lucide-react';
 
@@ -42,13 +43,13 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, Er
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900">
-          <div className="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-3">
+        <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6 text-slate-900 dark:text-slate-100">
+          <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-3">
             <h1 className="text-lg font-bold">Unable to load storefront view</h1>
-            <p className="text-sm text-slate-600">{this.state.errorMessage}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">{this.state.errorMessage}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg cursor-pointer"
+              className="px-4 py-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold rounded-lg cursor-pointer"
             >
               Reload Page
             </button>
@@ -72,14 +73,14 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900 selection:bg-amber-400 selection:text-slate-950">
+    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col text-slate-900 dark:text-slate-100 selection:bg-amber-400 selection:text-slate-950 transition-colors duration-200">
       {/* Navigation TopBar */}
       <TopBar
         onNavigate={handleNavigate}
       />
 
       {/* Main Content Sections */}
-      <main className="flex-1">
+      <main className="flex-1 min-w-0">
         <Hero
           onExploreStore={() => handleNavigate('store')}
           onOpenCalculator={() => handleNavigate('roi-calculator')}
@@ -126,12 +127,14 @@ const MainLayout: React.FC = () => {
 
       {/* Floating System Toast */}
       {activeNotification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 animate-fade-in">
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span className="font-medium">{activeNotification}</span>
+        <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50 bg-slate-900 dark:bg-slate-800 text-white text-xs px-4 py-3 rounded-xl shadow-xl border border-slate-700 dark:border-slate-600 flex items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-medium break-words">{activeNotification}</span>
+          </div>
           <button
             onClick={dismissNotification}
-            className="text-slate-400 hover:text-white transition-colors p-0.5 ml-1"
+            className="text-slate-400 hover:text-white transition-colors p-1.5 -mr-1 shrink-0 cursor-pointer"
             aria-label="Dismiss notification"
           >
             <X className="w-3.5 h-3.5" />
@@ -145,15 +148,17 @@ const MainLayout: React.FC = () => {
 export default function App() {
   return (
     <AppErrorBoundary>
-      <CharityProvider>
-        <ProductsProvider>
-          <CartProvider>
-            <AffiliateProvider>
-              <MainLayout />
-            </AffiliateProvider>
-          </CartProvider>
-        </ProductsProvider>
-      </CharityProvider>
+      <ThemeProvider>
+        <CharityProvider>
+          <ProductsProvider>
+            <CartProvider>
+              <AffiliateProvider>
+                <MainLayout />
+              </AffiliateProvider>
+            </CartProvider>
+          </ProductsProvider>
+        </CharityProvider>
+      </ThemeProvider>
     </AppErrorBoundary>
   );
 }

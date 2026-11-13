@@ -1,21 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { EcomProduct, UNIFIED_PRODUCTS, ProductCategory, AMAZON_STORE_URL, SHOPZ_REF_BASE } from '../data/unifiedProductsData';
-
-export interface CustomProductInput {
-  title: string;
-  affiliateUrl: string;
-  price: number;
-  category: ProductCategory;
-  originStore?: 'Amazon' | 'Shopz BD';
-  brand?: string;
-  description?: string;
-  imageUrl?: string;
-}
+import { EcomProduct, UNIFIED_PRODUCTS, AMAZON_STORE_URL, SHOPZ_REF_BASE } from '../data/unifiedProductsData';
 
 interface ProductsContextType {
   products: EcomProduct[];
-  addCustomAffiliateItem: (input: CustomProductInput) => EcomProduct;
-  removeCustomProduct: (id: string) => void;
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
   highlightedProductId: string | null;
@@ -26,41 +13,21 @@ interface ProductsContextType {
   amazonStoreUrl: string;
   shopzStoreUrl: string;
   affiliateTag: string;
-  setAffiliateTag: (tag: string) => void;
   totalAffiliateClicks: number;
   recordAffiliateClick: (productId?: string) => void;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
 
-const FALLBACK_PRODUCT_IMAGE =
-  'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800&auto=format&fit=crop&q=80';
+const FIXED_AFFILIATE_TAG = 'mrxshahin1-20';
 
 export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [customProducts, setCustomProducts] = useState<EcomProduct[]>(() => {
-    try {
-      const saved = localStorage.getItem('mrs_custom_affiliate_products');
-      if (!saved) return [];
-      const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  });
-
   const [selectedCategory, setSelectedCategory] = useState<string>('All Departments (Mega Store)');
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
 
   const amazonStoreUrl = AMAZON_STORE_URL;
   const shopzStoreUrl = SHOPZ_REF_BASE;
-
-  const [affiliateTag, setAffiliateTagState] = useState<string>(() => {
-    try {
-      return localStorage.getItem('mrs_amazon_tag') || 'mrxshahin1-20';
-    } catch {
-      return 'mrxshahin1-20';
-    }
-  });
+  const affiliateTag = FIXED_AFFILIATE_TAG;
 
   const [totalAffiliateClicks, setTotalAffiliateClicks] = useState<number>(() => {
     try {
@@ -71,15 +38,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return 0;
     }
   });
-
-  const setAffiliateTag = (tag: string) => {
-    setAffiliateTagState(tag);
-    try {
-      localStorage.setItem('mrs_amazon_tag', tag);
-    } catch {
-      // storage unavailable
-    }
-  };
 
   const recordAffiliateClick = () => {
     setTotalAffiliateClicks((prev) => {
@@ -92,14 +50,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return next;
     });
   };
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('mrs_custom_affiliate_products', JSON.stringify(customProducts));
-    } catch {
-      // Storage unavailable
-    }
-  }, [customProducts]);
 
   useEffect(() => {
     if (highlightedProductId) {
@@ -127,7 +77,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (trimmed.includes('amazon.com')) {
       try {
         const url = new URL(trimmed);
-        url.searchParams.set('tag', affiliateTag || 'mrxshahin1-20');
+        url.searchParams.set('tag', affiliateTag);
         url.searchParams.set('linkCode', 'll2');
         url.searchParams.set('linkId', 'b0640e715d1eb5bbcc6b9a28347ac557');
         return url.toString();
@@ -162,74 +112,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return `https://www.shopz.com.bd/?s=${encodeURIComponent(clean)}&post_type=product&ref=mahbubur-rahman-shahin`;
   };
 
-  const addCustomAffiliateItem = (input: CustomProductInput): EcomProduct => {
-    const cleanUrl = input.affiliateUrl.trim();
-    const isShopz = input.originStore === 'Shopz BD' || cleanUrl.includes('shopz.com.bd');
-    const store: 'Amazon' | 'Shopz BD' = isShopz ? 'Shopz BD' : 'Amazon';
-    const trackedUrl = applyPartnerTracking(cleanUrl, store);
-    const id = `saved-item-${Date.now()}`;
-
-    // Extract genuine ASIN only if present in an Amazon /dp/ URL
-    const asinMatch = trackedUrl.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i);
-    const extractedAsin = asinMatch ? asinMatch[1].toUpperCase() : undefined;
-
-    const cleanPrice = Number.isFinite(input.price) && input.price > 0 ? Math.round(input.price * 100) / 100 : 0;
-    const img = input.imageUrl?.trim() || FALLBACK_PRODUCT_IMAGE;
-
-    const newProduct: EcomProduct = {
-      id,
-      title: input.title.trim(),
-      asin: extractedAsin,
-      brand: input.brand?.trim() || store,
-      category: input.category || (isShopz ? 'Shopz BD Tech Deals' : 'Electronics & Gadgets'),
-      department: 'Saved Partner Listings',
-      isAccessory: true,
-      price: cleanPrice,
-      rating: 0,
-      reviewsCount: 0,
-      badge: isShopz ? 'Shopz BD Link' : 'Amazon Link',
-      primeEligible: store === 'Amazon',
-      deliveryEstimate: store === 'Amazon' ? 'Fulfilled via Amazon' : 'Fulfilled via Shopz BD',
-      affiliateUrl: trackedUrl,
-      inStock: true,
-      stockCount: 1,
-      mainImage: img,
-      galleryImages: [img],
-      description:
-        input.description?.trim() ||
-        `Custom saved ${store} product link with active referral tracking.`,
-      highlights: [
-        `Direct ${store} partner referral link verified`,
-        'Check live pricing and stock on partner checkout'
-      ],
-      specs: [
-        { label: 'Partner Platform', value: store },
-        { label: 'Tracking Tag', value: store === 'Amazon' ? affiliateTag : 'mahbubur-rahman-shahin' }
-      ],
-      reviews: [],
-      commissionRate: isShopz ? 8 : 4,
-      commissionNote: isShopz ? 'Shopz BD Partner Referral' : 'Amazon Associates Referral',
-      isUserAdded: true,
-      originStore: store
-    };
-
-    setCustomProducts((prev) => [newProduct, ...prev]);
-    setHighlightedProductId(id);
-    return newProduct;
-  };
-
-  const removeCustomProduct = (id: string) => {
-    setCustomProducts((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const products = [...customProducts, ...UNIFIED_PRODUCTS];
-
   return (
     <ProductsContext.Provider
       value={{
-        products,
-        addCustomAffiliateItem,
-        removeCustomProduct,
+        products: UNIFIED_PRODUCTS,
         selectedCategory,
         setSelectedCategory,
         highlightedProductId,
@@ -240,7 +126,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         amazonStoreUrl,
         shopzStoreUrl,
         affiliateTag,
-        setAffiliateTag,
         totalAffiliateClicks,
         recordAffiliateClick
       }}

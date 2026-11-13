@@ -24,7 +24,7 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   {
     id: 'mrs-desk-mat',
-    title: 'MRS Dual-Surface Executive Desk Mat',
+    title: 'Camellia Shop Dual-Surface Executive Desk Mat',
     category: 'Workspace Gear',
     price: 49,
     originalPrice: 65,
@@ -50,7 +50,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'mrs-anc-headphones',
-    title: 'MRS Studio Hybrid ANC Wireless Headphones',
+    title: 'Camellia Shop Studio Hybrid ANC Wireless Headphones',
     category: 'Audio & Tech',
     price: 139,
     originalPrice: 179,
@@ -76,7 +76,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'mrs-growth-bundle',
-    title: 'MRS Online Business & Passive Income Master Vault',
+    title: 'Camellia Shop Online Business & Passive Income Master Vault',
     category: 'Digital Blueprints',
     price: 67,
     originalPrice: 99,
@@ -86,7 +86,7 @@ export const PRODUCTS: Product[] = [
     stockCount: 999,
     badge: 'Instant Delivery',
     isDigital: true,
-    description: 'The complete physical-style hardcover playbook + Notion enterprise workspace containing 12 verified income models, legal contract templates, SEO scripts, and automated funnels tested by MRS.',
+    description: 'The complete physical-style hardcover playbook + Notion enterprise workspace containing 12 verified income models, legal contract templates, SEO scripts, and automated funnels tested by Camellia Shop.',
     highlights: [
       '12 step-by-step online monetization playbooks with zero fluff',
       'Complete Notion Business OS: CRM, Content Engine, and P&L tracker',
@@ -103,7 +103,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'mrs-vertical-mouse',
-    title: 'MRS Contour Ergonomic Wireless Mouse',
+    title: 'Camellia Shop Contour Ergonomic Wireless Mouse',
     category: 'Workspace Gear',
     price: 54,
     originalPrice: 69,
@@ -129,7 +129,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'mrs-usb-dock-stand',
-    title: 'MRS Precision Aluminum Laptop Riser & 7-in-1 Hub',
+    title: 'Camellia Shop Precision Aluminum Laptop Riser & 7-in-1 Hub',
     category: 'Workspace Gear',
     price: 79,
     originalPrice: 99,
@@ -155,7 +155,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'mrs-troubleshoot-toolkit',
-    title: 'MRS Tech Troubleshooting & System Optimization Suite',
+    title: 'Camellia Shop Tech Troubleshooting & System Optimization Suite',
     category: 'Productivity Kits',
     price: 39,
     originalPrice: 59,

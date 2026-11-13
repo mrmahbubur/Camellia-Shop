@@ -49,7 +49,7 @@ export const PLAYBOOKS: Playbook[] = [
     milestones: [
       { step: '01. Package 3 Fixed-Price Tiers', description: 'Standard Tune-up ($49), Creator Audio/Video Latency Fix ($99), Monthly Concierge ($149/mo).', duration: 'Day 1' },
       { step: '02. Outbound to Remote Work Communities', description: 'Provide free 5-minute audit tips in Discord server communities and local small business groups.', duration: 'Days 2-4' },
-      { step: '03. Standardize Automation Scripts', description: 'Utilize MRS open-source PowerShell scripts to cut manual labor time to under 25 minutes per client.', duration: 'Days 5-7' },
+      { step: '03. Standardize Automation Scripts', description: 'Utilize Camellia Shop open-source PowerShell scripts to cut manual labor time to under 25 minutes per client.', duration: 'Days 5-7' },
       { step: '04. Retainer Conversion', description: 'Upsell monthly maintenance retainers to 20% of one-off customers for steady baseline income.', duration: 'Ongoing' }
     ],
     toolsStack: ['AnyDesk / RustDesk', 'PowerShell / Terminal', 'Stripe Billing', 'Notion Client Portal'],

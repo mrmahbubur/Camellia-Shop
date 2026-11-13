@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, Check, ShoppingCart, ShoppingBag, ShieldCheck, Zap, Truck, ArrowRight, ExternalLink, Layers, Award, Clock, Copy } from 'lucide-react';
+import { X, Star, Check, ShoppingCart, ShoppingBag, ShieldCheck, Truck, ExternalLink, Layers, Award, Clock, Copy } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
+import { ResilientImage } from './ResilientImage';
 
 interface ModernProductModalProps {
   product: EcomProduct | null;
@@ -82,43 +83,39 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5"
+      className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-5"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200"
+        className="relative bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[92dvh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]"
       >
-        
         {/* Floating Close Button */}
         <button
           onClick={onClose}
           aria-label="Close product view"
-          className="absolute top-4 right-4 z-20 p-2 text-slate-400 hover:text-slate-800 bg-white/90 hover:bg-slate-100 rounded-full transition-colors shadow-sm"
+          className="sticky sm:absolute top-3 right-3 sm:top-4 sm:right-4 float-right sm:float-none z-20 min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white/95 dark:bg-slate-800/95 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors shadow-sm cursor-pointer m-2 sm:m-0"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-          
-          {/* Left Column: Image Showcase (5 Cols) */}
-          <div className="lg:col-span-5 bg-slate-50 p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 clear-both sm:clear-none">
+          {/* Left Column: Image Showcase */}
+          <div className="lg:col-span-5 bg-slate-50 dark:bg-slate-950/50 p-4 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800">
             <div>
-              {/* Badges Bar */}
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                   {product.brand}
                 </span>
 
                 {product.asin && (
-                  <span className="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                     ASIN: {product.asin}
                   </span>
                 )}
               </div>
 
-              {/* Main Image Display */}
-              <div className="relative aspect-square rounded-xl overflow-hidden bg-white border border-slate-200/80 shadow-xs mb-4 flex items-center justify-center">
-                <img
+              <div className="relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center">
+                <ResilientImage
                   src={currentImage}
                   alt={product.title}
                   className="w-full h-full object-cover transition-all duration-300"
@@ -139,70 +136,66 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 )}
               </div>
 
-              {/* Multi-Angle Thumbnail Strip */}
               {product.galleryImages.length > 1 && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                   {product.galleryImages.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                      className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
                         activeImageIndex === idx
-                          ? 'border-slate-900 shadow-xs scale-103'
-                          : 'border-slate-200 opacity-70 hover:opacity-100'
+                          ? 'border-slate-900 dark:border-amber-400 shadow-xs scale-103'
+                          : 'border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img} alt="Thumbnail view" className="w-full h-full object-cover" />
+                      <ResilientImage src={img} alt="Thumbnail view" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* In-Stock & Delivery Guarantee */}
-            <div className="mt-6 pt-4 border-t border-slate-200 space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-emerald-700 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+              <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                 <span>In Stock &amp; Ready to Ship ({product.stockCount} available)</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-600">
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                 <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span>{product.deliveryEstimate}</span>
               </div>
             </div>
-
           </div>
 
-          {/* Right Column: Contiguous Purchase Module & Tabs (7 Cols) */}
-          <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
+          {/* Right Column: Contiguous Purchase Module & Tabs */}
+          <div className="lg:col-span-7 p-4 sm:p-6 lg:p-8 flex flex-col justify-between min-w-0">
             <div>
-              {/* Category & Ratings */}
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-                <span className="font-semibold text-amber-700 uppercase tracking-wider text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2 lg:pr-10">
+                <span className="font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-[11px]">
                   {product.category}
                 </span>
 
                 {product.rating > 0 ? (
-                  <div className="flex items-center gap-1 text-slate-700">
+                  <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     <span className="font-bold tabular-nums">{product.rating}</span>
-                    <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()} verified ratings)</span>
+                    <span className="text-slate-400 tabular-nums">
+                      ({product.reviewsCount.toLocaleString()} verified ratings)
+                    </span>
                   </div>
                 ) : (
-                  <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                     Saved Custom Listing
                   </span>
                 )}
               </div>
 
-              {/* Title */}
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug mb-3 [text-wrap:balance]">
+              <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-3 [text-wrap:balance]">
                 {product.title}
               </h2>
 
-              {/* Price & Savings Strip */}
-              <div className="flex items-baseline gap-3 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                <span className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums tracking-tight">
+              <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3 mb-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700">
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
                   {product.price > 0 ? formatPrice(product.price) : 'Partner Pricing'}
                 </span>
                 {product.originalPrice && product.price > 0 && (
@@ -211,89 +204,96 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   </span>
                 )}
                 {savingsAmount > 0 && product.price > 0 && (
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded">
                     Save {formatPrice(savingsAmount)} ({savingsPercent}% OFF)
                   </span>
                 )}
               </div>
 
-              {/* Description */}
-              <p className="text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-5 leading-relaxed">
                 {product.description}
               </p>
 
-              {/* Tab Navigation (Highlights, Specs, Reviews, Affiliate Note) */}
-              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg mb-4 text-xs font-medium overflow-x-auto scrollbar-none">
+              {/* Tab Navigation */}
+              <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg mb-4 text-xs font-medium overflow-x-auto scrollbar-none">
                 <button
                   onClick={() => setActiveTab('highlights')}
-                  className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    activeTab === 'highlights' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    activeTab === 'highlights'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   Key Highlights
                 </button>
                 <button
                   onClick={() => setActiveTab('specs')}
-                  className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    activeTab === 'specs' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    activeTab === 'specs'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   Technical Specs
                 </button>
                 <button
                   onClick={() => setActiveTab('reviews')}
-                  className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    activeTab === 'reviews' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    activeTab === 'reviews'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   Verified Reviews ({product.reviews.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('guarantee')}
-                  className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    activeTab === 'guarantee' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    activeTab === 'guarantee'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   {isShopz ? 'Shopz BD Policy' : 'Amazon Buyer Policy'}
                 </button>
               </div>
 
-              {/* Tab 1: Highlights */}
               {activeTab === 'highlights' && (
-                <ul className="space-y-2 mb-6 text-xs text-slate-600">
+                <ul className="space-y-2 mb-6 text-xs text-slate-600 dark:text-slate-300">
                   {product.highlights.map((h, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
                       <span>{h}</span>
                     </li>
                   ))}
                 </ul>
               )}
 
-              {/* Tab 2: Technical Specifications */}
               {activeTab === 'specs' && (
                 <div className="space-y-2 mb-6 text-xs">
                   {product.specs.map((s, i) => (
-                    <div key={i} className="flex justify-between py-1.5 border-b border-slate-100">
-                      <span className="text-slate-500">{s.label}</span>
-                      <span className="font-semibold text-slate-800 text-right">{s.value}</span>
+                    <div key={i} className="flex justify-between gap-3 py-1.5 border-b border-slate-100 dark:border-slate-800">
+                      <span className="text-slate-500 dark:text-slate-400">{s.label}</span>
+                      <span className="font-semibold text-slate-800 dark:text-slate-100 text-right">{s.value}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Tab 3: Verified Reviews */}
               {activeTab === 'reviews' && (
                 <div className="space-y-3 mb-6 text-xs max-h-52 overflow-y-auto pr-1">
                   {product.reviews.length === 0 ? (
-                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-slate-500 text-xs">
-                      No local reviews recorded for this custom listing. View live customer reviews directly on {product.originStore}.
+                    <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs">
+                      No local reviews recorded for this item yet. View live customer reviews directly on {product.originStore}.
                     </div>
                   ) : (
                     product.reviews.map((r, i) => (
-                      <div key={i} className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900">{r.author}</span>
+                      <div
+                        key={i}
+                        className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 space-y-1"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-slate-900 dark:text-white">{r.author}</span>
                           <span className="text-slate-400 text-[11px]">{r.date}</span>
                         </div>
                         <div className="flex items-center gap-1 text-amber-500">
@@ -301,31 +301,32 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                             <Star key={idx} className="w-3 h-3 fill-current" />
                           ))}
                           {r.verifiedAmazonPurchase && (
-                            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded ml-1 font-semibold">
+                            <span className="text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/20 px-1.5 py-0.2 rounded ml-1 font-semibold">
                               Amazon Verified Purchase
                             </span>
                           )}
                         </div>
-                        <div className="font-semibold text-slate-800 text-[11px]">{r.title}</div>
-                        <p className="text-slate-600 text-[11px] leading-relaxed">&quot;{r.comment}&quot;</p>
+                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-[11px]">{r.title}</div>
+                        <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+                          &quot;{r.comment}&quot;
+                        </p>
                       </div>
                     ))
                   )}
                 </div>
               )}
 
-              {/* Tab 4: Partner Buyer Guarantee */}
               {activeTab === 'guarantee' && (
-                <div className="p-4 bg-amber-50/70 rounded-xl border border-amber-200/80 mb-6 text-xs text-amber-950 space-y-2">
-                  <div className="font-bold flex items-center gap-1.5 text-amber-900">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <div className="p-4 bg-amber-50/70 dark:bg-amber-500/15 rounded-xl border border-amber-200/80 dark:border-amber-500/30 mb-6 text-xs text-amber-950 dark:text-amber-200 space-y-2">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>
                       {product.originStore === 'Shopz BD'
                         ? 'Official Shopz BD Referral Fulfillment'
                         : 'Official Amazon A-to-z Buyer Guarantee'}
                     </span>
                   </div>
-                  <p className="text-[11px] leading-relaxed text-slate-700">
+                  <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
                     {product.originStore === 'Shopz BD'
                       ? 'Purchases routed through our Shopz BD referral link include official courier tracking and genuine product warranty across Bangladesh.'
                       : 'Purchases routed through our official link are covered by Amazon’s 30-day hassle-free return window, authentic manufacturer warranty, and official Amazon checkout.'}
@@ -334,61 +335,64 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               )}
             </div>
 
-            {/* DUAL PURCHASE ACTIONS (High-Converting Conversion Engine) */}
-            <div className="pt-4 border-t border-slate-200 space-y-3">
-              
-              {/* Official Partner Buyer Protection Badge */}
-              <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between font-medium ${
-                isShopz
-                  ? 'bg-emerald-50 border-emerald-200/80 text-emerald-950'
-                  : 'bg-amber-50 border-amber-200/80 text-amber-950'
-              }`}>
+            {/* DUAL PURCHASE ACTIONS */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+              <div
+                className={`p-2.5 rounded-xl border text-xs flex flex-wrap items-center justify-between gap-2 font-medium ${
+                  isShopz
+                    ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200/80 dark:border-emerald-500/30 text-emerald-950 dark:text-emerald-200'
+                    : 'bg-amber-50 dark:bg-amber-500/15 border-amber-200/80 dark:border-amber-500/30 text-amber-950 dark:text-amber-200'
+                }`}
+              >
                 <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>
                     {isShopz
                       ? 'Official Shopz BD Referral Fulfillment · Express Courier Tracking'
                       : 'Official Amazon Prime Fulfillment · 30-Day A-to-z Guarantee'}
                   </span>
                 </span>
-                <span className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
-                  isShopz ? 'bg-emerald-200/70 text-emerald-950' : 'bg-amber-200/60 text-amber-950'
-                }`}>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
+                    isShopz
+                      ? 'bg-emerald-200/70 dark:bg-emerald-500/30 text-emerald-950 dark:text-emerald-100'
+                      : 'bg-amber-200/60 dark:bg-amber-500/30 text-amber-950 dark:text-amber-100'
+                  }`}
+                >
                   {isShopz ? 'Shopz BD Verified' : 'Verified Prime'}
                 </span>
               </div>
 
-              {/* Primary Partner Purchase Button + Copy Link */}
               <div className="flex items-center gap-2">
                 <a
                   href={getAffiliateBuyUrl(product)}
                   target="_blank"
                   rel="noreferrer noopener sponsored"
                   onClick={() => recordAffiliateClick(product.id)}
-                  className={`flex-1 py-3.5 px-4 font-extrabold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
+                  className={`flex-1 min-h-[46px] py-3 px-4 font-extrabold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
                     isShopz
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                       : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                   }`}
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  <span>
+                  <ShoppingCart className="w-4 h-4 shrink-0" />
+                  <span className="truncate">
                     {isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon Prime'}
                     {product.price > 0 ? ` · ${formatPrice(product.price)}` : ''}
                   </span>
-                  <ExternalLink className="w-4 h-4 text-slate-900 ml-1" />
+                  <ExternalLink className="w-4 h-4 text-slate-900 shrink-0" />
                 </a>
 
                 <button
                   type="button"
                   onClick={handleCopyLink}
                   title="Copy tracked partner link"
-                  className="py-3.5 px-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  className="min-h-[46px] py-3 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                 >
                   {copiedLink ? (
                     <>
-                      <Check className="w-4 h-4 text-emerald-600" />
-                      <span className="text-emerald-700">Copied</span>
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-700 dark:text-emerald-300">Copied</span>
                     </>
                   ) : (
                     <>
@@ -399,22 +403,23 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 </button>
               </div>
 
-              {/* Secondary Direct Bag Action */}
               {product.price > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center border border-slate-200 rounded-lg bg-slate-50">
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-2 text-slate-600 hover:bg-slate-200 rounded-l-lg transition-colors cursor-pointer"
+                      className="min-h-[42px] px-3 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-l-lg transition-colors cursor-pointer"
+                      aria-label="Decrease quantity"
                     >
                       -
                     </button>
-                    <span className="px-3 text-xs font-bold font-mono tabular-nums text-slate-800">
+                    <span className="px-3 text-xs font-bold font-mono tabular-nums text-slate-800 dark:text-white">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2 text-slate-600 hover:bg-slate-200 rounded-r-lg transition-colors cursor-pointer"
+                      className="min-h-[42px] px-3 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-r-lg transition-colors cursor-pointer"
+                      aria-label="Increase quantity"
                     >
                       +
                     </button>
@@ -422,7 +427,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
                   <button
                     onClick={handleDirectAdd}
-                    className="flex-1 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                    className="flex-1 min-h-[42px] py-2.5 px-4 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>Add to Store Bag</span>
@@ -431,10 +436,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   {onToggleCompare && (
                     <button
                       onClick={() => onToggleCompare(product)}
-                      className={`p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
+                      className={`min-h-[42px] min-w-[42px] p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer flex items-center justify-center ${
                         isCompared
-                          ? 'bg-amber-100 border-amber-300 text-amber-900'
-                          : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+                          ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40 text-amber-900 dark:text-amber-300'
+                          : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
                       }`}
                       title={isCompared ? 'Remove from comparison' : 'Compare product'}
                     >
@@ -444,8 +449,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 </div>
               )}
 
-              {/* Guarantees Strip */}
-              <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 text-center pt-2">
+              <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 dark:text-slate-400 text-center pt-2">
                 <div className="flex flex-col items-center">
                   <Truck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
                   <span>{isShopz ? 'Express 24-48h' : 'Prime 1-2 Day'}</span>
@@ -459,13 +463,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   <span>Official Warranty</span>
                 </div>
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
