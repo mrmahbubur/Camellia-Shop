@@ -1326,10 +1326,6 @@
       <span style='font-size:16px;'>📦</span>
       <span>Catalog</span>
     </a>
-    <button class='mob-nav-item' onclick='var inp = document.getElementById("visitorChoiceInput"); if (inp) { inp.scrollIntoView({behavior:"smooth", block:"center"}); inp.focus(); }'>
-      <span style='font-size:16px;'>⚡</span>
-      <span>Auto-Add</span>
-    </button>
     <a class='mob-nav-item' href='https://www.amazon.com/gp/yourstore?shopForFallback=1&amp;linkCode=ll2&amp;tag=mrxshahin1-20&amp;linkId=b0640e715d1eb5bbcc6b9a28347ac557' rel='noopener noreferrer' target='_blank'>
       <span style='font-size:16px;'>🛒</span>
       <span>Amazon</span>

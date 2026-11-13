@@ -95,12 +95,6 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
               <span>Amazon Deals</span>
             </button>
             <button
-              onClick={() => handleNavClick('affiliate-hub')}
-              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer"
-            >
-              Partner Deals
-            </button>
-            <button
               onClick={() => handleNavClick('blueprints')}
               className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer"
             >
@@ -288,12 +282,6 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-amber-600 dark:text-amber-400 font-semibold cursor-pointer"
               >
                 Amazon Prime Deals
-              </button>
-              <button
-                onClick={() => handleNavClick('affiliate-hub')}
-                className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white cursor-pointer"
-              >
-                Verified Partner Deals
               </button>
               <button
                 onClick={() => handleNavClick('blueprints')}

@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, Search, BookOpen, Clock, ChevronRight, X } from 'lucide-react';
 import { TECH_GUIDES, TechGuide } from '../data/guidesData';
-import { useAffiliate } from '../context/AffiliateContext';
-import { useProducts } from '../context/ProductsContext';
 
 export const TechGuidesSection: React.FC = () => {
-  const { config } = useAffiliate();
-  const { recordAffiliateClick } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeGuide, setActiveGuide] = useState<TechGuide | null>(null);
@@ -245,52 +241,6 @@ export const TechGuidesSection: React.FC = () => {
             <div className="p-4 bg-emerald-50 dark:bg-emerald-500/15 rounded-xl border border-emerald-200/80 dark:border-emerald-500/30 text-xs text-emerald-950 dark:text-emerald-200 mb-6">
               <strong className="block mb-1 text-emerald-900 dark:text-emerald-300">Key Takeaway:</strong>
               {activeGuide.keyTakeaway}
-            </div>
-
-            {/* Contextual Automated Affiliate Partner Recommendation */}
-            <div className="p-4 bg-slate-900 dark:bg-slate-950 text-white rounded-xl border border-slate-800 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1 min-w-0">
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">
-                  Recommended Tested Solution
-                </div>
-                <div className="text-xs font-bold text-white">
-                  {activeGuide.category === 'Web & SEO'
-                    ? 'Hostinger Business Cloud & Free Domain (78% Off)'
-                    : activeGuide.category === 'Network & WiFi'
-                    ? 'NordVPN Threat Protection & High-Speed Meshnet (72% Off)'
-                    : 'Amazon Verified Creator Gear Special (Prime Fast Shipping)'}
-                </div>
-                <p className="text-[11px] text-slate-300">
-                  {activeGuide.category === 'Web & SEO'
-                    ? '1-click migration from WordPress or legacy platforms with free SSL and NVMe SSD speeds.'
-                    : activeGuide.category === 'Network & WiFi'
-                    ? 'Audited zero-logs and encrypted DNS to fix ISP packet filtering and jitter.'
-                    : 'Curated ergonomic hardware tested for heavy workflow sessions and zero latency.'}
-                </p>
-              </div>
-
-              <a
-                href={
-                  activeGuide.category === 'Web & SEO'
-                    ? `https://www.hostinger.com/web-hosting?REFERRALCODE=${config.hostingerId}`
-                    : activeGuide.category === 'Network & WiFi'
-                    ? `https://nordvpn.com/pricing/?aff=${config.vpnPartnerId}`
-                    : 'https://link.amazon/B0ae4X6pk'
-                }
-                target="_blank"
-                rel="noreferrer noopener sponsored"
-                onClick={() => recordAffiliateClick()}
-                className="px-4 min-h-[40px] py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold text-xs rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <span>
-                  {activeGuide.category === 'Web & SEO'
-                    ? 'Claim Hostinger Deal'
-                    : activeGuide.category === 'Network & WiFi'
-                    ? 'Claim NordVPN Deal'
-                    : 'Claim Amazon Partner Deal'}
-                </span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </a>
             </div>
 
             {/* Bottom Actions */}

@@ -6,12 +6,10 @@
 import React from 'react';
 import { ProductsProvider } from './context/ProductsContext';
 import { CartProvider, useCart } from './context/CartContext';
-import { AffiliateProvider } from './context/AffiliateContext';
 import { TopBar } from './components/TopBar';
 import { Hero } from './components/Hero';
 import { StoreSection } from './components/StoreSection';
 import { AmazonShowcaseSection } from './components/AmazonShowcaseSection';
-import { AffiliateHubSection } from './components/AffiliateHubSection';
 import { RoiCalculator } from './components/RoiCalculator';
 import { PlaybooksSection } from './components/PlaybooksSection';
 import { TechGuidesSection } from './components/TechGuidesSection';
@@ -92,9 +90,6 @@ const MainLayout: React.FC = () => {
         {/* Amazon Official Affiliate Showcase with Prime Badges */}
         <AmazonShowcaseSection />
 
-        {/* Automated Affiliate Partner Deals & Monetization Hub */}
-        <AffiliateHubSection />
-
         <RoiCalculator
           onSelectPlaybook={(playbookId) => {
             setSelectedPlaybookId(playbookId);
@@ -152,9 +147,7 @@ export default function App() {
         <CharityProvider>
           <ProductsProvider>
             <CartProvider>
-              <AffiliateProvider>
-                <MainLayout />
-              </AffiliateProvider>
+              <MainLayout />
             </CartProvider>
           </ProductsProvider>
         </CharityProvider>
