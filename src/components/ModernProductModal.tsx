@@ -175,7 +175,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   {product.category}
                 </span>
 
-                {product.rating > 0 ? (
+                {product.rating > 0 && (
                   <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     <span className="font-bold tabular-nums">{product.rating}</span>
@@ -183,10 +183,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ({product.reviewsCount.toLocaleString()} verified ratings)
                     </span>
                   </div>
-                ) : (
-                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
-                    Saved Custom Listing
-                  </span>
                 )}
               </div>
 

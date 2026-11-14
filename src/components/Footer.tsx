@@ -22,12 +22,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <p className="text-slate-400 max-w-sm leading-relaxed">
               Modern web shopping flagship by Camellia Shop. Providing verified Amazon hardware, curated tech gear, and digital business frameworks.
             </p>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-400 pt-1">
-              <span>Founded &amp; Engineered by M R S (@mrxshahin)</span>
-              <span aria-hidden="true">·</span>
-              <a href="mailto:mr216873@gmail.com" className="hover:text-slate-200 transition-colors break-all">
-                mr216873@gmail.com
-              </a>
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
+              <span>Owner: M R S</span>
               <span aria-hidden="true">·</span>
               <a
                 href="https://gravatar.com/mrxshahin"
@@ -35,7 +31,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 rel="noopener noreferrer"
                 className="hover:text-amber-400 transition-colors"
               >
-                Gravatar ↗
+                @mrxshahin ↗
+              </a>
+              <span aria-hidden="true">·</span>
+              <a href="mailto:mr216873@gmail.com" className="hover:text-slate-200 transition-colors break-all">
+                mr216873@gmail.com
               </a>
             </div>
           </div>
@@ -43,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Quick Navigation Links */}
           <div className="md:col-span-3 space-y-2">
             <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
-              Platform Modules
+              Explore Shop
             </div>
             <ul className="space-y-2">
               <li>
@@ -110,7 +110,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
           <div>
-            © {new Date().getFullYear()} Camellia Shop. All rights reserved. Premium Amazon Megastore &amp; E-Commerce Flagship.
+            © {new Date().getFullYear()} Camellia Shop · Owned by M R S (@mrxshahin).
           </div>
 
           <div className="flex items-center gap-6">

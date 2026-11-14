@@ -3,16 +3,12 @@ import {
   Mail,
   CheckCircle2,
   Send,
-  Globe,
   Copy,
   Check,
   Trash2,
   Clock,
   Phone,
-  Calendar,
-  Award,
-  ExternalLink,
-  Wrench
+  ExternalLink
 } from 'lucide-react';
 import { ResilientImage } from './ResilientImage';
 
@@ -28,19 +24,11 @@ interface SentInquiry {
 const GRAVATAR_AVATAR_URL =
   'https://1.gravatar.com/avatar/79cb903b47ada0af52e9962551bab25e563cc0a515939789f348aaa0ca135946?s=256';
 
-const FOUNDER_SPECIALTIES = [
-  'Windows PC & Android troubleshooting, connectivity & software setup',
-  'WordPress & Blogger site management, SEO writing & usability QA',
-  'Technical documentation & step-by-step user guides (since 2018)',
-  'Virtual assistance, online research & AI workflow optimization'
-];
-
-const VERIFIED_PROFILES = [
+const OWNER_LINKS = [
   { label: 'Gravatar', href: 'https://gravatar.com/mrxshahin' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/mrmahbubur' },
-  { label: 'X (@Mrshahinx)', href: 'https://x.com/Mrshahinx' },
-  { label: 'WordPress', href: 'https://mrxshahin.wordpress.com' },
-  { label: 'Bluesky', href: 'https://bsky.app/profile/mrxshahin.bsky.social' }
+  { label: 'X', href: 'https://x.com/Mrshahinx' },
+  { label: 'Calendly', href: 'https://calendly.com/mrxshahin' }
 ];
 
 export const AboutContactSection: React.FC = () => {
@@ -141,219 +129,66 @@ export const AboutContactSection: React.FC = () => {
       className="py-12 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
-        {/* Platform Architecture Card */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 sm:p-8 lg:p-10 mb-12 sm:mb-16 shadow-xl border border-slate-700">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
-            <div className="lg:col-span-7 space-y-4 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
-                <span>Standalone Storefront</span>
-                <span aria-hidden="true">·</span>
-                <span>Self-Contained Architecture</span>
-              </div>
-
-              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white leading-tight [text-wrap:balance]">
-                Built for Speed, Clarity &amp; Direct Commerce
-              </h3>
-
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Camellia Shop delivers direct partner links to Amazon Associates and Shopz BD, persistent client-side shopping bag and downloadable HTML invoices, interactive ROI unit-economics calculations, and verified hardware guides with zero server bottlenecks.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Zero-backend static React &amp; Vite build that runs anywhere independently</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Interactive unit-economics ROI calculator with real mathematical formulas</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Persistent local bag, multi-currency conversion &amp; downloadable invoices</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span>Direct access to founder M R S (@mrxshahin) with zero intermediaries</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 bg-slate-800/90 rounded-xl p-4 sm:p-5 border border-slate-700 space-y-3 text-xs min-w-0">
-              <div className="font-bold text-white text-sm pb-2 border-b border-slate-700">
-                Verified Platform Specifications
-              </div>
-              <div className="flex justify-between gap-2 py-1 border-b border-slate-700/60">
-                <span className="text-slate-400">Runtime Engine</span>
-                <span className="text-emerald-400 font-mono font-semibold text-right">React 19 + Vite Static Build</span>
-              </div>
-              <div className="flex justify-between gap-2 py-1 border-b border-slate-700/60">
-                <span className="text-slate-400">Partner Fulfillment</span>
-                <span className="text-emerald-400 font-mono font-semibold text-right">Amazon Prime &amp; Shopz BD</span>
-              </div>
-              <div className="flex justify-between gap-2 py-1 border-b border-slate-700/60">
-                <span className="text-slate-400">Order Workflow</span>
-                <span className="text-emerald-400 font-mono font-semibold text-right">HTML Invoices &amp; Direct Email</span>
-              </div>
-              <div className="flex justify-between gap-2 py-1">
-                <span className="text-slate-400">Device &amp; Theme Support</span>
-                <span className="text-emerald-400 font-mono font-semibold text-right">Adaptive Light/Dark · All Screens</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Founder & Engineer Profile + Direct Inquiry Form */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          {/* Left Column: Verified Gravatar Founder Identity */}
+          {/* Left Column: Simple Owner Credit & Contact */}
           <div className="lg:col-span-5 space-y-5 min-w-0">
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shrink-0 shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shrink-0 shadow-sm">
                 <ResilientImage
                   src={GRAVATAR_AVATAR_URL}
-                  alt="M R S (@mrxshahin) — Founder & Engineer"
+                  alt="M R S (@mrxshahin) — Store Owner"
                   className="w-full h-full object-cover"
                 />
               </div>
 
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
-                  <span>Founder &amp; Engineer</span>
-                  <span aria-hidden="true">·</span>
-                  <a
-                    href="https://gravatar.com/mrxshahin"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline inline-flex items-center gap-1"
-                  >
-                    <span>@mrxshahin</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                <div className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-0.5">
+                  Site Owner &amp; Engineer
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  M R S
+                  M R S <span className="text-sm font-medium text-slate-500 dark:text-slate-400">(@mrxshahin)</span>
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Remote IT Support, Technical Writer &amp; Digital Operations
-                </p>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Helping businesses, entrepreneurs, and individuals simplify daily operations, resolve technical problems, manage websites, and stay productive remotely—backed by a certified 360-hour computer systems foundation and technical writing experience since 2018.
+              Certified IT support specialist &amp; technical writer (since 2018). Available for remote troubleshooting, website management, and store inquiries.
             </p>
 
-            {/* Verified Credentials & Core Capabilities */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5 text-xs">
-              <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                <Award className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>Verified Skills &amp; Background</span>
-              </div>
-              <ul className="space-y-1.5 text-slate-600 dark:text-slate-300">
-                {FOUNDER_SPECIALTIES.map((spec) => (
-                  <li key={spec} className="flex items-start gap-2">
-                    <Wrench className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
-                    <span>{spec}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact Channels */}
-            <div className="space-y-2.5 text-xs text-slate-700 dark:text-slate-200">
-              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 min-w-0">
+            {/* Compact Contact Details */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5 text-xs text-slate-700 dark:text-slate-200">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <Mail className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-                <div className="min-w-0">
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500 block">
-                    Gravatar Primary Email
-                  </span>
-                  <a
-                    href="mailto:mr216873@gmail.com"
-                    className="font-mono font-semibold hover:text-amber-600 dark:hover:text-amber-400 break-all"
-                  >
-                    mr216873@gmail.com
-                  </a>
-                </div>
+                <a
+                  href="mailto:mr216873@gmail.com"
+                  className="font-mono font-semibold hover:text-amber-600 dark:hover:text-amber-400 break-all"
+                >
+                  mr216873@gmail.com
+                </a>
               </div>
-
-              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 min-w-0">
-                <Globe className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-                <div className="min-w-0">
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500 block">
-                    Store Desk &amp; Order Support
-                  </span>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono font-semibold">
-                    <a
-                      href="mailto:mrxshahin@proton.me"
-                      className="hover:text-amber-600 dark:hover:text-amber-400 break-all"
-                    >
-                      mrxshahin@proton.me
-                    </a>
-                    <span aria-hidden="true" className="text-slate-400">·</span>
-                    <a
-                      href="mailto:mahbubsh539@gmail.com"
-                      className="hover:text-amber-600 dark:hover:text-amber-400 break-all"
-                    >
-                      mahbubsh539@gmail.com
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Phone className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
                 <a
                   href="tel:+8809611056361"
-                  className="flex items-center gap-2.5 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/50 transition-colors min-w-0"
+                  className="font-mono font-semibold hover:text-amber-600 dark:hover:text-amber-400"
                 >
-                  <Phone className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[11px] text-slate-400 dark:text-slate-500 block">Phone / WhatsApp</span>
-                    <span className="font-mono font-semibold truncate block">+8809611056361</span>
-                  </div>
-                </a>
-
-                <a
-                  href="https://calendly.com/mrxshahin"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/50 transition-colors min-w-0"
-                >
-                  <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[11px] text-slate-400 dark:text-slate-500 block">Schedule Session</span>
-                    <span className="font-semibold truncate block">Calendly ↗</span>
-                  </div>
+                  +8809611056361
                 </a>
               </div>
-            </div>
-
-            {/* Verified Public Profiles */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-2.5">
-              <div className="font-bold text-slate-800 dark:text-slate-200">
-                Verified Profiles &amp; Contact Form
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {VERIFIED_PROFILES.map((profile) => (
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                {OWNER_LINKS.map((profile) => (
                   <a
                     key={profile.href}
                     href={profile.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500/60 text-slate-700 dark:text-slate-200 rounded-md font-medium inline-flex items-center gap-1 transition-colors"
+                    className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500/60 text-slate-700 dark:text-slate-200 rounded-md font-medium inline-flex items-center gap-1 transition-colors"
                   >
                     <span>{profile.label}</span>
                     <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                 ))}
-                <a
-                  href="https://mrsadmin.blogspot.com/p/contact-us.html?m=1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500/60 text-slate-700 dark:text-slate-200 rounded-md font-medium inline-flex items-center gap-1 transition-colors"
-                >
-                  <span>Contact Portal</span>
-                  <ExternalLink className="w-3 h-3 text-slate-400" />
-                </a>
               </div>
             </div>
 
