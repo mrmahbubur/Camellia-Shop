@@ -8,7 +8,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
-  const { setSelectedCategory, amazonStoreUrl, shopzStoreUrl, products } = useProducts();
+  const { setSelectedCategory, amazonStoreUrl, shopzStoreUrl, products, storefrontCopy } = useProducts();
 
   const handleBrowseAllProducts = () => {
     setSelectedCategory('All Departments (Mega Store)');
@@ -26,7 +26,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           {/* Left Column: Storefront Proposition & CTAs */}
           <div className="lg:col-span-7 flex flex-col justify-center py-2 sm:py-4 min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
-              <span>Camellia Shop</span>
+              <span>{storefrontCopy.siteName}</span>
               <span aria-hidden="true">·</span>
               <span>Amazon Prime &amp; Shopz BD</span>
               <span aria-hidden="true">·</span>
@@ -34,11 +34,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             </div>
 
             <h1 className="text-[clamp(1.65rem,3.6vw,3rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 sm:mb-5 leading-[1.14] [text-wrap:balance]">
-              Curated Workspace Electronics, Desk Hardware &amp; Direct Checkout.
+              {storefrontCopy.heroTitle}
             </h1>
 
             <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
-              Shop curated computer peripherals, GaN chargers, studio audio gear, monitors, and desk accessories with live multi-currency pricing and direct Amazon and Shopz BD product links.
+              {storefrontCopy.heroSubtitle}
             </p>
 
             {/* Primary & Secondary Storefront CTAs */}

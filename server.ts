@@ -1,7 +1,13 @@
-import express from 'express';
+import express, { Request } from 'express';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import dotenv from 'dotenv';
+import {
+  DEFAULT_STOREFRONT,
+  StorefrontConfig,
+  sanitizeStorefrontConfig,
+  executeBackendSiteControl
+} from './server/siteController.ts';
 
 dotenv.config();
 
@@ -13,10 +19,12 @@ const DB_FILE = path.join(DATA_DIR, 'store.json');
 
 interface StoreDb {
   clicks: Record<string, number>;
+  storefront: StorefrontConfig;
 }
 
 const DEFAULT_DB: StoreDb = {
-  clicks: {}
+  clicks: {},
+  storefront: DEFAULT_STOREFRONT
 };
 
 let dbWriteQueue: Promise<void> = Promise.resolve();
@@ -27,11 +35,12 @@ async function ensureDb(): Promise<StoreDb> {
     const raw = await fs.readFile(DB_FILE, 'utf-8');
     const parsed = JSON.parse(raw) as Partial<StoreDb>;
     return {
-      clicks: parsed.clicks && typeof parsed.clicks === 'object' ? parsed.clicks : {}
+      clicks: parsed.clicks && typeof parsed.clicks === 'object' ? parsed.clicks : {},
+      storefront: sanitizeStorefrontConfig(parsed.storefront)
     };
   } catch {
     await fs.writeFile(DB_FILE, JSON.stringify(DEFAULT_DB, null, 2), 'utf-8');
-    return { clicks: {} };
+    return { clicks: {}, storefront: DEFAULT_STOREFRONT };
   }
 }
 
@@ -47,6 +56,22 @@ function withDbLock<T>(fn: (db: StoreDb) => Promise<{ db: StoreDb; result: T }>)
     () => undefined
   );
   return next;
+}
+
+function isAuthorizedInternalRequest(req: Request): boolean {
+  const configuredSecret = process.env.SITE_CONTROL_SECRET?.trim();
+  if (configuredSecret) {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+    return token.length > 0 && token === configuredSecret;
+  }
+
+  const remote = req.ip || req.socket.remoteAddress || '';
+  return (
+    remote === '127.0.0.1' ||
+    remote === '::1' ||
+    remote === '::ffff:127.0.0.1'
+  );
 }
 
 // Live FX rates cache (1 hour TTL)
@@ -189,6 +214,11 @@ async function startServer() {
     res.json(profile);
   });
 
+  app.get('/api/storefront', async (_req, res) => {
+    const db = await ensureDb();
+    res.json(db.storefront);
+  });
+
   app.post('/api/clicks', async (req, res) => {
     const body = req.body as { targetId?: string };
     const key = typeof body?.targetId === 'string' && body.targetId.trim() ? body.targetId.trim() : 'outbound';
@@ -197,6 +227,39 @@ async function startServer() {
       return { db, result: db.clicks[key] };
     });
     res.json({ count });
+  });
+
+  // Internal server-only site control endpoint (not linked or mentioned in public UI)
+  app.post('/api/internal/control', async (req, res) => {
+    if (!isAuthorizedInternalRequest(req)) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+
+    const body = req.body as { instruction?: string; command?: string };
+    const instruction =
+      typeof body?.instruction === 'string'
+        ? body.instruction
+        : typeof body?.command === 'string'
+        ? body.command
+        : '';
+
+    if (!instruction.trim()) {
+      res.status(400).json({ error: 'instruction string is required' });
+      return;
+    }
+
+    try {
+      const result = await withDbLock(async (db) => {
+        const updated = await executeBackendSiteControl(instruction, db.storefront);
+        db.storefront = updated.storefront;
+        return { db, result: updated };
+      });
+      res.json(result);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unable to apply storefront update';
+      res.status(500).json({ error: msg });
+    }
   });
 
   if (!IS_PROD) {

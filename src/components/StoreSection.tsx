@@ -31,6 +31,7 @@ export const StoreSection: React.FC = () => {
   const { formatPrice, addToCart } = useCart();
   const {
     products,
+    storefrontCopy,
     selectedCategory,
     setSelectedCategory,
     highlightedProductId,
@@ -170,10 +171,10 @@ export const StoreSection: React.FC = () => {
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
-              Shop Prime Gear &amp; Shopz BD Electronics
+              {storefrontCopy.storeTitle}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
-              Curated hardware across Amazon and Shopz BD. Every purchase completes directly on the official retailer store with manufacturer warranties and buyer protection.
+              {storefrontCopy.storeSubtitle}
             </p>
           </div>
 

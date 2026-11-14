@@ -10,7 +10,7 @@ interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
   const { totalItems, setIsCartOpen, currency, setCurrency } = useCart();
-  const { setSelectedCategory, amazonStoreUrl } = useProducts();
+  const { setSelectedCategory, amazonStoreUrl, storefrontCopy } = useProducts();
   const { themeMode, setThemeMode, cycleThemeMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -40,7 +40,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 truncate">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span className="truncate">
-              Camellia Shop · Curated Amazon Prime &amp; Shopz BD Hardware
+              {storefrontCopy.announcementText}
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-4 shrink-0 text-slate-400">
@@ -66,7 +66,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             className="text-left group cursor-pointer shrink-0 min-h-[40px] flex items-center"
           >
             <span className="text-base sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-              Camellia Shop
+              {storefrontCopy.siteName}
             </span>
           </button>
 

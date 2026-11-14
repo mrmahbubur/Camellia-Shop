@@ -21,7 +21,7 @@ const DEFAULT_OWNER_CREDIT: OwnerCredit = {
 };
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const { setSelectedCategory } = useProducts();
+  const { setSelectedCategory, storefrontCopy } = useProducts();
   const [owner, setOwner] = useState<OwnerCredit>(DEFAULT_OWNER_CREDIT);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Brand & Concise Owner Credit */}
           <div className="md:col-span-5 space-y-3">
             <span className="text-base font-bold text-white tracking-tight">
-              Camellia Shop
+              {storefrontCopy.siteName}
             </span>
             <p className="text-slate-400 max-w-sm leading-relaxed">
               Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon and Shopz BD.
@@ -144,7 +144,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
           <div>
-            © {new Date().getFullYear()} Camellia Shop · Owned by {owner.displayName} (@{owner.username}).
+            © {new Date().getFullYear()} {storefrontCopy.siteName} · Owned by {owner.displayName} (@{owner.username}).
           </div>
 
           <div className="flex items-center gap-6">
