@@ -66,6 +66,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeNotification, setActiveNotification] = useState<string | null>(null);
 
   useEffect(() => {
+    const isGitHubPages =
+      typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+
+    const loadDirectRates = () =>
+      fetch('https://open.er-api.com/v6/latest/USD')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((payload) => {
+          if (payload?.result === 'success' && payload?.rates) {
+            setExchangeRates({
+              USD: 1,
+              EUR: Number(payload.rates.EUR) || 0.92,
+              GBP: Number(payload.rates.GBP) || 0.79,
+              BDT: Number(payload.rates.BDT) || 121.5
+            });
+          }
+        })
+        .catch(() => {
+          // Keep initial rates if unreachable
+        });
+
+    if (isGitHubPages) {
+      loadDirectRates();
+      return;
+    }
+
     fetch('/api/rates')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -76,11 +101,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             GBP: Number(data.rates.GBP) || 0.79,
             BDT: Number(data.rates.BDT) || 121.5
           });
+          return;
         }
+        return loadDirectRates();
       })
-      .catch(() => {
-        // Keep initial rates if unreachable
-      });
+      .catch(() => loadDirectRates());
   }, []);
 
   useEffect(() => {

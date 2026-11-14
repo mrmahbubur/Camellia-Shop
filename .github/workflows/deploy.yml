@@ -25,14 +25,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Build with Vite
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
         run: npm run build
-      - name: Add SPA 404 fallback
-        run: cp dist/index.html dist/404.html
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Add SPA 404 fallback and disable Jekyll
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

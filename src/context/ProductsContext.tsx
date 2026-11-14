@@ -58,6 +58,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const affiliateTag = FIXED_AFFILIATE_TAG;
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+      return;
+    }
     fetch('/api/storefront')
       .then((res) => (res.ok ? res.json() : null))
       .then((data: StorefrontResponse | null) => {
@@ -116,6 +119,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [storefrontData]);
 
   const recordAffiliateClick = (productId?: string) => {
+    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+      return;
+    }
     fetch('/api/clicks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

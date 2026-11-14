@@ -25,6 +25,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [owner, setOwner] = useState<OwnerCredit>(DEFAULT_OWNER_CREDIT);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+      return;
+    }
     fetch('/api/owner')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {

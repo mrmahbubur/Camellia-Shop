@@ -6,9 +6,16 @@ import { defineConfig } from 'vite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+function resolveBasePath(): string {
+  const raw = process.env.VITE_BASE_PATH?.trim();
+  if (!raw || raw === './') return './';
+  if (raw === '/') return '/';
+  return `/${raw.replace(/^\/+|\/+$/g, '')}/`;
+}
+
 export default defineConfig(() => {
   return {
-    base: './',
+    base: resolveBasePath(),
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
