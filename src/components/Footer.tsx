@@ -1,57 +1,114 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowUp, ShieldCheck } from 'lucide-react';
+import { useProducts } from '../context/ProductsContext';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
 }
 
+interface OwnerCredit {
+  displayName: string;
+  username: string;
+  email: string;
+  gravatarUrl: string;
+}
+
+const DEFAULT_OWNER_CREDIT: OwnerCredit = {
+  displayName: 'M R S',
+  username: 'mrxshahin',
+  email: 'mr216873@gmail.com',
+  gravatarUrl: 'https://gravatar.com/mrxshahin'
+};
+
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const { setSelectedCategory } = useProducts();
+  const [owner, setOwner] = useState<OwnerCredit>(DEFAULT_OWNER_CREDIT);
+
+  useEffect(() => {
+    fetch('/api/owner')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.displayName && data.username) {
+          setOwner({
+            displayName: data.displayName,
+            username: data.username,
+            email: data.email || DEFAULT_OWNER_CREDIT.email,
+            gravatarUrl: data.gravatarUrl || DEFAULT_OWNER_CREDIT.gravatarUrl
+          });
+        }
+      })
+      .catch(() => {
+        // Keep verified fallback
+      });
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCategoryNav = (category: string) => {
+    setSelectedCategory(category);
+    onNavigate('store');
   };
 
   return (
     <footer className="bg-slate-900 dark:bg-slate-950 text-slate-400 text-xs border-t border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] py-10 sm:py-12 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 pb-8 sm:pb-10 border-b border-slate-800/80">
-          {/* Brand & Owner */}
+          {/* Brand & Concise Owner Credit */}
           <div className="md:col-span-5 space-y-3">
             <span className="text-base font-bold text-white tracking-tight">
               Camellia Shop
             </span>
             <p className="text-slate-400 max-w-sm leading-relaxed">
-              Curated workspace hardware, Amazon Associates &amp; Shopz BD directory, and practical tech troubleshooting guides.
+              Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon and Shopz BD.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
-              <span>Owner: M R S</span>
+              <span>Owner: {owner.displayName}</span>
               <span aria-hidden="true">·</span>
               <a
-                href="https://gravatar.com/mrxshahin"
+                href={owner.gravatarUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-amber-400 transition-colors"
               >
-                @mrxshahin ↗
+                @{owner.username} ↗
               </a>
               <span aria-hidden="true">·</span>
-              <a href="mailto:mr216873@gmail.com" className="hover:text-slate-200 transition-colors break-all">
-                mr216873@gmail.com
+              <a href={`mailto:${owner.email}`} className="hover:text-slate-200 transition-colors break-all">
+                {owner.email}
               </a>
             </div>
           </div>
 
-          {/* Quick Navigation Links */}
+          {/* Shop Departments */}
           <div className="md:col-span-3 space-y-2">
             <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
-              Explore Shop
+              Shop Departments
             </div>
             <ul className="space-y-2">
               <li>
                 <button
-                  onClick={() => onNavigate('store')}
+                  onClick={() => handleCategoryNav('All Departments (Mega Store)')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
-                  Workspace Gear &amp; Store
+                  All Store Hardware
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleCategoryNav('Electronics & Gadgets')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Electronics &amp; Gadgets
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleCategoryNav('Shopz BD Tech Deals')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Shopz BD Tech Deals
                 </button>
               </li>
               <li>
@@ -60,22 +117,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
                   Amazon Featured Picks
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => onNavigate('guides')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
-                >
-                  Tech Troubleshooting Guides
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => onNavigate('about-contact')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
-                >
-                  Owner &amp; Direct Contact
                 </button>
               </li>
             </ul>
@@ -102,7 +143,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
           <div>
-            © {new Date().getFullYear()} Camellia Shop · Owned by M R S (@mrxshahin).
+            © {new Date().getFullYear()} Camellia Shop · Owned by {owner.displayName} (@{owner.username}).
           </div>
 
           <div className="flex items-center gap-6">

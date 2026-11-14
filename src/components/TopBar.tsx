@@ -10,7 +10,7 @@ interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
   const { totalItems, setIsCartOpen, currency, setCurrency } = useCart();
-  const { setSelectedCategory } = useProducts();
+  const { setSelectedCategory, amazonStoreUrl } = useProducts();
   const { themeMode, setThemeMode, cycleThemeMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -21,6 +21,11 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
 
   const handleAmazonDealsClick = () => {
     setSelectedCategory('Electronics & Gadgets');
+    handleNavClick('store');
+  };
+
+  const handleShopzDealsClick = () => {
+    setSelectedCategory('Shopz BD Tech Deals');
     handleNavClick('store');
   };
 
@@ -39,12 +44,15 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-4 shrink-0 text-slate-400">
-            <button
-              onClick={() => handleNavClick('about-contact')}
-              className="text-amber-300 hover:text-white transition-colors cursor-pointer font-semibold whitespace-nowrap"
+            <a
+              href={amazonStoreUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-300 hover:text-white transition-colors font-semibold whitespace-nowrap inline-flex items-center gap-1"
             >
-              IT Support &amp; Inquiries
-            </button>
+              <span>Amazon Storefront</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       </div>
@@ -80,22 +88,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
               Shop Catalog
             </button>
             <button
+              onClick={handleShopzDealsClick}
+              className="hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer"
+            >
+              Shopz BD Deals
+            </button>
+            <button
               onClick={() => handleNavClick('amazon-products')}
               className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1 cursor-pointer"
             >
               <span>Amazon Picks</span>
-            </button>
-            <button
-              onClick={() => handleNavClick('guides')}
-              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer"
-            >
-              Tech Guides
-            </button>
-            <button
-              onClick={() => handleNavClick('about-contact')}
-              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer"
-            >
-              Owner &amp; Contact
             </button>
           </nav>
 
@@ -228,26 +230,19 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 onClick={() => handleNavClick('store')}
                 className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
-                Shop Gear &amp; Hardware
+                Shop Full Catalog
+              </button>
+              <button
+                onClick={handleShopzDealsClick}
+                className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-emerald-700 dark:text-emerald-400 font-semibold cursor-pointer"
+              >
+                Shopz BD Tech Deals
               </button>
               <button
                 onClick={() => handleNavClick('amazon-products')}
                 className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-amber-600 dark:text-amber-400 font-semibold cursor-pointer"
               >
                 Amazon Featured Picks
-              </button>
-              <button
-                onClick={() => handleNavClick('guides')}
-                className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white cursor-pointer"
-              >
-                Tech Troubleshooting Guides
-              </button>
-              <button
-                onClick={() => handleNavClick('about-contact')}
-                className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white flex items-center justify-between cursor-pointer"
-              >
-                <span>About M R S &amp; Contact</span>
-                <ArrowUpRight className="w-4 h-4 text-slate-400" />
               </button>
             </div>
           </div>

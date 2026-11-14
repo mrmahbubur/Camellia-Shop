@@ -10,8 +10,6 @@ import { TopBar } from './components/TopBar';
 import { Hero } from './components/Hero';
 import { StoreSection } from './components/StoreSection';
 import { AmazonShowcaseSection } from './components/AmazonShowcaseSection';
-import { TechGuidesSection } from './components/TechGuidesSection';
-import { AboutContactSection } from './components/AboutContactSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { ThemeProvider } from './context/ThemeContext';
@@ -68,18 +66,11 @@ const MainLayout: React.FC = () => {
       <TopBar onNavigate={handleNavigate} />
 
       <main className="flex-1 min-w-0">
-        <Hero
-          onExploreStore={() => handleNavigate('store')}
-          onOpenGuides={() => handleNavigate('guides')}
-        />
+        <Hero onExploreStore={() => handleNavigate('store')} />
 
         <StoreSection />
 
         <AmazonShowcaseSection />
-
-        <TechGuidesSection />
-
-        <AboutContactSection />
       </main>
 
       <Footer onNavigate={handleNavigate} />
