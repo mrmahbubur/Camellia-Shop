@@ -28,6 +28,8 @@ jobs:
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Build with Vite
