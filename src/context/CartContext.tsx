@@ -157,8 +157,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const formatPrice = (usdAmount: number): string => {
     const meta = CURRENCY_META[currency];
     const rate = exchangeRates[currency] || 1;
-    const converted = Math.round(usdAmount * rate);
-    return meta.prefix ? `${meta.symbol}${converted}` : `${converted} ${meta.symbol}`;
+    const raw = usdAmount * rate;
+    if (currency === 'BDT') {
+      const rounded = Math.round(raw).toLocaleString('en-US');
+      return `${rounded} ${meta.symbol}`;
+    }
+    const formatted = raw.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return meta.prefix ? `${meta.symbol}${formatted}` : `${formatted} ${meta.symbol}`;
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowUp, ShieldCheck } from 'lucide-react';
+import { ArrowUp, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 
 interface FooterProps {
@@ -64,15 +64,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon and Shopz BD.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
-              <span>Owner: {owner.displayName}</span>
+              <span>Owner &amp; Engineer: {owner.displayName}</span>
               <span aria-hidden="true">·</span>
               <a
                 href={owner.gravatarUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-amber-400 transition-colors"
+                className="hover:text-amber-400 transition-colors inline-flex items-center gap-1"
               >
-                @{owner.username} ↗
+                <span>@{owner.username}</span>
+                <ExternalLink className="w-3 h-3" />
               </a>
               <span aria-hidden="true">·</span>
               <a href={`mailto:${owner.email}`} className="hover:text-slate-200 transition-colors break-all">
