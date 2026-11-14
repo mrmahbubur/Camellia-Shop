@@ -8,14 +8,12 @@ interface FooterProps {
 
 interface OwnerCredit {
   displayName: string;
-  username: string;
   email: string;
   gravatarUrl: string;
 }
 
 const DEFAULT_OWNER_CREDIT: OwnerCredit = {
   displayName: 'M R S',
-  username: 'mrxshahin',
   email: 'mr216873@gmail.com',
   gravatarUrl: 'https://gravatar.com/mrxshahin'
 };
@@ -31,10 +29,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     fetch('/api/owner')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data && data.displayName && data.username) {
+        if (data && data.displayName) {
           setOwner({
             displayName: data.displayName,
-            username: data.username,
             email: data.email || DEFAULT_OWNER_CREDIT.email,
             gravatarUrl: data.gravatarUrl || DEFAULT_OWNER_CREDIT.gravatarUrl
           });
@@ -67,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon and Shopz BD.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
-              <span>Owner &amp; Engineer: {owner.displayName}</span>
+              <span>Founder &amp; Engineer: {owner.displayName}</span>
               <span aria-hidden="true">·</span>
               <a
                 href={owner.gravatarUrl}
@@ -75,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 rel="noopener noreferrer"
                 className="hover:text-amber-400 transition-colors inline-flex items-center gap-1"
               >
-                <span>@{owner.username}</span>
+                <span>Profile</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
               <span aria-hidden="true">·</span>
@@ -147,7 +144,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
           <div>
-            © {new Date().getFullYear()} {storefrontCopy.siteName} · Owned by {owner.displayName} (@{owner.username}).
+            © {new Date().getFullYear()} {storefrontCopy.siteName} · Owned &amp; Engineered by {owner.displayName}.
           </div>
 
           <div className="flex items-center gap-6">

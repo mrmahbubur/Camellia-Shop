@@ -135,7 +135,6 @@ async function getLiveUsdRates(): Promise<{ rates: Record<string, number>; updat
 // Live Gravatar owner credit cache (1 hour TTL)
 interface OwnerCredit {
   displayName: string;
-  username: string;
   email: string;
   gravatarUrl: string;
 }
@@ -144,7 +143,6 @@ let ownerCache: { profile: OwnerCredit; fetchedAtMs: number } | null = null;
 
 const DEFAULT_OWNER_CREDIT: OwnerCredit = {
   displayName: 'M R S',
-  username: 'mrxshahin',
   email: 'mr216873@gmail.com',
   gravatarUrl: 'https://gravatar.com/mrxshahin'
 };
@@ -168,7 +166,6 @@ async function getLiveOwnerCredit(): Promise<OwnerCredit> {
       const json = (await res.json()) as {
         entry?: Array<{
           displayName?: string;
-          preferredUsername?: string;
           profileUrl?: string;
           emails?: Array<{ value?: string; primary?: string }>;
         }>;
@@ -182,7 +179,6 @@ async function getLiveOwnerCredit(): Promise<OwnerCredit> {
 
         const profile: OwnerCredit = {
           displayName: entry.displayName || DEFAULT_OWNER_CREDIT.displayName,
-          username: entry.preferredUsername || DEFAULT_OWNER_CREDIT.username,
           email: primaryEmail,
           gravatarUrl: entry.profileUrl || DEFAULT_OWNER_CREDIT.gravatarUrl
         };
