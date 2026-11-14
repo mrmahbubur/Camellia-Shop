@@ -33,6 +33,46 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- GH_STATIC_FALLBACK_START -->
+    <script>
+      (function () {
+        var loaded = false;
+        function loadBuiltBundle() {
+          if (loaded) return;
+          var root = document.getElementById('root');
+          if (root && root.childElementCount > 0) return;
+          loaded = true;
+          var path = window.location.pathname;
+          var docsBase = './docs/';
+          if (window.location.hostname.endsWith('github.io') && /^\/[^/]+$/.test(path)) {
+            docsBase = path + '/docs/';
+          }
+          var link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = docsBase + 'assets/camellia-app.css';
+          document.head.appendChild(link);
+          var script = document.createElement('script');
+          script.type = 'module';
+          script.src = docsBase + 'assets/camellia-app.js';
+          document.body.appendChild(script);
+        }
+        window.addEventListener(
+          'error',
+          function (e) {
+            var target = e && e.target;
+            if (
+              target &&
+              target.tagName === 'SCRIPT' &&
+              (target.getAttribute('src') || '').indexOf('main.tsx') !== -1
+            ) {
+              loadBuiltBundle();
+            }
+          },
+          true
+        );
+        setTimeout(loadBuiltBundle, 350);
+      })();
+    </script>
+    <!-- GH_STATIC_FALLBACK_END -->
   </body>
 </html>
-
