@@ -1,33 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product } from '../data/shopData';
+import { Product } from '../types/product';
 
 export type Currency = 'USD' | 'EUR' | 'GBP' | 'BDT';
 
-export interface CartItem {
+export interface SavedItem {
   product: Product;
   quantity: number;
 }
 
-export interface PlacedOrder {
-  orderId: string;
-  date: string;
-  customerName: string;
-  email: string;
-  phone?: string;
-  address: string;
-  city: string;
-  notes?: string;
-  paymentMethod: string;
-  items: CartItem[];
-  subtotal: number;
-  discount: number;
-  shipping: number;
-  total: number;
-  currency: Currency;
-}
-
 interface CartContextType {
-  cart: CartItem[];
+  cart: SavedItem[];
   addToCart: (product: Product, quantity?: number) => void;
   updateQuantity: (productId: string, delta: number) => void;
   removeFromCart: (productId: string) => void;
@@ -38,37 +20,23 @@ interface CartContextType {
   currency: Currency;
   setCurrency: (c: Currency) => void;
   formatPrice: (usdAmount: number) => string;
-  couponCode: string;
-  discountPercent: number;
-  applyCoupon: (code: string) => { success: boolean; message: string };
-  removeCoupon: () => void;
   subtotalUSD: number;
-  discountUSD: number;
-  shippingUSD: number;
-  totalUSD: number;
-  freeShippingThresholdUSD: number;
-  freeShippingProgress: number;
-  placedOrder: PlacedOrder | null;
-  setPlacedOrder: (order: PlacedOrder | null) => void;
-  orderHistory: PlacedOrder[];
-  recordPlacedOrder: (order: PlacedOrder) => void;
-  removeSavedOrder: (orderId: string) => void;
   activeNotification: string | null;
   dismissNotification: () => void;
   showNotification: (msg: string) => void;
 }
 
-const CURRENCY_RATES: Record<Currency, { symbol: string; rate: number; prefix: boolean }> = {
-  USD: { symbol: '$', rate: 1.0, prefix: true },
-  EUR: { symbol: '€', rate: 0.92, prefix: true },
-  GBP: { symbol: '£', rate: 0.79, prefix: true },
-  BDT: { symbol: '৳', rate: 121.5, prefix: false }
+const CURRENCY_META: Record<Currency, { symbol: string; prefix: boolean }> = {
+  USD: { symbol: '$', prefix: true },
+  EUR: { symbol: '€', prefix: true },
+  GBP: { symbol: '£', prefix: true },
+  BDT: { symbol: '৳', prefix: false }
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
+  const [cart, setCart] = useState<SavedItem[]>(() => {
     try {
       const saved = localStorage.getItem('mrs_cart');
       if (!saved) return [];
@@ -79,46 +47,49 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  const [orderHistory, setOrderHistory] = useState<PlacedOrder[]>(() => {
-    try {
-      const saved = localStorage.getItem('mrs_order_history');
-      if (!saved) return [];
-      const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+  const [exchangeRates, setExchangeRates] = useState<Record<Currency, number>>({
+    USD: 1,
+    EUR: 0.92,
+    GBP: 0.79,
+    BDT: 121.5
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currency, setCurrencyState] = useState<Currency>(() => {
     try {
       const saved = localStorage.getItem('mrs_currency') as Currency | null;
-      return saved && CURRENCY_RATES[saved] ? saved : 'USD';
+      return saved && CURRENCY_META[saved] ? saved : 'USD';
     } catch {
       return 'USD';
     }
   });
-  const [couponCode, setCouponCode] = useState('');
-  const [discountPercent, setDiscountPercent] = useState(0);
-  const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
   const [activeNotification, setActiveNotification] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/rates')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.rates) {
+          setExchangeRates({
+            USD: 1,
+            EUR: Number(data.rates.EUR) || 0.92,
+            GBP: Number(data.rates.GBP) || 0.79,
+            BDT: Number(data.rates.BDT) || 121.5
+          });
+        }
+      })
+      .catch(() => {
+        // Keep initial rates if unreachable
+      });
+  }, []);
 
   useEffect(() => {
     try {
       localStorage.setItem('mrs_cart', JSON.stringify(cart));
     } catch {
-      // Storage unavailable in private mode
-    }
-  }, [cart]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('mrs_order_history', JSON.stringify(orderHistory));
-    } catch {
       // Storage unavailable
     }
-  }, [orderHistory]);
+  }, [cart]);
 
   const setCurrency = (c: Currency) => {
     setCurrencyState(c);
@@ -127,15 +98,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // Storage unavailable
     }
-  };
-
-  const recordPlacedOrder = (order: PlacedOrder) => {
-    setOrderHistory((prev) => [order, ...prev].slice(0, 20));
-    setPlacedOrder(order);
-  };
-
-  const removeSavedOrder = (orderId: string) => {
-    setOrderHistory((prev) => prev.filter((o) => o.orderId !== orderId));
   };
 
   const showNotification = (msg: string) => {
@@ -159,12 +121,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return [...prev, { product, quantity }];
     });
-    showNotification(`Added "${product.title}" to your bag`);
+    showNotification(`Saved "${product.title}" to your list`);
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setCart((prev) => {
-      return prev
+    setCart((prev) =>
+      prev
         .map((item) => {
           if (item.product.id === productId) {
             const newQty = item.quantity + delta;
@@ -172,13 +134,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           return item;
         })
-        .filter((item): item is CartItem => item !== null);
-    });
+        .filter((item): item is SavedItem => item !== null)
+    );
   };
 
   const removeFromCart = (productId: string) => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
-    showNotification('Item removed from bag');
+    showNotification('Item removed from saved list');
   };
 
   const clearCart = () => {
@@ -187,52 +149,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const applyCoupon = (code: string) => {
-    const trimmed = code.trim().toUpperCase();
-    if (trimmed === 'CAMELLIA15' || trimmed === 'MRSLAUNCH') {
-      setCouponCode(trimmed);
-      setDiscountPercent(15);
-      showNotification(`Coupon ${trimmed} applied: 15% discount`);
-      return { success: true, message: '15% discount applied successfully!' };
-    } else if (trimmed === 'SHAHIN10') {
-      setCouponCode('SHAHIN10');
-      setDiscountPercent(10);
-      showNotification('Coupon SHAHIN10 applied: 10% discount');
-      return { success: true, message: '10% discount applied successfully!' };
-    } else {
-      return { success: false, message: 'Invalid promotional code. Try CAMELLIA15' };
-    }
-  };
-
-  const removeCoupon = () => {
-    setCouponCode('');
-    setDiscountPercent(0);
-    showNotification('Promotional code removed');
-  };
-
-  const formatPrice = (usdAmount: number): string => {
-    const config = CURRENCY_RATES[currency];
-    const converted = Math.round(usdAmount * config.rate);
-    return config.prefix
-      ? `${config.symbol}${converted}`
-      : `${converted} ${config.symbol}`;
-  };
-
   const subtotalUSD = cart.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
 
-  const discountUSD = Math.round((subtotalUSD * discountPercent) / 100);
-  const freeShippingThresholdUSD = 50;
-  const isFreeShipping = subtotalUSD >= freeShippingThresholdUSD || subtotalUSD === 0;
-  const shippingUSD = isFreeShipping ? 0 : 9;
-  const totalUSD = Math.max(0, subtotalUSD - discountUSD + shippingUSD);
-
-  const freeShippingProgress = Math.min(
-    100,
-    Math.round((subtotalUSD / freeShippingThresholdUSD) * 100)
-  );
+  const formatPrice = (usdAmount: number): string => {
+    const meta = CURRENCY_META[currency];
+    const rate = exchangeRates[currency] || 1;
+    const converted = Math.round(usdAmount * rate);
+    return meta.prefix ? `${meta.symbol}${converted}` : `${converted} ${meta.symbol}`;
+  };
 
   return (
     <CartContext.Provider
@@ -248,21 +175,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currency,
         setCurrency,
         formatPrice,
-        couponCode,
-        discountPercent,
-        applyCoupon,
-        removeCoupon,
         subtotalUSD,
-        discountUSD,
-        shippingUSD,
-        totalUSD,
-        freeShippingThresholdUSD,
-        freeShippingProgress,
-        placedOrder,
-        setPlacedOrder,
-        orderHistory,
-        recordPlacedOrder,
-        removeSavedOrder,
         activeNotification,
         dismissNotification,
         showNotification

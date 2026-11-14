@@ -10,17 +10,11 @@ import { TopBar } from './components/TopBar';
 import { Hero } from './components/Hero';
 import { StoreSection } from './components/StoreSection';
 import { AmazonShowcaseSection } from './components/AmazonShowcaseSection';
-import { RoiCalculator } from './components/RoiCalculator';
-import { PlaybooksSection } from './components/PlaybooksSection';
 import { TechGuidesSection } from './components/TechGuidesSection';
-import { ThoughtsSection } from './components/ThoughtsSection';
 import { AboutContactSection } from './components/AboutContactSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
-import { OrderConfirmationModal } from './components/OrderConfirmationModal';
-import { CharityProvider } from './context/CharityContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { CharitySupportModal } from './components/CharitySupportModal';
 import { Check, X } from 'lucide-react';
 
 interface ErrorBoundaryState {
@@ -61,7 +55,6 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, Er
 
 const MainLayout: React.FC = () => {
   const { activeNotification, dismissNotification } = useCart();
-  const [selectedPlaybookId, setSelectedPlaybookId] = React.useState<string | null>(null);
 
   const handleNavigate = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -72,55 +65,27 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col text-slate-900 dark:text-slate-100 selection:bg-amber-400 selection:text-slate-950 transition-colors duration-200">
-      {/* Navigation TopBar */}
-      <TopBar
-        onNavigate={handleNavigate}
-      />
+      <TopBar onNavigate={handleNavigate} />
 
-      {/* Main Content Sections */}
       <main className="flex-1 min-w-0">
         <Hero
           onExploreStore={() => handleNavigate('store')}
-          onOpenCalculator={() => handleNavigate('roi-calculator')}
+          onOpenGuides={() => handleNavigate('guides')}
         />
 
-        {/* E-Commerce Storefront with All Accessories Showing Option */}
         <StoreSection />
 
-        {/* Amazon Official Affiliate Showcase with Prime Badges */}
         <AmazonShowcaseSection />
 
-        <RoiCalculator
-          onSelectPlaybook={(playbookId) => {
-            setSelectedPlaybookId(playbookId);
-            handleNavigate('blueprints');
-          }}
-        />
-
-        <PlaybooksSection selectedPlaybookId={selectedPlaybookId} />
-
         <TechGuidesSection />
-
-        <ThoughtsSection />
 
         <AboutContactSection />
       </main>
 
-      {/* Footer */}
-      <Footer
-        onNavigate={handleNavigate}
-      />
+      <Footer onNavigate={handleNavigate} />
 
-      {/* Slide-over Cart Drawer */}
       <CartDrawer />
 
-      {/* Post-Checkout Order Confirmation */}
-      <OrderConfirmationModal />
-
-      {/* Charity Support Modal */}
-      <CharitySupportModal />
-
-      {/* Floating System Toast */}
       {activeNotification && (
         <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50 bg-slate-900 dark:bg-slate-800 text-white text-xs px-4 py-3 rounded-xl shadow-xl border border-slate-700 dark:border-slate-600 flex items-center justify-between gap-3 animate-fade-in">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -144,13 +109,11 @@ export default function App() {
   return (
     <AppErrorBoundary>
       <ThemeProvider>
-        <CharityProvider>
-          <ProductsProvider>
-            <CartProvider>
-              <MainLayout />
-            </CartProvider>
-          </ProductsProvider>
-        </CharityProvider>
+        <ProductsProvider>
+          <CartProvider>
+            <MainLayout />
+          </CartProvider>
+        </ProductsProvider>
       </ThemeProvider>
     </AppErrorBoundary>
   );

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Trash2, ShoppingBag, ArrowRight, Tag, Truck, FileText } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { X, Trash2, ShoppingBag, ExternalLink, Copy, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { CheckoutModal } from './CheckoutModal';
+import { useProducts } from '../context/ProductsContext';
 import { ResilientImage } from './ResilientImage';
 
 export const CartDrawer: React.FC = () => {
@@ -11,200 +11,129 @@ export const CartDrawer: React.FC = () => {
     setIsCartOpen,
     updateQuantity,
     removeFromCart,
+    clearCart,
     subtotalUSD,
-    discountUSD,
-    shippingUSD,
-    totalUSD,
-    formatPrice,
-    couponCode,
-    discountPercent,
-    applyCoupon,
-    removeCoupon,
-    freeShippingThresholdUSD,
-    freeShippingProgress,
-    orderHistory,
-    setPlacedOrder,
-    removeSavedOrder
+    formatPrice
   } = useCart();
-
-  const [inputCoupon, setInputCoupon] = useState('');
-  const [couponFeedback, setCouponFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const { products, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
+  const [copiedLinks, setCopiedLinks] = React.useState(false);
 
   useEffect(() => {
-    if (!isCartOpen || isCheckoutOpen) return;
+    if (!isCartOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsCartOpen(false);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isCartOpen, isCheckoutOpen, setIsCartOpen]);
+  }, [isCartOpen, setIsCartOpen]);
 
   if (!isCartOpen) return null;
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputCoupon.trim()) return;
-    const res = applyCoupon(inputCoupon);
-    if (res.success) {
-      setCouponFeedback({ type: 'success', text: res.message });
-      setInputCoupon('');
-    } else {
-      setCouponFeedback({ type: 'error', text: res.message });
-    }
+  const resolvePartnerUrl = (itemId: string, fallbackUrl?: string) => {
+    const matched = products.find((p) => p.id === itemId);
+    if (matched) return getAffiliateBuyUrl(matched);
+    return fallbackUrl || '#store';
   };
 
-  const handleProceedToCheckout = () => {
-    setIsCheckoutOpen(true);
+  const handleCopyAllLinks = () => {
+    const lines = cart.map((item, idx) => {
+      const url = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
+      return `${idx + 1}. ${item.product.title} (x${item.quantity}) — ${formatPrice(
+        item.product.price * item.quantity
+      )}\n   ${url}`;
+    });
+    navigator.clipboard.writeText(lines.join('\n\n'));
+    setCopiedLinks(true);
+    setTimeout(() => setCopiedLinks(false), 2000);
   };
 
   return (
-    <>
+    <div
+      onClick={() => setIsCartOpen(false)}
+      className="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-xs flex justify-end"
+    >
       <div
-        onClick={() => setIsCartOpen(false)}
-        className="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-xs flex justify-end"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-white dark:bg-slate-900 h-dvh shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800"
       >
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-md bg-white dark:bg-slate-900 h-dvh shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800"
-        >
-          {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-slate-800 dark:text-amber-400" />
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                Your Shopping Bag
-              </h2>
-              <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                ({cart.reduce((sum, item) => sum + item.quantity, 0)})
-              </span>
-            </div>
-
-            <button
-              onClick={() => setIsCartOpen(false)}
-              aria-label="Close bag"
-              className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-slate-800 dark:text-amber-400" />
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              Saved Hardware List
+            </h2>
+            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+              ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+            </span>
           </div>
 
-          {/* Free Shipping Progress Indicator */}
-          <div className="px-4 sm:px-5 py-3 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center justify-between gap-2 text-xs mb-1.5">
-              <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium min-w-0">
-                <Truck className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
-                {freeShippingProgress >= 100 ? (
-                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold truncate">
-                    Eligible for FREE Express Shipping
-                  </span>
-                ) : (
-                  <span className="truncate">
-                    Add <strong>{formatPrice(Math.max(0, freeShippingThresholdUSD - subtotalUSD))}</strong> for FREE shipping
-                  </span>
-                )}
-              </span>
-              <span className="font-mono text-slate-500 dark:text-slate-400 tabular-nums shrink-0">
-                {freeShippingProgress}%
-              </span>
-            </div>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-300 rounded-full ${
-                  freeShippingProgress >= 100 ? 'bg-emerald-500' : 'bg-slate-900 dark:bg-amber-400'
-                }`}
-                style={{ width: `${freeShippingProgress}%` }}
-              />
-            </div>
-          </div>
+          <button
+            onClick={() => setIsCartOpen(false)}
+            aria-label="Close list"
+            className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 sm:space-y-4">
-            {cart.length === 0 ? (
-              <div className="text-center py-14 space-y-3">
-                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
-                  <ShoppingBag className="w-6 h-6" />
-                </div>
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Your bag is currently empty.
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mx-auto">
-                  Explore curated Amazon Prime and Shopz BD hardware to add items to your bag or open direct partner checkout.
-                </p>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  className="mt-2 text-xs font-semibold text-slate-950 dark:text-amber-400 underline underline-offset-4 cursor-pointer"
-                >
-                  Continue Browsing
-                </button>
-                {orderHistory.length > 0 && (
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 text-left space-y-2">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Saved Orders ({orderHistory.length})</span>
-                    </div>
-                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                      {orderHistory.map((ord) => (
-                        <div
-                          key={ord.orderId}
-                          className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 text-xs"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsCartOpen(false);
-                              setPlacedOrder(ord);
-                            }}
-                            className="text-left flex-1 min-w-0 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400"
-                          >
-                            <div className="font-mono font-bold text-slate-900 dark:text-white truncate">
-                              {ord.orderId}
-                            </div>
-                            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                              {ord.date} · {formatPrice(ord.total)}
-                            </div>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeSavedOrder(ord.orderId)}
-                            aria-label={`Remove saved order ${ord.orderId}`}
-                            className="p-2 text-slate-400 hover:text-red-500 cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+        {/* Direct Purchase Notice */}
+        <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
+          Every item purchases directly on Amazon or Shopz BD with official merchant checkout.
+        </div>
+
+        {/* Saved Items List */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 sm:space-y-4">
+          {cart.length === 0 ? (
+            <div className="text-center py-14 space-y-3">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                <ShoppingBag className="w-6 h-6" />
               </div>
-            ) : (
-              <>
-                {cart.map((item) => (
-                  <div
-                    key={item.product.id}
-                    className="flex gap-3 sm:gap-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 items-center justify-between"
-                  >
-                    <ResilientImage
-                      src={item.product.image}
-                      alt={item.product.title}
-                      className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
-                      referrerPolicy="no-referrer"
-                    />
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Your saved list is empty.
+              </p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mx-auto">
+                Save products while browsing to compare setup totals and open direct Amazon or Shopz BD links.
+              </p>
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="mt-2 text-xs font-semibold text-slate-950 dark:text-amber-400 underline underline-offset-4 cursor-pointer"
+              >
+                Continue Browsing
+              </button>
+            </div>
+          ) : (
+            cart.map((item) => {
+              const partnerUrl = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
+              const isShopz = item.product.originStore === 'Shopz BD';
 
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-semibold text-slate-900 dark:text-white truncate mb-1">
-                        {item.product.title}
-                      </h4>
-                      <div className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums mb-2">
-                        {formatPrice(item.product.price)}
-                      </div>
+              return (
+                <div
+                  key={item.product.id}
+                  className="flex gap-3 sm:gap-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 items-start justify-between"
+                >
+                  <ResilientImage
+                    src={item.product.image}
+                    alt={item.product.title}
+                    className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
+                    referrerPolicy="no-referrer"
+                  />
 
-                      <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <h4 className="text-xs font-semibold text-slate-900 dark:text-white line-clamp-2">
+                      {item.product.title}
+                    </h4>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums">
+                        {formatPrice(item.product.price * item.quantity)}
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
                         <div className="flex items-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-md">
                           <button
                             onClick={() => updateQuantity(item.product.id, -1)}
-                            className="min-h-[34px] min-w-[32px] px-2 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            className="min-h-[30px] min-w-[28px] px-1.5 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             aria-label="Decrease quantity"
                           >
                             -
@@ -214,7 +143,7 @@ export const CartDrawer: React.FC = () => {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.product.id, 1)}
-                            className="min-h-[34px] min-w-[32px] px-2 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            className="min-h-[30px] min-w-[28px] px-1.5 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             aria-label="Increase quantity"
                           >
                             +
@@ -223,7 +152,7 @@ export const CartDrawer: React.FC = () => {
 
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-slate-400 hover:text-red-500 p-2 transition-colors cursor-pointer"
+                          className="text-slate-400 hover:text-red-500 p-1.5 transition-colors cursor-pointer"
                           aria-label="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -231,121 +160,68 @@ export const CartDrawer: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="text-xs font-mono font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
-                      {formatPrice(item.product.price * item.quantity)}
-                    </div>
-                  </div>
-                ))}
-
-                {orderHistory.length > 0 && (
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsCartOpen(false);
-                        setPlacedOrder(orderHistory[0]);
-                      }}
-                      className="w-full min-h-[40px] px-3 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-between cursor-pointer"
+                    <a
+                      href={partnerUrl}
+                      target="_blank"
+                      rel="noreferrer noopener sponsored"
+                      onClick={() => recordAffiliateClick(item.product.id)}
+                      className={`w-full min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors ${
+                        isShopz
+                          ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                          : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
+                      }`}
                     >
-                      <span className="flex items-center gap-1.5 min-w-0">
-                        <FileText className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
-                        <span className="truncate">View Saved Invoice ({orderHistory[0].orderId})</span>
-                      </span>
-                      <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
-                        {orderHistory.length} saved
-                      </span>
-                    </button>
+                      <span>Buy on {item.product.originStore || 'Amazon'}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
                   </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Footer & Checkout Area */}
-          {cart.length > 0 && (
-            <div className="p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4">
-              <div>
-                {couponCode ? (
-                  <div className="flex items-center justify-between text-xs p-2.5 bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 rounded-lg text-emerald-800 dark:text-emerald-200">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <Tag className="w-3.5 h-3.5" />
-                      Coupon: <strong>{couponCode}</strong> ({discountPercent}% off)
-                    </span>
-                    <button
-                      onClick={removeCoupon}
-                      className="text-xs text-emerald-700 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white underline cursor-pointer"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleApplyCoupon} className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Promo Code (Try: CAMELLIA15)"
-                      value={inputCoupon}
-                      onChange={(e) => setInputCoupon(e.target.value)}
-                      className="flex-1 min-w-0 min-h-[40px] px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400"
-                    />
-                    <button
-                      type="submit"
-                      className="px-3.5 min-h-[40px] py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer shrink-0"
-                    >
-                      Apply
-                    </button>
-                  </form>
-                )}
-
-                {couponFeedback && !couponCode && (
-                  <p className={`text-[11px] mt-1 ${couponFeedback.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {couponFeedback.text}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                  <span>Subtotal</span>
-                  <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
                 </div>
-                {discountUSD > 0 && (
-                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                    <span>Discount ({discountPercent}%)</span>
-                    <span className="font-mono tabular-nums">-{formatPrice(discountUSD)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                  <span>Shipping</span>
-                  <span className="font-mono tabular-nums">
-                    {shippingUSD === 0 ? 'FREE' : formatPrice(shippingUSD)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <span>Estimated Total</span>
-                  <span className="font-mono tabular-nums">{formatPrice(totalUSD)}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleProceedToCheckout}
-                className="w-full min-h-[46px] py-3 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
-              >
-                <span>Order Invoice &amp; Partner Checkout · {formatPrice(totalUSD)}</span>
-                <ArrowRight className="w-4 h-4 shrink-0" />
-              </button>
-
-              <p className="text-[11px] text-center text-slate-400 dark:text-slate-500">
-                Downloadable HTML invoice &amp; direct partner store links included
-              </p>
-            </div>
+              );
+            })
           )}
         </div>
-      </div>
 
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-      />
-    </>
+        {/* Footer */}
+        {cart.length > 0 && (
+          <div className="p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+            <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm">
+              <span>Estimated Setup Total</span>
+              <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
+            </div>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+              Live pricing, shipping, and taxes are applied directly on Amazon or Shopz BD.
+            </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopyAllLinks}
+                className="flex-1 min-h-[42px] px-3 py-2 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                {copiedLinks ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Links Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy All Buy Links</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={clearCart}
+                className="min-h-[42px] px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

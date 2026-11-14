@@ -13,7 +13,6 @@ interface ProductsContextType {
   amazonStoreUrl: string;
   shopzStoreUrl: string;
   affiliateTag: string;
-  totalAffiliateClicks: number;
   recordAffiliateClick: (productId?: string) => void;
 }
 
@@ -29,25 +28,13 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const shopzStoreUrl = SHOPZ_REF_BASE;
   const affiliateTag = FIXED_AFFILIATE_TAG;
 
-  const [totalAffiliateClicks, setTotalAffiliateClicks] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('mrs_affiliate_click_count');
-      const parsed = saved ? parseInt(saved, 10) : 0;
-      return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-    } catch {
-      return 0;
-    }
-  });
-
-  const recordAffiliateClick = () => {
-    setTotalAffiliateClicks((prev) => {
-      const next = prev + 1;
-      try {
-        localStorage.setItem('mrs_affiliate_click_count', next.toString());
-      } catch {
-        // storage unavailable
-      }
-      return next;
+  const recordAffiliateClick = (productId?: string) => {
+    fetch('/api/clicks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetId: productId || 'outbound' })
+    }).catch(() => {
+      // Non-blocking outbound click log
     });
   };
 
@@ -126,7 +113,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         amazonStoreUrl,
         shopzStoreUrl,
         affiliateTag,
-        totalAffiliateClicks,
         recordAffiliateClick
       }}
     >

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Mail,
   CheckCircle2,
@@ -8,7 +8,8 @@ import {
   Trash2,
   Clock,
   Phone,
-  ExternalLink
+  ExternalLink,
+  AlertCircle
 } from 'lucide-react';
 import { ResilientImage } from './ResilientImage';
 
@@ -21,17 +22,36 @@ interface SentInquiry {
   createdAt: string;
 }
 
-const GRAVATAR_AVATAR_URL =
-  'https://1.gravatar.com/avatar/79cb903b47ada0af52e9962551bab25e563cc0a515939789f348aaa0ca135946?s=256';
+interface OwnerProfile {
+  displayName: string;
+  username: string;
+  avatarUrl: string;
+  bio: string;
+  email: string;
+  phone: string;
+  links: { label: string; href: string }[];
+}
 
-const OWNER_LINKS = [
-  { label: 'Gravatar', href: 'https://gravatar.com/mrxshahin' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/mrmahbubur' },
-  { label: 'X', href: 'https://x.com/Mrshahinx' },
-  { label: 'Calendly', href: 'https://calendly.com/mrxshahin' }
-];
+const INITIAL_OWNER: OwnerProfile = {
+  displayName: 'M R S',
+  username: 'mrxshahin',
+  avatarUrl:
+    'https://1.gravatar.com/avatar/79cb903b47ada0af52e9962551bab25e563cc0a515939789f348aaa0ca135946?s=256',
+  bio: 'Available for remote IT support, Windows/Android troubleshooting, website content management, and technical documentation (since 2018).',
+  email: 'mr216873@gmail.com',
+  phone: '+8809611056361',
+  links: [
+    { label: 'Gravatar', href: 'https://gravatar.com/mrxshahin' },
+    { label: 'WordPress', href: 'https://mrxshahin.wordpress.com' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/mrmahbubur' },
+    { label: 'X', href: 'https://x.com/Mrshahinx' },
+    { label: 'Bluesky', href: 'https://bsky.app/profile/mrxshahin.bsky.social' },
+    { label: 'Calendly', href: 'https://calendly.com/mrxshahin' }
+  ]
+};
 
 export const AboutContactSection: React.FC = () => {
+  const [owner, setOwner] = useState<OwnerProfile>(INITIAL_OWNER);
   const [senderName, setSenderName] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
   const [inquiryType, setInquiryType] = useState('IT Support & Troubleshooting');
@@ -39,16 +59,33 @@ export const AboutContactSection: React.FC = () => {
   const [preparedMailto, setPreparedMailto] = useState<string | null>(null);
   const [lastPayloadText, setLastPayloadText] = useState('');
   const [copiedInquiry, setCopiedInquiry] = useState(false);
-  const [sentInquiries, setSentInquiries] = useState<SentInquiry[]>(() => {
-    try {
-      const saved = localStorage.getItem('mrs_sent_inquiries');
-      if (!saved) return [];
-      const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [sentInquiries, setSentInquiries] = useState<SentInquiry[]>([]);
+
+  useEffect(() => {
+    fetch('/api/owner')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.displayName && data.username) {
+          setOwner(data as OwnerProfile);
+        }
+      })
+      .catch(() => {
+        // Keep verified owner fallback
+      });
+
+    fetch('/api/inquiries')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data?.inquiries)) {
+          setSentInquiries(data.inquiries);
+        }
+      })
+      .catch(() => {
+        // Ignore if unreachable
+      });
+  }, []);
 
   const buildInquiryText = () =>
     [
@@ -60,46 +97,51 @@ export const AboutContactSection: React.FC = () => {
       message.trim()
     ].join('\n');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
     if (!senderName.trim() || !senderEmail.trim() || !message.trim()) return;
 
     const payloadText = buildInquiryText();
     const subject = `[Camellia Shop · ${inquiryType}] Inquiry from ${senderName.trim()}`;
-    const mailtoUrl = `mailto:mr216873@gmail.com?cc=${encodeURIComponent(
+    const mailtoUrl = `mailto:${owner.email}?cc=${encodeURIComponent(
       'mrxshahin@proton.me,mahbubsh539@gmail.com'
     )}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(payloadText)}`;
 
-    const newEntry: SentInquiry = {
-      id: `INQ-${Date.now()}`,
-      senderName: senderName.trim(),
-      senderEmail: senderEmail.trim(),
-      inquiryType,
-      message: message.trim(),
-      createdAt: new Date().toISOString()
-    };
-
-    const next = [newEntry, ...sentInquiries].slice(0, 10);
-    setSentInquiries(next);
+    setIsSubmitting(true);
     try {
-      localStorage.setItem('mrs_sent_inquiries', JSON.stringify(next));
-    } catch {
-      // storage unavailable
-    }
+      const res = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderName: senderName.trim(),
+          senderEmail: senderEmail.trim(),
+          inquiryType,
+          message: message.trim()
+        })
+      });
 
-    setLastPayloadText(payloadText);
-    setPreparedMailto(mailtoUrl);
-    window.location.href = mailtoUrl;
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(errData.error || 'Unable to submit inquiry.');
+      }
+
+      const data = (await res.json()) as { inquiry: SentInquiry };
+      setSentInquiries((prev) => [data.inquiry, ...prev]);
+      setLastPayloadText(payloadText);
+      setPreparedMailto(mailtoUrl);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Unable to submit inquiry.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteInquiry = (id: string) => {
-    const next = sentInquiries.filter((item) => item.id !== id);
-    setSentInquiries(next);
-    try {
-      localStorage.setItem('mrs_sent_inquiries', JSON.stringify(next));
-    } catch {
-      // storage unavailable
-    }
+  const handleDeleteInquiry = async (id: string) => {
+    await fetch(`/api/inquiries/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+    setSentInquiries((prev) => prev.filter((item) => item.id !== id));
   };
 
   const buildMailtoForInquiry = (inq: SentInquiry) => {
@@ -112,7 +154,7 @@ export const AboutContactSection: React.FC = () => {
       inq.message
     ].join('\n');
     const subject = `[Camellia Shop · ${inq.inquiryType}] Inquiry from ${inq.senderName}`;
-    return `mailto:mr216873@gmail.com?cc=${encodeURIComponent(
+    return `mailto:${owner.email}?cc=${encodeURIComponent(
       'mrxshahin@proton.me,mahbubsh539@gmail.com'
     )}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
@@ -136,8 +178,8 @@ export const AboutContactSection: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shrink-0 shadow-sm">
                 <ResilientImage
-                  src={GRAVATAR_AVATAR_URL}
-                  alt="M R S (@mrxshahin) — Store Owner"
+                  src={owner.avatarUrl}
+                  alt={`${owner.displayName} (@${owner.username}) — Store Owner`}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -147,13 +189,16 @@ export const AboutContactSection: React.FC = () => {
                   Site Owner &amp; Engineer
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  M R S <span className="text-sm font-medium text-slate-500 dark:text-slate-400">(@mrxshahin)</span>
+                  {owner.displayName}{' '}
+                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    (@{owner.username})
+                  </span>
                 </h3>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Certified IT support specialist &amp; technical writer (since 2018). Available for remote troubleshooting, website management, and store inquiries.
+              {owner.bio}
             </p>
 
             {/* Compact Contact Details */}
@@ -161,23 +206,23 @@ export const AboutContactSection: React.FC = () => {
               <div className="flex items-center gap-2.5 min-w-0">
                 <Mail className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
                 <a
-                  href="mailto:mr216873@gmail.com"
+                  href={`mailto:${owner.email}`}
                   className="font-mono font-semibold hover:text-amber-600 dark:hover:text-amber-400 break-all"
                 >
-                  mr216873@gmail.com
+                  {owner.email}
                 </a>
               </div>
               <div className="flex items-center gap-2.5 min-w-0">
                 <Phone className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
                 <a
-                  href="tel:+8809611056361"
+                  href={`tel:${owner.phone}`}
                   className="font-mono font-semibold hover:text-amber-600 dark:hover:text-amber-400"
                 >
-                  +8809611056361
+                  {owner.phone}
                 </a>
               </div>
               <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-                {OWNER_LINKS.map((profile) => (
+                {owner.links.map((profile) => (
                   <a
                     key={profile.href}
                     href={profile.href}
@@ -197,7 +242,7 @@ export const AboutContactSection: React.FC = () => {
                 <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-100">
                   <span className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                    <span>Saved Inquiry History ({sentInquiries.length})</span>
+                    <span>Submitted Inquiries ({sentInquiries.length})</span>
                   </span>
                 </div>
                 <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
@@ -213,7 +258,7 @@ export const AboutContactSection: React.FC = () => {
                       <div className="flex items-center gap-1 shrink-0">
                         <a
                           href={buildMailtoForInquiry(inq)}
-                          title="Re-open in email app"
+                          title="Open in email app"
                           className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded text-[11px] font-semibold"
                         >
                           Email
@@ -221,7 +266,7 @@ export const AboutContactSection: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleDeleteInquiry(inq.id)}
-                          aria-label="Delete saved inquiry"
+                          aria-label="Delete inquiry"
                           className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -234,24 +279,31 @@ export const AboutContactSection: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: Direct Email Inquiry Composer */}
+          {/* Right Column: Direct Inquiry Form */}
           <div className="lg:col-span-7 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-8 min-w-0">
             <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-              Compose Direct Inquiry to M R S
+              Send Direct Inquiry to {owner.displayName}
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-              Submitting opens your email client pre-addressed to <span className="font-mono">mr216873@gmail.com</span> with your formatted message ready to send. Available for ongoing freelance or project-based remote support across time zones.
+              Your inquiry is saved directly on the site and can also be forwarded via <span className="font-mono">{owner.email}</span>.
             </p>
+
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-500/40 rounded-lg text-xs text-red-700 dark:text-red-300 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
 
             {preparedMailto ? (
               <div className="p-5 sm:p-6 text-center bg-white dark:bg-slate-800 rounded-xl border border-emerald-200 dark:border-emerald-500/30 space-y-4">
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h5 className="text-base font-bold text-slate-900 dark:text-white">Inquiry Draft Ready to Send</h5>
+                <h5 className="text-base font-bold text-slate-900 dark:text-white">Inquiry Submitted</h5>
                 <p className="text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
-                  Thank you, <strong>{senderName}</strong>. Your browser email app was opened with a pre-filled message to{' '}
-                  <strong className="font-mono">mr216873@gmail.com</strong>. If it did not open automatically, copy the message below or click the button to launch your mail client.
+                  Thank you, <strong>{senderName}</strong>. Your message has been recorded. You can also send a copy directly via your email app to{' '}
+                  <strong className="font-mono">{owner.email}</strong>.
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
@@ -271,12 +323,12 @@ export const AboutContactSection: React.FC = () => {
                     {copiedInquiry ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-emerald-700 dark:text-emerald-300">Copied Inquiry</span>
+                        <span className="text-emerald-700 dark:text-emerald-300">Copied</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Message Summary</span>
+                        <span>Copy Summary</span>
                       </>
                     )}
                   </button>
@@ -285,10 +337,13 @@ export const AboutContactSection: React.FC = () => {
                 <div>
                   <button
                     type="button"
-                    onClick={() => setPreparedMailto(null)}
+                    onClick={() => {
+                      setPreparedMailto(null);
+                      setMessage('');
+                    }}
                     className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white underline underline-offset-4 cursor-pointer"
                   >
-                    Compose Another Inquiry
+                    Send Another Inquiry
                   </button>
                 </div>
               </div>
@@ -332,8 +387,8 @@ export const AboutContactSection: React.FC = () => {
                     <option value="IT Support & Troubleshooting">Remote IT Support &amp; Windows/Android Troubleshooting</option>
                     <option value="Website & Content Management">WordPress / Blogger Management &amp; SEO Content</option>
                     <option value="Virtual Assistance & Technical Writing">Virtual Assistance, Research &amp; Technical Writing</option>
-                    <option value="Store & Hardware Question">Camellia Shop Hardware &amp; Custom Orders</option>
-                    <option value="Online Business Guidance">Online Business &amp; AI Workflow Optimization</option>
+                    <option value="Store & Hardware Question">Camellia Shop Hardware &amp; Sourcing Inquiries</option>
+                    <option value="Online Business Guidance">Online Business Guidance</option>
                   </select>
                 </div>
 
@@ -353,10 +408,11 @@ export const AboutContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-semibold dark:font-extrabold rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 disabled:opacity-60 text-white dark:text-slate-950 font-semibold dark:font-extrabold rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Send Direct Email Inquiry</span>
+                  <span>{isSubmitting ? 'Submitting...' : 'Submit Direct Inquiry'}</span>
                 </button>
               </form>
             )}

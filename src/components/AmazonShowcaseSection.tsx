@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Star, Check, Zap, ShoppingCart, ShoppingBag, ShieldCheck, Info } from 'lucide-react';
+import { ExternalLink, Check, Zap, ShoppingCart, ShoppingBag, ShieldCheck, Info } from 'lucide-react';
 import { AMAZON_PRODUCTS } from '../data/amazonProductsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
@@ -34,14 +34,12 @@ export const AmazonShowcaseSection: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              <span className="text-amber-600 dark:text-amber-400 font-bold">Amazon Associates Storefront</span>
+              <span className="text-amber-600 dark:text-amber-400 font-bold">Amazon Associates Picks</span>
               <span aria-hidden="true">·</span>
-              <span>Prime 1-2 Day Delivery</span>
-              <span aria-hidden="true">·</span>
-              <span>100% Commission Tracked</span>
+              <span>Direct Product Pages</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
-              Verified Tech &amp; Workspace Gear on Amazon
+              Featured Tech &amp; Workspace Gear on Amazon
             </h2>
           </div>
 
@@ -51,45 +49,27 @@ export const AmazonShowcaseSection: React.FC = () => {
               className="px-3.5 min-h-[40px] py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
             >
               <Info className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>{showProfitExplainer ? 'Hide Prime Buyer Info' : 'Amazon Prime Buyer Guarantees'}</span>
+              <span>{showProfitExplainer ? 'Hide Amazon Info' : 'Amazon Fulfillment Info'}</span>
             </button>
           </div>
         </div>
 
-        {/* Amazon Prime Buyer Guarantees Banner */}
+        {/* Amazon Info Banner */}
         {showProfitExplainer && (
           <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-slate-900 rounded-2xl border border-amber-200/80 dark:border-amber-700/40 mb-8 space-y-3 text-xs text-slate-700 dark:text-slate-300 animate-fade-in shadow-xs">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-amber-950 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Official Amazon A-to-z Buyer Protection &amp; Guarantees</span>
+                <span>Direct Amazon Product Checkout</span>
               </span>
               <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-200 bg-amber-200/60 dark:bg-amber-500/20 px-2 py-0.5 rounded">
-                100% Authentic Products
+                Live Price &amp; Stock on Amazon
               </span>
             </div>
 
             <p className="leading-relaxed">
-              Every item featured below ships directly from Amazon fulfillment centers with comprehensive buyer protection, hassle-free 30-day return policies, and authentic manufacturer warranties.
+              Clicking any Amazon item opens the official product listing directly on Amazon.com, where live pricing, regional Prime eligibility, verified buyer reviews, and Amazon checkout apply.
             </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-lg border border-amber-200/60 dark:border-slate-700">
-                <div className="text-[11px] text-slate-500 dark:text-slate-400">Fast Shipping</div>
-                <div className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">Prime 1-2 Day Delivery</div>
-                <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Free express on eligible orders</div>
-              </div>
-              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-lg border border-amber-200/60 dark:border-slate-700">
-                <div className="text-[11px] text-slate-500 dark:text-slate-400">Customer Security</div>
-                <div className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">30-Day Hassle-Free Returns</div>
-                <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Easy drop-off at local points</div>
-              </div>
-              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-lg border border-amber-200/60 dark:border-slate-700">
-                <div className="text-[11px] text-slate-500 dark:text-slate-400">Payment Security</div>
-                <div className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">256-Bit Encrypted Checkout</div>
-                <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Official Amazon guarantee</div>
-              </div>
-            </div>
           </div>
         )}
 
@@ -135,7 +115,6 @@ export const AmazonShowcaseSection: React.FC = () => {
                 {product.primeEligible && (
                   <span className="absolute bottom-3 left-3 bg-slate-900/85 text-white text-[11px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
                     <span className="text-amber-400 font-extrabold italic">prime</span>
-                    <span className="text-[10px] text-slate-300">Fast 1-Day</span>
                   </span>
                 )}
               </div>
@@ -148,17 +127,9 @@ export const AmazonShowcaseSection: React.FC = () => {
                     <span className="font-mono shrink-0">ASIN: {product.asin}</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 leading-snug line-clamp-2">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 leading-snug line-clamp-2">
                     {product.title}
                   </h3>
-
-                  <div className="flex items-center gap-1 text-xs mb-3 text-slate-600 dark:text-slate-300">
-                    <div className="flex items-center text-amber-500">
-                      <Star className="w-3.5 h-3.5 fill-current" />
-                      <span className="font-bold text-slate-800 dark:text-white ml-1 tabular-nums">{product.rating}</span>
-                    </div>
-                    <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()} ratings)</span>
-                  </div>
 
                   <ul className="space-y-1 mb-4 text-[11px] text-slate-600 dark:text-slate-400">
                     {product.features.slice(0, 2).map((f, i) => (
@@ -170,7 +141,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                   </ul>
                 </div>
 
-                {/* Pricing & Direct Affiliate Purchase CTA */}
+                {/* Pricing & Direct Purchase CTA */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
                   <div className="flex items-baseline justify-between gap-2">
                     <div className="flex items-baseline gap-2 min-w-0">
@@ -184,8 +155,8 @@ export const AmazonShowcaseSection: React.FC = () => {
                       )}
                     </div>
 
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-1.5 py-0.5 rounded font-mono font-semibold shrink-0">
-                      {product.commissionEstimate}
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium shrink-0">
+                      Ref. Price
                     </span>
                   </div>
 
@@ -203,7 +174,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                       className="flex-1 min-h-[40px] py-2.5 px-3 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                     >
                       <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                      <span>Buy on Amazon (Prime)</span>
+                      <span>View on Amazon</span>
                       <ExternalLink className="w-3 h-3 shrink-0" />
                     </a>
 
@@ -214,24 +185,22 @@ export const AmazonShowcaseSection: React.FC = () => {
                           {
                             id: product.id,
                             title: product.title,
-                            category: 'Workspace Gear',
+                            category: product.category,
                             price: product.price,
                             originalPrice: product.originalPrice,
-                            rating: product.rating,
-                            reviewsCount: product.reviewsCount,
-                            inStock: true,
-                            stockCount: 25,
                             badge: product.badge,
                             description: product.description,
                             highlights: product.features,
                             specs: [{ label: 'ASIN', value: product.asin }],
-                            image: product.image
+                            image: product.image,
+                            originStore: 'Amazon',
+                            affiliateUrl: product.affiliateUrl
                           },
                           1
                         )
                       }
-                      title="Add to Shopping Bag"
-                      aria-label="Add to Shopping Bag"
+                      title="Save to List"
+                      aria-label="Save to List"
                       className="min-h-[40px] min-w-[40px] p-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer shrink-0 flex items-center justify-center"
                     >
                       <ShoppingBag className="w-4 h-4" />
@@ -243,12 +212,12 @@ export const AmazonShowcaseSection: React.FC = () => {
           ))}
         </div>
 
-        {/* Amazon Affiliate Compliance & Guarantee Ribbon */}
+        {/* Amazon Affiliate Disclosure Ribbon */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-start sm:items-center gap-2 min-w-0">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
             <span>
-              Official Amazon Associates Partner Store · As an Amazon Associate, Camellia Shop earns from qualifying purchases.
+              As an Amazon Associate, Camellia Shop earns from qualifying purchases. Prices shown are reference estimates; live pricing appears on Amazon.
             </span>
           </div>
 
@@ -269,7 +238,7 @@ export const AmazonShowcaseSection: React.FC = () => {
               rel="noreferrer noopener"
               className="text-slate-600 dark:text-slate-300 font-semibold hover:underline"
             >
-              Deal 1 (MX Master 3S)
+              MX Master 3S
             </a>
             <span aria-hidden="true">·</span>
             <a
@@ -278,7 +247,7 @@ export const AmazonShowcaseSection: React.FC = () => {
               rel="noreferrer noopener"
               className="text-slate-600 dark:text-slate-300 font-semibold hover:underline"
             >
-              Deal 2 (ScreenBar)
+              BenQ ScreenBar
             </a>
           </div>
         </div>

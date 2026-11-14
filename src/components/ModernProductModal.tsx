@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, Check, ShoppingCart, ShoppingBag, ShieldCheck, Truck, ExternalLink, Layers, Award, Clock, Copy } from 'lucide-react';
+import { X, Check, ShoppingCart, ShoppingBag, ShieldCheck, Truck, ExternalLink, Layers, Award, Copy } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
@@ -21,7 +21,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const { addToCart, formatPrice } = useCart();
   const { getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'reviews' | 'guarantee'>('highlights');
+  const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'guarantee'>('highlights');
   const [quantity, setQuantity] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -49,31 +49,30 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
     ? Math.round((savingsAmount / product.originalPrice) * 100)
     : 0;
 
+  const buyUrl = getAffiliateBuyUrl(product);
+
   const handleDirectAdd = () => {
     addToCart(
       {
         id: product.id,
         title: product.title,
-        category: 'Workspace Gear',
+        category: product.category,
         price: product.price,
         originalPrice: product.originalPrice,
-        rating: product.rating,
-        reviewsCount: product.reviewsCount,
-        inStock: product.inStock,
-        stockCount: product.stockCount,
         badge: product.badge,
         description: product.description,
         highlights: product.highlights,
         specs: product.specs,
         image: product.mainImage,
-        isDigital: product.isDigital
+        originStore: product.originStore,
+        affiliateUrl: buyUrl
       },
       quantity
     );
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(getAffiliateBuyUrl(product));
+    navigator.clipboard.writeText(buyUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -131,7 +130,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 {product.primeEligible && (
                   <span className="absolute bottom-3 left-3 bg-slate-900/90 text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5 shadow-sm">
                     <span className="text-amber-400 font-extrabold italic">prime</span>
-                    <span className="text-[10px] text-slate-300">Fast Express</span>
                   </span>
                 )}
               </div>
@@ -156,34 +154,26 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
             </div>
 
             <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                <span>In Stock &amp; Ready to Ship ({product.stockCount} available)</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>{product.deliveryEstimate}</span>
               </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Live stock, shipping speed, and verified buyer reviews are displayed directly on {product.originStore}.
+              </p>
             </div>
           </div>
 
-          {/* Right Column: Contiguous Purchase Module & Tabs */}
+          {/* Right Column: Purchase Module & Tabs */}
           <div className="lg:col-span-7 p-4 sm:p-6 lg:p-8 flex flex-col justify-between min-w-0">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2 lg:pr-10">
                 <span className="font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-[11px]">
                   {product.category}
                 </span>
-
-                {product.rating > 0 && (
-                  <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span className="font-bold tabular-nums">{product.rating}</span>
-                    <span className="text-slate-400 tabular-nums">
-                      ({product.reviewsCount.toLocaleString()} verified ratings)
-                    </span>
-                  </div>
-                )}
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                  Retailer: {product.originStore}
+                </span>
               </div>
 
               <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-3 [text-wrap:balance]">
@@ -192,7 +182,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
               <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3 mb-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700">
                 <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
-                  {product.price > 0 ? formatPrice(product.price) : 'Partner Pricing'}
+                  {product.price > 0 ? formatPrice(product.price) : 'Check Live Price'}
                 </span>
                 {product.originalPrice && product.price > 0 && (
                   <span className="text-sm text-slate-400 line-through font-mono tabular-nums">
@@ -201,7 +191,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 )}
                 {savingsAmount > 0 && product.price > 0 && (
                   <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded">
-                    Save {formatPrice(savingsAmount)} ({savingsPercent}% OFF)
+                    Est. {savingsPercent}% Below List
                   </span>
                 )}
               </div>
@@ -231,16 +221,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   }`}
                 >
                   Technical Specs
-                </button>
-                <button
-                  onClick={() => setActiveTab('reviews')}
-                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    activeTab === 'reviews'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  Verified Reviews ({product.reviews.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('guarantee')}
@@ -276,56 +256,20 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 </div>
               )}
 
-              {activeTab === 'reviews' && (
-                <div className="space-y-3 mb-6 text-xs max-h-52 overflow-y-auto pr-1">
-                  {product.reviews.length === 0 ? (
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs">
-                      No local reviews recorded for this item yet. View live customer reviews directly on {product.originStore}.
-                    </div>
-                  ) : (
-                    product.reviews.map((r, i) => (
-                      <div
-                        key={i}
-                        className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700 space-y-1"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-bold text-slate-900 dark:text-white">{r.author}</span>
-                          <span className="text-slate-400 text-[11px]">{r.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-amber-500">
-                          {Array.from({ length: r.rating }).map((_, idx) => (
-                            <Star key={idx} className="w-3 h-3 fill-current" />
-                          ))}
-                          {r.verifiedAmazonPurchase && (
-                            <span className="text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/20 px-1.5 py-0.2 rounded ml-1 font-semibold">
-                              Amazon Verified Purchase
-                            </span>
-                          )}
-                        </div>
-                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-[11px]">{r.title}</div>
-                        <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
-                          &quot;{r.comment}&quot;
-                        </p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-
               {activeTab === 'guarantee' && (
                 <div className="p-4 bg-amber-50/70 dark:bg-amber-500/15 rounded-xl border border-amber-200/80 dark:border-amber-500/30 mb-6 text-xs text-amber-950 dark:text-amber-200 space-y-2">
                   <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>
-                      {product.originStore === 'Shopz BD'
-                        ? 'Official Shopz BD Referral Fulfillment'
-                        : 'Official Amazon A-to-z Buyer Guarantee'}
+                      {isShopz
+                        ? 'Direct Shopz BD Official Product Link'
+                        : 'Direct Amazon Official Product Link'}
                     </span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                    {product.originStore === 'Shopz BD'
-                      ? 'Purchases routed through our Shopz BD referral link include official courier tracking and genuine product warranty across Bangladesh.'
-                      : 'Purchases routed through our official link are covered by Amazon’s 30-day hassle-free return window, authentic manufacturer warranty, and official Amazon checkout.'}
+                    {isShopz
+                      ? 'Your purchase completes directly on Shopz.com.bd under their official store checkout, courier tracking, and seller warranty terms.'
+                      : 'Your purchase completes directly on Amazon.com under Amazon’s official checkout, return window, and A-to-z Guarantee.'}
                   </p>
                 </div>
               )}
@@ -333,35 +277,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
             {/* DUAL PURCHASE ACTIONS */}
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
-              <div
-                className={`p-2.5 rounded-xl border text-xs flex flex-wrap items-center justify-between gap-2 font-medium ${
-                  isShopz
-                    ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200/80 dark:border-emerald-500/30 text-emerald-950 dark:text-emerald-200'
-                    : 'bg-amber-50 dark:bg-amber-500/15 border-amber-200/80 dark:border-amber-500/30 text-amber-950 dark:text-amber-200'
-                }`}
-              >
-                <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <span>
-                    {isShopz
-                      ? 'Official Shopz BD Referral Fulfillment · Express Courier Tracking'
-                      : 'Official Amazon Prime Fulfillment · 30-Day A-to-z Guarantee'}
-                  </span>
-                </span>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
-                    isShopz
-                      ? 'bg-emerald-200/70 dark:bg-emerald-500/30 text-emerald-950 dark:text-emerald-100'
-                      : 'bg-amber-200/60 dark:bg-amber-500/30 text-amber-950 dark:text-amber-100'
-                  }`}
-                >
-                  {isShopz ? 'Shopz BD Verified' : 'Verified Prime'}
-                </span>
-              </div>
-
               <div className="flex items-center gap-2">
                 <a
-                  href={getAffiliateBuyUrl(product)}
+                  href={buyUrl}
                   target="_blank"
                   rel="noreferrer noopener sponsored"
                   onClick={() => recordAffiliateClick(product.id)}
@@ -373,8 +291,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 >
                   <ShoppingCart className="w-4 h-4 shrink-0" />
                   <span className="truncate">
-                    {isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon Prime'}
-                    {product.price > 0 ? ` · ${formatPrice(product.price)}` : ''}
+                    {isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}
                   </span>
                   <ExternalLink className="w-4 h-4 text-slate-900 shrink-0" />
                 </a>
@@ -382,7 +299,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  title="Copy tracked partner link"
+                  title="Copy product link"
                   className="min-h-[46px] py-3 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                 >
                   {copiedLink ? (
@@ -426,7 +343,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                     className="flex-1 min-h-[42px] py-2.5 px-4 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Add to Store Bag</span>
+                    <span>Save to List</span>
                   </button>
 
                   {onToggleCompare && (
@@ -448,15 +365,15 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 dark:text-slate-400 text-center pt-2">
                 <div className="flex flex-col items-center">
                   <Truck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>{isShopz ? 'Express 24-48h' : 'Prime 1-2 Day'}</span>
+                  <span>{isShopz ? 'Shopz Courier' : 'Amazon Delivery'}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>{isShopz ? 'Verified BD Seller' : '30-Day Returns'}</span>
+                  <span>Official Checkout</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Award className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>Official Warranty</span>
+                  <span>Retailer Warranty</span>
                 </div>
               </div>
             </div>

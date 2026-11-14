@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   Search,
   SlidersHorizontal,
-  Star,
   ShoppingBag,
   ShoppingCart,
   Eye,
@@ -43,7 +42,7 @@ export const StoreSection: React.FC = () => {
   } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating' | 'discount'>('featured');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'discount'>('featured');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [storeFilter, setStoreFilter] = useState<'all' | 'Amazon' | 'Shopz BD'>('all');
   const [primeOnly, setPrimeOnly] = useState<boolean>(false);
@@ -110,7 +109,6 @@ export const StoreSection: React.FC = () => {
 
         if (sortBy === 'price-asc') return a.price - b.price;
         if (sortBy === 'price-desc') return b.price - a.price;
-        if (sortBy === 'rating') return b.rating - a.rating;
         if (sortBy === 'discount') {
           const discountA = a.originalPrice ? (a.originalPrice - a.price) / a.originalPrice : 0;
           const discountB = b.originalPrice ? (b.originalPrice - b.price) / b.originalPrice : 0;
@@ -205,7 +203,7 @@ export const StoreSection: React.FC = () => {
           </div>
         </div>
 
-        {/* LIVE PARTNER STORE SEARCH & CUSTOM LINK PINNING BAR */}
+        {/* DIRECT PARTNER STORE SEARCH */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 shadow-md border border-slate-700">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
             <div className="min-w-0">
@@ -489,7 +487,6 @@ export const StoreSection: React.FC = () => {
                   <option value="featured">Featured Deals</option>
                   <option value="price-asc">Price: Low to High</option>
                   <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
                   <option value="discount">Biggest Discount</option>
                 </select>
               </div>
@@ -606,16 +603,12 @@ export const StoreSection: React.FC = () => {
                   <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
-                        <span className="uppercase tracking-wider text-[11px] font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[150px]">
+                        <span className="uppercase tracking-wider text-[11px] font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[160px]">
                           {product.category}
                         </span>
-                        {product.rating > 0 && (
-                          <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300 shrink-0">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            <span className="font-bold tabular-nums text-slate-900 dark:text-white">{product.rating}</span>
-                            <span className="text-slate-400 tabular-nums">({product.reviewsCount.toLocaleString()})</span>
-                          </div>
-                        )}
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 shrink-0">
+                          {product.asin || product.originStore}
+                        </span>
                       </div>
 
                       <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
@@ -693,26 +686,23 @@ export const StoreSection: React.FC = () => {
                                 {
                                   id: product.id,
                                   title: product.title,
-                                  category: 'Workspace Gear',
+                                  category: product.category,
                                   price: product.price,
                                   originalPrice: product.originalPrice,
-                                  rating: product.rating,
-                                  reviewsCount: product.reviewsCount,
-                                  inStock: product.inStock,
-                                  stockCount: product.stockCount,
                                   badge: product.badge,
                                   description: product.description,
                                   highlights: product.highlights,
                                   specs: product.specs,
                                   image: product.mainImage,
-                                  isDigital: product.isDigital
+                                  originStore: product.originStore,
+                                  affiliateUrl
                                 },
                                 1
                               );
                             }}
                             className="min-h-[40px] min-w-[40px] p-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                            title="Add to Shopping Bag"
-                            aria-label="Add to Shopping Bag"
+                            title="Save to List"
+                            aria-label="Save to List"
                           >
                             <ShoppingBag className="w-4 h-4" />
                           </button>
@@ -765,13 +755,6 @@ export const StoreSection: React.FC = () => {
                       <span className="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
                         {isShopz ? 'Shopz BD Referral' : `ASIN: ${product.asin || 'Amazon Partner'}`}
                       </span>
-                      {product.rating > 0 && (
-                        <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          <span className="font-bold tabular-nums text-slate-900 dark:text-white">{product.rating}</span>
-                          <span className="text-slate-400">({product.reviewsCount.toLocaleString()})</span>
-                        </div>
-                      )}
                     </div>
 
                     <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
@@ -850,26 +833,23 @@ export const StoreSection: React.FC = () => {
                               {
                                 id: product.id,
                                 title: product.title,
-                                category: 'Workspace Gear',
+                                category: product.category,
                                 price: product.price,
                                 originalPrice: product.originalPrice,
-                                rating: product.rating,
-                                reviewsCount: product.reviewsCount,
-                                inStock: product.inStock,
-                                stockCount: product.stockCount,
                                 badge: product.badge,
                                 description: product.description,
                                 highlights: product.highlights,
                                 specs: product.specs,
                                 image: product.mainImage,
-                                isDigital: product.isDigital
+                                originStore: product.originStore,
+                                affiliateUrl
                               },
                               1
                             );
                           }}
                           className="min-h-[40px] min-w-[40px] p-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                          title="Add to Shopping Bag"
-                          aria-label="Add to Shopping Bag"
+                          title="Save to List"
+                          aria-label="Save to List"
                         >
                           <ShoppingBag className="w-4 h-4" />
                         </button>

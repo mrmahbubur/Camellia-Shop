@@ -1,17 +1,16 @@
 import React from 'react';
-import { ArrowRight, ShieldCheck, Zap, Sparkles, TrendingUp, ShoppingCart, Heart, ExternalLink } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, Package, BookOpen, ShoppingCart, ExternalLink } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
-import { useCharity } from '../context/CharityContext';
+import { TECH_GUIDES } from '../data/guidesData';
 import mrsHeroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
 
 interface HeroProps {
   onExploreStore: () => void;
-  onOpenCalculator: () => void;
+  onOpenGuides: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) => {
-  const { setSelectedCategory, amazonStoreUrl } = useProducts();
-  const { selectedCause, setIsCharityModalOpen, charityEnabled, pledgePercentage } = useCharity();
+export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenGuides }) => {
+  const { setSelectedCategory, amazonStoreUrl, products } = useProducts();
 
   const handleBrowseAllAccessories = () => {
     setSelectedCategory('All Departments (Mega Store)');
@@ -28,23 +27,20 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-stretch">
           {/* Left Column: Value Proposition & CTAs */}
           <div className="lg:col-span-7 flex flex-col justify-center py-2 sm:py-4 min-w-0">
-            {/* Editorial Lead Kicker */}
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
-              <span>Universal Amazon Megastore</span>
+              <span>Curated Hardware Storefront</span>
               <span aria-hidden="true">·</span>
-              <span>Prime Fast Delivery</span>
+              <span>Amazon Prime &amp; Shopz BD</span>
               <span aria-hidden="true">·</span>
-              <span>All Accessories Collection</span>
+              <span>Practical IT Guides</span>
             </div>
 
-            {/* Fluid Main Headline */}
             <h1 className="text-[clamp(1.65rem,3.6vw,3rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 sm:mb-5 leading-[1.14] [text-wrap:balance]">
-              Shop Anything Just Like Amazon · Verified Prime Deals &amp; Modern Gear.
+              Curated Workspace Hardware, Tech Guides &amp; Direct Store Links.
             </h1>
 
-            {/* Body Description */}
             <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
-              Explore top-rated products across Electronics, Home, Kitchen, Computers, Audio, and Workspace Accessories. Enjoy official Amazon Prime 1-2 day express fulfillment, authentic warranties, and 30-day hassle-free returns.
+              Browse selected electronics, peripherals, power gear, and desk hardware linked directly to official Amazon and Shopz BD product pages, alongside practical IT troubleshooting guides by M R S.
             </p>
 
             {/* Primary & Secondary Action CTAs */}
@@ -53,8 +49,8 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
                 onClick={handleBrowseAllAccessories}
                 className="w-full sm:w-auto min-h-[44px] px-5 sm:px-6 py-3 text-sm font-extrabold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
               >
-                <Sparkles className="w-4 h-4 text-slate-950" />
-                <span>Browse All Accessories</span>
+                <Package className="w-4 h-4 text-slate-950" />
+                <span>Browse Full Catalog</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -63,16 +59,16 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
                 className="w-full sm:w-auto min-h-[44px] px-5 py-3 text-sm font-bold text-white dark:text-white bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-900 dark:border-slate-700 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <ShoppingCart className="w-4 h-4 text-amber-400" />
-                <span>Shop Megastore</span>
+                <span>Shop Hardware</span>
               </button>
 
               <div className="flex items-center gap-2.5 sm:contents">
                 <button
-                  onClick={onOpenCalculator}
+                  onClick={onOpenGuides}
                   className="flex-1 sm:flex-initial min-h-[44px] px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-900 sm:bg-transparent border border-slate-200 dark:border-slate-800 sm:border-transparent rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>ROI Calculator</span>
+                  <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Tech Guides</span>
                 </button>
 
                 <a
@@ -87,99 +83,68 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore, onOpenCalculator }) 
               </div>
             </div>
 
-            {/* Simple Charity Support Option Card */}
-            <div className="mb-6 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                  <Heart className="w-4 h-4 fill-rose-500 dark:fill-rose-400" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-slate-900 dark:text-white font-bold flex flex-wrap items-center gap-1.5">
-                    <span>Our Charity Support Pledge</span>
-                    {charityEnabled && (
-                      <span className="text-[10px] font-extrabold bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 px-1.5 py-0.2 rounded border border-rose-200 dark:border-rose-500/40">
-                        {pledgePercentage}% Active
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-slate-600 dark:text-slate-400 text-[11px] leading-snug">
-                    Every purchase supports <strong className="text-slate-900 dark:text-slate-200">{selectedCause.name}</strong> at $0 extra cost to you.
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsCharityModalOpen(true)}
-                className="min-h-[38px] px-3.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold rounded-lg text-[11px] transition-colors cursor-pointer shrink-0 self-start sm:self-auto border border-slate-300 dark:border-slate-700"
-              >
-                Charity Details
-              </button>
-            </div>
-
             {/* Trust Signals */}
             <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Verified Zero-Fluff Methodology</span>
+                <span>Official Amazon &amp; Shopz BD Checkouts</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
-                <span>Prime 1-2 Day Express Delivery &amp; Verified Tech Deals</span>
+                <span>Live Exchange Rate Conversion</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: High-Impact Visual Asset */}
+          {/* Right Column: Visual Asset */}
           <div className="lg:col-span-5 relative flex items-center min-w-0">
             <div className="w-full relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-900">
               <img
                 src={mrsHeroWorkspaceImg}
-                alt="Camellia Shop High Performance Workspace"
+                alt="Camellia Shop Creator Workspace Setup"
                 className="w-full h-60 sm:h-80 md:h-96 lg:h-full lg:min-h-[380px] object-cover"
               />
-              {/* Subtle Scrim for Contrast */}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent flex flex-col justify-end p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-2 text-xs text-white/95">
-                  <span className="font-semibold text-white truncate">The Camellia Shop Creator Workspace Setup</span>
-                  <span className="text-amber-300 font-mono tabular-nums shrink-0">4K Studio Standard</span>
+                  <span className="font-semibold text-white truncate">Camellia Shop Workspace Curations</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 4-Column KPI / Proof Strip */}
+        {/* 4-Column Verifiable Catalog & Resource Strip */}
         <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200 dark:border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           <div className="space-y-1">
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-              $1.2M+
+              {products.length}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Community Member Revenue</div>
-            <p className="text-[11px] text-slate-500">Across 5 verified income playbooks</p>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Curated Hardware Items</div>
+            <p className="text-[11px] text-slate-500">Direct Amazon &amp; Shopz BD links</p>
           </div>
 
           <div className="space-y-1">
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono tabular-nums">
-              100%
+              2
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Affiliate Transparency</div>
-            <p className="text-[11px] text-slate-500">Direct creator links &amp; FTC compliance</p>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Partner Storefronts</div>
+            <p className="text-[11px] text-slate-500">Amazon Associates &amp; Shopz BD</p>
           </div>
 
           <div className="space-y-1">
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-              4.9 / 5.0
+              {TECH_GUIDES.length}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Average Hardware Rating</div>
-            <p className="text-[11px] text-slate-500">From 14,000+ verified customer reviews</p>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Free Tech Guides</div>
+            <p className="text-[11px] text-slate-500">Windows, WiFi &amp; Android</p>
           </div>
 
           <div className="space-y-1">
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
-              24-Hour
+              Direct
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Commission Window</div>
-            <p className="text-[11px] text-slate-500">Cart spillover on full Amazon checkout</p>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Official Retailer Checkout</div>
+            <p className="text-[11px] text-slate-500">Fulfilled directly by partner stores</p>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, X, ExternalLink, Star } from 'lucide-react';
+import { Layers, X, ExternalLink } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
@@ -129,29 +129,11 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
-                      Price
+                      Reference Price
                     </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center font-mono font-bold text-sm text-slate-900 dark:text-white">
-                        {p.price > 0 ? formatPrice(p.price) : 'Partner Pricing'}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
-                      Customer Rating
-                    </td>
-                    {comparedProducts.map((p) => (
-                      <td key={p.id} className="p-3 text-center">
-                        {p.rating > 0 ? (
-                          <div className="flex items-center justify-center gap-1 text-amber-500 font-bold">
-                            <Star className="w-3.5 h-3.5 fill-current" />
-                            <span>{p.rating}</span>
-                            <span className="text-slate-400 font-normal">({p.reviewsCount.toLocaleString()})</span>
-                          </div>
-                        ) : (
-                          <span className="text-slate-400">Saved Listing</span>
-                        )}
+                        {p.price > 0 ? formatPrice(p.price) : 'See Store'}
                       </td>
                     ))}
                   </tr>
