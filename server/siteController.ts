@@ -39,6 +39,17 @@ export interface PriceOverride {
   badge?: string;
 }
 
+export interface SponsorAdConfig {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  group: 'Hardware & Power' | 'Workspace & Audio' | 'Deals & Bundles';
+  ctaLabel: string;
+  url: string;
+  featured?: boolean;
+}
+
 export interface StorefrontConfig {
   siteName: string;
   announcementText: string;
@@ -50,6 +61,7 @@ export interface StorefrontConfig {
   featuredProductIds: string[];
   priceOverrides: Record<string, PriceOverride>;
   customProducts: CustomStoreProduct[];
+  sponsors?: SponsorAdConfig[];
   updatedAt: string;
 }
 
@@ -71,7 +83,6 @@ export const DEFAULT_STOREFRONT: StorefrontConfig = {
 
 const BLOCKED_AD_DOMAINS = [
   'profitableratecpmnetwork',
-  'uplcm',
   'adsterra',
   'quge5',
   'blogspot.com'
@@ -157,6 +168,7 @@ function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): Storefront
         ? src.priceOverrides
         : {},
     customProducts: Array.isArray(src.customProducts) ? src.customProducts : [],
+    sponsors: Array.isArray(src.sponsors) ? src.sponsors : undefined,
     updatedAt: typeof src.updatedAt === 'string' ? src.updatedAt : new Date().toISOString()
   };
 }
@@ -239,7 +251,7 @@ async function callGeminiWithRetry(instruction: string, current: StorefrontConfi
             'Rules:',
             '1. Never mention AI, models, automation, prompts, or system internals in any storefront copy (siteName, announcementText, heroTitle, heroSubtitle, storeTitle, storeSubtitle, product descriptions, or badges).',
             '2. Keep everything strictly e-commerce focused.',
-            '3. Never include ad network links or non-storefront links.',
+            '3. Preserve approved sponsor links (https://uplcm.com/4/...) and partner store checkout URLs; never add unrelated ad network links.',
             '4. Preserve existing fields unless the instruction requests modifying them; omit unchanged optional fields.',
             '5. Keep copy crisp, natural, and concise.'
           ].join(' '),

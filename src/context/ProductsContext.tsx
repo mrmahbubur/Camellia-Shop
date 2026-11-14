@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { EcomProduct, UNIFIED_PRODUCTS, AMAZON_STORE_URL, SHOPZ_REF_BASE } from '../data/unifiedProductsData';
+import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
 
 export interface StorefrontCopyConfig {
   siteName: string;
@@ -15,6 +16,7 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
   featuredProductIds?: string[];
   priceOverrides?: Record<string, { price?: number; originalPrice?: number; badge?: string }>;
   customProducts?: EcomProduct[];
+  sponsors?: Array<Omit<SponsorPlacement, 'image'> & { image?: string }>;
 }
 
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
@@ -30,6 +32,7 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
 
 interface ProductsContextType {
   products: EcomProduct[];
+  sponsors: SponsorPlacement[];
   storefrontCopy: StorefrontCopyConfig;
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
@@ -118,6 +121,19 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   }, [storefrontData]);
 
+  const sponsors = useMemo<SponsorPlacement[]>(() => {
+    const incoming = Array.isArray(storefrontData?.sponsors) ? storefrontData.sponsors : null;
+    if (!incoming || incoming.length === 0) return DEFAULT_SPONSORS;
+    const defaultById = new Map(DEFAULT_SPONSORS.map((s) => [s.id, s]));
+    const fallbackImg = DEFAULT_SPONSORS[0].image;
+    return incoming
+      .filter((s) => s && typeof s.url === 'string' && s.url.startsWith('https://'))
+      .map((s) => ({
+        ...s,
+        image: s.image || defaultById.get(s.id)?.image || fallbackImg
+      }));
+  }, [storefrontData]);
+
   const recordAffiliateClick = (productId?: string) => {
     if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
       return;
@@ -196,6 +212,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <ProductsContext.Provider
       value={{
         products,
+        sponsors,
         storefrontCopy,
         selectedCategory,
         setSelectedCategory,

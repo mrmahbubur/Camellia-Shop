@@ -10,6 +10,7 @@ import { TopBar } from './components/TopBar';
 import { Hero } from './components/Hero';
 import { StoreSection } from './components/StoreSection';
 import { AmazonShowcaseSection } from './components/AmazonShowcaseSection';
+import { SponsorsSection } from './components/SponsorsSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { ThemeProvider } from './context/ThemeContext';
@@ -71,6 +72,8 @@ const MainLayout: React.FC = () => {
         <StoreSection />
 
         <AmazonShowcaseSection />
+
+        <SponsorsSection />
       </main>
 
       <Footer onNavigate={handleNavigate} />

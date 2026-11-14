@@ -120,6 +120,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   Amazon Featured Picks
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('sponsors')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Sponsored Partners
+                </button>
+              </li>
             </ul>
           </div>
 

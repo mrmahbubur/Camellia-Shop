@@ -99,6 +99,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             >
               <span>Amazon Picks</span>
             </button>
+            <button
+              onClick={() => handleNavClick('sponsors')}
+              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 font-semibold cursor-pointer"
+            >
+              Sponsors
+            </button>
           </nav>
 
           {/* Compact Primary Actions */}
@@ -243,6 +249,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-amber-600 dark:text-amber-400 font-semibold cursor-pointer"
               >
                 Amazon Featured Picks
+              </button>
+              <button
+                onClick={() => handleNavClick('sponsors')}
+                className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold cursor-pointer"
+              >
+                Sponsored Partners
               </button>
             </div>
           </div>
