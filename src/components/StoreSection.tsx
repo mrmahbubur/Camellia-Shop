@@ -31,6 +31,7 @@ export const StoreSection: React.FC = () => {
   const { formatPrice, addToCart } = useCart();
   const {
     products,
+    sponsors,
     storefrontCopy,
     selectedCategory,
     setSelectedCategory,
@@ -863,6 +864,57 @@ export const StoreSection: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {sponsors.length > 0 && (
+          <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
+                <span aria-hidden="true">·</span>
+                <span>Featured Partner Spotlights</span>
+              </div>
+              <a
+                href="#sponsors"
+                className="text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+              >
+                View all {sponsors.length} partner offers
+              </a>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              {(sponsors.filter((s) => s.featured).length > 0
+                ? sponsors.filter((s) => s.featured).slice(0, 2)
+                : sponsors.slice(0, 2)
+              ).map((sp) => (
+                <a
+                  key={sp.id}
+                  href={sp.url}
+                  target="_blank"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick(sp.id)}
+                  className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
+                      <span aria-hidden="true">·</span>
+                      <span className="truncate">{sp.category}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      {sp.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">
+                      {sp.subtitle}
+                    </p>
+                  </div>
+                  <span className="px-3 min-h-[36px] py-1.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                    <span>{sp.ctaLabel}</span>
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
         )}
 

@@ -211,6 +211,17 @@ interface ControlPatch {
     badge?: string;
   }>;
   removeCustomProductIds?: string[];
+  removeSponsorIds?: string[];
+  upsertSponsors?: Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    category: string;
+    group: string;
+    ctaLabel: string;
+    url: string;
+    featured?: boolean;
+  }>;
   upsertProducts?: Array<{
     id: string;
     title: string;
@@ -284,6 +295,27 @@ async function callGeminiWithRetry(instruction: string, current: StorefrontConfi
               removeCustomProductIds: {
                 type: Type.ARRAY,
                 items: { type: Type.STRING }
+              },
+              removeSponsorIds: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              upsertSponsors: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    id: { type: Type.STRING },
+                    title: { type: Type.STRING },
+                    subtitle: { type: Type.STRING },
+                    category: { type: Type.STRING },
+                    group: { type: Type.STRING },
+                    ctaLabel: { type: Type.STRING },
+                    url: { type: Type.STRING },
+                    featured: { type: Type.BOOLEAN }
+                  },
+                  required: ['id', 'title', 'url']
+                }
               },
               priceOverrides: {
                 type: Type.ARRAY,
@@ -480,6 +512,45 @@ export async function executeBackendSiteControl(
         next.customProducts.unshift(safeProd);
       }
     }
+  }
+
+  if (Array.isArray(patch.removeSponsorIds) && Array.isArray(next.sponsors)) {
+    const delSponsors = new Set(patch.removeSponsorIds.map((id) => id.trim()));
+    next.sponsors = next.sponsors.filter((s) => !delSponsors.has(s.id));
+  }
+
+  if (Array.isArray(patch.upsertSponsors)) {
+    const existingSponsors = Array.isArray(next.sponsors) ? [...next.sponsors] : [];
+    const validGroups = new Set<SponsorAdConfig['group']>([
+      'Hardware & Power',
+      'Workspace & Audio',
+      'Deals & Bundles'
+    ]);
+    for (const rawSp of patch.upsertSponsors) {
+      if (!rawSp?.id || !rawSp?.title || !rawSp?.url) continue;
+      const cleanUrl = rawSp.url.trim();
+      if (!cleanUrl.startsWith('https://') || isBlockedUrl(cleanUrl)) continue;
+      const group = validGroups.has(rawSp.group as SponsorAdConfig['group'])
+        ? (rawSp.group as SponsorAdConfig['group'])
+        : 'Deals & Bundles';
+      const safeSponsor: SponsorAdConfig = {
+        id: rawSp.id.trim(),
+        title: rawSp.title.trim(),
+        subtitle: (rawSp.subtitle || rawSp.title).trim(),
+        category: (rawSp.category || 'Partner Offer').trim(),
+        group,
+        ctaLabel: (rawSp.ctaLabel || 'Explore Offer').trim(),
+        url: cleanUrl,
+        featured: Boolean(rawSp.featured)
+      };
+      const idx = existingSponsors.findIndex((s) => s.id === safeSponsor.id);
+      if (idx >= 0) {
+        existingSponsors[idx] = safeSponsor;
+      } else {
+        existingSponsors.push(safeSponsor);
+      }
+    }
+    next.sponsors = existingSponsors;
   }
 
   return {
