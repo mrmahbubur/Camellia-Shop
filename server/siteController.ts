@@ -94,7 +94,15 @@ function isBlockedUrl(url: string): boolean {
   return BLOCKED_AD_DOMAINS.some((d) => lower.includes(d));
 }
 
-function sanitizePartnerUrl(rawUrl: string, originStore: 'Amazon' | 'Shopz BD' | 'ExonHost'): string {
+function sanitizePartnerUrl(
+  rawUrl: string,
+  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost',
+  _asin?: string
+): string {
+  const AMAZON_NODE_URL =
+    'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
+  const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
+
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') {
@@ -102,7 +110,7 @@ function sanitizePartnerUrl(rawUrl: string, originStore: 'Amazon' | 'Shopz BD' |
     }
     return originStore === 'Shopz BD'
       ? 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin'
-      : 'https://www.amazon.com/gp/yourstore?shopForFallback=1&linkCode=ll2&tag=mrxshahin1-20&linkId=b0640e715d1eb5bbcc6b9a28347ac557&language=en_US&ref_=as_li_ss_tl';
+      : AMAZON_NODE_URL;
   }
   if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
     if (trimmed.includes('aff=')) return trimmed;
@@ -113,19 +121,22 @@ function sanitizePartnerUrl(rawUrl: string, originStore: 'Amazon' | 'Shopz BD' |
     const sep = trimmed.includes('?') ? '&' : '?';
     return `${trimmed}${sep}ref=mahbubur-rahman-shahin`;
   }
-  if (trimmed.includes('link.amazon') || trimmed.includes('amzn.to')) {
+  if (trimmed.includes('link.amazon/B0io1BQfg') || trimmed.includes('amzn.to')) {
     return trimmed;
+  }
+  if (trimmed.includes('link.amazon')) {
+    return AMAZON_SHORT_URL;
   }
   if (trimmed.includes('amazon.com')) {
     try {
       const u = new URL(trimmed);
-      u.searchParams.set('tag', 'mrxshahin1-20');
+      u.searchParams.set('tag', 'mrxshahin06-20');
       u.searchParams.set('linkCode', 'll2');
-      u.searchParams.set('linkId', 'b0640e715d1eb5bbcc6b9a28347ac557');
+      u.searchParams.set('linkId', 'f69ce6631cea5fb5a49ce7ba4d3968b6');
       return u.toString();
     } catch {
       const sep = trimmed.includes('?') ? '&' : '?';
-      return `${trimmed}${sep}tag=mrxshahin1-20&linkCode=ll2&linkId=b0640e715d1eb5bbcc6b9a28347ac557`;
+      return `${trimmed}${sep}tag=mrxshahin06-20&linkCode=ll2&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6`;
     }
   }
   return trimmed;
@@ -517,7 +528,7 @@ export async function executeBackendSiteControl(
               ? 'Fulfilled by Shopz BD Courier'
               : 'Fulfilled by Amazon')
           ).trim(),
-        affiliateUrl: sanitizePartnerUrl(rawProd.affiliateUrl || '', originStore),
+        affiliateUrl: sanitizePartnerUrl(rawProd.affiliateUrl || '', originStore, rawProd.asin),
         mainImage: safeImage,
         galleryImages: safeImage ? [safeImage] : [],
         description: (rawProd.description || rawProd.title).trim(),

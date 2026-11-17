@@ -14,7 +14,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     shopzStoreUrl,
     exonhostStoreUrl,
     products,
-    csvProductsCount,
     storefrontCopy,
     recordAffiliateClick
   } = useProducts();
@@ -39,7 +38,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               <span aria-hidden="true">·</span>
               <span>Amazon Prime, Shopz BD &amp; ExonHost</span>
               <span aria-hidden="true">·</span>
-              <span>Affiliate Catalog</span>
+              <span>Electronics &amp; Hardware</span>
             </div>
 
             <h1 className="text-[clamp(1.65rem,3.6vw,3rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 sm:mb-5 leading-[1.14] [text-wrap:balance]">
@@ -66,7 +65,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                 className="w-full sm:w-auto min-h-[44px] px-5 py-3 text-sm font-bold text-white dark:text-white bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-900 dark:border-slate-700 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <ShoppingCart className="w-4 h-4 text-amber-400" />
-                <span>Linked Shops</span>
+                <span>Explore Stores</span>
               </button>
 
               <div className="flex flex-wrap items-center gap-2 sm:contents">
@@ -113,7 +112,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
-                <span>Live Exchange Rate Conversion</span>
+                <span>Multi-Currency Pricing</span>
               </div>
             </div>
           </div>
@@ -128,7 +127,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent flex flex-col justify-end p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-2 text-xs text-white/95">
-                  <span className="font-semibold text-white truncate">Camellia Shop Hardware &amp; Affiliate Catalog</span>
+                  <span className="font-semibold text-white truncate">Camellia Shop Hardware Collection</span>
                 </div>
               </div>
             </div>
@@ -141,9 +140,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
               {products.length}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Live Affiliate Products</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Curated Products</div>
             <p className="text-[11px] text-slate-500">
-              {csvProductsCount > 0 ? `${csvProductsCount} from uploaded CSV + curated picks` : 'Direct linked shop hardware & gear'}
+              Direct Amazon, Shopz BD &amp; ExonHost links
             </p>
           </div>
 
@@ -151,7 +150,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono tabular-nums">
               3
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Linked Affiliate Shops</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Partner Retailers</div>
             <p className="text-[11px] text-slate-500">Amazon Associates, Shopz BD &amp; ExonHost</p>
           </div>
 

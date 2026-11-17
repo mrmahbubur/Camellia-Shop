@@ -19,8 +19,7 @@ import {
   Zap,
   Building2,
   Check,
-  Cloud,
-  FileSpreadsheet
+  Cloud
 } from 'lucide-react';
 import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -34,8 +33,6 @@ export const StoreSection: React.FC = () => {
   const { formatPrice, addToCart, toUsdAmount } = useCart();
   const {
     products,
-    csvProductsCount,
-    linkedShopCount,
     sponsors,
     storefrontCopy,
     selectedCategory,
@@ -53,7 +50,6 @@ export const StoreSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'discount'>('featured');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sourceFilter, setSourceFilter] = useState<'all' | 'uploaded-csv' | 'linked-shop'>('all');
   const [storeFilter, setStoreFilter] = useState<'all' | 'Amazon' | 'Shopz BD' | 'ExonHost'>('all');
   const [primeOnly, setPrimeOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
@@ -99,12 +95,6 @@ export const StoreSection: React.FC = () => {
           matchCategory = item.category === selectedCategory || item.department === selectedCategory;
         }
 
-        const matchSource =
-          sourceFilter === 'all' ||
-          (sourceFilter === 'uploaded-csv'
-            ? item.sourceType === 'uploaded-csv'
-            : item.sourceType !== 'uploaded-csv');
-
         const matchStore = storeFilter === 'all' || item.originStore === storeFilter;
 
         const matchSearch =
@@ -120,7 +110,7 @@ export const StoreSection: React.FC = () => {
         const normalizedUsd = toUsdAmount(item.price, item.nativePrice, item.nativeCurrency);
         const matchPrice = normalizedUsd <= maxPrice;
 
-        return matchCategory && matchSource && matchStore && matchSearch && matchPrime && matchPrice;
+        return matchCategory && matchStore && matchSearch && matchPrime && matchPrice;
       })
       .sort((a, b) => {
         if (a.id === highlightedProductId) return -1;
@@ -138,7 +128,7 @@ export const StoreSection: React.FC = () => {
         }
         return 0;
       });
-  }, [products, selectedCategory, sourceFilter, storeFilter, searchQuery, sortBy, primeOnly, maxPrice, highlightedProductId, toUsdAmount]);
+  }, [products, selectedCategory, storeFilter, searchQuery, sortBy, primeOnly, maxPrice, highlightedProductId, toUsdAmount]);
 
   const handleToggleCompare = (product: EcomProduct) => {
     setComparedProducts((prev) => {
@@ -155,7 +145,6 @@ export const StoreSection: React.FC = () => {
 
   const handleClearFilters = () => {
     setSelectedCategory('All Departments (Mega Store)');
-    setSourceFilter('all');
     setStoreFilter('all');
     setSearchQuery('');
     setPrimeOnly(false);
@@ -182,21 +171,16 @@ export const StoreSection: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
                 <Package className="w-3.5 h-3.5" />
-                <span>Verified Affiliate Catalog</span>
+                <span>Featured Catalog</span>
               </span>
               <span aria-hidden="true">·</span>
               <span className="text-slate-900 dark:text-amber-200 font-bold bg-amber-100 dark:bg-amber-500/20 px-2 py-0.5 rounded text-[11px]">
-                {products.length} Live Products
+                {products.length} Products
               </span>
-              {csvProductsCount > 0 && (
-                <>
-                  <span aria-hidden="true">·</span>
-                  <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded text-[11px] border border-emerald-200/60 dark:border-emerald-500/30 inline-flex items-center gap-1">
-                    <FileSpreadsheet className="w-3 h-3" />
-                    <span>{csvProductsCount} Uploaded CSV</span>
-                  </span>
-                </>
-              )}
+              <span aria-hidden="true">·</span>
+              <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded text-[11px] border border-emerald-200/60 dark:border-emerald-500/30">
+                Direct Retailer Checkout
+              </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               {storefrontCopy.storeTitle}
@@ -251,13 +235,13 @@ export const StoreSection: React.FC = () => {
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <Search className="w-4 h-4 shrink-0" />
-                <span>Direct Linked Shop Search</span>
+                <span>Direct Partner Store Search</span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
                 Search Amazon Prime, Shopz BD &amp; ExonHost directly
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Filter your uploaded CSV feed + linked shops below or launch direct partner search on your selected store.
+                Filter our storefront catalog below or open direct search results on your preferred partner store.
               </p>
             </div>
 
@@ -448,54 +432,7 @@ export const StoreSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Row 2: Source Feed Switcher & Store Filter */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 text-xs">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
-                Catalog Source:
-              </span>
-              <button
-                type="button"
-                onClick={() => setSourceFilter('all')}
-                className={`px-3 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
-                  sourceFilter === 'all'
-                    ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                All Products ({products.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setSourceFilter('uploaded-csv')}
-                className={`px-3 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 ${
-                  sourceFilter === 'uploaded-csv'
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5" />
-                <span>Uploaded CSV Feed ({csvProductsCount})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSourceFilter('linked-shop')}
-                className={`px-3 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
-                  sourceFilter === 'linked-shop'
-                    ? 'bg-amber-400 text-slate-950 shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Linked Shop Picks ({linkedShopCount})
-              </button>
-            </div>
-
-            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              Showing <span className="font-bold text-slate-900 dark:text-white font-mono">{filteredProducts.length}</span> of {products.length} items
-            </div>
-          </div>
-
-          {/* Row 3: Search, Store Filter, Price Slider & Sort */}
+          {/* Row 2: Search, Store Filter, Price Slider & Sort */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs">
             <div className="relative flex-1 lg:max-w-lg min-w-0">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />

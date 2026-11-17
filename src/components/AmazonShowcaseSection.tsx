@@ -259,9 +259,10 @@ export const AmazonShowcaseSection: React.FC = () => {
 
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
             <a
-              href="https://www.amazon.com/gp/yourstore?shopForFallback=1&linkCode=ll2&tag=mrxshahin1-20&linkId=b0640e715d1eb5bbcc6b9a28347ac557&language=en_US&ref_=as_li_ss_tl"
+              href="https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl"
               target="_blank"
-              rel="noreferrer noopener"
+              rel="noreferrer noopener sponsored"
+              onClick={() => recordAffiliateClick('amazon-ribbon-store')}
               className="text-amber-800 dark:text-amber-300 font-extrabold hover:underline flex items-center gap-1 bg-amber-50 dark:bg-amber-500/15 px-2.5 py-1.5 rounded-md border border-amber-200 dark:border-amber-500/30"
             >
               <span>Explore Official Amazon Store</span>
@@ -269,21 +270,14 @@ export const AmazonShowcaseSection: React.FC = () => {
             </a>
             <span aria-hidden="true">·</span>
             <a
-              href="https://link.amazon/B0ae4X6pk"
+              href="https://link.amazon/B0io1BQfg"
               target="_blank"
-              rel="noreferrer noopener"
-              className="text-slate-600 dark:text-slate-300 font-semibold hover:underline"
+              rel="noreferrer noopener sponsored"
+              onClick={() => recordAffiliateClick('amazon-ribbon-shortlink')}
+              className="text-slate-700 dark:text-slate-200 font-semibold hover:underline inline-flex items-center gap-1"
             >
-              MX Master 3S
-            </a>
-            <span aria-hidden="true">·</span>
-            <a
-              href="https://link.amazon/B0dPHChnk"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-slate-600 dark:text-slate-300 font-semibold hover:underline"
-            >
-              BenQ ScreenBar
+              <span>Direct Amazon Deals</span>
+              <ExternalLink className="w-3 h-3" />
             </a>
           </div>
         </div>

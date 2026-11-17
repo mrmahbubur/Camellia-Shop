@@ -307,25 +307,25 @@ export function parseAffiliateCsv(csvText: string, defaultBdtRate = 121.5): Ecom
         nativePrice: rawBdt,
         nativeCurrency: 'BDT',
         price: usdPrice,
-        badge: r.category.toLowerCase().includes('deal') ? 'CSV Deal' : 'Shopz BD CSV',
+        badge: r.category.toLowerCase().includes('deal') ? 'Shopz BD Deal' : 'Shopz BD Pick',
         primeEligible: false,
         deliveryEstimate: 'Nationwide BD Courier (24–48h)',
         affiliateUrl: r.link,
         mainImage: images.main,
         galleryImages: [images.main, images.secondary],
-        description: `${r.product} (${r.category}) sourced directly from your verified Shopz BD affiliate catalog with Cash on Delivery and official seller checkout.`,
+        description: `${r.product} (${r.category}) available on Shopz BD with nationwide Bangladesh delivery, Cash on Delivery, and official seller checkout.`,
         highlights: [
-          `Original ${brand} product listed in your Shopz BD affiliate feed`,
-          `Category: ${r.category} with direct partner tracking`,
+          `Authentic ${brand} product available through Shopz BD`,
+          `Category: ${r.category}`,
           rawBdt > 0
-            ? `Catalog Price: ${rawBdt.toLocaleString('en-US')} BDT (auto-converted across currencies)`
-            : 'Live dynamic pricing shown directly on Shopz.com.bd product page',
+            ? `Listed Price: ${rawBdt.toLocaleString('en-US')} BDT (auto-converted by currency selector)`
+            : 'Live pricing available directly on the Shopz.com.bd product page',
           'Direct Shopz BD checkout with nationwide delivery across Bangladesh'
         ],
         specs: [
           { label: 'Brand', value: brand },
-          { label: 'CSV Category', value: r.category },
-          { label: 'Catalog Price', value: rawBdt > 0 ? `${rawBdt.toLocaleString('en-US')} BDT` : 'Check Live Price' },
+          { label: 'Category', value: r.category },
+          { label: 'Listed Price', value: rawBdt > 0 ? `${rawBdt.toLocaleString('en-US')} BDT` : 'Check Live Price' },
           { label: 'Retailer', value: 'Shopz BD' }
         ],
         originStore: 'Shopz BD'

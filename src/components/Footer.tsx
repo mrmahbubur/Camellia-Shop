@@ -144,7 +144,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Direct Retailer Checkout</span>
               </span>
-              <span>Amazon · Shopz BD</span>
+              <span>Amazon · Shopz BD · ExonHost</span>
             </div>
           </div>
         </div>

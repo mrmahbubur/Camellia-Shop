@@ -30,7 +30,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
   };
 
   const themeLabel =
-    themeMode === 'system' ? 'Theme: Auto (System)' : themeMode === 'dark' ? 'Theme: Dark' : 'Theme: Light';
+    themeMode === 'system' ? 'Theme: Auto' : themeMode === 'dark' ? 'Theme: Dark' : 'Theme: Light';
 
   return (
     <>

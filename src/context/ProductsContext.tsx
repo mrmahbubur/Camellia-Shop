@@ -33,12 +33,12 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
   announcementText: 'Camellia Shop · Curated Amazon Prime, Shopz BD & ExonHost',
-  heroTitle: 'Curated Workspace Electronics, Linked Shop Deals & Direct Checkout.',
+  heroTitle: 'Curated Workspace Electronics, Desk Hardware & Direct Checkout.',
   heroSubtitle:
-    'Browse verified hardware, gadgets, wearables, and cloud hosting directly from your uploaded affiliate CSV feed and linked shops (Amazon, Shopz BD & ExonHost) with live currency conversion.',
-  storeTitle: 'Linked Affiliate Shops & Uploaded Product Feed',
+    'Shop workspace electronics, accessories, smartwatches, home gadgets, and cloud hosting with multi-currency pricing and direct checkout on Amazon, Shopz BD, and ExonHost.',
+  storeTitle: 'Shop Prime Gear, Shopz BD Deals & Hosting',
   storeSubtitle:
-    'Live multi-shop catalog combining your uploaded Shopz BD affiliate CSV products with curated hardware on Amazon Associates and cloud hosting on ExonHost.'
+    'Browse electronics, personal gadgets, and workspace accessories across Amazon, Shopz BD, and ExonHost. Every purchase completes directly on the official retailer store.'
 };
 
 interface ProductsContextType {
@@ -64,7 +64,9 @@ interface ProductsContextType {
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
 
-const FIXED_AFFILIATE_TAG = 'mrxshahin1-20';
+const FIXED_AFFILIATE_TAG = 'mrxshahin06-20';
+const FIXED_LINK_ID = 'f69ce6631cea5fb5a49ce7ba4d3968b6';
+const PRIMARY_AMAZON_SHORTLINK = 'https://link.amazon/B0io1BQfg';
 
 export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All Departments (Mega Store)');
@@ -224,7 +226,12 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [highlightedProductId]);
 
-  const applyPartnerTracking = (rawUrl: string, originStore: 'Amazon' | 'Shopz BD' | 'ExonHost'): string => {
+  const applyPartnerTracking = (
+    rawUrl: string,
+    originStore: 'Amazon' | 'Shopz BD' | 'ExonHost',
+    asin?: string,
+    title?: string
+  ): string => {
     const trimmed = rawUrl.trim();
     if (!trimmed) {
       if (originStore === 'ExonHost') return exonhostStoreUrl;
@@ -242,8 +249,12 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return `${trimmed}${sep}ref=mahbubur-rahman-shahin`;
     }
 
-    if (trimmed.includes('link.amazon') || trimmed.includes('amzn.to')) {
+    if (trimmed.includes('link.amazon/B0io1BQfg') || trimmed.includes('amzn.to')) {
       return trimmed;
+    }
+
+    if (trimmed.includes('link.amazon')) {
+      return PRIMARY_AMAZON_SHORTLINK;
     }
 
     if (trimmed.includes('amazon.com')) {
@@ -251,11 +262,11 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const url = new URL(trimmed);
         url.searchParams.set('tag', affiliateTag);
         url.searchParams.set('linkCode', 'll2');
-        url.searchParams.set('linkId', 'b0640e715d1eb5bbcc6b9a28347ac557');
+        url.searchParams.set('linkId', FIXED_LINK_ID);
         return url.toString();
       } catch {
         const sep = trimmed.includes('?') ? '&' : '?';
-        return `${trimmed}${sep}tag=${affiliateTag}&linkCode=ll2&linkId=b0640e715d1eb5bbcc6b9a28347ac557`;
+        return `${trimmed}${sep}tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
       }
     }
 
@@ -264,19 +275,24 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getAffiliateBuyUrl = (product: EcomProduct): string => {
     if (product.affiliateUrl) {
-      return applyPartnerTracking(product.affiliateUrl, product.originStore);
+      return applyPartnerTracking(product.affiliateUrl, product.originStore, product.asin, product.title);
+    }
+
+    if (product.originStore === 'Amazon') {
+      return amazonStoreUrl;
     }
 
     if (product.asin) {
-      return `https://www.amazon.com/dp/${product.asin}?tag=${affiliateTag}&linkCode=ll2&linkId=b0640e715d1eb5bbcc6b9a28347ac557`;
+      return `https://www.amazon.com/dp/${product.asin}?tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
     }
 
-    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${affiliateTag}&linkCode=ll2&linkId=b0640e715d1eb5bbcc6b9a28347ac557`;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
   };
 
   const getAmazonSearchAffiliateUrl = (query: string): string => {
-    const clean = query.trim() || 'trending electronics deals';
-    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${affiliateTag}&linkCode=ll2&linkId=b0640e715d1eb5bbcc6b9a28347ac557`;
+    const clean = query.trim();
+    if (!clean) return amazonStoreUrl;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
   };
 
   const getShopzSearchAffiliateUrl = (query: string): string => {
