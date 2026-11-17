@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, ShoppingCart, ShoppingBag, ShieldCheck, Truck, ExternalLink, Layers, Award, Copy } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
+import { getContextualSponsors } from '../data/sponsorsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
 import { ResilientImage } from './ResilientImage';
@@ -19,7 +20,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   isCompared = false
 }) => {
   const { addToCart, formatPrice } = useCart();
-  const { getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
+  const { sponsors, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'guarantee'>('highlights');
   const [quantity, setQuantity] = useState(1);
@@ -376,6 +377,27 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   <span>Retailer Warranty</span>
                 </div>
               </div>
+
+              {getContextualSponsors(sponsors, product.category, 1).map((sp) => (
+                <a
+                  key={sp.id}
+                  href={sp.url}
+                  target="_blank"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick(sp.id)}
+                  className="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                >
+                  <span className="truncate">
+                    <span className="font-semibold text-amber-700 dark:text-amber-400">Sponsored</span>
+                    <span aria-hidden="true" className="mx-1.5">·</span>
+                    <span className="font-medium">{sp.title}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 font-bold shrink-0 whitespace-nowrap">
+                    <span>{sp.ctaLabel}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </span>
+                </a>
+              ))}
             </div>
           </div>
         </div>

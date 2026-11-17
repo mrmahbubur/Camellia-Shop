@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ExternalLink, Copy, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
+import { getContextualSponsors } from '../data/sponsorsData';
 import { ResilientImage } from './ResilientImage';
 
 export const CartDrawer: React.FC = () => {
@@ -15,7 +16,7 @@ export const CartDrawer: React.FC = () => {
     subtotalUSD,
     formatPrice
   } = useCart();
-  const { products, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
+  const { sponsors, products, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [copiedLinks, setCopiedLinks] = React.useState(false);
 
   useEffect(() => {
@@ -184,6 +185,25 @@ export const CartDrawer: React.FC = () => {
         {/* Footer */}
         {cart.length > 0 && (
           <div className="p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+            {getContextualSponsors(sponsors, 'cart', 1).map((sp) => (
+              <a
+                key={sp.id}
+                href={sp.url}
+                target="_blank"
+                rel="noreferrer noopener sponsored"
+                onClick={() => recordAffiliateClick(sp.id)}
+                className="flex items-center justify-between gap-2.5 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 text-xs hover:border-amber-400 transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                    Sponsored · {sp.category}
+                  </div>
+                  <div className="font-semibold text-slate-900 dark:text-white truncate">{sp.title}</div>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300 shrink-0" />
+              </a>
+            ))}
+
             <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm">
               <span>Estimated Setup Total</span>
               <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>

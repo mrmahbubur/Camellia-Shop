@@ -21,6 +21,7 @@ import {
   Check
 } from 'lucide-react';
 import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
+import { getContextualSponsors } from '../data/sponsorsData';
 import { useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
 import { ModernProductModal } from './ModernProductModal';
@@ -883,10 +884,7 @@ export const StoreSection: React.FC = () => {
               </a>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {(sponsors.filter((s) => s.featured).length > 0
-                ? sponsors.filter((s) => s.featured).slice(0, 2)
-                : sponsors.slice(0, 2)
-              ).map((sp) => (
+              {getContextualSponsors(sponsors, selectedCategory, 2).map((sp) => (
                 <a
                   key={sp.id}
                   href={sp.url}

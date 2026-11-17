@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { ExternalLink, Check, Zap, ShoppingCart, ShoppingBag, ShieldCheck, Info } from 'lucide-react';
 import { AMAZON_PRODUCTS } from '../data/amazonProductsData';
+import { getContextualSponsors } from '../data/sponsorsData';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
 import { ResilientImage } from './ResilientImage';
 
 export const AmazonShowcaseSection: React.FC = () => {
   const { formatPrice, addToCart } = useCart();
-  const { recordAffiliateClick } = useProducts();
+  const { sponsors, recordAffiliateClick } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showProfitExplainer, setShowProfitExplainer] = useState(false);
 
@@ -211,6 +212,40 @@ export const AmazonShowcaseSection: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* Contextual Sponsored Partner Offers */}
+        {sponsors.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {getContextualSponsors(sponsors, selectedCategory, 2).map((sp) => (
+              <a
+                key={sp.id}
+                href={sp.url}
+                target="_blank"
+                rel="noreferrer noopener sponsored"
+                onClick={() => recordAffiliateClick(sp.id)}
+                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:shadow-md transition-all duration-200"
+              >
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
+                    <span aria-hidden="true">·</span>
+                    <span className="truncate">{sp.category}</span>
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    {sp.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">
+                    {sp.subtitle}
+                  </p>
+                </div>
+                <span className="px-3 min-h-[36px] py-1.5 bg-slate-100 dark:bg-slate-800 group-hover:bg-amber-400 text-slate-900 dark:text-slate-100 group-hover:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-colors">
+                  <span>{sp.ctaLabel}</span>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
 
         {/* Amazon Affiliate Disclosure Ribbon */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">

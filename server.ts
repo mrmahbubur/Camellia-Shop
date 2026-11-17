@@ -267,10 +267,23 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distDir = path.join(ROOT_DIR, 'dist');
+    const mitgoMetaTag = '<meta name="mitgo-verification" content="32d3b5bd-5508-4682-b740-252fe461d08a" />';
+
+    const sendVerifiedIndex = async (_req: Request, res: express.Response) => {
+      try {
+        let html = await fs.readFile(path.join(distDir, 'index.html'), 'utf-8');
+        if (!html.includes('name="mitgo-verification"')) {
+          html = html.replace('</head>', `    ${mitgoMetaTag}\n  </head>`);
+        }
+        res.type('html').send(html);
+      } catch {
+        res.sendFile(path.join(distDir, 'index.html'));
+      }
+    };
+
+    app.get('/', sendVerifiedIndex);
     app.use(express.static(distDir));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distDir, 'index.html'));
-    });
+    app.get('*', sendVerifiedIndex);
   }
 
   app.listen(PORT, '0.0.0.0', () => {
