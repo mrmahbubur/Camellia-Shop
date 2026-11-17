@@ -16,7 +16,7 @@ export const CartDrawer: React.FC = () => {
     subtotalUSD,
     formatPrice
   } = useCart();
-  const { sponsors, products, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
+  const { sponsors, products, affiliateTag, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [copiedLinks, setCopiedLinks] = React.useState(false);
 
   useEffect(() => {
@@ -35,6 +35,26 @@ export const CartDrawer: React.FC = () => {
     if (matched) return getAffiliateBuyUrl(matched);
     return fallbackUrl || '#store';
   };
+
+  const amazonAsinItems = cart
+    .map((item) => {
+      const matched = products.find((p) => p.id === item.product.id);
+      const asin = item.product.asin || matched?.asin;
+      const store = item.product.originStore || matched?.originStore;
+      return store !== 'Shopz BD' && asin ? { asin, quantity: item.quantity } : null;
+    })
+    .filter((entry): entry is { asin: string; quantity: number } => entry !== null);
+
+  const amazonCartCheckoutUrl = (() => {
+    if (amazonAsinItems.length === 0) return null;
+    const params = new URLSearchParams();
+    params.set('AssociateTag', affiliateTag);
+    amazonAsinItems.forEach((entry, idx) => {
+      params.set(`ASIN.${idx + 1}`, entry.asin);
+      params.set(`Quantity.${idx + 1}`, String(entry.quantity));
+    });
+    return `https://www.amazon.com/gp/aws/cart/add.html?${params.toString()}`;
+  })();
 
   const handleCopyAllLinks = () => {
     const lines = cart.map((item, idx) => {
@@ -211,6 +231,19 @@ export const CartDrawer: React.FC = () => {
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
               Live pricing, shipping, and taxes are applied directly on Amazon or Shopz BD.
             </p>
+
+            {amazonCartCheckoutUrl && (
+              <a
+                href={amazonCartCheckoutUrl}
+                target="_blank"
+                rel="noreferrer noopener sponsored"
+                onClick={() => recordAffiliateClick('amazon-cart-checkout')}
+                className="w-full min-h-[44px] px-4 py-2.5 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-xs whitespace-nowrap"
+              >
+                <span>Checkout Amazon Items on Amazon ({amazonAsinItems.reduce((sum, i) => sum + i.quantity, 0)})</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+              </a>
+            )}
 
             <div className="flex items-center gap-2">
               <button

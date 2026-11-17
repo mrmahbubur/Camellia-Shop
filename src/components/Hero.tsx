@@ -8,7 +8,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
-  const { setSelectedCategory, amazonStoreUrl, shopzStoreUrl, products, storefrontCopy } = useProducts();
+  const { setSelectedCategory, amazonStoreUrl, shopzStoreUrl, products, storefrontCopy, recordAffiliateClick } = useProducts();
 
   const handleBrowseAllProducts = () => {
     setSelectedCategory('All Departments (Mega Store)');
@@ -64,7 +64,8 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                 <a
                   href={amazonStoreUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick('hero-amazon-store')}
                   className="flex-1 sm:flex-initial min-h-[44px] px-4 py-3 text-sm font-bold text-amber-800 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <span>Amazon Store</span>
@@ -74,7 +75,8 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                 <a
                   href={shopzStoreUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noreferrer noopener sponsored"
+                  onClick={() => recordAffiliateClick('hero-shopz-store')}
                   className="flex-1 sm:flex-initial min-h-[44px] px-4 py-3 text-sm font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 border border-emerald-300 dark:border-emerald-500/40 hover:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <span>Shopz BD</span>

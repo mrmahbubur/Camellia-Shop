@@ -1,5 +1,6 @@
 export interface Product {
   id: string;
+  asin?: string;
   title: string;
   category: string;
   price: number;

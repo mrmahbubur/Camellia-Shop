@@ -153,7 +153,9 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                     </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center text-emerald-700 dark:text-emerald-400 font-semibold">
-                        {p.originStore === 'Shopz BD'
+                        {p.originStore === 'ExonHost'
+                          ? 'Instant Cloud Setup'
+                          : p.originStore === 'Shopz BD'
                           ? 'Shopz BD Courier'
                           : p.primeEligible
                           ? 'Free Prime 1-2 Day'
@@ -173,12 +175,14 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                           rel="noreferrer noopener sponsored"
                           onClick={() => recordAffiliateClick(p.id)}
                           className={`inline-flex items-center gap-1.5 px-3 py-2 text-slate-950 font-bold rounded-lg text-xs shadow-xs whitespace-nowrap ${
-                            p.originStore === 'Shopz BD'
+                            p.originStore === 'ExonHost'
+                              ? 'bg-sky-500 hover:bg-sky-400'
+                              : p.originStore === 'Shopz BD'
                               ? 'bg-emerald-500 hover:bg-emerald-400'
                               : 'bg-[#FF9900] hover:bg-[#e88b00]'
                           }`}
                         >
-                          <span>Buy on {p.originStore}</span>
+                          <span>{p.originStore === 'ExonHost' ? 'Order on ExonHost' : `Buy on ${p.originStore}`}</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       </td>

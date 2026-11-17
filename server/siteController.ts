@@ -30,7 +30,7 @@ export interface CustomStoreProduct {
   description: string;
   highlights: string[];
   specs: ProductSpec[];
-  originStore: 'Amazon' | 'Shopz BD';
+  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost';
 }
 
 export interface PriceOverride {
@@ -93,12 +93,19 @@ function isBlockedUrl(url: string): boolean {
   return BLOCKED_AD_DOMAINS.some((d) => lower.includes(d));
 }
 
-function sanitizePartnerUrl(rawUrl: string, originStore: 'Amazon' | 'Shopz BD'): string {
+function sanitizePartnerUrl(rawUrl: string, originStore: 'Amazon' | 'Shopz BD' | 'ExonHost'): string {
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
+    if (originStore === 'ExonHost') {
+      return 'https://my.exonhost.com/affiliate?aff=5993';
+    }
     return originStore === 'Shopz BD'
       ? 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin'
       : 'https://www.amazon.com/gp/yourstore?shopForFallback=1&linkCode=ll2&tag=mrxshahin1-20&linkId=b0640e715d1eb5bbcc6b9a28347ac557&language=en_US&ref_=as_li_ss_tl';
+  }
+  if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
+    if (trimmed.includes('aff=')) return trimmed;
+    return 'https://my.exonhost.com/affiliate?aff=5993';
   }
   if (originStore === 'Shopz BD' || trimmed.includes('shopz.com.bd')) {
     if (trimmed.includes('ref=')) return trimmed;
@@ -130,7 +137,8 @@ const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
   'Smart Home & Power',
   'Wearables & Smartwatches',
   'Office & Workspace',
-  'Shopz BD Tech Deals'
+  'Shopz BD Tech Deals',
+  'Cloud Hosting & Domains'
 ]);
 
 function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): StorefrontConfig {
@@ -468,9 +476,16 @@ export async function executeBackendSiteControl(
   if (Array.isArray(patch.upsertProducts)) {
     for (const rawProd of patch.upsertProducts) {
       if (!rawProd?.id || !rawProd?.title) continue;
-      const originStore: 'Amazon' | 'Shopz BD' = rawProd.originStore === 'Shopz BD' ? 'Shopz BD' : 'Amazon';
+      const originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' =
+        rawProd.originStore === 'Shopz BD'
+          ? 'Shopz BD'
+          : rawProd.originStore === 'ExonHost'
+          ? 'ExonHost'
+          : 'Amazon';
       const category = VALID_CATEGORIES.has(rawProd.category as CustomStoreProduct['category'])
         ? (rawProd.category as CustomStoreProduct['category'])
+        : originStore === 'ExonHost'
+        ? 'Cloud Hosting & Domains'
         : originStore === 'Shopz BD'
         ? 'Shopz BD Tech Deals'
         : 'Electronics & Gadgets';
@@ -493,7 +508,14 @@ export async function executeBackendSiteControl(
         badge: typeof rawProd.badge === 'string' && rawProd.badge.trim() ? rawProd.badge.trim() : undefined,
         primeEligible: Boolean(rawProd.primeEligible),
         deliveryEstimate:
-          (rawProd.deliveryEstimate || (originStore === 'Shopz BD' ? 'Fulfilled by Shopz BD Courier' : 'Fulfilled by Amazon')).trim(),
+          (
+            rawProd.deliveryEstimate ||
+            (originStore === 'ExonHost'
+              ? 'Instant Cloud Provisioning'
+              : originStore === 'Shopz BD'
+              ? 'Fulfilled by Shopz BD Courier'
+              : 'Fulfilled by Amazon')
+          ).trim(),
         affiliateUrl: sanitizePartnerUrl(rawProd.affiliateUrl || '', originStore),
         mainImage: safeImage,
         galleryImages: safeImage ? [safeImage] : [],

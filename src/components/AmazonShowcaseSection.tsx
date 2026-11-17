@@ -185,6 +185,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                         addToCart(
                           {
                             id: product.id,
+                            asin: product.asin,
                             title: product.title,
                             category: product.category,
                             price: product.price,

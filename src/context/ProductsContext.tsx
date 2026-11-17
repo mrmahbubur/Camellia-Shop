@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { EcomProduct, UNIFIED_PRODUCTS, AMAZON_STORE_URL, SHOPZ_REF_BASE } from '../data/unifiedProductsData';
+import {
+  EcomProduct,
+  UNIFIED_PRODUCTS,
+  AMAZON_STORE_URL,
+  SHOPZ_REF_BASE,
+  EXONHOST_AFFILIATE_URL
+} from '../data/unifiedProductsData';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
 
 export interface StorefrontCopyConfig {
@@ -43,6 +49,7 @@ interface ProductsContextType {
   getShopzSearchAffiliateUrl: (query: string) => string;
   amazonStoreUrl: string;
   shopzStoreUrl: string;
+  exonhostStoreUrl: string;
   affiliateTag: string;
   recordAffiliateClick: (productId?: string) => void;
 }
@@ -58,6 +65,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const amazonStoreUrl = AMAZON_STORE_URL;
   const shopzStoreUrl = SHOPZ_REF_BASE;
+  const exonhostStoreUrl = EXONHOST_AFFILIATE_URL;
   const affiliateTag = FIXED_AFFILIATE_TAG;
 
   useEffect(() => {
@@ -156,9 +164,17 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [highlightedProductId]);
 
-  const applyPartnerTracking = (rawUrl: string, originStore: 'Amazon' | 'Shopz BD'): string => {
+  const applyPartnerTracking = (rawUrl: string, originStore: 'Amazon' | 'Shopz BD' | 'ExonHost'): string => {
     const trimmed = rawUrl.trim();
-    if (!trimmed) return originStore === 'Shopz BD' ? shopzStoreUrl : amazonStoreUrl;
+    if (!trimmed) {
+      if (originStore === 'ExonHost') return exonhostStoreUrl;
+      return originStore === 'Shopz BD' ? shopzStoreUrl : amazonStoreUrl;
+    }
+
+    if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
+      if (trimmed.includes('aff=')) return trimmed;
+      return exonhostStoreUrl;
+    }
 
     if (originStore === 'Shopz BD' || trimmed.includes('shopz.com.bd')) {
       if (trimmed.includes('ref=')) return trimmed;
@@ -223,6 +239,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getShopzSearchAffiliateUrl,
         amazonStoreUrl,
         shopzStoreUrl,
+        exonhostStoreUrl,
         affiliateTag,
         recordAffiliateClick
       }}

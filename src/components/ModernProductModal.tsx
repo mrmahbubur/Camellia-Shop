@@ -56,6 +56,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
     addToCart(
       {
         id: product.id,
+        asin: product.asin,
         title: product.title,
         category: product.category,
         price: product.price,

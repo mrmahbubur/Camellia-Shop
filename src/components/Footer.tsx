@@ -131,13 +131,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </ul>
           </div>
 
-          {/* Partner Fulfillment */}
+          {/* Partner Fulfillment & Disclosure */}
           <div className="sm:col-span-2 md:col-span-4 space-y-3">
             <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
-              Direct Retailer Fulfillment
+              Affiliate Disclosure &amp; Fulfillment
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              All product purchases take place directly on Amazon or Shopz BD under their official checkouts, live pricing, shipping options, and manufacturer warranties.
+              As an Amazon Associate and Shopz BD / partner affiliate, {storefrontCopy.siteName} earns from qualifying purchases. All transactions, final pricing, shipping, and warranties are fulfilled directly by the official merchant.
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
               <span className="flex items-center gap-1 text-emerald-400">
