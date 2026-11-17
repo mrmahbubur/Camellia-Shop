@@ -41,7 +41,7 @@ export const CartDrawer: React.FC = () => {
       const matched = products.find((p) => p.id === item.product.id);
       const asin = item.product.asin || matched?.asin;
       const store = item.product.originStore || matched?.originStore;
-      return store !== 'Shopz BD' && asin ? { asin, quantity: item.quantity } : null;
+      return store === 'Amazon' && asin ? { asin, quantity: item.quantity } : null;
     })
     .filter((entry): entry is { asin: string; quantity: number } => entry !== null);
 
@@ -100,7 +100,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Direct Purchase Notice */}
         <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
-          Every item purchases directly on Amazon or Shopz BD with official merchant checkout.
+          Every item purchases directly on Amazon, Shopz BD, or ExonHost with official merchant checkout.
         </div>
 
         {/* Saved Items List */}
@@ -127,6 +127,7 @@ export const CartDrawer: React.FC = () => {
             cart.map((item) => {
               const partnerUrl = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
               const isShopz = item.product.originStore === 'Shopz BD';
+              const isExonHost = item.product.originStore === 'ExonHost';
 
               return (
                 <div
@@ -147,7 +148,13 @@ export const CartDrawer: React.FC = () => {
 
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice(
+                          item.product.price * item.quantity,
+                          typeof item.product.nativePrice === 'number'
+                            ? item.product.nativePrice * item.quantity
+                            : undefined,
+                          item.product.nativeCurrency
+                        )}
                       </span>
 
                       <div className="flex items-center gap-1.5">
@@ -187,12 +194,14 @@ export const CartDrawer: React.FC = () => {
                       rel="noreferrer noopener sponsored"
                       onClick={() => recordAffiliateClick(item.product.id)}
                       className={`w-full min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors ${
-                        isShopz
+                        isExonHost
+                          ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                          : isShopz
                           ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                           : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                       }`}
                     >
-                      <span>Buy on {item.product.originStore || 'Amazon'}</span>
+                      <span>{isExonHost ? 'Order on ExonHost' : `Buy on ${item.product.originStore || 'Amazon'}`}</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
@@ -229,7 +238,7 @@ export const CartDrawer: React.FC = () => {
               <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              Live pricing, shipping, and taxes are applied directly on Amazon or Shopz BD.
+              Live pricing, shipping, and taxes are applied directly on Amazon, Shopz BD, or ExonHost.
             </p>
 
             {amazonCartCheckoutUrl && (

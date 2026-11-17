@@ -1,10 +1,12 @@
-import express, { Request } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import {
   DEFAULT_STOREFRONT,
-  StorefrontConfig,
+  type StorefrontConfig,
   sanitizeStorefrontConfig,
   executeBackendSiteControl
 } from './server/siteController.ts';
@@ -14,8 +16,8 @@ dotenv.config();
 const PORT = Number(process.env.PORT || 3000);
 const IS_PROD = process.env.NODE_ENV === 'production';
 const ROOT_DIR = process.cwd();
-const DATA_DIR = path.join(ROOT_DIR, 'data');
-const DB_FILE = path.join(DATA_DIR, 'store.json');
+const WORKSPACE_DATA_DIR = path.join(ROOT_DIR, 'data');
+const TMP_DATA_DIR = path.join(os.tmpdir(), 'camellia-shop-data');
 
 interface StoreDb {
   clicks: Record<string, number>;
@@ -27,20 +29,49 @@ const DEFAULT_DB: StoreDb = {
   storefront: DEFAULT_STOREFRONT
 };
 
+let activeDbFile: string | null = null;
+let memoryDb: StoreDb = {
+  clicks: {},
+  storefront: DEFAULT_STOREFRONT
+};
 let dbWriteQueue: Promise<void> = Promise.resolve();
 
+async function resolveWritableDbFile(): Promise<string | null> {
+  if (activeDbFile) return activeDbFile;
+  for (const dir of [WORKSPACE_DATA_DIR, TMP_DATA_DIR]) {
+    try {
+      await fs.mkdir(dir, { recursive: true });
+      const candidate = path.join(dir, 'store.json');
+      await fs.access(dir, fs.constants.W_OK);
+      activeDbFile = candidate;
+      return candidate;
+    } catch {
+      // Try next directory
+    }
+  }
+  return null;
+}
+
 async function ensureDb(): Promise<StoreDb> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+  const dbFile = await resolveWritableDbFile();
+  if (!dbFile) return memoryDb;
+
   try {
-    const raw = await fs.readFile(DB_FILE, 'utf-8');
+    const raw = await fs.readFile(dbFile, 'utf-8');
     const parsed = JSON.parse(raw) as Partial<StoreDb>;
-    return {
+    const loaded: StoreDb = {
       clicks: parsed.clicks && typeof parsed.clicks === 'object' ? parsed.clicks : {},
       storefront: sanitizeStorefrontConfig(parsed.storefront)
     };
+    memoryDb = loaded;
+    return loaded;
   } catch {
-    await fs.writeFile(DB_FILE, JSON.stringify(DEFAULT_DB, null, 2), 'utf-8');
-    return { clicks: {}, storefront: DEFAULT_STOREFRONT };
+    try {
+      await fs.writeFile(dbFile, JSON.stringify(memoryDb, null, 2), 'utf-8');
+    } catch {
+      // Fall back to in-memory state if write fails
+    }
+    return memoryDb;
   }
 }
 
@@ -48,7 +79,15 @@ function withDbLock<T>(fn: (db: StoreDb) => Promise<{ db: StoreDb; result: T }>)
   const next = dbWriteQueue.then(async () => {
     const current = await ensureDb();
     const { db: updated, result } = await fn(current);
-    await fs.writeFile(DB_FILE, JSON.stringify(updated, null, 2), 'utf-8');
+    memoryDb = updated;
+    const dbFile = await resolveWritableDbFile();
+    if (dbFile) {
+      try {
+        await fs.writeFile(dbFile, JSON.stringify(updated, null, 2), 'utf-8');
+      } catch {
+        // Keep in-memory state updated even if disk write fails
+      }
+    }
     return result;
   });
   dbWriteQueue = next.then(
@@ -269,7 +308,7 @@ async function startServer() {
     const distDir = path.join(ROOT_DIR, 'dist');
     const mitgoMetaTag = '<meta name="mitgo-verification" content="892bc51b-d387-45a2-baab-fa37e8d8e069" />';
 
-    const sendVerifiedIndex = async (_req: Request, res: express.Response) => {
+    const sendVerifiedIndex = async (_req: Request, res: Response) => {
       try {
         let html = await fs.readFile(path.join(distDir, 'index.html'), 'utf-8');
         if (!html.includes('name="mitgo-verification"')) {

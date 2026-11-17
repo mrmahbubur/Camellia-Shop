@@ -7,6 +7,11 @@ import {
   EXONHOST_AFFILIATE_URL
 } from '../data/unifiedProductsData';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
+import {
+  parseAffiliateCsv,
+  UPLOADED_AFFILIATE_CSV_PATH,
+  UPLOADED_AFFILIATE_CSV_FETCH_PATHS
+} from '../utils/affiliateCsv';
 
 export interface StorefrontCopyConfig {
   siteName: string;
@@ -27,17 +32,20 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
-  announcementText: 'Camellia Shop · Curated Amazon Prime & Shopz BD Hardware',
-  heroTitle: 'Curated Workspace Electronics, Desk Hardware & Direct Checkout.',
+  announcementText: 'Camellia Shop · Curated Amazon Prime, Shopz BD & ExonHost',
+  heroTitle: 'Curated Workspace Electronics, Linked Shop Deals & Direct Checkout.',
   heroSubtitle:
-    'Shop curated computer peripherals, GaN chargers, studio audio gear, monitors, and desk accessories with live multi-currency pricing and direct Amazon and Shopz BD product links.',
-  storeTitle: 'Shop Prime Gear & Shopz BD Electronics',
+    'Browse verified hardware, gadgets, wearables, and cloud hosting directly from your uploaded affiliate CSV feed and linked shops (Amazon, Shopz BD & ExonHost) with live currency conversion.',
+  storeTitle: 'Linked Affiliate Shops & Uploaded Product Feed',
   storeSubtitle:
-    'Curated hardware across Amazon and Shopz BD. Every purchase completes directly on the official retailer store with manufacturer warranties and buyer protection.'
+    'Live multi-shop catalog combining your uploaded Shopz BD affiliate CSV products with curated hardware on Amazon Associates and cloud hosting on ExonHost.'
 };
 
 interface ProductsContextType {
   products: EcomProduct[];
+  csvProductsCount: number;
+  linkedShopCount: number;
+  uploadedCsvPath: string;
   sponsors: SponsorPlacement[];
   storefrontCopy: StorefrontCopyConfig;
   selectedCategory: string;
@@ -62,11 +70,39 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [selectedCategory, setSelectedCategory] = useState<string>('All Departments (Mega Store)');
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
   const [storefrontData, setStorefrontData] = useState<StorefrontResponse | null>(null);
+  const [csvProducts, setCsvProducts] = useState<EcomProduct[]>([]);
 
   const amazonStoreUrl = AMAZON_STORE_URL;
   const shopzStoreUrl = SHOPZ_REF_BASE;
   const exonhostStoreUrl = EXONHOST_AFFILIATE_URL;
   const affiliateTag = FIXED_AFFILIATE_TAG;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUploadedCsv = async () => {
+      for (const candidatePath of UPLOADED_AFFILIATE_CSV_FETCH_PATHS) {
+        try {
+          const res = await fetch(candidatePath);
+          if (!res.ok) continue;
+          const text = await res.text();
+          if (!text || !text.toLowerCase().includes('http')) continue;
+          const parsed = parseAffiliateCsv(text);
+          if (!cancelled && parsed.length > 0) {
+            setCsvProducts(parsed);
+            return;
+          }
+        } catch {
+          // Try next relative/absolute asset path
+        }
+      }
+    };
+
+    loadUploadedCsv();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
@@ -99,8 +135,22 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const products = useMemo<EcomProduct[]>(() => {
     const customList = Array.isArray(storefrontData?.customProducts) ? storefrontData.customProducts : [];
     const customMap = new Map(customList.map((p) => [p.id, p]));
-    const mergedBase = UNIFIED_PRODUCTS.map((p) => customMap.get(p.id) || p);
-    const extraCustom = customList.filter((p) => !UNIFIED_PRODUCTS.some((u) => u.id === p.id));
+
+    const baseCatalog: EcomProduct[] = UNIFIED_PRODUCTS.map((p) => ({
+      ...p,
+      sourceType: p.sourceType || 'linked-shop'
+    }));
+
+    const existingLinks = new Set(baseCatalog.map((p) => p.affiliateUrl.toLowerCase()));
+    const dedupedCsv = csvProducts.filter((p) => !existingLinks.has(p.affiliateUrl.toLowerCase()));
+
+    const allKnown = [...baseCatalog, ...dedupedCsv];
+    const knownIds = new Set(allKnown.map((p) => p.id));
+
+    const mergedBase = allKnown.map((p) => customMap.get(p.id) || p);
+    const extraCustom = customList
+      .filter((p) => !knownIds.has(p.id))
+      .map((p) => ({ ...p, sourceType: p.sourceType || ('linked-shop' as const) }));
 
     const hiddenSet = new Set(Array.isArray(storefrontData?.hiddenProductIds) ? storefrontData.hiddenProductIds : []);
     const overrides = storefrontData?.priceOverrides || {};
@@ -127,7 +177,17 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const rb = rank.has(b.id) ? (rank.get(b.id) as number) : Number.MAX_SAFE_INTEGER;
       return ra - rb;
     });
-  }, [storefrontData]);
+  }, [storefrontData, csvProducts]);
+
+  const csvProductsCount = useMemo(
+    () => products.filter((p) => p.sourceType === 'uploaded-csv').length,
+    [products]
+  );
+
+  const linkedShopCount = useMemo(
+    () => products.filter((p) => p.sourceType !== 'uploaded-csv').length,
+    [products]
+  );
 
   const sponsors = useMemo<SponsorPlacement[]>(() => {
     const incoming = Array.isArray(storefrontData?.sponsors) ? storefrontData.sponsors : null;
@@ -228,6 +288,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <ProductsContext.Provider
       value={{
         products,
+        csvProductsCount,
+        linkedShopCount,
+        uploadedCsvPath: UPLOADED_AFFILIATE_CSV_PATH,
         sponsors,
         storefrontCopy,
         selectedCategory,

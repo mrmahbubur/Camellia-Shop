@@ -66,6 +66,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
         highlights: product.highlights,
         specs: product.specs,
         image: product.mainImage,
+        nativePrice: product.nativePrice,
+        nativeCurrency: product.nativeCurrency,
+        csvCategory: product.csvCategory,
+        sourceType: product.sourceType,
         originStore: product.originStore,
         affiliateUrl: buyUrl
       },
@@ -80,6 +84,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   };
 
   const isShopz = product.originStore === 'Shopz BD';
+  const isExonHost = product.originStore === 'ExonHost';
 
   return (
     <div
@@ -171,7 +176,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2 lg:pr-10">
                 <span className="font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-[11px]">
-                  {product.category}
+                  {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                 </span>
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   Retailer: {product.originStore}
@@ -184,7 +189,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
               <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3 mb-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700">
                 <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
-                  {product.price > 0 ? formatPrice(product.price) : 'Check Live Price'}
+                  {product.price > 0
+                    ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
+                    : 'Check Live Price'}
                 </span>
                 {product.originalPrice && product.price > 0 && (
                   <span className="text-sm text-slate-400 line-through font-mono tabular-nums">
@@ -232,7 +239,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {isShopz ? 'Shopz BD Policy' : 'Amazon Buyer Policy'}
+                  {isExonHost ? 'ExonHost Policy' : isShopz ? 'Shopz BD Policy' : 'Amazon Buyer Policy'}
                 </button>
               </div>
 
@@ -263,13 +270,17 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>
-                      {isShopz
+                      {isExonHost
+                        ? 'Direct ExonHost Official Portal Link'
+                        : isShopz
                         ? 'Direct Shopz BD Official Product Link'
                         : 'Direct Amazon Official Product Link'}
                     </span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                    {isShopz
+                    {isExonHost
+                      ? 'Your hosting or domain order completes directly on ExonHost with instant provisioning, 24/7 live support, and a 30-day money-back guarantee.'
+                      : isShopz
                       ? 'Your purchase completes directly on Shopz.com.bd under their official store checkout, courier tracking, and seller warranty terms.'
                       : 'Your purchase completes directly on Amazon.com under Amazon’s official checkout, return window, and A-to-z Guarantee.'}
                   </p>
@@ -286,14 +297,16 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   rel="noreferrer noopener sponsored"
                   onClick={() => recordAffiliateClick(product.id)}
                   className={`flex-1 min-h-[46px] py-3 px-4 font-extrabold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
-                    isShopz
+                    isExonHost
+                      ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                      : isShopz
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                       : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4 shrink-0" />
                   <span className="truncate">
-                    {isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}
+                    {isExonHost ? 'Order on ExonHost' : isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}
                   </span>
                   <ExternalLink className="w-4 h-4 text-slate-900 shrink-0" />
                 </a>
@@ -367,7 +380,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 dark:text-slate-400 text-center pt-2">
                 <div className="flex flex-col items-center">
                   <Truck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>{isShopz ? 'Shopz Courier' : 'Amazon Delivery'}</span>
+                  <span>{isExonHost ? 'Instant Provisioning' : isShopz ? 'Shopz Courier' : 'Amazon Delivery'}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />

@@ -17,7 +17,8 @@ export interface CustomStoreProduct {
     | 'Smart Home & Power'
     | 'Wearables & Smartwatches'
     | 'Office & Workspace'
-    | 'Shopz BD Tech Deals';
+    | 'Shopz BD Tech Deals'
+    | 'Cloud Hosting & Domains';
   department: string;
   price: number;
   originalPrice?: number;

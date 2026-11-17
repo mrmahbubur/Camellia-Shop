@@ -18,7 +18,9 @@ import {
   Laptop,
   Zap,
   Building2,
-  Check
+  Check,
+  Cloud,
+  FileSpreadsheet
 } from 'lucide-react';
 import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -29,9 +31,11 @@ import { ProductCompareDock } from './ProductCompareDock';
 import { ResilientImage } from './ResilientImage';
 
 export const StoreSection: React.FC = () => {
-  const { formatPrice, addToCart } = useCart();
+  const { formatPrice, addToCart, toUsdAmount } = useCart();
   const {
     products,
+    csvProductsCount,
+    linkedShopCount,
     sponsors,
     storefrontCopy,
     selectedCategory,
@@ -42,19 +46,21 @@ export const StoreSection: React.FC = () => {
     getShopzSearchAffiliateUrl,
     recordAffiliateClick,
     amazonStoreUrl,
-    shopzStoreUrl
+    shopzStoreUrl,
+    exonhostStoreUrl
   } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'discount'>('featured');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [storeFilter, setStoreFilter] = useState<'all' | 'Amazon' | 'Shopz BD'>('all');
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'uploaded-csv' | 'linked-shop'>('all');
+  const [storeFilter, setStoreFilter] = useState<'all' | 'Amazon' | 'Shopz BD' | 'ExonHost'>('all');
   const [primeOnly, setPrimeOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
 
   // Live partner store search query
   const [partnerQuery, setPartnerQuery] = useState<string>('');
-  const [targetPlatform, setTargetPlatform] = useState<'Amazon' | 'Shopz BD'>('Amazon');
+  const [targetPlatform, setTargetPlatform] = useState<'Amazon' | 'Shopz BD' | 'ExonHost'>('Amazon');
 
   const [activeQuickViewProduct, setActiveQuickViewProduct] = useState<EcomProduct | null>(null);
   const [comparedProducts, setComparedProducts] = useState<EcomProduct[]>([]);
@@ -67,7 +73,8 @@ export const StoreSection: React.FC = () => {
     'Smart Home & Power',
     'Wearables & Smartwatches',
     'Office & Workspace',
-    'Shopz BD Tech Deals'
+    'Shopz BD Tech Deals',
+    'Cloud Hosting & Domains'
   ];
 
   const categoryCounts = useMemo(() => {
@@ -92,6 +99,12 @@ export const StoreSection: React.FC = () => {
           matchCategory = item.category === selectedCategory || item.department === selectedCategory;
         }
 
+        const matchSource =
+          sourceFilter === 'all' ||
+          (sourceFilter === 'uploaded-csv'
+            ? item.sourceType === 'uploaded-csv'
+            : item.sourceType !== 'uploaded-csv');
+
         const matchStore = storeFilter === 'all' || item.originStore === storeFilter;
 
         const matchSearch =
@@ -99,28 +112,33 @@ export const StoreSection: React.FC = () => {
           item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (item.csvCategory && item.csvCategory.toLowerCase().includes(searchQuery.toLowerCase())) ||
           (item.department && item.department.toLowerCase().includes(searchQuery.toLowerCase())) ||
           (item.asin && item.asin.toLowerCase().includes(searchQuery.toLowerCase()));
 
         const matchPrime = !primeOnly || item.primeEligible;
-        const matchPrice = item.price <= maxPrice;
+        const normalizedUsd = toUsdAmount(item.price, item.nativePrice, item.nativeCurrency);
+        const matchPrice = normalizedUsd <= maxPrice;
 
-        return matchCategory && matchStore && matchSearch && matchPrime && matchPrice;
+        return matchCategory && matchSource && matchStore && matchSearch && matchPrime && matchPrice;
       })
       .sort((a, b) => {
         if (a.id === highlightedProductId) return -1;
         if (b.id === highlightedProductId) return 1;
 
-        if (sortBy === 'price-asc') return a.price - b.price;
-        if (sortBy === 'price-desc') return b.price - a.price;
+        const priceA = toUsdAmount(a.price, a.nativePrice, a.nativeCurrency);
+        const priceB = toUsdAmount(b.price, b.nativePrice, b.nativeCurrency);
+
+        if (sortBy === 'price-asc') return priceA - priceB;
+        if (sortBy === 'price-desc') return priceB - priceA;
         if (sortBy === 'discount') {
-          const discountA = a.originalPrice ? (a.originalPrice - a.price) / a.originalPrice : 0;
-          const discountB = b.originalPrice ? (b.originalPrice - b.price) / b.originalPrice : 0;
+          const discountA = a.originalPrice ? (a.originalPrice - priceA) / a.originalPrice : 0;
+          const discountB = b.originalPrice ? (b.originalPrice - priceB) / b.originalPrice : 0;
           return discountB - discountA;
         }
         return 0;
       });
-  }, [products, selectedCategory, storeFilter, searchQuery, sortBy, primeOnly, maxPrice, highlightedProductId]);
+  }, [products, selectedCategory, sourceFilter, storeFilter, searchQuery, sortBy, primeOnly, maxPrice, highlightedProductId, toUsdAmount]);
 
   const handleToggleCompare = (product: EcomProduct) => {
     setComparedProducts((prev) => {
@@ -137,6 +155,7 @@ export const StoreSection: React.FC = () => {
 
   const handleClearFilters = () => {
     setSelectedCategory('All Departments (Mega Store)');
+    setSourceFilter('all');
     setStoreFilter('all');
     setSearchQuery('');
     setPrimeOnly(false);
@@ -145,7 +164,9 @@ export const StoreSection: React.FC = () => {
   };
 
   const livePartnerSearchHref =
-    targetPlatform === 'Shopz BD'
+    targetPlatform === 'ExonHost'
+      ? exonhostStoreUrl
+      : targetPlatform === 'Shopz BD'
       ? getShopzSearchAffiliateUrl(partnerQuery)
       : getAmazonSearchAffiliateUrl(partnerQuery);
 
@@ -161,16 +182,21 @@ export const StoreSection: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
                 <Package className="w-3.5 h-3.5" />
-                <span>Verified E-Commerce Catalog</span>
+                <span>Verified Affiliate Catalog</span>
               </span>
               <span aria-hidden="true">·</span>
               <span className="text-slate-900 dark:text-amber-200 font-bold bg-amber-100 dark:bg-amber-500/20 px-2 py-0.5 rounded text-[11px]">
-                {products.length} Curated Products
+                {products.length} Live Products
               </span>
-              <span aria-hidden="true">·</span>
-              <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded text-[11px] border border-emerald-200/60 dark:border-emerald-500/30">
-                Direct Retailer Checkout
-              </span>
+              {csvProductsCount > 0 && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded text-[11px] border border-emerald-200/60 dark:border-emerald-500/30 inline-flex items-center gap-1">
+                    <FileSpreadsheet className="w-3 h-3" />
+                    <span>{csvProductsCount} Uploaded CSV</span>
+                  </span>
+                </>
+              )}
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               {storefrontCopy.storeTitle}
@@ -180,16 +206,16 @@ export const StoreSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <a
               href={amazonStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => recordAffiliateClick()}
+              onClick={() => recordAffiliateClick('store-header-amazon')}
               className="flex items-center gap-1.5 text-xs text-amber-950 bg-amber-400 hover:bg-amber-300 font-extrabold px-3.5 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
             >
               <Package className="w-4 h-4 text-slate-950" />
-              <span>Amazon Storefront</span>
+              <span>Amazon Store</span>
               <ExternalLink className="w-3 h-3 text-slate-900" />
             </a>
 
@@ -197,12 +223,24 @@ export const StoreSection: React.FC = () => {
               href={shopzStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => recordAffiliateClick()}
+              onClick={() => recordAffiliateClick('store-header-shopz')}
               className="flex items-center gap-1.5 text-xs text-emerald-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold px-3.5 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
             >
               <Building2 className="w-4 h-4 text-emerald-950" />
-              <span>Shopz BD Store</span>
+              <span>Shopz BD</span>
               <ExternalLink className="w-3 h-3 text-emerald-950" />
+            </a>
+
+            <a
+              href={exonhostStoreUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => recordAffiliateClick('store-header-exonhost')}
+              className="flex items-center gap-1.5 text-xs text-slate-950 bg-sky-400 hover:bg-sky-300 font-extrabold px-3.5 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <Cloud className="w-4 h-4 text-slate-950" />
+              <span>ExonHost</span>
+              <ExternalLink className="w-3 h-3 text-slate-950" />
             </a>
           </div>
         </div>
@@ -213,18 +251,18 @@ export const StoreSection: React.FC = () => {
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <Search className="w-4 h-4 shrink-0" />
-                <span>Direct Partner Store Search</span>
+                <span>Direct Linked Shop Search</span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
-                Search live Amazon Prime &amp; Shopz BD listings directly
+                Search Amazon Prime, Shopz BD &amp; ExonHost directly
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Enter any hardware model to filter our catalog below or jump directly into verified search results on Amazon or Shopz BD.
+                Filter your uploaded CSV feed + linked shops below or launch direct partner search on your selected store.
               </p>
             </div>
 
             {/* Platform Switcher & Direct Live Search Trigger */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 lg:max-w-xl lg:w-full justify-end">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 lg:max-w-2xl lg:w-full justify-end">
               <div className="flex bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0">
                 <button
                   type="button"
@@ -235,7 +273,7 @@ export const StoreSection: React.FC = () => {
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  Amazon Prime
+                  Amazon
                 </button>
                 <button
                   type="button"
@@ -248,12 +286,23 @@ export const StoreSection: React.FC = () => {
                 >
                   Shopz BD
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setTargetPlatform('ExonHost')}
+                  className={`flex-1 sm:flex-initial px-3 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                    targetPlatform === 'ExonHost'
+                      ? 'bg-sky-400 text-slate-950 shadow-xs'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  ExonHost
+                </button>
               </div>
 
               <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 flex-1 min-w-0">
                 <input
                   type="text"
-                  placeholder="e.g., 'Anker GaN 65W', 'QCY Earbuds'..."
+                  placeholder="e.g., 'Casio Watch', 'QCY Earbuds', 'Ulanzi'..."
                   value={partnerQuery}
                   onChange={(e) => {
                     setPartnerQuery(e.target.value);
@@ -265,14 +314,16 @@ export const StoreSection: React.FC = () => {
                   href={livePartnerSearchHref}
                   target="_blank"
                   rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick()}
+                  onClick={() => recordAffiliateClick(`partner-search-${targetPlatform.toLowerCase()}`)}
                   className={`px-4 min-h-[40px] py-2 font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap ${
-                    targetPlatform === 'Shopz BD'
+                    targetPlatform === 'ExonHost'
+                      ? 'bg-sky-400 hover:bg-sky-300 text-slate-950'
+                      : targetPlatform === 'Shopz BD'
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                       : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
                   }`}
                 >
-                  <span>Search {targetPlatform}</span>
+                  <span>{targetPlatform === 'ExonHost' ? 'Open ExonHost' : `Search ${targetPlatform}`}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -323,6 +374,7 @@ export const StoreSection: React.FC = () => {
                 const count = categoryCounts[c] || 0;
                 const isSelected = selectedCategory === c;
                 const isShopzTab = c === 'Shopz BD Tech Deals';
+                const isCloudTab = c === 'Cloud Hosting & Domains';
                 const isMegaStoreTab = c === 'All Departments (Mega Store)';
 
                 return (
@@ -333,14 +385,19 @@ export const StoreSection: React.FC = () => {
                       isSelected
                         ? isShopzTab
                           ? 'bg-emerald-600 text-white shadow-xs font-extrabold'
+                          : isCloudTab
+                          ? 'bg-sky-500 text-slate-950 shadow-xs font-extrabold'
                           : 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 shadow-xs'
                         : isShopzTab
                         ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-950 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 font-bold'
+                        : isCloudTab
+                        ? 'bg-sky-50 dark:bg-sky-500/15 text-sky-950 dark:text-sky-300 border border-sky-200/80 dark:border-sky-500/30 hover:bg-sky-100 dark:hover:bg-sky-500/25 font-bold'
                         : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     {isMegaStoreTab && <Compass className="w-3.5 h-3.5 opacity-75" />}
                     {isShopzTab && <Building2 className="w-3.5 h-3.5" />}
+                    {isCloudTab && <Cloud className="w-3.5 h-3.5" />}
                     {c.includes('Audio') && <Headphones className="w-3.5 h-3.5 opacity-75" />}
                     {c.includes('Computers') && <Laptop className="w-3.5 h-3.5 opacity-75" />}
                     {c.includes('Wearables') && <Watch className="w-3.5 h-3.5 opacity-75" />}
@@ -391,13 +448,60 @@ export const StoreSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Row 2: Search, Store Filter, Price Slider & Sort */}
+          {/* Row 2: Source Feed Switcher & Store Filter */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 text-xs">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
+                Catalog Source:
+              </span>
+              <button
+                type="button"
+                onClick={() => setSourceFilter('all')}
+                className={`px-3 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
+                  sourceFilter === 'all'
+                    ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                All Products ({products.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setSourceFilter('uploaded-csv')}
+                className={`px-3 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 ${
+                  sourceFilter === 'uploaded-csv'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5" />
+                <span>Uploaded CSV Feed ({csvProductsCount})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSourceFilter('linked-shop')}
+                className={`px-3 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
+                  sourceFilter === 'linked-shop'
+                    ? 'bg-amber-400 text-slate-950 shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Linked Shop Picks ({linkedShopCount})
+              </button>
+            </div>
+
+            <div className="text-[11px] text-slate-500 dark:text-slate-400">
+              Showing <span className="font-bold text-slate-900 dark:text-white font-mono">{filteredProducts.length}</span> of {products.length} items
+            </div>
+          </div>
+
+          {/* Row 3: Search, Store Filter, Price Slider & Sort */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs">
             <div className="relative flex-1 lg:max-w-lg min-w-0">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Filter catalog: 'keyboard', 'airpods', 'smartwatch', 'ssd', 'speaker'..."
+                placeholder="Filter catalog: 'Casio', 'earbuds', 'smartwatch', 'lamp', 'trimmer', 'exonhost'..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full min-h-[40px] pl-8 pr-14 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-800 text-xs"
@@ -447,6 +551,17 @@ export const StoreSection: React.FC = () => {
                   }`}
                 >
                   Shopz BD
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStoreFilter('ExonHost')}
+                  className={`px-2.5 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
+                    storeFilter === 'ExonHost'
+                      ? 'bg-sky-500 text-slate-950 shadow-2xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  ExonHost
                 </button>
               </div>
 
@@ -549,6 +664,7 @@ export const StoreSection: React.FC = () => {
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isHighlighted = product.id === highlightedProductId;
               const isShopz = product.originStore === 'Shopz BD';
+              const isExonHost = product.originStore === 'ExonHost';
 
               return (
                 <div
@@ -573,10 +689,14 @@ export const StoreSection: React.FC = () => {
                     {/* Platform Origin Badge */}
                     <span
                       className={`absolute top-3 left-3 font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${
-                        isShopz ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-slate-950'
+                        isExonHost
+                          ? 'bg-sky-500 text-slate-950'
+                          : isShopz
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-amber-500 text-slate-950'
                       }`}
                     >
-                      {product.badge || (isShopz ? 'Shopz BD Deal' : "Amazon's Choice")}
+                      {product.badge || (isExonHost ? 'ExonHost Partner' : isShopz ? 'Shopz BD Deal' : "Amazon's Choice")}
                     </span>
 
                     {/* Prime or Express Shipping Badge */}
@@ -584,6 +704,10 @@ export const StoreSection: React.FC = () => {
                       <span className="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
                         <span className="text-amber-400 font-extrabold italic">prime</span>
                         <span className="text-[10px] text-slate-300">Fast 1-Day</span>
+                      </span>
+                    ) : isExonHost ? (
+                      <span className="absolute bottom-3 left-3 bg-sky-950/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
+                        <span>Instant Cloud Setup</span>
                       </span>
                     ) : isShopz ? (
                       <span className="absolute bottom-3 left-3 bg-emerald-950/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
@@ -608,8 +732,8 @@ export const StoreSection: React.FC = () => {
                   <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
-                        <span className="uppercase tracking-wider text-[11px] font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[160px]">
-                          {product.category}
+                        <span className="uppercase tracking-wider text-[11px] font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[165px]">
+                          {product.csvCategory || product.category}
                         </span>
                         <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 shrink-0">
                           {product.asin || product.originStore}
@@ -630,7 +754,9 @@ export const StoreSection: React.FC = () => {
                       <div className="flex items-baseline justify-between gap-2">
                         <div className="flex items-baseline gap-2 min-w-0">
                           <span className="text-xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
-                            {product.price > 0 ? formatPrice(product.price) : 'Partner Price'}
+                            {product.price > 0
+                              ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
+                              : 'Check Live Price'}
                           </span>
                           {product.originalPrice && product.price > 0 && (
                             <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
@@ -658,7 +784,13 @@ export const StoreSection: React.FC = () => {
                       <div className="text-[10px] bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70 dark:border-slate-700 font-semibold flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 truncate">
                           <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                          <span className="truncate">{isShopz ? 'Official Shopz BD Store' : 'Official Amazon Store'}</span>
+                          <span className="truncate">
+                            {isExonHost
+                              ? 'Official ExonHost Portal'
+                              : isShopz
+                              ? 'Official Shopz BD Store'
+                              : 'Official Amazon Store'}
+                          </span>
                         </span>
                         <span className="font-mono text-emerald-700 dark:text-emerald-400 shrink-0">Direct</span>
                       </div>
@@ -670,16 +802,20 @@ export const StoreSection: React.FC = () => {
                           rel="noreferrer noopener sponsored"
                           onClick={(e) => {
                             e.stopPropagation();
-                            recordAffiliateClick();
+                            recordAffiliateClick(product.id);
                           }}
                           className={`flex-1 min-h-[40px] py-2.5 px-3 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
-                            isShopz
+                            isExonHost
+                              ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                              : isShopz
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                               : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                           }`}
                         >
                           <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                          <span>{isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}</span>
+                          <span>
+                            {isExonHost ? 'Order on ExonHost' : isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}
+                          </span>
                           <ExternalLink className="w-3 h-3 shrink-0" />
                         </a>
 
@@ -700,6 +836,10 @@ export const StoreSection: React.FC = () => {
                                   highlights: product.highlights,
                                   specs: product.specs,
                                   image: product.mainImage,
+                                  nativePrice: product.nativePrice,
+                                  nativeCurrency: product.nativeCurrency,
+                                  csvCategory: product.csvCategory,
+                                  sourceType: product.sourceType,
                                   originStore: product.originStore,
                                   affiliateUrl
                                 },
@@ -726,6 +866,7 @@ export const StoreSection: React.FC = () => {
             {filteredProducts.map((product) => {
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isShopz = product.originStore === 'Shopz BD';
+              const isExonHost = product.originStore === 'ExonHost';
               const isCompared = comparedProducts.some((p) => p.id === product.id);
 
               return (
@@ -745,7 +886,11 @@ export const StoreSection: React.FC = () => {
                     {product.badge && (
                       <span
                         className={`absolute top-2 left-2 font-bold text-[9px] px-2 py-0.5 rounded shadow-xs uppercase ${
-                          isShopz ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-slate-950'
+                          isExonHost
+                            ? 'bg-sky-500 text-slate-950'
+                            : isShopz
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-amber-500 text-slate-950'
                         }`}
                       >
                         {product.badge}
@@ -756,10 +901,10 @@ export const StoreSection: React.FC = () => {
                   <div className="flex-1 w-full min-w-0">
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1 text-xs">
                       <span className="uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 text-[11px]">
-                        {product.category}
+                        {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                       </span>
                       <span className="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
-                        {isShopz ? 'Shopz BD' : `ASIN: ${product.asin || 'Amazon'}`}
+                        {isExonHost ? 'ExonHost Cloud' : isShopz ? 'Shopz BD' : `ASIN: ${product.asin || 'Amazon'}`}
                       </span>
                     </div>
 
@@ -774,7 +919,13 @@ export const StoreSection: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-2">
                       <div className="text-[11px] text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5 font-medium">
                         <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <span>{isShopz ? 'Shopz BD Official Storefront' : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}</span>
+                        <span>
+                          {isExonHost
+                            ? 'Official ExonHost Portal · Instant Cloud Provisioning'
+                            : isShopz
+                            ? 'Shopz BD Official Storefront'
+                            : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -797,7 +948,9 @@ export const StoreSection: React.FC = () => {
                   <div className="w-full md:w-56 shrink-0 flex flex-col justify-between items-start md:items-end border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-6 space-y-3">
                     <div className="text-left md:text-right w-full">
                       <div className="text-2xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
-                        {product.price > 0 ? formatPrice(product.price) : 'Partner Price'}
+                        {product.price > 0
+                          ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
+                          : 'Check Live Price'}
                       </div>
                       {product.originalPrice && product.price > 0 && (
                         <div className="text-xs text-slate-400 line-through font-mono">
@@ -819,16 +972,18 @@ export const StoreSection: React.FC = () => {
                         rel="noreferrer noopener sponsored"
                         onClick={(e) => {
                           e.stopPropagation();
-                          recordAffiliateClick();
+                          recordAffiliateClick(product.id);
                         }}
                         className={`flex-1 min-h-[40px] py-2.5 px-3 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
-                          isShopz
+                          isExonHost
+                            ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                            : isShopz
                             ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                             : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                         }`}
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
-                        <span>{isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}</span>
+                        <span>{isExonHost ? 'Order on ExonHost' : isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
 
@@ -849,6 +1004,10 @@ export const StoreSection: React.FC = () => {
                                 highlights: product.highlights,
                                 specs: product.specs,
                                 image: product.mainImage,
+                                nativePrice: product.nativePrice,
+                                nativeCurrency: product.nativeCurrency,
+                                csvCategory: product.csvCategory,
+                                sourceType: product.sourceType,
                                 originStore: product.originStore,
                                 affiliateUrl
                               },

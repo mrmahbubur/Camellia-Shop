@@ -19,7 +19,9 @@ interface CartContextType {
   setIsCartOpen: (open: boolean) => void;
   currency: Currency;
   setCurrency: (c: Currency) => void;
-  formatPrice: (usdAmount: number) => string;
+  bdtRate: number;
+  toUsdAmount: (usdFallback: number, nativePrice?: number, nativeCurrency?: 'USD' | 'BDT') => number;
+  formatPrice: (usdAmount: number, nativePrice?: number, nativeCurrency?: 'USD' | 'BDT') => string;
   subtotalUSD: number;
   activeNotification: string | null;
   dismissNotification: () => void;
@@ -134,17 +136,37 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const dismissNotification = () => setActiveNotification(null);
 
+  const bdtRate = exchangeRates.BDT || 121.5;
+
+  const toUsdAmount = (
+    usdFallback: number,
+    nativePrice?: number,
+    nativeCurrency?: 'USD' | 'BDT'
+  ): number => {
+    if (nativeCurrency === 'BDT' && typeof nativePrice === 'number') {
+      return nativePrice > 0 ? nativePrice / bdtRate : 0;
+    }
+    return usdFallback;
+  };
+
   const addToCart = (product: Product, quantity = 1) => {
+    const normalizedPrice = toUsdAmount(
+      product.price,
+      product.nativePrice,
+      product.nativeCurrency
+    );
+    const normalizedProduct: Product = { ...product, price: normalizedPrice };
+
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         return prev.map((item) =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, product: normalizedProduct, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product: normalizedProduct, quantity }];
     });
     showNotification(`Saved "${product.title}" to your list`);
   };
@@ -175,12 +197,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotalUSD = cart.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) =>
+      sum +
+      toUsdAmount(item.product.price, item.product.nativePrice, item.product.nativeCurrency) *
+        item.quantity,
     0
   );
 
-  const formatPrice = (usdAmount: number): string => {
+  const formatPrice = (
+    usdAmount: number,
+    nativePrice?: number,
+    nativeCurrency?: 'USD' | 'BDT'
+  ): string => {
     const meta = CURRENCY_META[currency];
+
+    if (nativeCurrency === 'BDT' && typeof nativePrice === 'number') {
+      if (nativePrice <= 0) return 'Check Live Price';
+      if (currency === 'BDT') {
+        return `${Math.round(nativePrice).toLocaleString('en-US')} ${meta.symbol}`;
+      }
+      const usdEquiv = nativePrice / bdtRate;
+      const converted = usdEquiv * (exchangeRates[currency] || 1);
+      const formatted = converted.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      return meta.prefix ? `${meta.symbol}${formatted}` : `${formatted} ${meta.symbol}`;
+    }
+
     const rate = exchangeRates[currency] || 1;
     const raw = usdAmount * rate;
     if (currency === 'BDT') {
@@ -207,6 +251,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsCartOpen,
         currency,
         setCurrency,
+        bdtRate,
+        toUsdAmount,
         formatPrice,
         subtotalUSD,
         activeNotification,

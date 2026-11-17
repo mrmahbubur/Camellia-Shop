@@ -133,7 +133,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                     </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center font-mono font-bold text-sm text-slate-900 dark:text-white">
-                        {p.price > 0 ? formatPrice(p.price) : 'See Store'}
+                        {p.price > 0 ? formatPrice(p.price, p.nativePrice, p.nativeCurrency) : 'Check Live Price'}
                       </td>
                     ))}
                   </tr>
