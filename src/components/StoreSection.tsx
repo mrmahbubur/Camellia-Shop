@@ -25,6 +25,7 @@ import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
 import { useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
+import { REGION_ORDER, REGION_PROFILES, VisitorRegionCode } from '../utils/regionProfile';
 import { ModernProductModal } from './ModernProductModal';
 import { ProductCompareDock } from './ProductCompareDock';
 import { ResilientImage } from './ResilientImage';
@@ -39,6 +40,9 @@ export const StoreSection: React.FC = () => {
     setSelectedCategory,
     selectedStoreFilter: storeFilter,
     setSelectedStoreFilter: setStoreFilter,
+    visitorRegion,
+    setVisitorRegion,
+    regionProfile,
     highlightedProductId,
     getAffiliateBuyUrl,
     getAmazonSearchAffiliateUrl,
@@ -46,7 +50,9 @@ export const StoreSection: React.FC = () => {
     recordAffiliateClick,
     amazonStoreUrl,
     shopzStoreUrl,
-    exonhostStoreUrl
+    exonhostStoreUrl,
+    aliexpressStoreUrl,
+    alibabaStoreUrl
   } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -57,7 +63,7 @@ export const StoreSection: React.FC = () => {
 
   // Live partner store search query
   const [partnerQuery, setPartnerQuery] = useState<string>('');
-  const [targetPlatform, setTargetPlatform] = useState<'Amazon' | 'Shopz BD' | 'ExonHost'>('Amazon');
+  const [targetPlatform, setTargetPlatform] = useState<'Amazon' | 'Shopz BD' | 'AliExpress' | 'Alibaba' | 'ExonHost'>('Amazon');
 
   const [activeQuickViewProduct, setActiveQuickViewProduct] = useState<EcomProduct | null>(null);
   const [comparedProducts, setComparedProducts] = useState<EcomProduct[]>([]);
@@ -156,6 +162,10 @@ export const StoreSection: React.FC = () => {
   const livePartnerSearchHref =
     targetPlatform === 'ExonHost'
       ? exonhostStoreUrl
+      : targetPlatform === 'AliExpress'
+      ? aliexpressStoreUrl
+      : targetPlatform === 'Alibaba'
+      ? alibabaStoreUrl
       : targetPlatform === 'Shopz BD'
       ? getShopzSearchAffiliateUrl(partnerQuery)
       : getAmazonSearchAffiliateUrl(partnerQuery);
@@ -175,12 +185,12 @@ export const StoreSection: React.FC = () => {
                 <span>Featured Catalog</span>
               </span>
               <span aria-hidden="true">·</span>
-              <span className="text-slate-900 dark:text-amber-200 font-bold bg-amber-100 dark:bg-amber-500/20 px-2 py-0.5 rounded text-[11px]">
+              <span className="font-mono tabular-nums text-slate-700 dark:text-slate-200">
                 {products.length} Products
               </span>
               <span aria-hidden="true">·</span>
-              <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded text-[11px] border border-emerald-200/60 dark:border-emerald-500/30">
-                Direct Retailer Checkout
+              <span className="text-emerald-700 dark:text-emerald-400">
+                {regionProfile.label}: {regionProfile.storePriority[0]} First
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
@@ -217,6 +227,28 @@ export const StoreSection: React.FC = () => {
             </a>
 
             <a
+              href={aliexpressStoreUrl}
+              target="_blank"
+              rel="noreferrer noopener sponsored"
+              onClick={() => recordAffiliateClick('store-header-aliexpress')}
+              className="flex items-center gap-1.5 text-xs text-slate-950 bg-orange-400 hover:bg-orange-300 font-extrabold px-3.5 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <span>AliExpress</span>
+              <ExternalLink className="w-3 h-3 text-slate-950" />
+            </a>
+
+            <a
+              href={alibabaStoreUrl}
+              target="_blank"
+              rel="noreferrer noopener sponsored"
+              onClick={() => recordAffiliateClick('store-header-alibaba')}
+              className="flex items-center gap-1.5 text-xs text-white bg-indigo-600 hover:bg-indigo-500 font-extrabold px-3.5 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <span>Alibaba</span>
+              <ExternalLink className="w-3 h-3 text-white" />
+            </a>
+
+            <a
               href={exonhostStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -239,20 +271,20 @@ export const StoreSection: React.FC = () => {
                 <span>Direct Partner Store Search</span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
-                Search Amazon Prime, Shopz BD &amp; ExonHost directly
+                Search Amazon, Shopz BD, AliExpress, Alibaba &amp; ExonHost
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Filter our storefront catalog below or open direct search results on your preferred partner store.
+                Filter our storefront catalog below or open direct deals on your preferred partner store.
               </p>
             </div>
 
             {/* Platform Switcher & Direct Live Search Trigger */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 lg:max-w-2xl lg:w-full justify-end">
-              <div className="flex bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 lg:max-w-3xl lg:w-full justify-end">
+              <div className="flex flex-wrap sm:flex-nowrap bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0 gap-0.5">
                 <button
                   type="button"
                   onClick={() => setTargetPlatform('Amazon')}
-                  className={`flex-1 sm:flex-initial px-3 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`flex-1 sm:flex-initial px-2.5 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                     targetPlatform === 'Amazon'
                       ? 'bg-amber-500 text-slate-950 shadow-xs'
                       : 'text-slate-400 hover:text-white'
@@ -263,7 +295,7 @@ export const StoreSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setTargetPlatform('Shopz BD')}
-                  className={`flex-1 sm:flex-initial px-3 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`flex-1 sm:flex-initial px-2.5 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                     targetPlatform === 'Shopz BD'
                       ? 'bg-emerald-500 text-slate-950 shadow-xs'
                       : 'text-slate-400 hover:text-white'
@@ -273,8 +305,30 @@ export const StoreSection: React.FC = () => {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setTargetPlatform('AliExpress')}
+                  className={`flex-1 sm:flex-initial px-2.5 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                    targetPlatform === 'AliExpress'
+                      ? 'bg-orange-400 text-slate-950 shadow-xs'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  AliExpress
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTargetPlatform('Alibaba')}
+                  className={`flex-1 sm:flex-initial px-2.5 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                    targetPlatform === 'Alibaba'
+                      ? 'bg-indigo-500 text-white shadow-xs'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Alibaba
+                </button>
+                <button
+                  type="button"
                   onClick={() => setTargetPlatform('ExonHost')}
-                  className={`flex-1 sm:flex-initial px-3 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`flex-1 sm:flex-initial px-2.5 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                     targetPlatform === 'ExonHost'
                       ? 'bg-sky-400 text-slate-950 shadow-xs'
                       : 'text-slate-400 hover:text-white'
@@ -287,7 +341,7 @@ export const StoreSection: React.FC = () => {
               <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 flex-1 min-w-0">
                 <input
                   type="text"
-                  placeholder="e.g., 'Casio Watch', 'QCY Earbuds', 'Ulanzi'..."
+                  placeholder="e.g., 'Keychron', 'Casio', 'Qi2', 'Monitor Arm'..."
                   value={partnerQuery}
                   onChange={(e) => {
                     setPartnerQuery(e.target.value);
@@ -305,10 +359,18 @@ export const StoreSection: React.FC = () => {
                       ? 'bg-sky-400 hover:bg-sky-300 text-slate-950'
                       : targetPlatform === 'Shopz BD'
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : targetPlatform === 'AliExpress'
+                      ? 'bg-orange-400 hover:bg-orange-300 text-slate-950'
+                      : targetPlatform === 'Alibaba'
+                      ? 'bg-indigo-500 hover:bg-indigo-400 text-white'
                       : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
                   }`}
                 >
-                  <span>{targetPlatform === 'ExonHost' ? 'Open ExonHost' : `Search ${targetPlatform}`}</span>
+                  <span>
+                    {targetPlatform === 'ExonHost' || targetPlatform === 'AliExpress' || targetPlatform === 'Alibaba'
+                      ? `Open ${targetPlatform}`
+                      : `Search ${targetPlatform}`}
+                  </span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -456,7 +518,7 @@ export const StoreSection: React.FC = () => {
 
             <div className="flex flex-wrap items-center gap-3">
               {/* Store Filter Tabs */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+              <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                 <button
                   type="button"
                   onClick={() => setStoreFilter('all')}
@@ -489,6 +551,28 @@ export const StoreSection: React.FC = () => {
                   }`}
                 >
                   Shopz BD
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStoreFilter('AliExpress')}
+                  className={`px-2.5 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
+                    storeFilter === 'AliExpress'
+                      ? 'bg-orange-400 text-slate-950 shadow-2xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  AliExpress
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStoreFilter('Alibaba')}
+                  className={`px-2.5 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
+                    storeFilter === 'Alibaba'
+                      ? 'bg-indigo-600 text-white shadow-2xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Alibaba
                 </button>
                 <button
                   type="button"
@@ -533,6 +617,23 @@ export const StoreSection: React.FC = () => {
                 />
               </div>
 
+              {/* Shopping Region Selector */}
+              <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <select
+                  value={visitorRegion}
+                  onChange={(e) => setVisitorRegion(e.target.value as VisitorRegionCode)}
+                  aria-label="Shopping region"
+                  className="min-h-[38px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                >
+                  {REGION_ORDER.map((code) => (
+                    <option key={code} value={code}>
+                      Region: {REGION_PROFILES[code].label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Sort By Dropdown */}
               <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                 <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
@@ -542,7 +643,7 @@ export const StoreSection: React.FC = () => {
                   aria-label="Sort products"
                   className="min-h-[38px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
                 >
-                  <option value="featured">Featured Deals</option>
+                  <option value="featured">Regional Featured Order</option>
                   <option value="price-asc">Price: Low to High</option>
                   <option value="price-desc">Price: High to Low</option>
                   <option value="discount">Biggest Discount</option>
@@ -603,6 +704,8 @@ export const StoreSection: React.FC = () => {
               const isHighlighted = product.id === highlightedProductId;
               const isShopz = product.originStore === 'Shopz BD';
               const isExonHost = product.originStore === 'ExonHost';
+              const isAliExpress = product.originStore === 'AliExpress';
+              const isAlibaba = product.originStore === 'Alibaba';
 
               return (
                 <div
@@ -631,10 +734,23 @@ export const StoreSection: React.FC = () => {
                           ? 'bg-sky-500 text-slate-950'
                           : isShopz
                           ? 'bg-emerald-600 text-white'
+                          : isAliExpress
+                          ? 'bg-orange-500 text-slate-950'
+                          : isAlibaba
+                          ? 'bg-indigo-600 text-white'
                           : 'bg-amber-500 text-slate-950'
                       }`}
                     >
-                      {product.badge || (isExonHost ? 'ExonHost Partner' : isShopz ? 'Shopz BD Deal' : "Amazon's Choice")}
+                      {product.badge ||
+                        (isExonHost
+                          ? 'ExonHost Partner'
+                          : isShopz
+                          ? 'Shopz BD Deal'
+                          : isAliExpress
+                          ? 'AliExpress Choice'
+                          : isAlibaba
+                          ? 'Alibaba Direct'
+                          : "Amazon's Choice")}
                     </span>
 
                     {/* Prime or Express Shipping Badge */}
@@ -650,6 +766,14 @@ export const StoreSection: React.FC = () => {
                     ) : isShopz ? (
                       <span className="absolute bottom-3 left-3 bg-emerald-950/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
                         <span>Express BD Courier</span>
+                      </span>
+                    ) : isAliExpress ? (
+                      <span className="absolute bottom-3 left-3 bg-orange-950/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
+                        <span>Global Choice Dispatch</span>
+                      </span>
+                    ) : isAlibaba ? (
+                      <span className="absolute bottom-3 left-3 bg-indigo-950/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
+                        <span>Trade Assurance</span>
                       </span>
                     ) : null}
 
@@ -727,6 +851,10 @@ export const StoreSection: React.FC = () => {
                               ? 'Official ExonHost Portal'
                               : isShopz
                               ? 'Official Shopz BD Store'
+                              : isAliExpress
+                              ? 'Official AliExpress Partner'
+                              : isAlibaba
+                              ? 'Alibaba Trade Assurance'
                               : 'Official Amazon Store'}
                           </span>
                         </span>
@@ -747,12 +875,24 @@ export const StoreSection: React.FC = () => {
                               ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                               : isShopz
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                              : isAliExpress
+                              ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
+                              : isAlibaba
+                              ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                               : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                           }`}
                         >
                           <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
                           <span>
-                            {isExonHost ? 'Order on ExonHost' : isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}
+                            {isExonHost
+                              ? 'Order on ExonHost'
+                              : isShopz
+                              ? 'Buy on Shopz BD'
+                              : isAliExpress
+                              ? 'Buy on AliExpress'
+                              : isAlibaba
+                              ? 'Source on Alibaba'
+                              : 'Buy on Amazon'}
                           </span>
                           <ExternalLink className="w-3 h-3 shrink-0" />
                         </a>
@@ -805,6 +945,8 @@ export const StoreSection: React.FC = () => {
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isShopz = product.originStore === 'Shopz BD';
               const isExonHost = product.originStore === 'ExonHost';
+              const isAliExpress = product.originStore === 'AliExpress';
+              const isAlibaba = product.originStore === 'Alibaba';
               const isCompared = comparedProducts.some((p) => p.id === product.id);
 
               return (
@@ -828,6 +970,10 @@ export const StoreSection: React.FC = () => {
                             ? 'bg-sky-500 text-slate-950'
                             : isShopz
                             ? 'bg-emerald-600 text-white'
+                            : isAliExpress
+                            ? 'bg-orange-500 text-slate-950'
+                            : isAlibaba
+                            ? 'bg-indigo-600 text-white'
                             : 'bg-amber-500 text-slate-950'
                         }`}
                       >
@@ -842,7 +988,15 @@ export const StoreSection: React.FC = () => {
                         {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                       </span>
                       <span className="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
-                        {isExonHost ? 'ExonHost Cloud' : isShopz ? 'Shopz BD' : `ASIN: ${product.asin || 'Amazon'}`}
+                        {isExonHost
+                          ? 'ExonHost Cloud'
+                          : isShopz
+                          ? 'Shopz BD'
+                          : isAliExpress
+                          ? 'AliExpress'
+                          : isAlibaba
+                          ? 'Alibaba'
+                          : `ASIN: ${product.asin || 'Amazon'}`}
                       </span>
                     </div>
 
@@ -862,6 +1016,10 @@ export const StoreSection: React.FC = () => {
                             ? 'Official ExonHost Portal · Instant Cloud Provisioning'
                             : isShopz
                             ? 'Shopz BD Official Storefront'
+                            : isAliExpress
+                            ? 'AliExpress Choice Global Buyer Protection'
+                            : isAlibaba
+                            ? 'Alibaba Trade Assurance Verified Sourcing'
                             : 'Amazon Prime 1-2 Day Delivery & 30-Day Returns'}
                         </span>
                       </div>
@@ -917,11 +1075,25 @@ export const StoreSection: React.FC = () => {
                             ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                             : isShopz
                             ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                            : isAliExpress
+                            ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
+                            : isAlibaba
+                            ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                             : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                         }`}
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
-                        <span>{isExonHost ? 'Order on ExonHost' : isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}</span>
+                        <span>
+                          {isExonHost
+                            ? 'Order on ExonHost'
+                            : isShopz
+                            ? 'Buy on Shopz BD'
+                            : isAliExpress
+                            ? 'Buy on AliExpress'
+                            : isAlibaba
+                            ? 'Source on Alibaba'
+                            : 'Buy on Amazon'}
+                        </span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
 

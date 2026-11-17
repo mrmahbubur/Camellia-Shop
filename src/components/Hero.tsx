@@ -13,8 +13,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     amazonStoreUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
+    aliexpressStoreUrl,
+    alibabaStoreUrl,
     products,
     storefrontCopy,
+    regionProfile,
     recordAffiliateClick
   } = useProducts();
 
@@ -22,6 +25,82 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     setSelectedCategory('All Departments (Mega Store)');
     onExploreStore();
   };
+
+  const partnerButtons = regionProfile.storePriority.map((store) => {
+    if (store === 'Shopz BD') {
+      return (
+        <a
+          key="shopz"
+          href={shopzStoreUrl}
+          target="_blank"
+          rel="noreferrer noopener sponsored"
+          onClick={() => recordAffiliateClick('hero-shopz-store')}
+          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 border border-emerald-300 dark:border-emerald-500/40 hover:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+        >
+          <span>Shopz BD</span>
+          <ExternalLink className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+        </a>
+      );
+    }
+    if (store === 'ExonHost') {
+      return (
+        <a
+          key="exonhost"
+          href={exonhostStoreUrl}
+          target="_blank"
+          rel="noreferrer noopener sponsored"
+          onClick={() => recordAffiliateClick('hero-exonhost-store')}
+          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-sky-800 dark:text-sky-300 hover:text-sky-900 dark:hover:text-sky-200 border border-sky-300 dark:border-sky-500/40 hover:border-sky-400 bg-sky-50 dark:bg-sky-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+        >
+          <span>ExonHost</span>
+          <ExternalLink className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+        </a>
+      );
+    }
+    if (store === 'AliExpress') {
+      return (
+        <a
+          key="aliexpress"
+          href={aliexpressStoreUrl}
+          target="_blank"
+          rel="noreferrer noopener sponsored"
+          onClick={() => recordAffiliateClick('hero-aliexpress-store')}
+          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-orange-800 dark:text-orange-300 hover:text-orange-900 dark:hover:text-orange-200 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+        >
+          <span>AliExpress</span>
+          <ExternalLink className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
+        </a>
+      );
+    }
+    if (store === 'Alibaba') {
+      return (
+        <a
+          key="alibaba"
+          href={alibabaStoreUrl}
+          target="_blank"
+          rel="noreferrer noopener sponsored"
+          onClick={() => recordAffiliateClick('hero-alibaba-store')}
+          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-indigo-800 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-200 border border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+        >
+          <span>Alibaba</span>
+          <ExternalLink className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+        </a>
+      );
+    }
+    return (
+      <a
+        key="amazon"
+        href={amazonStoreUrl}
+        target="_blank"
+        rel="noreferrer noopener sponsored"
+        onClick={() => recordAffiliateClick('hero-amazon-store')}
+        className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+      >
+        <span>Amazon</span>
+        <ExternalLink className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+      </a>
+    );
+  });
 
   return (
     <section
@@ -36,9 +115,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
               <span>{storefrontCopy.siteName}</span>
               <span aria-hidden="true">·</span>
-              <span>Amazon Prime, Shopz BD &amp; ExonHost</span>
+              <span>{regionProfile.label}</span>
               <span aria-hidden="true">·</span>
-              <span>Electronics &amp; Hardware</span>
+              <span>{regionProfile.storePriority.join(' / ')}</span>
             </div>
 
             <h1 className="text-[clamp(1.65rem,3.6vw,3rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 sm:mb-5 leading-[1.14] [text-wrap:balance]">
@@ -69,38 +148,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               </button>
 
               <div className="flex flex-wrap items-center gap-2 sm:contents">
-                <a
-                  href={amazonStoreUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('hero-amazon-store')}
-                  className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
-                >
-                  <span>Amazon</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                </a>
-
-                <a
-                  href={shopzStoreUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('hero-shopz-store')}
-                  className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 border border-emerald-300 dark:border-emerald-500/40 hover:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
-                >
-                  <span>Shopz BD</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                </a>
-
-                <a
-                  href={exonhostStoreUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('hero-exonhost-store')}
-                  className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-3 text-xs sm:text-sm font-bold text-sky-800 dark:text-sky-300 hover:text-sky-900 dark:hover:text-sky-200 border border-sky-300 dark:border-sky-500/40 hover:border-sky-400 bg-sky-50 dark:bg-sky-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
-                >
-                  <span>ExonHost</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                </a>
+                {partnerButtons}
               </div>
             </div>
 
@@ -108,11 +156,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Official Amazon, Shopz BD &amp; ExonHost Checkouts</span>
+                <span>{regionProfile.deliverySummary}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
-                <span>Multi-Currency Pricing</span>
+                <span>{regionProfile.shortLabel} Pricing</span>
               </div>
             </div>
           </div>
@@ -142,16 +190,16 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             </div>
             <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Curated Products</div>
             <p className="text-[11px] text-slate-500">
-              Direct Amazon, Shopz BD &amp; ExonHost links
+              Amazon, Shopz BD, AliExpress, Alibaba &amp; ExonHost
             </p>
           </div>
 
           <div className="space-y-1">
             <div className="text-xl sm:text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono tabular-nums">
-              3
+              5
             </div>
             <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Partner Retailers</div>
-            <p className="text-[11px] text-slate-500">Amazon Associates, Shopz BD &amp; ExonHost</p>
+            <p className="text-[11px] text-slate-500">Amazon, Shopz BD, AliExpress, Alibaba &amp; ExonHost</p>
           </div>
 
           <div className="space-y-1">

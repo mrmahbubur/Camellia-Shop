@@ -157,6 +157,10 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                           ? 'Instant Cloud Setup'
                           : p.originStore === 'Shopz BD'
                           ? 'Shopz BD Courier'
+                          : p.originStore === 'AliExpress'
+                          ? 'Choice Global Dispatch'
+                          : p.originStore === 'Alibaba'
+                          ? 'Trade Assurance'
                           : p.primeEligible
                           ? 'Free Prime 1-2 Day'
                           : 'Standard Shipping'}
@@ -174,15 +178,25 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                           target="_blank"
                           rel="noreferrer noopener sponsored"
                           onClick={() => recordAffiliateClick(p.id)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-2 text-slate-950 font-bold rounded-lg text-xs shadow-xs whitespace-nowrap ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-2 font-bold rounded-lg text-xs shadow-xs whitespace-nowrap ${
                             p.originStore === 'ExonHost'
-                              ? 'bg-sky-500 hover:bg-sky-400'
+                              ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                               : p.originStore === 'Shopz BD'
-                              ? 'bg-emerald-500 hover:bg-emerald-400'
-                              : 'bg-[#FF9900] hover:bg-[#e88b00]'
+                              ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                              : p.originStore === 'AliExpress'
+                              ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
+                              : p.originStore === 'Alibaba'
+                              ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                              : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                           }`}
                         >
-                          <span>{p.originStore === 'ExonHost' ? 'Order on ExonHost' : `Buy on ${p.originStore}`}</span>
+                          <span>
+                            {p.originStore === 'ExonHost'
+                              ? 'Order on ExonHost'
+                              : p.originStore === 'Alibaba'
+                              ? 'Source on Alibaba'
+                              : `Buy on ${p.originStore}`}
+                          </span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       </td>

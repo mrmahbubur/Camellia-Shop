@@ -85,6 +85,8 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
   const isShopz = product.originStore === 'Shopz BD';
   const isExonHost = product.originStore === 'ExonHost';
+  const isAliExpress = product.originStore === 'AliExpress';
+  const isAlibaba = product.originStore === 'Alibaba';
 
   return (
     <div
@@ -239,7 +241,15 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {isExonHost ? 'ExonHost Policy' : isShopz ? 'Shopz BD Policy' : 'Amazon Buyer Policy'}
+                  {isExonHost
+                    ? 'ExonHost Policy'
+                    : isShopz
+                    ? 'Shopz BD Policy'
+                    : isAliExpress
+                    ? 'AliExpress Policy'
+                    : isAlibaba
+                    ? 'Alibaba Policy'
+                    : 'Amazon Buyer Policy'}
                 </button>
               </div>
 
@@ -274,6 +284,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                         ? 'Direct ExonHost Official Portal Link'
                         : isShopz
                         ? 'Direct Shopz BD Official Product Link'
+                        : isAliExpress
+                        ? 'Direct AliExpress Choice Partner Link'
+                        : isAlibaba
+                        ? 'Direct Alibaba Trade Assurance Link'
                         : 'Direct Amazon Official Product Link'}
                     </span>
                   </div>
@@ -282,6 +296,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ? 'Your hosting or domain order completes directly on ExonHost with instant provisioning, 24/7 live support, and a 30-day money-back guarantee.'
                       : isShopz
                       ? 'Your purchase completes directly on Shopz.com.bd under their official store checkout, courier tracking, and seller warranty terms.'
+                      : isAliExpress
+                      ? 'Your order completes directly on AliExpress under official Buyer Protection, global tracked shipping, and refund coverage.'
+                      : isAlibaba
+                      ? 'Your sample or bulk order completes directly on Alibaba.com protected by Trade Assurance escrow and verified supplier commitments.'
                       : 'Your purchase completes directly on Amazon.com under Amazon’s official checkout, return window, and A-to-z Guarantee.'}
                   </p>
                 </div>
@@ -301,14 +319,26 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                       : isShopz
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : isAliExpress
+                      ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
+                      : isAlibaba
+                      ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                       : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4 shrink-0" />
                   <span className="truncate">
-                    {isExonHost ? 'Order on ExonHost' : isShopz ? 'Buy on Shopz BD' : 'Buy on Amazon'}
+                    {isExonHost
+                      ? 'Order on ExonHost'
+                      : isShopz
+                      ? 'Buy on Shopz BD'
+                      : isAliExpress
+                      ? 'Buy on AliExpress'
+                      : isAlibaba
+                      ? 'Source on Alibaba'
+                      : 'Buy on Amazon'}
                   </span>
-                  <ExternalLink className="w-4 h-4 text-slate-900 shrink-0" />
+                  <ExternalLink className={`w-4 h-4 shrink-0 ${isAlibaba ? 'text-white' : 'text-slate-900'}`} />
                 </a>
 
                 <button
@@ -380,7 +410,17 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 dark:text-slate-400 text-center pt-2">
                 <div className="flex flex-col items-center">
                   <Truck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>{isExonHost ? 'Instant Provisioning' : isShopz ? 'Shopz Courier' : 'Amazon Delivery'}</span>
+                  <span>
+                    {isExonHost
+                      ? 'Instant Provisioning'
+                      : isShopz
+                      ? 'Shopz Courier'
+                      : isAliExpress
+                      ? 'Choice Global Dispatch'
+                      : isAlibaba
+                      ? 'Trade Assurance'
+                      : 'Amazon Delivery'}
+                  </span>
                 </div>
                 <div className="flex flex-col items-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />

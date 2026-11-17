@@ -14,6 +14,6 @@ export interface Product {
   highlights: string[];
   specs: { label: string; value: string }[];
   image: string;
-  originStore?: 'Amazon' | 'Shopz BD' | 'ExonHost';
+  originStore?: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba';
   affiliateUrl?: string;
 }

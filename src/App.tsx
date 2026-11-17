@@ -106,11 +106,11 @@ export default function App() {
   return (
     <AppErrorBoundary>
       <ThemeProvider>
-        <ProductsProvider>
-          <CartProvider>
+        <CartProvider>
+          <ProductsProvider>
             <MainLayout />
-          </CartProvider>
-        </ProductsProvider>
+          </ProductsProvider>
+        </CartProvider>
       </ThemeProvider>
     </AppErrorBoundary>
   );

@@ -61,7 +61,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {storefrontCopy.siteName}
             </span>
             <p className="text-slate-400 max-w-sm leading-relaxed">
-              Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon and Shopz BD.
+              Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon, Shopz BD, AliExpress, Alibaba, and ExonHost.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
               <span>Founder &amp; Engineer: {owner.displayName}</span>
@@ -145,14 +145,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               Affiliate Disclosure &amp; Fulfillment
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              As an Amazon Associate and Shopz BD / partner affiliate, {storefrontCopy.siteName} earns from qualifying purchases. All transactions, final pricing, shipping, and warranties are fulfilled directly by the official merchant.
+              As an Amazon Associate and Shopz BD / AliExpress / Alibaba / ExonHost partner affiliate, {storefrontCopy.siteName} earns from qualifying purchases. All transactions, final pricing, shipping, and warranties are fulfilled directly by the official merchant.
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
               <span className="flex items-center gap-1 text-emerald-400">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Direct Retailer Checkout</span>
               </span>
-              <span>Amazon · Shopz BD · ExonHost</span>
+              <span>Amazon · Shopz BD · AliExpress · Alibaba · ExonHost</span>
             </div>
           </div>
         </div>

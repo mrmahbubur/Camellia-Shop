@@ -100,7 +100,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Direct Purchase Notice */}
         <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
-          Every item purchases directly on Amazon, Shopz BD, or ExonHost with official merchant checkout.
+          Every item purchases directly on Amazon, Shopz BD, AliExpress, Alibaba, or ExonHost.
         </div>
 
         {/* Saved Items List */}
@@ -128,6 +128,8 @@ export const CartDrawer: React.FC = () => {
               const partnerUrl = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
               const isShopz = item.product.originStore === 'Shopz BD';
               const isExonHost = item.product.originStore === 'ExonHost';
+              const isAliExpress = item.product.originStore === 'AliExpress';
+              const isAlibaba = item.product.originStore === 'Alibaba';
 
               return (
                 <div
@@ -198,10 +200,20 @@ export const CartDrawer: React.FC = () => {
                           ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                           : isShopz
                           ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                          : isAliExpress
+                          ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
+                          : isAlibaba
+                          ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                           : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                       }`}
                     >
-                      <span>{isExonHost ? 'Order on ExonHost' : `Buy on ${item.product.originStore || 'Amazon'}`}</span>
+                      <span>
+                        {isExonHost
+                          ? 'Order on ExonHost'
+                          : isAlibaba
+                          ? 'Source on Alibaba'
+                          : `Buy on ${item.product.originStore || 'Amazon'}`}
+                      </span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
@@ -238,7 +250,7 @@ export const CartDrawer: React.FC = () => {
               <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              Live pricing, shipping, and taxes are applied directly on Amazon, Shopz BD, or ExonHost.
+              Live pricing, shipping, and taxes are applied directly on the official partner store.
             </p>
 
             {amazonCartCheckoutUrl && (

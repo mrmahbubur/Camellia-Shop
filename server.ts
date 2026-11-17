@@ -239,6 +239,89 @@ async function startServer() {
   const app = express();
   app.use(express.json({ limit: '1mb' }));
 
+  type VisitorRegionCode = 'BD' | 'US' | 'EU' | 'GB' | 'GLOBAL';
+
+  const EU_COUNTRIES = new Set([
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
+    'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+    'SI', 'ES', 'SE', 'CH', 'NO'
+  ]);
+
+  function detectNetworkRegion(req: Request): {
+    regionCode: VisitorRegionCode;
+    countryCode: string;
+    recommendedCurrency: 'USD' | 'EUR' | 'GBP' | 'BDT';
+    source: 'network' | 'locale' | 'default';
+  } {
+    const headerCandidates = [
+      req.headers['x-appengine-country'],
+      req.headers['cf-ipcountry'],
+      req.headers['x-vercel-ip-country'],
+      req.headers['cloudfront-viewer-country'],
+      req.headers['x-geo-country'],
+      req.headers['fastly-geo-country']
+    ];
+
+    let countryCode = '';
+    for (const raw of headerCandidates) {
+      const val = Array.isArray(raw) ? raw[0] : raw;
+      if (typeof val === 'string') {
+        const clean = val.trim().toUpperCase();
+        if (/^[A-Z]{2}$/.test(clean) && clean !== 'XX' && clean !== 'T1' && clean !== 'ZZ') {
+          countryCode = clean;
+          break;
+        }
+      }
+    }
+
+    const mapCountry = (cc: string): { regionCode: VisitorRegionCode; recommendedCurrency: 'USD' | 'EUR' | 'GBP' | 'BDT' } => {
+      if (cc === 'BD') return { regionCode: 'BD', recommendedCurrency: 'BDT' };
+      if (cc === 'GB' || cc === 'UK') return { regionCode: 'GB', recommendedCurrency: 'GBP' };
+      if (EU_COUNTRIES.has(cc)) return { regionCode: 'EU', recommendedCurrency: 'EUR' };
+      if (cc === 'US' || cc === 'CA') return { regionCode: 'US', recommendedCurrency: 'USD' };
+      return { regionCode: 'GLOBAL', recommendedCurrency: 'USD' };
+    };
+
+    if (countryCode) {
+      return {
+        ...mapCountry(countryCode),
+        countryCode,
+        source: 'network'
+      };
+    }
+
+    const acceptLang = String(req.headers['accept-language'] || '').toLowerCase();
+    if (acceptLang.includes('bn-bd') || acceptLang.includes('en-bd') || /^bn\b/.test(acceptLang)) {
+      return { regionCode: 'BD', countryCode: 'BD', recommendedCurrency: 'BDT', source: 'locale' };
+    }
+    if (acceptLang.includes('en-gb')) {
+      return { regionCode: 'GB', countryCode: 'GB', recommendedCurrency: 'GBP', source: 'locale' };
+    }
+    const euroLangMatch = acceptLang.match(/\b(de|fr|it|es|nl|pt|pl|sv|da|fi)-(de|fr|it|es|nl|pt|pl|se|dk|fi|at|be|ch)\b/);
+    if (euroLangMatch) {
+      return {
+        regionCode: 'EU',
+        countryCode: euroLangMatch[2].toUpperCase(),
+        recommendedCurrency: 'EUR',
+        source: 'locale'
+      };
+    }
+    if (acceptLang.includes('en-us')) {
+      return { regionCode: 'US', countryCode: 'US', recommendedCurrency: 'USD', source: 'locale' };
+    }
+
+    return {
+      regionCode: 'GLOBAL',
+      countryCode: '',
+      recommendedCurrency: 'USD',
+      source: 'default'
+    };
+  }
+
+  app.get('/api/region', (req, res) => {
+    res.json(detectNetworkRegion(req));
+  });
+
   app.get('/api/rates', async (_req, res) => {
     const data = await getLiveUsdRates();
     res.json(data);

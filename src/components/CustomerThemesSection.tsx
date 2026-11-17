@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
   ExternalLink,
@@ -9,12 +9,19 @@ import {
   Headphones,
   Smartphone,
   GraduationCap,
-  Globe
+  Globe,
+  Compass
 } from 'lucide-react';
 import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
 import { StoreFilterOption, useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
+import {
+  REGION_ORDER,
+  REGION_PROFILES,
+  VisitorRegionCode,
+  getStorePriorityRank
+} from '../utils/regionProfile';
 import { ModernProductModal } from './ModernProductModal';
 import { ResilientImage } from './ResilientImage';
 
@@ -40,16 +47,16 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Built for remote engineers, analysts, and home office professionals looking for tactile precision, glare-free lighting, and single-cable laptop docking.',
     idealFor: 'Software Engineers, Analysts & Home Offices',
-    partnerStores: 'Amazon Associates · Shopz BD',
+    partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Office & Workspace',
     sponsorContextKey: 'Office & Workspace',
     productIds: [
       'amz-mx-master-3s',
+      'aliexpress-keychron-k2-pro',
+      'alibaba-ergonomic-monitor-arm-bulk',
       'amz-benq-screenbar',
-      'amz-ergotron-monitor-arm',
       'amz-caldigit-ts4-dock',
-      'amz-wool-felt-desk-mat',
       'csv-wiwu-s600-laptop-stand'
     ],
     icon: Laptop
@@ -61,17 +68,17 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Tailored for video creators, podcasters, and mobile streamers combining XLR/USB broadcast microphones, RGB fill lights, tripods, and rugged 2TB NVMe storage.',
     idealFor: 'Podcasters, YouTubers & Mobile Photographers',
-    partnerStores: 'Amazon Associates · Shopz BD',
+    partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Audio & Headphones',
     sponsorContextKey: 'Audio & Studio',
     productIds: [
       'amz-shure-mv7-mic',
-      'amz-anc-studio-headphones',
+      'aliexpress-ugreen-hitune-max5',
+      'alibaba-studio-creator-desk-bundle',
       'amz-samsung-t7-shield-2tb',
       'csv-ulanzi-a100-wireless-lavalier-microphone',
-      'csv-ulanzi-vl120-rgb-mini-led-video-light-2500k',
-      'csv-ulanzi-mt-78-extendable-phone-tripod'
+      'csv-ulanzi-vl120-rgb-mini-led-video-light-2500k'
     ],
     icon: Headphones
   },
@@ -82,15 +89,15 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Designed for daily commuters and frequent flyers who need multi-device Qi2 charging, airline-ready 250W laptop power banks, ANC audio, and rugged watches.',
     idealFor: 'Travelers, Commuters & Fitness Trackers',
-    partnerStores: 'Amazon Associates · Shopz BD',
+    partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Wearables & Smartwatches',
     sponsorContextKey: 'Smart Home & Power',
     productIds: [
       'amz-anker-magsafe-3in1',
-      'amz-anker-prime-27650',
+      'aliexpress-baseus-blade-100w',
+      'alibaba-smart-qi2-charging-pad-pro',
       'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
-      'csv-baseus-22-5w-adaman-20000mah-power-bank',
       'csv-zeblaze-btalk-3-pro',
       'csv-casio-f-91w-1-digital-watch'
     ],
@@ -103,7 +110,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Practical, budget-friendly essentials delivered nationwide through Shopz BD—from engineering calculators and rechargeable fans to reading clip lamps and grooming kits.',
     idealFor: 'University Students, Dorms & Everyday Households',
-    partnerStores: 'Shopz BD Nationwide Courier',
+    partnerStores: 'Shopz BD Nationwide Courier · AliExpress',
     targetStore: 'Shopz BD',
     targetCategory: 'Shopz BD Tech Deals',
     sponsorContextKey: 'Shopz BD Tech Deals',
@@ -111,7 +118,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'csv-casio-fx-991ex-scientific-calculator',
       'csv-baseus-comfort-reading-mini-clip-lamp',
       'csv-yage-yg-t109-table-lamp-pen-holder-desk-lamp',
-      'csv-xiaomi-solove-f5-5w-4000mah-rechargeable-desktop-stand-fan',
+      'aliexpress-essager-140w-gan',
       'csv-lenovo-livepods-lp1s-tws-bluetooth-earphone',
       'csv-binge-android-tv-box-dongle'
     ],
@@ -122,9 +129,9 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     label: 'Web Builder & Brand',
     headline: 'NVMe Cloud Hosting, Domains & Studio Hardware to Launch Online',
     summary:
-      'For independent founders and agencies launching real storefronts or web apps—pairing ExonHost LiteSpeed NVMe hosting and domains with reliable studio desk gear.',
+      'For independent founders and agencies launching real storefronts or web apps—pairing ExonHost LiteSpeed NVMe hosting and domains with factory-direct and studio desk gear.',
     idealFor: 'Founders, Freelance Web Developers & Agencies',
-    partnerStores: 'ExonHost Cloud · Amazon · Shopz BD',
+    partnerStores: 'ExonHost · Alibaba · AliExpress · Amazon',
     targetStore: 'ExonHost',
     targetCategory: 'Cloud Hosting & Domains',
     sponsorContextKey: 'Cloud Hosting & Domains',
@@ -132,9 +139,9 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'exonhost-turbo-nvme',
       'exonhost-managed-wp',
       'exonhost-domain-bundle',
-      'amz-benq-screenbar',
-      'amz-mx-master-3s',
-      'shopz-ugreen-100w-cable-kit'
+      'alibaba-usb-c-dock-factory-lot',
+      'aliexpress-essager-140w-gan',
+      'amz-mx-master-3s'
     ],
     icon: Globe
   }
@@ -153,17 +160,29 @@ export const CustomerThemesSection: React.FC = () => {
     sponsors,
     setSelectedCategory,
     setSelectedStoreFilter,
+    visitorRegion,
+    setVisitorRegion,
+    regionProfile,
     getAffiliateBuyUrl,
     amazonShortUrl,
     amazonStoreUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
+    aliexpressStoreUrl,
+    alibabaStoreUrl,
     recordAffiliateClick
   } = useProducts();
   const { formatPrice, addToCart } = useCart();
 
-  const [activeThemeId, setActiveThemeId] = useState<string>(CUSTOMER_THEMES[0].id);
+  const [activeThemeId, setActiveThemeId] = useState<string>(regionProfile.preferredThemeId || CUSTOMER_THEMES[0].id);
+  const [hasPickedTheme, setHasPickedTheme] = useState(false);
   const [modalProduct, setModalProduct] = useState<EcomProduct | null>(null);
+
+  useEffect(() => {
+    if (!hasPickedTheme && regionProfile.preferredThemeId) {
+      setActiveThemeId(regionProfile.preferredThemeId);
+    }
+  }, [hasPickedTheme, regionProfile.preferredThemeId]);
 
   const activeTheme = useMemo(
     () => CUSTOMER_THEMES.find((t) => t.id === activeThemeId) || CUSTOMER_THEMES[0],
@@ -185,11 +204,16 @@ export const CustomerThemesSection: React.FC = () => {
       );
       resolved.push(...fallbacks.slice(0, 6 - resolved.length));
     }
-    return resolved.slice(0, 6);
-  }, [products, activeTheme]);
+    return [...resolved.slice(0, 6)].sort(
+      (a, b) => getStorePriorityRank(a.originStore, visitorRegion) - getStorePriorityRank(b.originStore, visitorRegion)
+    );
+  }, [products, activeTheme, visitorRegion]);
 
   const affiliateDirectory = useMemo(() => {
-    const countFor = (store: 'Amazon' | 'Shopz BD' | 'ExonHost', category: ProductCategory) =>
+    const countFor = (
+      store: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba',
+      category: ProductCategory
+    ) =>
       products.filter(
         (p) => p.originStore === store && (p.category === category || p.department === category)
       ).length;
@@ -211,6 +235,22 @@ export const CustomerThemesSection: React.FC = () => {
       { label: 'Shopz BD Tech Deals', count: countFor('Shopz BD', 'Shopz BD Tech Deals'), store: 'Shopz BD', category: 'Shopz BD Tech Deals' }
     ];
     const shopzCategories = rawShopz.filter((c) => c.count > 0);
+
+    const rawAliExpress: AffiliateCategoryLink[] = [
+      { label: 'Keyboards & Accessories', count: countFor('AliExpress', 'Computers & Accessories'), store: 'AliExpress', category: 'Computers & Accessories' },
+      { label: 'Hi-Res ANC Audio', count: countFor('AliExpress', 'Audio & Headphones'), store: 'AliExpress', category: 'Audio & Headphones' },
+      { label: 'Laptop Power & GaN Hubs', count: countFor('AliExpress', 'Smart Home & Power'), store: 'AliExpress', category: 'Smart Home & Power' },
+      { label: 'Global Tech Gadgets', count: countFor('AliExpress', 'Electronics & Gadgets'), store: 'AliExpress', category: 'Electronics & Gadgets' }
+    ];
+    const aliexpressCategories = rawAliExpress.filter((c) => c.count > 0);
+
+    const rawAlibaba: AffiliateCategoryLink[] = [
+      { label: 'Workspace Mounts & Stands', count: countFor('Alibaba', 'Office & Workspace'), store: 'Alibaba', category: 'Office & Workspace' },
+      { label: 'USB-C Hubs (Sample/Bulk)', count: countFor('Alibaba', 'Computers & Accessories'), store: 'Alibaba', category: 'Computers & Accessories' },
+      { label: 'Creator Studio Bundles', count: countFor('Alibaba', 'Audio & Headphones'), store: 'Alibaba', category: 'Audio & Headphones' },
+      { label: 'Qi2 Wireless Power OEM', count: countFor('Alibaba', 'Smart Home & Power'), store: 'Alibaba', category: 'Smart Home & Power' }
+    ];
+    const alibabaCategories = rawAlibaba.filter((c) => c.count > 0);
 
     const rawExonhost: AffiliateCategoryLink[] = [
       {
@@ -240,10 +280,14 @@ export const CustomerThemesSection: React.FC = () => {
     return {
       amazonTotal: products.filter((p) => p.originStore === 'Amazon').length,
       shopzTotal: products.filter((p) => p.originStore === 'Shopz BD').length,
+      aliexpressTotal: products.filter((p) => p.originStore === 'AliExpress').length,
+      alibabaTotal: products.filter((p) => p.originStore === 'Alibaba').length,
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
       sponsorsTotal: sponsors.length,
       amazonCategories,
       shopzCategories,
+      aliexpressCategories,
+      alibabaCategories,
       exonhostCategories,
       sponsorGroups
     };
@@ -300,10 +344,10 @@ export const CustomerThemesSection: React.FC = () => {
         <div>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6 sm:mb-8">
             <div className="min-w-0 max-w-2xl">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                 <span className="text-amber-600 dark:text-amber-400 font-bold">Customer Collections</span>
                 <span aria-hidden="true">·</span>
-                <span>Curated by Buyer Need</span>
+                <span>{regionProfile.label}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
                 {activeTheme.headline}
@@ -313,14 +357,35 @@ export const CustomerThemesSection: React.FC = () => {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => jumpToFilteredStore(activeTheme.targetStore, activeTheme.targetCategory)}
-              className="self-start lg:self-end px-4 min-h-[40px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors inline-flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <span>Filter Full {activeTheme.targetCategory}</span>
-              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-            </button>
+            <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-end">
+              <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <select
+                  value={visitorRegion}
+                  onChange={(e) => {
+                    setHasPickedTheme(false);
+                    setVisitorRegion(e.target.value as VisitorRegionCode);
+                  }}
+                  aria-label="Choose shopping region"
+                  className="min-h-[40px] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                >
+                  {REGION_ORDER.map((code) => (
+                    <option key={code} value={code}>
+                      {REGION_PROFILES[code].label} ({REGION_PROFILES[code].defaultCurrency})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => jumpToFilteredStore(activeTheme.targetStore, activeTheme.targetCategory)}
+                className="px-4 min-h-[40px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors inline-flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <span>Filter Full {activeTheme.targetCategory}</span>
+                <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+              </button>
+            </div>
           </div>
 
           {/* Interactive Customer Profile Switcher Tabs */}
@@ -337,7 +402,10 @@ export const CustomerThemesSection: React.FC = () => {
                   key={theme.id}
                   role="tab"
                   aria-selected={active}
-                  onClick={() => setActiveThemeId(theme.id)}
+                  onClick={() => {
+                    setHasPickedTheme(true);
+                    setActiveThemeId(theme.id);
+                  }}
                   className={`px-3.5 min-h-[40px] py-2 rounded-xl text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
                     active
                       ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 font-bold shadow-xs'
@@ -371,6 +439,8 @@ export const CustomerThemesSection: React.FC = () => {
               const buyUrl = getAffiliateBuyUrl(product);
               const isShopz = product.originStore === 'Shopz BD';
               const isExonHost = product.originStore === 'ExonHost';
+              const isAliExpress = product.originStore === 'AliExpress';
+              const isAlibaba = product.originStore === 'Alibaba';
               const hasPrice =
                 product.nativePrice !== undefined ? product.nativePrice > 0 : product.price > 0;
 
@@ -400,6 +470,10 @@ export const CustomerThemesSection: React.FC = () => {
                               ? 'text-sky-600 dark:text-sky-400'
                               : isShopz
                               ? 'text-emerald-600 dark:text-emerald-400'
+                              : isAliExpress
+                              ? 'text-orange-600 dark:text-orange-400'
+                              : isAlibaba
+                              ? 'text-indigo-600 dark:text-indigo-400'
                               : 'text-amber-700 dark:text-amber-400'
                           }`}
                         >
@@ -456,10 +530,14 @@ export const CustomerThemesSection: React.FC = () => {
                               ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                               : isShopz
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                              : isAliExpress
+                              ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
+                              : isAlibaba
+                              ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                               : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                           }`}
                         >
-                          <span>Buy on {product.originStore}</span>
+                          <span>{isAlibaba ? 'Source on Alibaba' : `Buy on ${product.originStore}`}</span>
                           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                         </a>
 
@@ -531,177 +609,305 @@ export const CustomerThemesSection: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
                 <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>Partner Storefront Directory</span>
+                <span>Partner Storefront Directory · {regionProfile.label} Order</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
                 All Affiliate Sites Categorized by Real Product Lines
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
-              Select any product category under a partner store below to filter the live catalog or open the official merchant portal directly.
+              Prioritized for {regionProfile.label}: select any product category below to filter the live catalog or open the official merchant store directly.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-            {/* 1. Amazon Associates */}
-            <div className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4">
-              <div>
-                <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
-                  <div>
-                    <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                      Amazon Associates
-                    </h4>
-                    <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
-                      Global Prime &amp; Tech Catalog
-                    </p>
-                  </div>
-                  <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                    {affiliateDirectory.amazonTotal} items
-                  </span>
-                </div>
-
-                <ul className="space-y-1.5">
-                  {affiliateDirectory.amazonCategories.map((cat) => (
-                    <li key={cat.label}>
-                      <button
-                        type="button"
-                        onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                        className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
-                      >
-                        <span className="truncate">{cat.label}</span>
-                        <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
-                          {cat.count}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {regionProfile.storePriority.map((storeName) => {
+              if (storeName === 'Amazon') {
+                return (
+                  <div
+                    key="dir-amazon"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Amazon Associates
+                          </h4>
+                          <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                            Global Prime &amp; Tech Catalog
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.amazonTotal} items
                         </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                      </div>
 
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center gap-2">
-                <a
-                  href={amazonStoreUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('dir-amazon-store')}
-                  className="flex-1 min-h-[38px] px-3 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
-                >
-                  <span>Amazon Store</span>
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
-                <a
-                  href={amazonShortUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('dir-amazon-deals')}
-                  className="min-h-[38px] px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-lg inline-flex items-center justify-center gap-1 transition-colors whitespace-nowrap"
-                >
-                  <span>Deals</span>
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
-              </div>
-            </div>
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.amazonCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-            {/* 2. Shopz BD */}
-            <div className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4">
-              <div>
-                <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
-                  <div>
-                    <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                      Shopz BD
-                    </h4>
-                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
-                      Bangladesh Express &amp; BDT Catalog
-                    </p>
-                  </div>
-                  <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                    {affiliateDirectory.shopzTotal} items
-                  </span>
-                </div>
-
-                <ul className="space-y-1.5">
-                  {affiliateDirectory.shopzCategories.map((cat) => (
-                    <li key={cat.label}>
-                      <button
-                        type="button"
-                        onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                        className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center gap-2">
+                      <a
+                        href={amazonStoreUrl}
+                        target="_blank"
+                        rel="noreferrer noopener sponsored"
+                        onClick={() => recordAffiliateClick('dir-amazon-store')}
+                        className="flex-1 min-h-[38px] px-3 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
-                        <span className="truncate">{cat.label}</span>
-                        <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
-                          {cat.count}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
-                <a
-                  href={shopzStoreUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('dir-shopz-store')}
-                  className="w-full min-h-[38px] px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
-                >
-                  <span>Visit Shopz.com.bd</span>
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
-              </div>
-            </div>
-
-            {/* 3. ExonHost Cloud */}
-            <div className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4">
-              <div>
-                <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
-                  <div>
-                    <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                      ExonHost Partner
-                    </h4>
-                    <p className="text-[11px] text-sky-700 dark:text-sky-400 font-medium">
-                      NVMe Hosting, WordPress &amp; Domains
-                    </p>
-                  </div>
-                  <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                    {affiliateDirectory.exonhostTotal} plans
-                  </span>
-                </div>
-
-                <ul className="space-y-1.5">
-                  {affiliateDirectory.exonhostCategories.map((cat) => (
-                    <li key={cat.label}>
-                      <button
-                        type="button"
-                        onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                        className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                        <span>Amazon Store</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                      <a
+                        href={amazonShortUrl}
+                        target="_blank"
+                        rel="noreferrer noopener sponsored"
+                        onClick={() => recordAffiliateClick('dir-amazon-deals')}
+                        className="min-h-[38px] px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-lg inline-flex items-center justify-center gap-1 transition-colors whitespace-nowrap"
                       >
-                        <span className="truncate">{cat.label}</span>
-                        <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
-                          {cat.count}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                  <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                    USA, Singapore &amp; Bangladesh NVMe server nodes with instant SSL and daily JetBackup snapshots.
-                  </li>
-                </ul>
-              </div>
+                        <span>Deals</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
 
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
-                <a
-                  href={exonhostStoreUrl}
-                  target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick('dir-exonhost-store')}
-                  className="w-full min-h-[38px] px-3 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+              if (storeName === 'Shopz BD') {
+                return (
+                  <div
+                    key="dir-shopz"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Shopz BD
+                          </h4>
+                          <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                            Bangladesh Express &amp; BDT Catalog
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.shopzTotal} items
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.shopzCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={shopzStoreUrl}
+                        target="_blank"
+                        rel="noreferrer noopener sponsored"
+                        onClick={() => recordAffiliateClick('dir-shopz-store')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit Shopz.com.bd</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'AliExpress') {
+                return (
+                  <div
+                    key="dir-aliexpress"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            AliExpress
+                          </h4>
+                          <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium">
+                            Global Choice Electronics &amp; Audio
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.aliexpressTotal} items
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.aliexpressCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={aliexpressStoreUrl}
+                        target="_blank"
+                        rel="noreferrer noopener sponsored"
+                        onClick={() => recordAffiliateClick('dir-aliexpress-store')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit AliExpress Store</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'Alibaba') {
+                return (
+                  <div
+                    key="dir-alibaba"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Alibaba.com Direct
+                          </h4>
+                          <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+                            Trade Assurance &amp; Bulk Sourcing
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.alibabaTotal} items
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.alibabaCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={alibabaStoreUrl}
+                        target="_blank"
+                        rel="noreferrer noopener sponsored"
+                        onClick={() => recordAffiliateClick('dir-alibaba-store')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit Alibaba Offers</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key="dir-exonhost"
+                  className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
                 >
-                  <span>Open ExonHost Portal</span>
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
-              </div>
-            </div>
+                  <div>
+                    <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                      <div>
+                        <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                          ExonHost Partner
+                        </h4>
+                        <p className="text-[11px] text-sky-700 dark:text-sky-400 font-medium">
+                          NVMe Hosting, WordPress &amp; Domains
+                        </p>
+                      </div>
+                      <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                        {affiliateDirectory.exonhostTotal} plans
+                      </span>
+                    </div>
+
+                    <ul className="space-y-1.5">
+                      {affiliateDirectory.exonhostCategories.map((cat) => (
+                        <li key={cat.label}>
+                          <button
+                            type="button"
+                            onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                            className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                          >
+                            <span className="truncate">{cat.label}</span>
+                            <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                              {cat.count}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                      <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        USA, Singapore &amp; Bangladesh NVMe server nodes with instant SSL and daily JetBackup snapshots.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                    <a
+                      href={exonhostStoreUrl}
+                      target="_blank"
+                      rel="noreferrer noopener sponsored"
+                      onClick={() => recordAffiliateClick('dir-exonhost-store')}
+                      className="w-full min-h-[38px] px-3 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                    >
+                      <span>Open ExonHost Portal</span>
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
 
             {/* 4. Sponsored Partners */}
             <div className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4">

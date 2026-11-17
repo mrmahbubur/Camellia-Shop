@@ -31,7 +31,7 @@ export interface CustomStoreProduct {
   description: string;
   highlights: string[];
   specs: ProductSpec[];
-  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost';
+  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba';
 }
 
 export interface PriceOverride {
@@ -96,21 +96,35 @@ function isBlockedUrl(url: string): boolean {
 
 function sanitizePartnerUrl(
   rawUrl: string,
-  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost',
+  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba',
   _asin?: string
 ): string {
   const AMAZON_NODE_URL =
     'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
   const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
+  const ALIEXPRESS_URL = 'https://rzekl.com/g/1e8d114494cb5002cfdd16525dc3e8/';
+  const ALIBABA_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
 
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') {
       return 'https://my.exonhost.com/affiliate?aff=5993';
     }
+    if (originStore === 'AliExpress') {
+      return ALIEXPRESS_URL;
+    }
+    if (originStore === 'Alibaba') {
+      return ALIBABA_URL;
+    }
     return originStore === 'Shopz BD'
       ? 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin'
       : AMAZON_NODE_URL;
+  }
+  if (originStore === 'AliExpress' || trimmed.includes('1e8d114494cb5002cfdd16525dc3e8')) {
+    return trimmed.includes('rzekl.com/') ? trimmed : ALIEXPRESS_URL;
+  }
+  if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
+    return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;
   }
   if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
     if (trimmed.includes('aff=')) return trimmed;
@@ -488,11 +502,15 @@ export async function executeBackendSiteControl(
   if (Array.isArray(patch.upsertProducts)) {
     for (const rawProd of patch.upsertProducts) {
       if (!rawProd?.id || !rawProd?.title) continue;
-      const originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' =
+      const originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba' =
         rawProd.originStore === 'Shopz BD'
           ? 'Shopz BD'
           : rawProd.originStore === 'ExonHost'
           ? 'ExonHost'
+          : rawProd.originStore === 'AliExpress'
+          ? 'AliExpress'
+          : rawProd.originStore === 'Alibaba'
+          ? 'Alibaba'
           : 'Amazon';
       const category = VALID_CATEGORIES.has(rawProd.category as CustomStoreProduct['category'])
         ? (rawProd.category as CustomStoreProduct['category'])
@@ -526,6 +544,10 @@ export async function executeBackendSiteControl(
               ? 'Instant Cloud Provisioning'
               : originStore === 'Shopz BD'
               ? 'Fulfilled by Shopz BD Courier'
+              : originStore === 'AliExpress'
+              ? 'AliExpress Choice Global Dispatch'
+              : originStore === 'Alibaba'
+              ? 'Alibaba Trade Assurance Dispatch'
               : 'Fulfilled by Amazon')
           ).trim(),
         affiliateUrl: sanitizePartnerUrl(rawProd.affiliateUrl || '', originStore, rawProd.asin),
