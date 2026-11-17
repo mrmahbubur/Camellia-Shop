@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import {
   EcomProduct,
   UNIFIED_PRODUCTS,
+  AMAZON_LINK_SHORT,
   AMAZON_STORE_URL,
   SHOPZ_REF_BASE,
   EXONHOST_AFFILIATE_URL
@@ -41,6 +42,8 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
     'Browse electronics, personal gadgets, and workspace accessories across Amazon, Shopz BD, and ExonHost. Every purchase completes directly on the official retailer store.'
 };
 
+export type StoreFilterOption = 'all' | 'Amazon' | 'Shopz BD' | 'ExonHost';
+
 interface ProductsContextType {
   products: EcomProduct[];
   csvProductsCount: number;
@@ -50,11 +53,14 @@ interface ProductsContextType {
   storefrontCopy: StorefrontCopyConfig;
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
+  selectedStoreFilter: StoreFilterOption;
+  setSelectedStoreFilter: (store: StoreFilterOption) => void;
   highlightedProductId: string | null;
   setHighlightedProductId: (id: string | null) => void;
   getAffiliateBuyUrl: (product: EcomProduct) => string;
   getAmazonSearchAffiliateUrl: (query: string) => string;
   getShopzSearchAffiliateUrl: (query: string) => string;
+  amazonShortUrl: string;
   amazonStoreUrl: string;
   shopzStoreUrl: string;
   exonhostStoreUrl: string;
@@ -70,10 +76,12 @@ const PRIMARY_AMAZON_SHORTLINK = 'https://link.amazon/B0io1BQfg';
 
 export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All Departments (Mega Store)');
+  const [selectedStoreFilter, setSelectedStoreFilter] = useState<StoreFilterOption>('all');
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
   const [storefrontData, setStorefrontData] = useState<StorefrontResponse | null>(null);
   const [csvProducts, setCsvProducts] = useState<EcomProduct[]>([]);
 
+  const amazonShortUrl = AMAZON_LINK_SHORT;
   const amazonStoreUrl = AMAZON_STORE_URL;
   const shopzStoreUrl = SHOPZ_REF_BASE;
   const exonhostStoreUrl = EXONHOST_AFFILIATE_URL;
@@ -311,11 +319,14 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         storefrontCopy,
         selectedCategory,
         setSelectedCategory,
+        selectedStoreFilter,
+        setSelectedStoreFilter,
         highlightedProductId,
         setHighlightedProductId,
         getAffiliateBuyUrl,
         getAmazonSearchAffiliateUrl,
         getShopzSearchAffiliateUrl,
+        amazonShortUrl,
         amazonStoreUrl,
         shopzStoreUrl,
         exonhostStoreUrl,

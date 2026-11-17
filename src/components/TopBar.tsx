@@ -71,14 +71,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
           </button>
 
           {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-3 xl:gap-5 text-xs xl:text-sm font-medium text-slate-600 dark:text-slate-300">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 text-xs xl:text-sm font-medium text-slate-600 dark:text-slate-300">
             <button
-              onClick={handleAmazonDealsClick}
-              className="font-bold hover:text-amber-700 dark:hover:text-amber-300 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer bg-amber-50 dark:bg-amber-500/15 text-amber-950 dark:text-amber-300 px-2.5 py-1.5 rounded-md border border-amber-200/80 dark:border-amber-500/30"
-              title="Filter Electronics & Gadgets"
+              onClick={() => handleNavClick('customer-themes')}
+              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer font-semibold"
             >
-              <Tag className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>Prime Tech</span>
+              Customer Themes
             </button>
 
             <button
@@ -95,9 +93,9 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             </button>
             <button
               onClick={() => handleNavClick('amazon-products')}
-              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1 cursor-pointer"
+              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 font-semibold text-amber-600 dark:text-amber-400 cursor-pointer"
             >
-              <span>Amazon Picks</span>
+              Amazon Picks
             </button>
             <button
               onClick={() => handleNavClick('sponsors')}
@@ -232,6 +230,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 </span>
               </button>
 
+              <button
+                onClick={() => handleNavClick('customer-themes')}
+                className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-semibold cursor-pointer"
+              >
+                Customer Themes &amp; Store Directory
+              </button>
               <button
                 onClick={() => handleNavClick('store')}
                 className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white cursor-pointer"

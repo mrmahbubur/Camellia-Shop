@@ -37,6 +37,8 @@ export const StoreSection: React.FC = () => {
     storefrontCopy,
     selectedCategory,
     setSelectedCategory,
+    selectedStoreFilter: storeFilter,
+    setSelectedStoreFilter: setStoreFilter,
     highlightedProductId,
     getAffiliateBuyUrl,
     getAmazonSearchAffiliateUrl,
@@ -50,7 +52,6 @@ export const StoreSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'discount'>('featured');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [storeFilter, setStoreFilter] = useState<'all' | 'Amazon' | 'Shopz BD' | 'ExonHost'>('all');
   const [primeOnly, setPrimeOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
 

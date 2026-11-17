@@ -8,6 +8,7 @@ import { ProductsProvider } from './context/ProductsContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { TopBar } from './components/TopBar';
 import { Hero } from './components/Hero';
+import { CustomerThemesSection } from './components/CustomerThemesSection';
 import { StoreSection } from './components/StoreSection';
 import { AmazonShowcaseSection } from './components/AmazonShowcaseSection';
 import { SponsorsSection } from './components/SponsorsSection';
@@ -68,6 +69,8 @@ const MainLayout: React.FC = () => {
 
       <main className="flex-1 min-w-0">
         <Hero onExploreStore={() => handleNavigate('store')} />
+
+        <CustomerThemesSection />
 
         <StoreSection />
 

@@ -90,6 +90,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2">
               <li>
                 <button
+                  onClick={() => onNavigate('customer-themes')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Customer Themes &amp; Stores
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => handleCategoryNav('All Departments (Mega Store)')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
