@@ -267,7 +267,7 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distDir = path.join(ROOT_DIR, 'dist');
-    const mitgoMetaTag = '<meta name="mitgo-verification" content="32d3b5bd-5508-4682-b740-252fe461d08a" />';
+    const mitgoMetaTag = '<meta name="mitgo-verification" content="892bc51b-d387-45a2-baab-fa37e8d8e069" />';
 
     const sendVerifiedIndex = async (_req: Request, res: express.Response) => {
       try {
