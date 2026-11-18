@@ -136,6 +136,16 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Partner &amp; Brand
+                    </td>
+                    {comparedProducts.map((p) => (
+                      <td key={p.id} className="p-3 text-center text-slate-800 dark:text-slate-200 font-semibold">
+                        {p.originStore} · {p.brand}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
                       Pricing Status
                     </td>
                     {comparedProducts.map((p) => {
@@ -167,11 +177,31 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                   </tr>
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
+                      Key Details / Specs
+                    </td>
+                    {comparedProducts.map((p) => {
+                      const detailSpecs = p.specs.filter((s) => s.label !== 'Price').slice(0, 3);
+                      return (
+                        <td key={p.id} className="p-3 text-left text-[11px] text-slate-600 dark:text-slate-300 align-top">
+                          <ul className="space-y-1">
+                            {detailSpecs.map((s, idx) => (
+                              <li key={idx}>
+                                <span className="font-semibold text-slate-800 dark:text-slate-100">{s.label}:</span>{' '}
+                                {s.value}
+                              </li>
+                            ))}
+                          </ul>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
                       Shipping &amp; Terms
                     </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center text-slate-600 dark:text-slate-300 font-medium">
-                        Verified on {p.originStore}
+                        {p.deliveryEstimate || `Verified on ${p.originStore}`}
                       </td>
                     ))}
                   </tr>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   SlidersHorizontal,
@@ -37,7 +37,7 @@ import { ProductCompareDock } from './ProductCompareDock';
 import { ResilientImage } from './ResilientImage';
 
 export const StoreSection: React.FC = () => {
-  const { formatPrice, addToCart, toUsdAmount, ratesDisclaimer } = useCart();
+  const { formatPrice, addToCart, toUsdAmount, ratesDisclaimer, cart } = useCart();
   const {
     products,
     sponsors,
@@ -66,6 +66,7 @@ export const StoreSection: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [pricedOnly, setPricedOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
+  const [visibleCount, setVisibleCount] = useState<number>(24);
 
   // Live partner store search query
   const [partnerQuery, setPartnerQuery] = useState<string>('');
@@ -75,6 +76,11 @@ export const StoreSection: React.FC = () => {
   const [comparedProducts, setComparedProducts] = useState<EcomProduct[]>([]);
 
   const relevaStoreUrl = buildRelevaProductUrl(130);
+  const savedIds = useMemo(() => new Set(cart.map((c) => c.product.id)), [cart]);
+
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [selectedCategory, storeFilter, searchQuery, sortBy, pricedOnly, maxPrice]);
 
   const categories: ProductCategory[] = [
     'All Departments (Mega Store)',
@@ -98,6 +104,24 @@ export const StoreSection: React.FC = () => {
         counts[cat] = products.filter((p) => p.category === cat || p.department === cat).length;
       }
     });
+    return counts;
+  }, [products]);
+
+  const storeCounts = useMemo(() => {
+    const counts: Record<'all' | PartnerStoreOrigin, number> = {
+      all: products.length,
+      Amazon: 0,
+      'Shopz BD': 0,
+      'Releva BD': 0,
+      AliExpress: 0,
+      Alibaba: 0,
+      ExonHost: 0
+    };
+    for (const item of products) {
+      if (item.originStore in counts) {
+        counts[item.originStore] += 1;
+      }
+    }
     return counts;
   }, [products]);
 
@@ -161,6 +185,18 @@ export const StoreSection: React.FC = () => {
     highlightedProductId,
     toUsdAmount
   ]);
+
+  const visibleProducts = useMemo(
+    () => filteredProducts.slice(0, visibleCount),
+    [filteredProducts, visibleCount]
+  );
+
+  const hasActiveFilter =
+    selectedCategory !== 'All Departments (Mega Store)' ||
+    storeFilter !== 'all' ||
+    searchQuery.trim() !== '' ||
+    pricedOnly ||
+    maxPrice < 1000;
 
   const handleToggleCompare = (product: EcomProduct) => {
     setComparedProducts((prev) => {
@@ -587,6 +623,7 @@ export const StoreSection: React.FC = () => {
             <div className="relative flex-1 lg:max-w-lg min-w-0">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
+                id="catalog-search-input"
                 type="text"
                 placeholder="Filter catalog: 'Casio', 'earbuds', 'releva', 'lamp', 'exonhost'..."
                 value={searchQuery}
@@ -621,13 +658,16 @@ export const StoreSection: React.FC = () => {
                     key={tab.key}
                     type="button"
                     onClick={() => setStoreFilter(tab.key)}
-                    className={`px-2.5 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`px-2.5 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1 ${
                       storeFilter === tab.key
                         ? `${tab.activeClass} shadow-2xs`
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    {tab.label}
+                    <span>{tab.label}</span>
+                    <span className="font-mono text-[10px] opacity-75">
+                      ({storeCounts[tab.key]})
+                    </span>
                   </button>
                 ))}
               </div>
@@ -698,6 +738,43 @@ export const StoreSection: React.FC = () => {
           </div>
         </div>
 
+        {/* Results Summary Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 text-xs text-slate-600 dark:text-slate-400">
+          <div className="flex flex-wrap items-center gap-2">
+            <span>
+              Showing{' '}
+              <strong className="font-mono tabular-nums text-slate-900 dark:text-white">
+                {visibleProducts.length}
+              </strong>{' '}
+              of{' '}
+              <strong className="font-mono tabular-nums text-slate-900 dark:text-white">
+                {filteredProducts.length}
+              </strong>{' '}
+              matching listings
+            </span>
+            {storeFilter !== 'all' && (
+              <span className="font-semibold text-amber-700 dark:text-amber-400">
+                · Store: {storeFilter}
+              </span>
+            )}
+            {selectedCategory !== 'All Departments (Mega Store)' && (
+              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                · Dept: {selectedCategory}
+              </span>
+            )}
+          </div>
+
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-xs font-semibold text-slate-700 dark:text-slate-200 underline underline-offset-4 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer"
+            >
+              Reset all filters
+            </button>
+          )}
+        </div>
+
         {/* RESULTS */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-14 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 sm:p-8">
@@ -742,8 +819,8 @@ export const StoreSection: React.FC = () => {
             </div>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-12">
-            {filteredProducts.map((product) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-8">
+            {visibleProducts.map((product) => {
               const isCompared = comparedProducts.some((p) => p.id === product.id);
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isHighlighted = product.id === highlightedProductId;
@@ -878,11 +955,19 @@ export const StoreSection: React.FC = () => {
                             e.stopPropagation();
                             handleSaveProduct(product, affiliateUrl);
                           }}
-                          className="min-h-[40px] min-w-[40px] p-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                          title="Save to List"
+                          className={`min-h-[40px] min-w-[40px] p-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                            savedIds.has(product.id)
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                              : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                          }`}
+                          title={savedIds.has(product.id) ? 'Saved in list' : 'Save to List'}
                           aria-label={`Save ${product.title} to List`}
                         >
-                          <ShoppingBag className="w-4 h-4" />
+                          {savedIds.has(product.id) ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <ShoppingBag className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -893,8 +978,8 @@ export const StoreSection: React.FC = () => {
           </div>
         ) : (
           /* RESULTS: List View Mode */
-          <div className="space-y-4 mb-12">
-            {filteredProducts.map((product) => {
+          <div className="space-y-4 mb-8">
+            {visibleProducts.map((product) => {
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isCompared = comparedProducts.some((p) => p.id === product.id);
               const knownPrice = hasKnownPrice(product);
@@ -1003,17 +1088,45 @@ export const StoreSection: React.FC = () => {
                           e.stopPropagation();
                           handleSaveProduct(product, affiliateUrl);
                         }}
-                        className="min-h-[40px] min-w-[40px] p-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                        title="Save to List"
+                        className={`min-h-[40px] min-w-[40px] p-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                          savedIds.has(product.id)
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                            : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                        }`}
+                        title={savedIds.has(product.id) ? 'Saved in list' : 'Save to List'}
                         aria-label={`Save ${product.title} to List`}
                       >
-                        <ShoppingBag className="w-4 h-4" />
+                        {savedIds.has(product.id) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <ShoppingBag className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {filteredProducts.length > visibleProducts.length && (
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => prev + 24)}
+              className="px-5 min-h-[42px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors cursor-pointer shadow-xs"
+            >
+              Load {Math.min(24, filteredProducts.length - visibleProducts.length)} More Listings
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibleCount(filteredProducts.length)}
+              className="px-4 min-h-[42px] py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
+            >
+              Show All ({filteredProducts.length})
+            </button>
           </div>
         )}
 

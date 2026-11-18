@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   RotateCcw,
   Trash2,
-  CheckCircle2
+  CheckCircle2,
+  Check
 } from 'lucide-react';
 import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -222,6 +223,8 @@ export const CustomerThemesSection: React.FC = () => {
       setActiveThemeId(regionProfile.preferredThemeId);
     }
   }, [hasPickedTheme, regionProfile.preferredThemeId]);
+
+  const savedIds = useMemo(() => new Set(cart.map((item) => item.product.id)), [cart]);
 
   const activeTheme = useMemo(
     () => CUSTOMER_THEMES.find((t) => t.id === activeThemeId) || CUSTOMER_THEMES[0],
@@ -573,9 +576,17 @@ export const CustomerThemesSection: React.FC = () => {
                       type="button"
                       onClick={() => handleSaveToCart(product)}
                       aria-label={`Save ${product.title}`}
-                      className="min-h-[38px] min-w-[38px] p-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                      className={`min-h-[38px] min-w-[38px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                        savedIds.has(product.id)
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                          : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                      }`}
                     >
-                      <ShoppingBag className="w-4 h-4" />
+                      {savedIds.has(product.id) ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <ShoppingBag className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </article>
@@ -828,11 +839,19 @@ export const CustomerThemesSection: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleSaveToCart(product)}
-                          title="Save to list"
+                          title={savedIds.has(product.id) ? 'Saved in list' : 'Save to list'}
                           aria-label={`Save ${product.title}`}
-                          className="min-h-[40px] min-w-[40px] p-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                          className={`min-h-[40px] min-w-[40px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                            savedIds.has(product.id)
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                              : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                          }`}
                         >
-                          <ShoppingBag className="w-4 h-4" />
+                          {savedIds.has(product.id) ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <ShoppingBag className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>

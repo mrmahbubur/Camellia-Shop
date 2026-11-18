@@ -55,6 +55,37 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
     <footer className="bg-slate-900 dark:bg-slate-950 text-slate-400 text-xs border-t border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] py-10 sm:py-12 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+        {/* Concise 3-Step Affiliate Checkout Flow */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-8 mb-8 border-b border-slate-800/80">
+          <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-4 space-y-1">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-amber-400">
+              Step 1 · Compare &amp; Filter
+            </div>
+            <div className="text-sm font-bold text-white">Browse Curated Listings</div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Filter by shopping region, partner store, category tabs, CSV reference prices, or specs.
+            </p>
+          </div>
+          <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-4 space-y-1">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-amber-400">
+              Step 2 · Save or Match
+            </div>
+            <div className="text-sm font-bold text-white">Use Buying Guide &amp; Saved List</div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Match items by goal and budget, inspect specs side by side, and bookmark items locally.
+            </p>
+          </div>
+          <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-4 space-y-1">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-emerald-400">
+              Step 3 · Partner Checkout
+            </div>
+            <div className="text-sm font-bold text-white">Complete Order on Partner Site</div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Verify live price, stock, shipping, and returns directly on Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, or ExonHost.
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 pb-8 sm:pb-10 border-b border-slate-800/80">
           {/* Brand & Concise Owner Credit */}
           <div className="md:col-span-5 space-y-3">
@@ -132,6 +163,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
                   Releva BD Picks
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryNav('Cloud Hosting & Domains')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  ExonHost Hosting &amp; Domains
                 </button>
               </li>
               <li>

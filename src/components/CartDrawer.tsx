@@ -84,7 +84,7 @@ export const CartDrawer: React.FC = () => {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Saved hardware list"
+        aria-label="Saved shopping list"
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md bg-white dark:bg-slate-900 h-dvh shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800"
       >
@@ -93,7 +93,7 @@ export const CartDrawer: React.FC = () => {
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-slate-800 dark:text-amber-400" />
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Saved Hardware List
+              Saved Shopping List
             </h2>
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
               ({cart.reduce((sum, item) => sum + item.quantity, 0)})
@@ -163,6 +163,14 @@ export const CartDrawer: React.FC = () => {
                   />
 
                   <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="font-bold text-slate-700 dark:text-slate-200">
+                        {item.product.originStore || 'Amazon'}
+                      </span>
+                      <span className="truncate">
+                        {item.product.asin ? `ASIN ${item.product.asin}` : item.product.csvCategory || item.product.category}
+                      </span>
+                    </div>
                     <h4 className="text-xs font-semibold text-slate-900 dark:text-white line-clamp-2">
                       {item.product.title}
                     </h4>

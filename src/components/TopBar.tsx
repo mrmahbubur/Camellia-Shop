@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Menu, X, ArrowUpRight, Tag, Sun, Moon, Monitor, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Menu, X, ArrowUpRight, Tag, Sun, Moon, Monitor, ShieldCheck, Search } from 'lucide-react';
 import { useCart, Currency } from '../context/CartContext';
 import { useProducts } from '../context/ProductsContext';
 import { useTheme, ThemeMode } from '../context/ThemeContext';
@@ -19,6 +19,17 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
   const handleNavClick = (id: string) => {
     setMobileMenuOpen(false);
     onNavigate(id);
+  };
+
+  const handleQuickSearchClick = () => {
+    setMobileMenuOpen(false);
+    const input = document.getElementById('catalog-search-input') as HTMLInputElement | null;
+    if (input) {
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => input.focus(), 350);
+    } else {
+      onNavigate('store');
+    }
   };
 
   const handleAmazonDealsClick = () => {
@@ -94,6 +105,14 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
 
             <button
               type="button"
+              onClick={() => handleNavClick('customer-themes')}
+              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer font-semibold"
+            >
+              Collections
+            </button>
+
+            <button
+              type="button"
               onClick={() => handleNavClick('store')}
               className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 hover:underline underline-offset-8 cursor-pointer font-semibold"
             >
@@ -135,6 +154,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
 
           {/* Compact Primary Actions */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleQuickSearchClick}
+              title="Search catalog"
+              aria-label="Search catalog"
+              className="flex items-center justify-center min-h-[40px] min-w-[40px] px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer shrink-0"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
             {/* Currency Selector (Tablet & Desktop) */}
             <div
               role="group"

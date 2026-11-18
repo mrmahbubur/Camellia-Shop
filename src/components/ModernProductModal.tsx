@@ -19,7 +19,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   onToggleCompare,
   isCompared = false
 }) => {
-  const { addToCart, formatPrice, ratesDisclaimer } = useCart();
+  const { addToCart, formatPrice, ratesDisclaimer, cart } = useCart();
   const { sponsors, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'guarantee'>('highlights');
@@ -50,6 +50,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
       ? typeof product.nativePrice === 'number' && product.nativePrice > 0
       : product.price > 0;
 
+  const savedCount = cart.find((item) => item.product.id === product.id)?.quantity || 0;
   const buyUrl = getAffiliateBuyUrl(product);
 
   const handleDirectAdd = () => {
@@ -363,10 +364,14 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <button
                   type="button"
                   onClick={handleDirectAdd}
-                  className="flex-1 min-h-[42px] py-2.5 px-4 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                  className={`flex-1 min-h-[42px] py-2.5 px-4 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
+                    savedCount > 0
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                      : 'bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950'
+                  }`}
                 >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>Save to List</span>
+                  {savedCount > 0 ? <Check className="w-3.5 h-3.5" /> : <ShoppingBag className="w-3.5 h-3.5" />}
+                  <span>{savedCount > 0 ? `Saved in List (${savedCount}) · +Add` : 'Save to List'}</span>
                 </button>
 
                 {onToggleCompare && (
