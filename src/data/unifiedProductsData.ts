@@ -9,6 +9,7 @@ import screenbarLightImg from '../assets/images/amazon_screenbar_light_179227621
 import heroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
 import cloudServerImg from '../assets/images/product_cloud_server_1794916703257.jpg';
 import shopzCsvRaw from '../../public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv?raw';
+import productImageManifest from './productImageManifest.json';
 
 import {
   CURATED_CATALOG_RECORDS,
@@ -58,6 +59,8 @@ export const IMAGE_ASSET_MAP: Record<ImageKey, string> = {
   cloudServer: cloudServerImg
 };
 
+const PRODUCT_IMAGE_MANIFEST = productImageManifest as Record<string, string>;
+
 export interface EcomProduct {
   id: string;
   asin?: string;
@@ -89,8 +92,15 @@ export interface EcomProduct {
 }
 
 export function hydrateCatalogRecord(record: CatalogRecord): EcomProduct {
-  const mainImage = IMAGE_ASSET_MAP[record.imageKey] || heroWorkspaceImg;
+  const manifestImage = PRODUCT_IMAGE_MANIFEST[record.id];
+  const mainImage = manifestImage || IMAGE_ASSET_MAP[record.imageKey] || heroWorkspaceImg;
   const secondaryImage = IMAGE_ASSET_MAP[record.secondaryImageKey] || mainImage;
+  const galleryImages = manifestImage
+    ? [manifestImage]
+    : mainImage === secondaryImage
+    ? [mainImage]
+    : [mainImage, secondaryImage];
+
   return {
     id: record.id,
     asin: record.asin,
@@ -110,9 +120,9 @@ export function hydrateCatalogRecord(record: CatalogRecord): EcomProduct {
     deliveryEstimate: record.deliveryEstimate,
     affiliateUrl: record.affiliateUrl,
     urlKind: record.urlKind,
-    imageIsIllustrative: record.imageIsIllustrative,
+    imageIsIllustrative: manifestImage ? false : record.imageIsIllustrative,
     mainImage,
-    galleryImages: mainImage === secondaryImage ? [mainImage] : [mainImage, secondaryImage],
+    galleryImages,
     description: record.description,
     highlights: record.highlights,
     specs: record.specs,

@@ -84,7 +84,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B09HM94VDS'),
@@ -95,9 +95,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Ergonomic wireless mouse featuring an 8,000 DPI Darkfield sensor, Quiet Clicks switches, MagSpeed electromagnetic scrolling, and dual Bluetooth LE + Logi Bolt wireless.',
     highlights: [
-      'Direct Amazon product page (ASIN B09HM94VDS)',
       '200–8,000 DPI Darkfield sensor (tracks on glass) + MagSpeed scroll',
-      'Up to 70-day rechargeable 500mAh Li-Po battery; Quiet Clicks tactile switches'
+      'Up to 70-day rechargeable 500mAh Li-Po battery; Quiet Clicks tactile switches',
+      'Connects up to 3 devices via Bluetooth Low Energy or Logi Bolt USB'
     ],
     specs: [
       { label: 'ASIN', value: 'B09HM94VDS' },
@@ -119,7 +119,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B08WT889V3'),
@@ -130,9 +130,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Asymmetrical monitor light bar with front task illumination, rear ambient bias backlight, and a wireless desktop rotary controller (2700K–6500K).',
     highlights: [
-      'Direct Amazon product page (ASIN B08WT889V3)',
       'Asymmetrical zero-glare optics + Front / Back / Dual lighting modes',
-      'Wireless rotary dial (2700K–6500K); USB 5V/1.7A powered'
+      'Wireless rotary dial (2700K–6500K); USB 5V/1.7A powered',
+      'Fits flat and curved monitors cleanly with weighted clamp mount'
     ],
     specs: [
       { label: 'ASIN', value: 'B08WT889V3' },
@@ -154,7 +154,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B09XS7JWHH'),
@@ -165,9 +165,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Over-ear ANC headphones powered by Integrated Processor V1 and HD QN1 with 8 microphones, 30mm drivers, Bluetooth 5.2 multipoint, and up to 30-hour battery.',
     highlights: [
-      'Direct Amazon product page (ASIN B09XS7JWHH)',
       'Dual V1 + QN1 ANC processors managing 8 microphones + Auto NC Optimizer',
-      '30mm custom drivers, Bluetooth 5.2 multipoint (SBC/AAC/LDAC), up to 30h ANC'
+      '30mm custom drivers, Bluetooth 5.2 multipoint (SBC/AAC/LDAC), up to 30h ANC',
+      'Crystal clear hands-free calling with Speak-to-Chat and collapsible case'
     ],
     specs: [
       { label: 'ASIN', value: 'B09XS7JWHH' },
@@ -189,7 +189,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B0CFPHZZYT'),
@@ -200,9 +200,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Foldable Qi2-certified 15W magnetic 3-in-1 wireless charging station for iPhone, Apple Watch, and wireless earbuds, bundled with a 40W USB-C power adapter.',
     highlights: [
-      'Direct Amazon product page (ASIN B0CFPHZZYT)',
       'Qi2 certified 15W MagSafe-compatible fast wireless charging',
-      'Foldable 3-in-1 desktop & travel form factor + 40W USB-C wall adapter'
+      'Foldable 3-in-1 desktop & travel form factor + 40W USB-C wall adapter',
+      'Simultaneously powers iPhone, Apple Watch, and wireless earbuds'
     ],
     specs: [
       { label: 'ASIN', value: 'B0CFPHZZYT' },
@@ -224,7 +224,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B088F7SY6S'),
@@ -235,9 +235,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       '13-in-1 powered USB-C docking station with 85W upstream laptop charging, 2x HDMI, 1x DisplayPort, 10Gbps USB-C, Gigabit Ethernet, SD/microSD, and 135W PSU.',
     highlights: [
-      'Direct Amazon product page (ASIN B088F7SY6S)',
       '13 ports: 2x HDMI, 1x DisplayPort, 10Gbps USB-C, 3x USB-A, GbE & SD/microSD',
-      '85W upstream host Power Delivery + 18W front USB-C PD + 135W power supply'
+      '85W upstream host Power Delivery + 18W front USB-C PD + 135W power supply',
+      'Supports triple-display workstation expansion over a single USB-C cable'
     ],
     specs: [
       { label: 'ASIN', value: 'B088F7SY6S' },
@@ -259,7 +259,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B08FB7WFCT'),
@@ -270,9 +270,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Aluminum gas-spring VESA desk mount supporting 13" to 34" displays (4.4 to 19.8 lbs) with C-clamp/grommet installation, tilt, swivel, and 360-degree rotation.',
     highlights: [
-      'Direct Amazon product page (ASIN B08FB7WFCT)',
       'Fits 13"–34" monitors (4.4–19.8 lbs) with 75x75 or 100x100mm VESA',
-      '+85°/-30° tilt, 180° swivel, 360° rotation; C-clamp or grommet mount'
+      '+85°/-30° tilt, 180° swivel, 360° rotation; C-clamp or grommet mount',
+      'Integrated cable management channels for a clutter-free desk'
     ],
     specs: [
       { label: 'ASIN', value: 'B08FB7WFCT' },
@@ -294,7 +294,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B09VLHR4JC'),
@@ -305,9 +305,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Rugged 2TB portable NVMe SSD with IP65 water/dust resistance, 3-meter drop rating, AES 256-bit hardware encryption, and USB 3.2 Gen 2 (up to 1,050 MB/s read).',
     highlights: [
-      'Direct Amazon product page (ASIN B09VLHR4JC)',
       'USB 3.2 Gen 2 (10Gbps): up to 1,050 MB/s read / 1,000 MB/s write',
-      'IP65 dust/water resistance, up to 3m drop protection, AES 256-bit encryption'
+      'IP65 dust/water resistance, up to 3m drop protection, AES 256-bit encryption',
+      'Rubberized grip enclosure for reliable outdoor and studio workflows'
     ],
     specs: [
       { label: 'ASIN', value: 'B09VLHR4JC' },
@@ -329,7 +329,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B09DV85M6Y'),
@@ -340,9 +340,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Extended spill-repellent desk pad (27.6 x 11.8 in, 2mm thick) with recycled polyester cloth weave, flat anti-fray edges, and natural rubber anti-slip base.',
     highlights: [
-      'Direct Amazon product page (ASIN B09DV85M6Y)',
       'Large 27.6" × 11.8" (70 × 30 cm) × 2mm surface with anti-fray stitching',
-      'Spill-repellent recycled polyester fabric & natural rubber anti-slip base'
+      'Spill-repellent recycled polyester fabric & natural rubber anti-slip base',
+      'Smooth fine-weave surface engineered for effortless mouse glide'
     ],
     specs: [
       { label: 'ASIN', value: 'B09DV85M6Y' },
@@ -363,7 +363,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B0BYP2F3SG'),
@@ -372,17 +372,17 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'Airline-compliant 99.54Wh (27,650mAh) 3-port USB-C power bank delivering up to 250W total output with smart digital telemetry display and app monitoring.',
+      'Airline-compliant 99.54Wh (27,650mAh) 3-port USB-C power bank delivering up to 250W total output with smart digital wattage display and app monitoring.',
     highlights: [
-      'Direct Amazon product page (ASIN B0BYP2F3SG)',
       '27,650mAh (99.54Wh) capacity · 250W total across 2x USB-C + 1x USB-A',
-      'Rapid dual USB-C recharge + smart display & companion app monitoring'
+      'Rapid dual USB-C recharge + smart display & companion app monitoring',
+      'Airline-safe capacity with high-speed laptop & phone delivery'
     ],
     specs: [
       { label: 'ASIN', value: 'B0BYP2F3SG' },
       { label: 'Capacity', value: '27,650mAh (99.54Wh)' },
       { label: 'Output & Ports', value: '250W Max (2x USB-C + 1x USB-A)' },
-      { label: 'Display', value: 'Digital Wattage Telemetry' },
+      { label: 'Display', value: 'Digital Wattage Display' },
       { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
@@ -398,7 +398,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Listing',
+    badge: 'Amazon',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & availability on Amazon',
     affiliateUrl: buildAmazonAsinUrl('B08G7RG9ML'),
@@ -409,9 +409,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Dynamic broadcast microphone with dual USB and XLR outputs, Voice Isolation directional capsule, built-in touch panel controls, and 3.5mm zero-latency monitoring.',
     highlights: [
-      'Direct Amazon product page (ASIN B08G7RG9ML)',
       'Hybrid USB + XLR connectivity for laptops or studio audio interfaces',
-      'Voice Isolation capsule, integrated touch controls & 3.5mm headphone jack'
+      'Voice Isolation capsule, integrated touch controls & 3.5mm headphone jack',
+      'All-metal yoke mount ideal for podcasting, streaming, and vocals'
     ],
     specs: [
       { label: 'ASIN', value: 'B08G7RG9ML' },
@@ -427,31 +427,31 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   // --- 5 RELEVA BD AFFILIATE PRODUCT LINKS (USER REQUESTED) ---
   {
     id: 'releva-bd-130',
-    title: 'Releva BD Tracked Product #130',
+    title: 'Releva BD Featured Product #130',
     brand: 'Releva BD',
     category: 'Releva BD Picks',
     department: 'Releva BD Picks',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Releva BD Link',
+    badge: 'Releva BD',
     primeEligible: false,
-    deliveryEstimate: 'Check live delivery & BDT price on Releva BD',
+    deliveryEstimate: 'Check delivery & BDT price on Releva BD',
     affiliateUrl: buildRelevaProductUrl(130),
     urlKind: 'product',
     imageKey: 'growthBundle',
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Tracked partner product link (#130) on Releva BD. Live product name, BDT price, photos, and stock appear directly on releva.com.bd.',
+      'Featured product (#130) on Releva BD. Visit Releva BD to view full product details, current BDT pricing, stock availability, and local delivery options.',
     highlights: [
-      'Direct Releva BD tracked product URL (product_id=130)',
-      'Automated title/price inspection blocked by partner Cloudflare protection',
-      'Inspect full details, stock, and BDT checkout directly on releva.com.bd'
+      'Official product listing on Releva BD',
+      'Live BDT pricing & stock availability on checkout page',
+      'Local Bangladesh delivery options via Releva BD'
     ],
     specs: [
       { label: 'Partner', value: 'Releva BD' },
-      { label: 'Product ID', value: '130' },
+      { label: 'Catalog Item', value: '#130' },
       { label: 'Price', value: 'Check live price on Releva BD' }
     ],
     originStore: 'Releva BD',
@@ -459,31 +459,31 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'releva-bd-131',
-    title: 'Releva BD Tracked Product #131',
+    title: 'Releva BD Featured Product #131',
     brand: 'Releva BD',
     category: 'Releva BD Picks',
     department: 'Releva BD Picks',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Releva BD Link',
+    badge: 'Releva BD',
     primeEligible: false,
-    deliveryEstimate: 'Check live delivery & BDT price on Releva BD',
+    deliveryEstimate: 'Check delivery & BDT price on Releva BD',
     affiliateUrl: buildRelevaProductUrl(131),
     urlKind: 'product',
     imageKey: 'deskMat',
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'Tracked partner product link (#131) on Releva BD. Open releva.com.bd directly to inspect item details, live pricing, and local delivery.',
+      'Featured product (#131) on Releva BD. Open Releva BD directly to inspect item details, live pricing, and local delivery.',
     highlights: [
-      'Direct Releva BD tracked product URL (product_id=131)',
-      'Automated title/price inspection blocked by partner Cloudflare protection',
-      'Inspect live product details and checkout on releva.com.bd'
+      'Official product listing on Releva BD',
+      'Live BDT pricing & stock availability on checkout page',
+      'Local Bangladesh delivery options via Releva BD'
     ],
     specs: [
       { label: 'Partner', value: 'Releva BD' },
-      { label: 'Product ID', value: '131' },
+      { label: 'Catalog Item', value: '#131' },
       { label: 'Price', value: 'Check live price on Releva BD' }
     ],
     originStore: 'Releva BD',
@@ -491,31 +491,31 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'releva-bd-129',
-    title: 'Releva BD Tracked Product #129',
+    title: 'Releva BD Featured Product #129',
     brand: 'Releva BD',
     category: 'Releva BD Picks',
     department: 'Releva BD Picks',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Releva BD Link',
+    badge: 'Releva BD',
     primeEligible: false,
-    deliveryEstimate: 'Check live delivery & BDT price on Releva BD',
+    deliveryEstimate: 'Check delivery & BDT price on Releva BD',
     affiliateUrl: buildRelevaProductUrl(129),
     urlKind: 'product',
     imageKey: 'heroWorkspace',
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'Tracked partner product link (#129) on Releva BD. Live product title, stock, and BDT pricing appear on the destination store.',
+      'Featured product (#129) on Releva BD. View full item specifications, stock status, and BDT pricing directly on Releva BD.',
     highlights: [
-      'Direct Releva BD tracked product URL (product_id=129)',
-      'Automated title/price inspection blocked by partner Cloudflare protection',
-      'Inspect live product details and checkout on releva.com.bd'
+      'Official product listing on Releva BD',
+      'Live BDT pricing & stock availability on checkout page',
+      'Local Bangladesh delivery options via Releva BD'
     ],
     specs: [
       { label: 'Partner', value: 'Releva BD' },
-      { label: 'Product ID', value: '129' },
+      { label: 'Catalog Item', value: '#129' },
       { label: 'Price', value: 'Check live price on Releva BD' }
     ],
     originStore: 'Releva BD',
@@ -523,31 +523,31 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'releva-bd-133',
-    title: 'Releva BD Tracked Product #133',
+    title: 'Releva BD Featured Product #133',
     brand: 'Releva BD',
     category: 'Releva BD Picks',
     department: 'Releva BD Picks',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Releva BD Link',
+    badge: 'Releva BD',
     primeEligible: false,
-    deliveryEstimate: 'Check live delivery & BDT price on Releva BD',
+    deliveryEstimate: 'Check delivery & BDT price on Releva BD',
     affiliateUrl: buildRelevaProductUrl(133),
     urlKind: 'product',
     imageKey: 'magsafe',
     secondaryImageKey: 'deskMat',
     imageIsIllustrative: true,
     description:
-      'Tracked partner product link (#133) on Releva BD. Open the product page on releva.com.bd for live price, description, and delivery.',
+      'Featured product (#133) on Releva BD. Open the product page on Releva BD for live price, description, and delivery.',
     highlights: [
-      'Direct Releva BD tracked product URL (product_id=133)',
-      'Automated title/price inspection blocked by partner Cloudflare protection',
-      'Inspect live product details and checkout on releva.com.bd'
+      'Official product listing on Releva BD',
+      'Live BDT pricing & stock availability on checkout page',
+      'Local Bangladesh delivery options via Releva BD'
     ],
     specs: [
       { label: 'Partner', value: 'Releva BD' },
-      { label: 'Product ID', value: '133' },
+      { label: 'Catalog Item', value: '#133' },
       { label: 'Price', value: 'Check live price on Releva BD' }
     ],
     originStore: 'Releva BD',
@@ -555,31 +555,31 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'releva-bd-135',
-    title: 'Releva BD Tracked Product #135',
+    title: 'Releva BD Featured Product #135',
     brand: 'Releva BD',
     category: 'Releva BD Picks',
     department: 'Releva BD Picks',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Releva BD Link',
+    badge: 'Releva BD',
     primeEligible: false,
-    deliveryEstimate: 'Check live delivery & BDT price on Releva BD',
+    deliveryEstimate: 'Check delivery & BDT price on Releva BD',
     affiliateUrl: buildRelevaProductUrl(135),
     urlKind: 'product',
     imageKey: 'headphoneStand',
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'Tracked partner product link (#135) on Releva BD. Open the product page on releva.com.bd for live price, availability, and order options.',
+      'Featured product (#135) on Releva BD. Open the product page on Releva BD for live price, availability, and order options.',
     highlights: [
-      'Direct Releva BD tracked product URL (product_id=135)',
-      'Automated title/price inspection blocked by partner Cloudflare protection',
-      'Inspect live product details and checkout on releva.com.bd'
+      'Official product listing on Releva BD',
+      'Live BDT pricing & stock availability on checkout page',
+      'Local Bangladesh delivery options via Releva BD'
     ],
     specs: [
       { label: 'Partner', value: 'Releva BD' },
-      { label: 'Product ID', value: '135' },
+      { label: 'Catalog Item', value: '#135' },
       { label: 'Price', value: 'Check live price on Releva BD' }
     ],
     originStore: 'Releva BD',
@@ -596,9 +596,9 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'ExonHost Portal',
+    badge: 'ExonHost',
     primeEligible: false,
-    deliveryEstimate: 'Provisioned via ExonHost client portal',
+    deliveryEstimate: 'Instant setup via ExonHost',
     affiliateUrl: EXONHOST_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'cloudServer',
@@ -607,12 +607,12 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'LiteSpeed + LSCache web hosting with unlimited Let’s Encrypt SSL, JetBackup daily backups, CloudLinux CageFS security, and BDIX or international servers.',
     highlights: [
-      'Opens the official ExonHost affiliate portal (aff=5993)',
-      'LiteSpeed Web Server + LSCache, Unlimited Let’s Encrypt SSL & JetBackup daily backups',
-      'BDIX (Dhaka) & international data center options; verify live rates on ExonHost'
+      'LiteSpeed Web Server + LSCache & unlimited Let’s Encrypt SSL',
+      'JetBackup daily automated backups & CloudLinux CageFS security',
+      'BDIX (Dhaka) & international data center options available'
     ],
     specs: [
-      { label: 'Partner', value: 'ExonHost (aff=5993)' },
+      { label: 'Partner', value: 'ExonHost' },
       { label: 'Stack', value: 'LiteSpeed + LSCache · CloudLinux' },
       { label: 'Backups & SSL', value: 'JetBackup Daily · Free SSL' },
       { label: 'Price', value: 'Check live plan rates on ExonHost' }
@@ -622,16 +622,16 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'exonhost-managed-wp',
-    title: 'ExonHost WordPress Hosting & LSCache Portal',
+    title: 'ExonHost WordPress Hosting & LSCache Plans',
     brand: 'ExonHost',
     category: 'Cloud Hosting & Domains',
     department: 'Cloud Hosting & Domains',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'ExonHost Portal',
+    badge: 'ExonHost',
     primeEligible: false,
-    deliveryEstimate: 'Provisioned via ExonHost client portal',
+    deliveryEstimate: 'Instant setup via ExonHost',
     affiliateUrl: EXONHOST_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'cloudServer',
@@ -640,12 +640,12 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'WordPress-optimized hosting featuring Softaculous 1-click installer, WP Manager, LSCache acceleration, PHP selector (5.6–8.x), and free site migration.',
     highlights: [
-      'Opens ExonHost affiliate portal (aff=5993)',
-      'Softaculous 1-click WordPress setup, LSCache & free website migration',
-      'Verify live monthly/annual plans and renewal terms on ExonHost'
+      'Softaculous 1-click WordPress setup & WP Manager tools',
+      'LSCache acceleration & complimentary website migration',
+      'Flexible PHP versions & CageFS + DDoS filtering'
     ],
     specs: [
-      { label: 'Partner', value: 'ExonHost (aff=5993)' },
+      { label: 'Partner', value: 'ExonHost' },
       { label: 'Tools', value: 'Softaculous · WordPress Manager' },
       { label: 'Protection', value: 'CageFS + 20 Gbps+ DDoS Filtering' },
       { label: 'Price', value: 'Check live plan rates on ExonHost' }
@@ -655,16 +655,16 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'exonhost-domain-bundle',
-    title: 'ExonHost KVM NVMe VPS & Domain Portal',
+    title: 'ExonHost KVM NVMe VPS & Domain Registration',
     brand: 'ExonHost',
     category: 'Cloud Hosting & Domains',
     department: 'Cloud Hosting & Domains',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'ExonHost Portal',
+    badge: 'ExonHost',
     primeEligible: false,
-    deliveryEstimate: 'Provisioned via ExonHost client portal',
+    deliveryEstimate: 'Instant setup via ExonHost',
     affiliateUrl: EXONHOST_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'cloudServer',
@@ -673,12 +673,12 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     description:
       'Linux KVM NVMe VPS (BDIX & global nodes) with full root SSH access, dedicated static IPv4, weekly snapshots, and domain registration via ExonHost.',
     highlights: [
-      'Opens ExonHost affiliate portal (aff=5993)',
-      'Dedicated NVMe storage, full root SSH access, static IPv4 & BDIX low-latency routing',
-      'Verify live VPS configs, TLDs, and billing cycles on ExonHost'
+      'Dedicated NVMe storage, full root SSH access & static IPv4',
+      'BDIX low-latency routing and global data center nodes',
+      'Top-level domain registration & weekly server snapshots'
     ],
     specs: [
-      { label: 'Partner', value: 'ExonHost (aff=5993)' },
+      { label: 'Partner', value: 'ExonHost' },
       { label: 'Virtualization', value: 'Linux KVM · NVMe SSD · Root SSH' },
       { label: 'Nodes', value: 'BDIX (Dhaka) & International' },
       { label: 'Price', value: 'Check live rates on ExonHost' }
@@ -687,17 +687,17 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     tags: ['hosting', 'domains', 'vps', 'web']
   },
 
-  // --- 4 ALIEXPRESS PORTAL PICKS (VERIFIED DESTINATION: best.aliexpress.com) ---
+  // --- 4 ALIEXPRESS PORTAL PICKS ---
   {
     id: 'aliexpress-keyboards-portal',
     title: 'AliExpress — Keyboards & Desk Peripherals',
-    brand: 'AliExpress Partner',
+    brand: 'AliExpress',
     category: 'Computers & Accessories',
     department: 'Computers & Accessories',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'AliExpress Portal',
+    badge: 'AliExpress',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & buyer terms on AliExpress',
     affiliateUrl: ALIEXPRESS_AFFILIATE_URL,
@@ -706,14 +706,14 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'deskMat',
     imageIsIllustrative: true,
     description:
-      'Opens the AliExpress partner promotion portal for mechanical keyboards, mice, and desk hardware. Live listings and shipping depend on your region.',
+      'Shop hot-swappable mechanical keyboards, wireless mice, keycaps, and desk peripherals on AliExpress with worldwide shipping.',
     highlights: [
-      'Opens verified AliExpress partner promotion destination',
-      'Live item selection, pricing, and shipping windows appear on AliExpress'
+      'Wide selection of mechanical keyboards & wireless peripherals',
+      'Live deals, buyer reviews & regional shipping options on AliExpress'
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
+      { label: 'Storefront', value: 'AliExpress Global Deals' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -722,13 +722,13 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   {
     id: 'aliexpress-audio-portal',
     title: 'AliExpress — Wireless Audio & Headphones',
-    brand: 'AliExpress Partner',
+    brand: 'AliExpress',
     category: 'Audio & Headphones',
     department: 'Audio & Headphones',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'AliExpress Portal',
+    badge: 'AliExpress',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & buyer terms on AliExpress',
     affiliateUrl: ALIEXPRESS_AFFILIATE_URL,
@@ -737,14 +737,14 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'headphoneStand',
     imageIsIllustrative: true,
     description:
-      'Explore earbuds, over-ear headphones, and studio accessories through the AliExpress partner portal. Pricing and shipping vary by seller and country.',
+      'Explore true wireless earbuds, over-ear headphones, IEMs, and studio microphones on AliExpress.',
     highlights: [
-      'Opens verified AliExpress partner promotion destination',
-      'Verify seller ratings, warranty, and delivery estimates on AliExpress'
+      'Popular ANC earbuds, over-ear headphones & USB audio gear',
+      'Verify seller ratings, warranty & delivery estimates on AliExpress'
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
+      { label: 'Storefront', value: 'AliExpress Global Deals' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -753,13 +753,13 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   {
     id: 'aliexpress-power-portal',
     title: 'AliExpress — GaN Chargers & USB-C Power',
-    brand: 'AliExpress Partner',
+    brand: 'AliExpress',
     category: 'Smart Home & Power',
     department: 'Smart Home & Power',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'AliExpress Portal',
+    badge: 'AliExpress',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & plug standards on AliExpress',
     affiliateUrl: ALIEXPRESS_AFFILIATE_URL,
@@ -768,14 +768,14 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'Browse USB-C GaN adapters, power banks, and charging cables via the AliExpress partner portal. Check plug standard and safety certifications on site.',
+      'Browse high-wattage USB-C GaN wall chargers, fast-charging power banks, and braided cables on AliExpress.',
     highlights: [
-      'Opens verified AliExpress partner promotion destination',
-      'Confirm regional plug type (US/UK/EU) and shipping terms at checkout'
+      'Multi-port GaN adapters & USB-C PD fast chargers',
+      'Select regional plug type (US/UK/EU) at checkout'
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
+      { label: 'Storefront', value: 'AliExpress Global Deals' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -784,13 +784,13 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   {
     id: 'aliexpress-gadgets-portal',
     title: 'AliExpress — Everyday Tech & Studio Accessories',
-    brand: 'AliExpress Partner',
+    brand: 'AliExpress',
     category: 'Electronics & Gadgets',
     department: 'Electronics & Gadgets',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'AliExpress Portal',
+    badge: 'AliExpress',
     primeEligible: false,
     deliveryEstimate: 'Check shipping & buyer terms on AliExpress',
     affiliateUrl: ALIEXPRESS_AFFILIATE_URL,
@@ -799,47 +799,47 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'screenbar',
     imageIsIllustrative: true,
     description:
-      'Browse hubs, phone stands, LED desk lamps, and mobile accessories via the AliExpress affiliate portal.',
+      'Browse USB-C hubs, phone stands, LED desk lamps, and mobile photography accessories on AliExpress.',
     highlights: [
-      'Opens verified AliExpress partner promotion destination',
-      'Current promotions and country shipping rates displayed on AliExpress'
+      'Curated desk gadgets, LED lighting & creator accessories',
+      'Current promotions & country shipping rates shown on AliExpress'
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
+      { label: 'Storefront', value: 'AliExpress Global Deals' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
     tags: ['everyday', 'electronics', 'gadgets', 'aliexpress']
   },
 
-  // --- 4 ALIBABA SOURCING PORTAL PICKS (VERIFIED DESTINATION: offer.alibaba.com) ---
+  // --- 4 ALIBABA SOURCING PORTAL PICKS ---
   {
     id: 'alibaba-ergonomic-monitor-arm-bulk',
     title: 'Alibaba — Monitor Arms & Desk Mount Sourcing',
-    brand: 'Alibaba Offer Portal',
+    brand: 'Alibaba',
     category: 'Office & Workspace',
     department: 'Office & Workspace',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Alibaba Portal',
+    badge: 'Alibaba',
     primeEligible: false,
-    deliveryEstimate: 'MOQ, freight & protection terms verified on Alibaba',
+    deliveryEstimate: 'MOQ, freight & protection terms on Alibaba',
     affiliateUrl: ALIBABA_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'monitorArm',
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Opens the Alibaba partner offer portal for sourcing monitor arms, laptop stands, and office mounts. Check minimum order quantities and supplier terms directly on Alibaba.',
+      'Source gas-spring monitor arms, aluminum laptop stands, and office mounts directly from verified Alibaba suppliers.',
     highlights: [
-      'Opens verified Alibaba partner offer destination',
-      'Review MOQ, unit tiers, and freight quotes on Alibaba.com'
+      'Compare sample orders, bulk unit tiers & custom office mounts',
+      'Review MOQ and Trade Assurance freight quotes on Alibaba'
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
+      { label: 'Storefront', value: 'Alibaba Verified Suppliers' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -848,29 +848,29 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   {
     id: 'alibaba-usb-c-dock-factory-lot',
     title: 'Alibaba — USB-C Hubs & Peripherals Sourcing',
-    brand: 'Alibaba Offer Portal',
+    brand: 'Alibaba',
     category: 'Computers & Accessories',
     department: 'Computers & Accessories',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Alibaba Portal',
+    badge: 'Alibaba',
     primeEligible: false,
-    deliveryEstimate: 'MOQ, freight & protection terms verified on Alibaba',
+    deliveryEstimate: 'MOQ, freight & protection terms on Alibaba',
     affiliateUrl: ALIBABA_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'growthBundle',
     secondaryImageKey: 'mouse',
     imageIsIllustrative: true,
     description:
-      'Browse sample and wholesale computer accessory suppliers through the Alibaba offer portal. Verify supplier credentials and checkout protection on Alibaba.com.',
+      'Browse sample and wholesale computer accessory suppliers on Alibaba including USB-C docks, adapters, and desk gear.',
     highlights: [
-      'Opens verified Alibaba partner offer destination',
-      'Compare sample pricing, MOQ, and shipping options on Alibaba'
+      'Compare sample pricing, MOQ & shipping options on Alibaba',
+      'Verified Trade Assurance checkout protection available'
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
+      { label: 'Storefront', value: 'Alibaba Verified Suppliers' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -879,29 +879,29 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   {
     id: 'alibaba-studio-creator-desk-bundle',
     title: 'Alibaba — Studio Lighting & Audio Gear Sourcing',
-    brand: 'Alibaba Offer Portal',
+    brand: 'Alibaba',
     category: 'Audio & Headphones',
     department: 'Audio & Headphones',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Alibaba Portal',
+    badge: 'Alibaba',
     primeEligible: false,
-    deliveryEstimate: 'MOQ, freight & protection terms verified on Alibaba',
+    deliveryEstimate: 'MOQ, freight & protection terms on Alibaba',
     affiliateUrl: ALIBABA_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'screenbar',
     secondaryImageKey: 'headphoneStand',
     imageIsIllustrative: true,
     description:
-      'Discover desk lighting, microphone stands, and studio accessories on Alibaba. Review supplier terms and shipping options before ordering.',
+      'Discover studio key lights, microphone boom arms, and audio production accessories from Alibaba manufacturers.',
     highlights: [
-      'Opens verified Alibaba partner offer destination',
-      'Check sample availability and wholesale terms on Alibaba.com'
+      'Check sample availability & wholesale unit tiers on Alibaba',
+      'Direct manufacturer quotes & creator studio equipment'
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
+      { label: 'Storefront', value: 'Alibaba Verified Suppliers' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -910,29 +910,29 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   {
     id: 'alibaba-smart-qi2-charging-pad-pro',
     title: 'Alibaba — Wireless Chargers & Power Hardware',
-    brand: 'Alibaba Offer Portal',
+    brand: 'Alibaba',
     category: 'Smart Home & Power',
     department: 'Smart Home & Power',
     sourceType: 'linked-shop',
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Alibaba Portal',
+    badge: 'Alibaba',
     primeEligible: false,
-    deliveryEstimate: 'MOQ, freight & protection terms verified on Alibaba',
+    deliveryEstimate: 'MOQ, freight & protection terms on Alibaba',
     affiliateUrl: ALIBABA_AFFILIATE_URL,
     urlKind: 'portal',
     imageKey: 'magsafe',
     secondaryImageKey: 'deskMat',
     imageIsIllustrative: true,
     description:
-      'Source charging docks, GaN power bricks, and desk power accessories via the Alibaba partner portal.',
+      'Source 3-in-1 magnetic wireless charging stands, GaN power bricks, and desk power accessories on Alibaba.',
     highlights: [
-      'Opens verified Alibaba partner offer destination',
-      'Confirm electrical certifications and live quotes on Alibaba'
+      'Compare Qi2 wireless stands & GaN fast-charging hardware',
+      'Confirm electrical certifications & live quotes on Alibaba'
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
+      { label: 'Storefront', value: 'Alibaba Verified Suppliers' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -1249,7 +1249,7 @@ export function parseShopzCsvRecords(csvText: string, defaultBdtRate = 121.5): C
       nativeCurrency: 'BDT',
       price: usdPrice,
       priceStatus: hasRefPrice ? 'reference' : 'live-at-partner',
-      badge: hasRefPrice ? 'Shopz BD CSV Ref.' : 'Shopz BD',
+      badge: 'Shopz BD',
       primeEligible: false,
       deliveryEstimate: 'Check delivery & stock on Shopz BD',
       affiliateUrl,
@@ -1258,22 +1258,22 @@ export function parseShopzCsvRecords(csvText: string, defaultBdtRate = 121.5): C
       secondaryImageKey: images.secondary,
       imageIsIllustrative: true,
       description: hasRefPrice
-        ? `${product} (${csvCategory}) listed in Shopz BD catalog. Reference BDT price shown from CSV snapshot; retailer sets live price, stock, and shipping.`
-        : `${product} (${csvCategory}) listed in Shopz BD catalog. Check live price, stock, and Bangladesh shipping on Shopz.com.bd.`,
+        ? `${product} (${csvCategory}) available on Shopz BD. View live stock, specifications, and delivery options.`
+        : `${product} (${csvCategory}) available on Shopz BD. Check current price, stock, and Bangladesh shipping on Shopz BD.`,
       highlights: [
         `Product: ${product}`,
-        `CSV Category: ${csvCategory}`,
+        `Department: ${csvCategory}`,
         hasRefPrice
-          ? `Historical CSV Reference Price: ${rawBdt.toLocaleString('en-US')} BDT (retailer sets live price)`
-          : 'Live pricing and availability appear directly on Shopz.com.bd',
-        'Direct referral checkout via Shopz BD (ref=mahbubur-rahman-shahin)'
+          ? `Listed Price: ${rawBdt.toLocaleString('en-US')} BDT`
+          : 'Live pricing and availability appear directly on Shopz BD',
+        'Direct checkout via Shopz BD'
       ],
       specs: [
         { label: 'Brand', value: brand },
-        { label: 'CSV Category', value: csvCategory },
+        { label: 'Department', value: csvCategory },
         {
-          label: 'CSV Reference Price',
-          value: hasRefPrice ? `${rawBdt.toLocaleString('en-US')} BDT (Snapshot)` : 'Check live price on Shopz BD'
+          label: 'Price',
+          value: hasRefPrice ? `${rawBdt.toLocaleString('en-US')} BDT` : 'Check live price on Shopz BD'
         },
         { label: 'Retailer', value: 'Shopz BD' }
       ],

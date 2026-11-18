@@ -63,7 +63,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
             <div className="text-sm font-bold text-white">Browse Curated Listings</div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Filter by shopping region, partner store, category tabs, CSV reference prices, or specs.
+              Filter by shopping region, partner store, category tabs, listed price range, or product specs.
             </p>
           </div>
           <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-4 space-y-1">
@@ -126,7 +126,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => onNavigate('buying-guide')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
-                  Buying Guide &amp; Privacy
+                  Buying Guide &amp; Matchmaker
                 </button>
               </li>
               <li>
@@ -197,15 +197,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Partner Fulfillment & Disclosure */}
           <div className="sm:col-span-2 md:col-span-4 space-y-3">
-            <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
-              Affiliate Disclosure &amp; Notices
-            </div>
-            <p className="text-slate-400 leading-relaxed text-[11px]">
-              As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also participate in affiliate programs with Shopz BD, Releva BD, AliExpress, Alibaba, ExonHost, and labeled Sponsored partner links.
-            </p>
-            <p className="text-slate-400 leading-relaxed text-[11px]">
-              Product images are illustrative. Historical CSV BDT prices are reference snapshots only; the destination partner determines current prices, stock, shipping coverage, and returns.
-            </p>
+              <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
+                Affiliate Disclosure
+              </div>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also partner with Shopz BD, Releva BD, AliExpress, Alibaba, ExonHost, and featured sponsors.
+              </p>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                All live prices, stock status, shipping coverage, and returns are set directly by each partner store at checkout.
+              </p>
             <div className="pt-1 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
               <span className="flex items-center gap-1 text-emerald-400">
                 <ShieldCheck className="w-3.5 h-3.5" />

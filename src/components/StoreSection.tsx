@@ -19,8 +19,7 @@ import {
   Zap,
   Building2,
   Check,
-  Cloud,
-  Info
+  Cloud
 } from 'lucide-react';
 import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -37,7 +36,7 @@ import { ProductCompareDock } from './ProductCompareDock';
 import { ResilientImage } from './ResilientImage';
 
 export const StoreSection: React.FC = () => {
-  const { formatPrice, addToCart, toUsdAmount, ratesDisclaimer, cart } = useCart();
+  const { formatPrice, addToCart, toUsdAmount, cart } = useCart();
   const {
     products,
     sponsors,
@@ -66,7 +65,7 @@ export const StoreSection: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [pricedOnly, setPricedOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
-  const [visibleCount, setVisibleCount] = useState<number>(24);
+  const [visibleCount, setVisibleCount] = useState<number>(120);
 
   // Live partner store search query
   const [partnerQuery, setPartnerQuery] = useState<string>('');
@@ -79,7 +78,7 @@ export const StoreSection: React.FC = () => {
   const savedIds = useMemo(() => new Set(cart.map((c) => c.product.id)), [cart]);
 
   useEffect(() => {
-    setVisibleCount(24);
+    setVisibleCount(120);
   }, [selectedCategory, storeFilter, searchQuery, sortBy, pricedOnly, maxPrice]);
 
   const categories: ProductCategory[] = [
@@ -297,20 +296,20 @@ export const StoreSection: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
                 <Package className="w-3.5 h-3.5" />
-                <span>Curated Affiliate Catalog</span>
+                <span>Full Store Catalog</span>
               </span>
               <span aria-hidden="true">·</span>
               <span className="font-mono tabular-nums text-slate-700 dark:text-slate-200">
-                {products.length} Listings
+                {products.length} Products
               </span>
               <span aria-hidden="true">·</span>
               <span className="text-emerald-700 dark:text-emerald-400">
-                {regionProfile.label}: {regionProfile.storePriority[0]} First
+                {regionProfile.label}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
@@ -393,21 +392,6 @@ export const StoreSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Truthful Affiliate Disclosure, Regional Availability & Illustrative Imagery Banner */}
-        <div className="mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-600 dark:text-slate-300 flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
-          <div className="flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              <strong className="text-slate-900 dark:text-white">Affiliate Disclosure &amp; Pricing Note:</strong>{' '}
-              As an Amazon Associate and partner publisher, Camellia Shop earns from qualifying purchases. Product photos are illustrative thumbnails.{' '}
-              <span className="text-slate-500 dark:text-slate-400">{regionProfile.availabilityNote}</span>
-            </p>
-          </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 shrink-0 lg:text-right max-w-sm">
-            {ratesDisclaimer}
-          </span>
-        </div>
-
         {/* DIRECT PARTNER STORE SEARCH */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 shadow-md border border-slate-700">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
@@ -420,7 +404,7 @@ export const StoreSection: React.FC = () => {
                 Search Amazon, Shopz BD, Releva BD, AliExpress, Alibaba &amp; ExonHost
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Filter our local directory below or jump to the selected external partner site.
+                Filter products below or search directly on your chosen partner store.
               </p>
             </div>
 
@@ -672,7 +656,7 @@ export const StoreSection: React.FC = () => {
                 ))}
               </div>
 
-              {/* CSV Reference Price Only Toggle (replaces fabricated Prime filter) */}
+              {/* Listed Price Only Toggle */}
               <label className="flex items-center gap-1.5 min-h-[36px] cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -681,13 +665,13 @@ export const StoreSection: React.FC = () => {
                   className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 accent-emerald-600"
                 />
                 <span className="font-semibold text-slate-800 dark:text-slate-200">
-                  CSV Ref. Price Only
+                  With Listed Price
                 </span>
               </label>
 
               {/* Price Filter Slider */}
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <span>Ref. Cap:</span>
+                <span>Max Price:</span>
                 <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums">
                   {maxPrice >= 1000 ? 'All' : formatPrice(maxPrice)}
                 </span>
@@ -698,7 +682,7 @@ export const StoreSection: React.FC = () => {
                   step="20"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  aria-label="Maximum reference price cap"
+                  aria-label="Maximum price cap"
                   className="w-24 accent-slate-900 dark:accent-amber-400 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
                 />
               </div>
@@ -729,9 +713,9 @@ export const StoreSection: React.FC = () => {
                   aria-label="Sort products"
                   className="min-h-[38px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
                 >
-                  <option value="featured">Regional Featured Order</option>
-                  <option value="price-asc">Ref. Price: Low to High</option>
-                  <option value="price-desc">Ref. Price: High to Low</option>
+                  <option value="featured">Featured Order</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
                 </select>
               </div>
             </div>
@@ -783,7 +767,7 @@ export const StoreSection: React.FC = () => {
               No curated items match those filters
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
-              Note: setting a reference price cap excludes items that only show live pricing at partner checkout. Reset filters or search Amazon and Shopz BD directly.
+              Try widening your price filter or resetting filters to browse all products across our partner stores.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button
@@ -838,11 +822,11 @@ export const StoreSection: React.FC = () => {
                   }`}
                 >
                   {/* Visual Header */}
-                  <div className="relative aspect-4/3 bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
+                  <div className="relative aspect-4/3 bg-white p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300"
+                      className="w-full h-full object-contain group-hover:scale-104 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
 
@@ -855,17 +839,13 @@ export const StoreSection: React.FC = () => {
                       {product.badge || product.originStore}
                     </span>
 
-                    <span className="absolute bottom-3 left-3 bg-slate-950/75 text-slate-200 text-[10px] px-2 py-0.5 rounded">
-                      Illustrative photo
-                    </span>
-
                     {/* Quick Look Overlay Button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setActiveQuickViewProduct(product);
                       }}
-                      className="absolute bottom-3 right-3 p-2 bg-white/95 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white rounded-lg shadow-sm sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold cursor-pointer"
+                      className="absolute bottom-3 right-3 p-2 bg-white/95 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white rounded-lg shadow-sm sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold cursor-pointer border border-slate-200/80 dark:border-slate-700"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">Quick Look</span>
@@ -880,7 +860,7 @@ export const StoreSection: React.FC = () => {
                           {product.csvCategory || product.category}
                         </span>
                         <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 shrink-0">
-                          {product.asin || product.originStore}
+                          {product.brand}
                         </span>
                       </div>
 
@@ -900,11 +880,11 @@ export const StoreSection: React.FC = () => {
                           <span className="text-lg font-extrabold text-slate-900 dark:text-white font-mono tabular-nums truncate">
                             {knownPrice
                               ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
-                              : 'Check Live Price'}
+                              : 'See Price on Partner'}
                           </span>
                           {knownPrice && (
                             <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
-                              CSV Ref.
+                              Listed Price
                             </span>
                           )}
                         </div>
@@ -991,11 +971,11 @@ export const StoreSection: React.FC = () => {
                   onClick={() => setActiveQuickViewProduct(product)}
                   className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl p-4 sm:p-5 transition-all duration-300 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6 cursor-pointer relative"
                 >
-                  <div className="w-full md:w-48 aspect-4/3 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative flex items-center justify-center">
+                  <div className="w-full md:w-48 aspect-4/3 rounded-xl overflow-hidden bg-white p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative flex items-center justify-center">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300"
+                      className="w-full h-full object-contain group-hover:scale-104 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
                     {product.badge && (
@@ -1007,9 +987,6 @@ export const StoreSection: React.FC = () => {
                         {product.badge}
                       </span>
                     )}
-                    <span className="absolute bottom-2 right-2 bg-slate-950/75 text-slate-200 text-[9px] px-1.5 py-0.5 rounded">
-                      Illustrative
-                    </span>
                   </div>
 
                   <div className="flex-1 w-full min-w-0">
@@ -1018,7 +995,7 @@ export const StoreSection: React.FC = () => {
                         {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                       </span>
                       <span className="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
-                        {product.asin ? `ASIN: ${product.asin}` : product.originStore}
+                        {product.originStore}
                       </span>
                     </div>
 
@@ -1058,10 +1035,10 @@ export const StoreSection: React.FC = () => {
                       <div className="text-xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
                         {knownPrice
                           ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
-                          : 'Check Live Price'}
+                          : 'See Price on Partner'}
                       </div>
                       <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        {knownPrice ? 'Historical CSV reference' : `Live price on ${product.originStore}`}
+                        {knownPrice ? 'Listed Price' : `Live price on ${product.originStore}`}
                       </div>
                     </div>
 

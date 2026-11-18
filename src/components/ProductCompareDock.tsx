@@ -48,7 +48,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
               <ResilientImage
                 src={p.mainImage}
                 alt={p.title}
-                className="w-8 h-8 sm:w-9 sm:h-9 object-cover rounded-lg border border-slate-700 bg-white"
+                className="w-8 h-8 sm:w-9 sm:h-9 object-contain bg-white p-0.5 rounded-lg border border-slate-700"
               />
               <button
                 type="button"
@@ -101,7 +101,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                   Side-by-Side Product Comparison
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-                  Compare Partner Listings &amp; Reference Prices
+                  Compare Products Side by Side
                 </h3>
               </div>
               <button
@@ -126,7 +126,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                         <ResilientImage
                           src={p.mainImage}
                           alt={p.title}
-                          className="w-16 h-16 object-cover rounded-lg mx-auto mb-2 border border-slate-200 dark:border-slate-700"
+                          className="w-16 h-16 object-contain bg-white p-1 rounded-lg mx-auto mb-2 border border-slate-200 dark:border-slate-700"
                         />
                         <div className="line-clamp-2 text-xs font-semibold">{p.title}</div>
                       </th>
@@ -159,8 +159,8 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                           className="p-3 text-center font-mono font-bold text-sm text-slate-900 dark:text-white"
                         >
                           {hasPrice
-                            ? `${formatPrice(p.price, p.nativePrice, p.nativeCurrency)} (CSV Ref.)`
-                            : 'Check live price'}
+                            ? formatPrice(p.price, p.nativePrice, p.nativeCurrency)
+                            : 'See price on partner'}
                         </td>
                       );
                     })}

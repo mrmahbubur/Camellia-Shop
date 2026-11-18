@@ -3,6 +3,9 @@ import {
   buildAmazonAsinUrl
 } from './catalogRecords.ts';
 import { IMAGE_ASSET_MAP } from './unifiedProductsData.ts';
+import productImageManifest from './productImageManifest.json';
+
+const PRODUCT_IMAGE_MANIFEST = productImageManifest as Record<string, string>;
 
 export interface AmazonShowcaseProduct {
   id: string;
@@ -48,6 +51,7 @@ export const AMAZON_PRODUCTS: AmazonShowcaseProduct[] = CURATED_CATALOG_RECORDS.
   (record) => record.originStore === 'Amazon' && Boolean(record.asin)
 ).map((record) => {
   const asin = record.asin as string;
+  const manifestImg = PRODUCT_IMAGE_MANIFEST[record.id];
   return {
     id: record.id,
     asin,
@@ -55,12 +59,12 @@ export const AMAZON_PRODUCTS: AmazonShowcaseProduct[] = CURATED_CATALOG_RECORDS.
     category: mapShowcaseCategory(record.category, record.title),
     price: 0,
     priceStatus: 'live-at-partner',
-    badge: 'Amazon Product Page',
+    badge: 'Amazon',
     primeEligible: false,
-    deliveryInfo: 'Live price, Prime status & shipping verified on Amazon',
+    deliveryInfo: 'Check live availability & shipping on Amazon',
     affiliateUrl: buildAmazonAsinUrl(asin),
-    image: IMAGE_ASSET_MAP[record.imageKey],
-    imageIsIllustrative: true,
+    image: manifestImg || IMAGE_ASSET_MAP[record.imageKey],
+    imageIsIllustrative: !manifestImg,
     description: record.description,
     features: record.highlights
   };

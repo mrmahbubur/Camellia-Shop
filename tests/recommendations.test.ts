@@ -8,6 +8,9 @@ import {
   RELEVA_TRACKING_PARAM,
   AMAZON_ASSOCIATE_TAG,
   AMAZON_LINK_ID,
+  AMAZON_STORE_URL,
+  AMAZON_LINK_SHORT,
+  SHOPZ_REF_BASE,
   ALIEXPRESS_AFFILIATE_URL,
   ALIBABA_AFFILIATE_URL,
   EXONHOST_AFFILIATE_URL,
@@ -105,7 +108,7 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.ok(aliExpressRecords.every((r) => r.affiliateUrl === ALIEXPRESS_AFFILIATE_URL));
   assert.ok(
     aliExpressRecords.every((r) =>
-      r.specs.some((s) => s.value.includes('best.aliexpress.com'))
+      r.specs.some((s) => s.value === 'AliExpress Global Deals')
     )
   );
 
@@ -114,7 +117,7 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.ok(alibabaRecords.every((r) => r.affiliateUrl === ALIBABA_AFFILIATE_URL));
   assert.ok(
     alibabaRecords.every((r) =>
-      r.specs.some((s) => s.value.includes('offer.alibaba.com'))
+      r.specs.some((s) => s.value === 'Alibaba Verified Suppliers')
     )
   );
 
@@ -197,3 +200,72 @@ test('computeRecommendations responds to Buying Guide need and never treats unkn
     );
   }
 });
+
+test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links exist across src', () => {
+  const sponsorsSource = fs.readFileSync(path.join(ROOT, 'src/data/sponsorsData.ts'), 'utf8');
+  const expectedSponsorIds = [
+    '11226634',
+    '11683565',
+    '11242745',
+    '11242069',
+    '11242067',
+    '11242742',
+    '11230440',
+    '11683560',
+    '9912130',
+    '11242744'
+  ];
+
+  for (const sponsorId of expectedSponsorIds) {
+    assert.ok(
+      sponsorsSource.includes(`https://uplcm.com/4/${sponsorId}`),
+      `Missing sponsored URL https://uplcm.com/4/${sponsorId}`
+    );
+  }
+
+  assert.ok(AMAZON_STORE_URL.includes('node=53629917011') && AMAZON_STORE_URL.includes('tag=mrxshahin06-20'));
+  assert.equal(AMAZON_LINK_SHORT, 'https://link.amazon/B0io1BQfg');
+  assert.equal(SHOPZ_REF_BASE, 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin');
+
+  const srcDir = path.join(ROOT, 'src');
+  const fabrilifeUrlPattern = /https?:\/\/[^"'\s]*fabrilife\.com/i;
+  const checkNoFabrilifeUrls = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        checkNoFabrilifeUrls(fullPath);
+      } else if (/\.(ts|tsx|js|jsx|html|css|json)$/.test(entry.name)) {
+        const content = fs.readFileSync(fullPath, 'utf8');
+        assert.equal(
+          fabrilifeUrlPattern.test(content),
+          false,
+          `Unexpected fabrilife.com URL in ${fullPath}`
+        );
+      }
+    }
+  };
+  checkNoFabrilifeUrls(srcDir);
+});
+
+test('productImageManifest maps 80+ real product images on disk (>1.2KB each)', () => {
+  const manifestRaw = fs.readFileSync(
+    path.join(ROOT, 'src/data/productImageManifest.json'),
+    'utf8'
+  );
+  const manifest = JSON.parse(manifestRaw) as Record<string, string>;
+  const entries = Object.entries(manifest);
+  assert.ok(entries.length >= 80, `Expected at least 80 mapped images, got ${entries.length}`);
+
+  for (const [productId, relPath] of entries) {
+    assert.ok(
+      relPath.startsWith('./images/products/'),
+      `Expected ./images/products/ path for ${productId}, got ${relPath}`
+    );
+    const diskPath = path.join(ROOT, 'public', relPath.replace(/^\.\//, ''));
+    assert.ok(fs.existsSync(diskPath), `Missing image file on disk for ${productId}: ${diskPath}`);
+    const stat = fs.statSync(diskPath);
+    assert.ok(stat.size > 1200, `Image file too small (${stat.size}B) for ${productId}: ${diskPath}`);
+  }
+});
+
+

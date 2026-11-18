@@ -158,7 +158,7 @@ export const CartDrawer: React.FC = () => {
                   <ResilientImage
                     src={item.product.image}
                     alt={item.product.title}
-                    className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
+                    className="w-16 h-16 object-contain bg-white p-1 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
                     referrerPolicy="no-referrer"
                   />
 
@@ -283,7 +283,7 @@ export const CartDrawer: React.FC = () => {
 
             {pricedSavedItemsCount > 0 && (
               <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm">
-                <span>CSV Ref. Subtotal ({pricedSavedItemsCount} priced)</span>
+                <span>Estimated Subtotal ({pricedSavedItemsCount} priced)</span>
                 <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
               </div>
             )}

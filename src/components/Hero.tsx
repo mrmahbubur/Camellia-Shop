@@ -1,32 +1,171 @@
-import React from 'react';
-import { ArrowRight, ShieldCheck, Zap, Package, ShoppingCart, ExternalLink } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  Package,
+  ShoppingCart,
+  ExternalLink,
+  Eye,
+  ShoppingBag,
+  Check,
+  Sparkles,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
-import mrsHeroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
-import { buildRelevaProductUrl } from '../data/unifiedProductsData';
+import { useCart } from '../context/CartContext';
+import { EcomProduct, buildRelevaProductUrl } from '../data/unifiedProductsData';
+import type { PartnerStoreOrigin } from '../utils/regionProfile';
+import { ModernProductModal } from './ModernProductModal';
+import { ResilientImage } from './ResilientImage';
 
 interface HeroProps {
   onExploreStore: () => void;
 }
+
+const SPOTLIGHT_PRODUCT_IDS = [
+  'amz-mx-master-3s',
+  'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
+  'amz-sony-wh1000xm5',
+  'csv-casio-f-91w-1-digital-watch',
+  'releva-bd-130',
+  'exonhost-turbo-nvme',
+  'amz-benq-screenbar',
+  'aliexpress-keyboards-portal'
+];
 
 export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
   const {
     setSelectedCategory,
     setSelectedStoreFilter,
     amazonStoreUrl,
+    amazonShortUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
     aliexpressStoreUrl,
     alibabaStoreUrl,
     products,
+    sponsors,
     storefrontCopy,
     regionProfile,
+    getAffiliateBuyUrl,
     recordAffiliateClick
   } = useProducts();
+  const { addToCart, formatPrice, cart } = useCart();
+
+  const [spotlightIndex, setSpotlightIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [modalProduct, setModalProduct] = useState<EcomProduct | null>(null);
+
+  const savedIds = useMemo(() => new Set(cart.map((c) => c.product.id)), [cart]);
+
+  const spotlightProducts = useMemo(() => {
+    const byId = new Map(products.map((p) => [p.id, p]));
+    const picked = SPOTLIGHT_PRODUCT_IDS.map((id) => byId.get(id)).filter(
+      (item): item is EcomProduct => Boolean(item)
+    );
+    if (picked.length > 0) return picked;
+    return products.slice(0, 6);
+  }, [products]);
+
+  useEffect(() => {
+    if (spotlightIndex >= spotlightProducts.length && spotlightProducts.length > 0) {
+      setSpotlightIndex(0);
+    }
+  }, [spotlightIndex, spotlightProducts.length]);
+
+  useEffect(() => {
+    if (isPaused || spotlightProducts.length <= 1 || modalProduct) return;
+    const timer = setInterval(() => {
+      setSpotlightIndex((prev) => (prev + 1) % spotlightProducts.length);
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [isPaused, spotlightProducts.length, modalProduct]);
+
+  const activeSpotlight = spotlightProducts[spotlightIndex] || spotlightProducts[0];
+
+  const storeCounts = useMemo(() => {
+    const counts: Record<PartnerStoreOrigin, number> = {
+      Amazon: 0,
+      'Shopz BD': 0,
+      'Releva BD': 0,
+      AliExpress: 0,
+      Alibaba: 0,
+      ExonHost: 0
+    };
+    for (const item of products) {
+      if (item.originStore in counts) {
+        counts[item.originStore] += 1;
+      }
+    }
+    return counts;
+  }, [products]);
 
   const handleBrowseAllProducts = () => {
     setSelectedCategory('All Departments (Mega Store)');
     setSelectedStoreFilter('all');
     onExploreStore();
+  };
+
+  const handleOpenBuyingGuide = () => {
+    const el = document.getElementById('buying-guide');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      onExploreStore();
+    }
+  };
+
+  const handleJumpToStore = (store: PartnerStoreOrigin) => {
+    setSelectedStoreFilter(store);
+    setSelectedCategory('All Departments (Mega Store)');
+    onExploreStore();
+  };
+
+  const handleJumpToSponsors = () => {
+    const el = document.getElementById('sponsors');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSaveSpotlight = (product: EcomProduct) => {
+    addToCart(
+      {
+        id: product.id,
+        asin: product.asin,
+        title: product.title,
+        category: product.category,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        badge: product.badge,
+        description: product.description,
+        highlights: product.highlights,
+        specs: product.specs,
+        image: product.mainImage,
+        nativePrice: product.nativePrice,
+        nativeCurrency: product.nativeCurrency,
+        priceStatus: product.priceStatus,
+        imageIsIllustrative: product.imageIsIllustrative,
+        urlKind: product.urlKind,
+        csvCategory: product.csvCategory,
+        sourceType: product.sourceType,
+        originStore: product.originStore,
+        affiliateUrl: getAffiliateBuyUrl(product)
+      },
+      1
+    );
+  };
+
+  const getStoreAccent = (store: PartnerStoreOrigin) => {
+    if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
+    if (store === 'Shopz BD') return 'bg-emerald-500 text-slate-950';
+    if (store === 'Releva BD') return 'bg-teal-400 text-slate-950';
+    if (store === 'AliExpress') return 'bg-orange-500 text-slate-950';
+    if (store === 'Alibaba') return 'bg-indigo-600 text-white';
+    return 'bg-amber-400 text-slate-950';
   };
 
   const partnerButtons = regionProfile.storePriority.map((store) => {
@@ -38,10 +177,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           target="_blank"
           rel="sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-shopz-store', 'Shopz BD')}
-          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2.5 text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 border border-emerald-300 dark:border-emerald-500/40 hover:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 hover:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Shopz BD</span>
-          <ExternalLink className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <ExternalLink className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
         </a>
       );
     }
@@ -53,10 +192,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           target="_blank"
           rel="sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-releva-store', 'Releva BD')}
-          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2.5 text-xs sm:text-sm font-bold text-teal-800 dark:text-teal-300 hover:text-teal-900 dark:hover:text-teal-200 border border-teal-300 dark:border-teal-500/40 hover:border-teal-400 bg-teal-50 dark:bg-teal-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 hover:border-teal-400 bg-teal-50 dark:bg-teal-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Releva BD</span>
-          <ExternalLink className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+          <ExternalLink className="w-3 h-3 text-teal-600 dark:text-teal-400" />
         </a>
       );
     }
@@ -68,10 +207,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           target="_blank"
           rel="sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-exonhost-store', 'ExonHost')}
-          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2.5 text-xs sm:text-sm font-bold text-sky-800 dark:text-sky-300 hover:text-sky-900 dark:hover:text-sky-200 border border-sky-300 dark:border-sky-500/40 hover:border-sky-400 bg-sky-50 dark:bg-sky-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40 hover:border-sky-400 bg-sky-50 dark:bg-sky-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>ExonHost</span>
-          <ExternalLink className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+          <ExternalLink className="w-3 h-3 text-sky-600 dark:text-sky-400" />
         </a>
       );
     }
@@ -83,10 +222,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           target="_blank"
           rel="sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-aliexpress-store', 'AliExpress')}
-          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2.5 text-xs sm:text-sm font-bold text-orange-800 dark:text-orange-300 hover:text-orange-900 dark:hover:text-orange-200 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>AliExpress</span>
-          <ExternalLink className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
+          <ExternalLink className="w-3 h-3 text-orange-600 dark:text-orange-400" />
         </a>
       );
     }
@@ -98,10 +237,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           target="_blank"
           rel="sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-alibaba-store', 'Alibaba')}
-          className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2.5 text-xs sm:text-sm font-bold text-indigo-800 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-200 border border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Alibaba</span>
-          <ExternalLink className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+          <ExternalLink className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
         </a>
       );
     }
@@ -112,141 +251,375 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         target="_blank"
         rel="sponsored noopener noreferrer"
         onClick={() => recordAffiliateClick('hero-amazon-store', 'Amazon')}
-        className="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2.5 text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+        className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
       >
-        <span>Amazon</span>
-        <ExternalLink className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+        <span>Amazon Store</span>
+        <ExternalLink className="w-3 h-3 text-amber-600 dark:text-amber-400" />
       </a>
     );
   });
 
+  const activeHasPrice = activeSpotlight
+    ? activeSpotlight.nativeCurrency === 'BDT'
+      ? typeof activeSpotlight.nativePrice === 'number' && activeSpotlight.nativePrice > 0
+      : activeSpotlight.price > 0
+    : false;
+  const activeBuyUrl = activeSpotlight ? getAffiliateBuyUrl(activeSpotlight) : amazonStoreUrl;
+  const activeIsSaved = activeSpotlight ? savedIds.has(activeSpotlight.id) : false;
+
   return (
     <section
       id="hero"
-      className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white pt-6 sm:pt-8 pb-10 sm:pb-14 border-b border-slate-200 dark:border-slate-800 transition-colors"
+      className="relative overflow-hidden bg-gradient-to-b from-amber-50/50 via-white to-slate-50/60 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 text-slate-900 dark:text-white pt-6 sm:pt-10 pb-10 sm:pb-14 border-b border-slate-200 dark:border-slate-800 transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
-        {/* Main 2-Column Balanced Split */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-stretch">
-          {/* Left Column: Storefront Proposition & CTAs */}
-          <div className="lg:col-span-7 flex flex-col justify-center py-2 sm:py-4 min-w-0">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
-              <span>{storefrontCopy.siteName}</span>
+        {/* Main 2-Column Hero Split */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          {/* Left Column: High-Contrast Storefront Proposition & Partner Access */}
+          <div className="lg:col-span-6 flex flex-col justify-center min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-bold tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
+              <span className="inline-flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span>{storefrontCopy.siteName}</span>
+              </span>
               <span aria-hidden="true">·</span>
-              <span>{regionProfile.label}</span>
+              <span>{products.length} Curated Partner Products</span>
               <span aria-hidden="true">·</span>
-              <span>{regionProfile.storePriority.join(' / ')}</span>
+              <span className="text-emerald-700 dark:text-emerald-400">{regionProfile.shortLabel}</span>
             </div>
 
-            <h1 className="text-[clamp(1.65rem,3.6vw,3rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 sm:mb-5 leading-[1.14] [text-wrap:balance]">
+            <h1 className="text-[clamp(1.75rem,3.6vw,3.1rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 leading-[1.12] [text-wrap:balance]">
               {storefrontCopy.heroTitle}
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-6 max-w-xl leading-relaxed">
               {storefrontCopy.heroSubtitle}
             </p>
 
-            {/* Primary & Secondary Storefront CTAs */}
-            <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 mb-6 sm:mb-8">
+            {/* Primary Action Buttons */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-6">
               <button
                 type="button"
                 onClick={handleBrowseAllProducts}
-                className="w-full sm:w-auto min-h-[44px] px-5 sm:px-6 py-3 text-sm font-extrabold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
+                className="min-h-[46px] px-6 py-3 text-sm font-extrabold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
               >
                 <Package className="w-4 h-4 text-slate-950" />
-                <span>Browse Catalog ({products.length})</span>
+                <span>Shop All {products.length} Products</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
                 type="button"
-                onClick={onExploreStore}
-                className="w-full sm:w-auto min-h-[44px] px-5 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-900 dark:border-slate-700 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+                onClick={handleOpenBuyingGuide}
+                className="min-h-[46px] px-5 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-900 dark:border-slate-700 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
-                <ShoppingCart className="w-4 h-4 text-amber-400" />
-                <span>Explore Stores</span>
+                <SlidersHorizontal className="w-4 h-4 text-amber-400" />
+                <span>Match with Buying Guide</span>
               </button>
-
-              <div className="flex flex-wrap items-center gap-2 sm:contents">{partnerButtons}</div>
             </div>
 
-            {/* Trust Signals & Honest Regional Note */}
-            <div className="space-y-2 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex flex-wrap items-center gap-y-1.5 gap-x-6">
-                <div className="flex items-center gap-2">
+            {/* Direct Partner Storefront Links */}
+            <div className="space-y-2.5 mb-6">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Shop by Partner Store
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {partnerButtons}
+                <a
+                  href={amazonShortUrl}
+                  target="_blank"
+                  rel="sponsored noopener noreferrer"
+                  onClick={() => recordAffiliateClick('hero-amazon-shortlink', 'Amazon')}
+                  className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-amber-400 bg-white dark:bg-slate-900 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>Amazon Deals</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Clean Retail Highlights */}
+            <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+              <div className="flex flex-wrap items-center gap-y-1.5 gap-x-5">
+                <span className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{regionProfile.deliverySummary}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
-                  <span>{regionProfile.shortLabel} Reference Display</span>
-                </div>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span>Direct partner checkout</span>
+                </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                {regionProfile.availabilityNote}
-              </p>
             </div>
           </div>
 
-          {/* Right Column: Visual Asset */}
-          <div className="lg:col-span-5 relative flex items-center min-w-0">
-            <div className="w-full relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-900">
-              <img
-                src={mrsHeroWorkspaceImg}
-                alt="Camellia Shop Workspace Hardware Illustration"
-                className="w-full h-60 sm:h-80 md:h-96 lg:h-full lg:min-h-[380px] object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent flex flex-col justify-end p-4 sm:p-5">
-                <div className="flex items-center justify-between gap-2 text-xs text-white/95">
-                  <span className="font-semibold text-white truncate">
-                    Camellia Shop Curated Hardware &amp; Partners
-                  </span>
-                  <span className="text-[10px] text-slate-300 shrink-0">Illustrative image</span>
+          {/* Right Column: Interactive Real Product Spotlight Stage */}
+          {activeSpotlight && (
+            <div
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              className="lg:col-span-6 min-w-0"
+            >
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                {/* Spotlight Top Bar */}
+                <div className="px-4 py-3 bg-slate-900 dark:bg-slate-950 text-white flex items-center justify-between gap-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded shrink-0 ${getStoreAccent(
+                        activeSpotlight.originStore
+                      )}`}
+                    >
+                      {activeSpotlight.originStore}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-200 truncate">
+                      Featured Spotlight ({spotlightIndex + 1}/{spotlightProducts.length})
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSpotlightIndex(
+                          (prev) => (prev - 1 + spotlightProducts.length) % spotlightProducts.length
+                        )
+                      }
+                      aria-label="Previous featured product"
+                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSpotlightIndex((prev) => (prev + 1) % spotlightProducts.length)
+                      }
+                      aria-label="Next featured product"
+                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Main Spotlight Product Card */}
+                <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-5 items-center">
+                  <button
+                    type="button"
+                    onClick={() => setModalProduct(activeSpotlight)}
+                    className="sm:col-span-5 relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white border border-slate-200/80 dark:border-slate-700 group cursor-pointer p-2.5 flex items-center justify-center"
+                  >
+                    <ResilientImage
+                      src={activeSpotlight.mainImage}
+                      alt={activeSpotlight.title}
+                      className="w-full h-full object-contain group-hover:scale-103 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                    />
+                  </button>
+
+                  <div className="sm:col-span-7 flex flex-col justify-between gap-3 min-w-0">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                        <span className="uppercase tracking-wider font-semibold truncate">
+                          {activeSpotlight.csvCategory || activeSpotlight.category}
+                        </span>
+                        <span className="font-mono shrink-0">
+                          {activeSpotlight.brand}
+                        </span>
+                      </div>
+
+                      <h2
+                        onClick={() => setModalProduct(activeSpotlight)}
+                        className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug line-clamp-2 cursor-pointer hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                      >
+                        {activeSpotlight.title}
+                      </h2>
+
+                      <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                        {activeSpotlight.description}
+                      </p>
+
+                      {/* Top 2 real specs */}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
+                        {activeSpotlight.specs
+                          .filter((s) => s.label !== 'Price')
+                          .slice(0, 2)
+                          .map((spec, idx) => (
+                            <span key={idx} className="truncate max-w-full">
+                              <strong className="text-slate-700 dark:text-slate-200">{spec.label}:</strong>{' '}
+                              {spec.value}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-base sm:text-lg font-black font-mono tabular-nums text-slate-900 dark:text-white">
+                          {activeHasPrice
+                            ? formatPrice(
+                                activeSpotlight.price,
+                                activeSpotlight.nativePrice,
+                                activeSpotlight.nativeCurrency
+                              )
+                            : `View price on ${activeSpotlight.originStore}`}
+                        </span>
+                        {activeHasPrice && (
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                            Listed Price
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={activeBuyUrl}
+                          target="_blank"
+                          rel="sponsored noopener noreferrer"
+                          onClick={() =>
+                            recordAffiliateClick(
+                              activeSpotlight.id,
+                              activeSpotlight.originStore,
+                              activeSpotlight.category
+                            )
+                          }
+                          className="flex-1 min-h-[40px] px-3.5 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-extrabold text-xs rounded-xl inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs whitespace-nowrap"
+                        >
+                          <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                          <span>
+                            {activeSpotlight.urlKind === 'portal'
+                              ? `Open ${activeSpotlight.originStore}`
+                              : `Buy on ${activeSpotlight.originStore}`}
+                          </span>
+                          <ExternalLink className="w-3 h-3 shrink-0" />
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => setModalProduct(activeSpotlight)}
+                          aria-label={`Inspect ${activeSpotlight.title}`}
+                          className="min-h-[40px] px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Specs</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSaveSpotlight(activeSpotlight)}
+                          aria-label={`Save ${activeSpotlight.title} to list`}
+                          className={`min-h-[40px] min-w-[40px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                            activeIsSaved
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                              : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                          }`}
+                        >
+                          {activeIsSaved ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <ShoppingBag className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Clickable Spotlight Switcher Strip */}
+                <div className="px-4 py-3 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200/80 dark:border-slate-800">
+                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
+                    {spotlightProducts.map((item, idx) => {
+                      const active = idx === spotlightIndex;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setIsPaused(true);
+                            setSpotlightIndex(idx);
+                          }}
+                          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer shrink-0 max-w-[190px] ${
+                            active
+                              ? 'bg-white dark:bg-slate-800 border-amber-500 shadow-xs text-slate-900 dark:text-white'
+                              : 'bg-white/60 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          <ResilientImage
+                            src={item.mainImage}
+                            alt={item.title}
+                            className="w-7 h-7 rounded object-contain bg-white p-0.5 shrink-0 border border-slate-200 dark:border-slate-700"
+                          />
+                          <div className="min-w-0">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
+                              {item.originStore}
+                            </div>
+                            <div className="text-[11px] font-semibold truncate">{item.title}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* 4-Column Storefront Summary Strip */}
-        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200 dark:border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          <div className="space-y-1">
-            <div className="text-xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-              {products.length}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Catalog Listings</div>
-            <p className="text-[11px] text-slate-500">
-              Amazon ASINs, Shopz BD CSV, Releva BD, AliExpress, Alibaba &amp; ExonHost
-            </p>
-          </div>
+        {/* Interactive Partner Coverage Strip (Clicks Jump & Filter Real Products) */}
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+          {(
+            [
+              { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
+              { store: 'Shopz BD' as const, label: 'Shopz BD', count: storeCounts['Shopz BD'], sub: 'Tech, watches, mics' },
+              { store: 'Releva BD' as const, label: 'Releva BD', count: storeCounts['Releva BD'], sub: 'Featured picks' },
+              { store: 'AliExpress' as const, label: 'AliExpress', count: storeCounts.AliExpress, sub: 'Global deals' },
+              { store: 'Alibaba' as const, label: 'Alibaba', count: storeCounts.Alibaba, sub: 'Direct sourcing' },
+              { store: 'ExonHost' as const, label: 'ExonHost', count: storeCounts.ExonHost, sub: 'NVMe, WP & VPS' }
+            ] as const
+          ).map((entry) => (
+            <button
+              key={entry.store}
+              type="button"
+              onClick={() => handleJumpToStore(entry.store)}
+              className="text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 hover:shadow-sm transition-all cursor-pointer group"
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-xl font-extrabold font-mono tabular-nums text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                  {entry.count}
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
+              </div>
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+                {entry.label}
+              </div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                {entry.sub}
+              </div>
+            </button>
+          ))}
 
-          <div className="space-y-1">
-            <div className="text-xl sm:text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono tabular-nums">
-              6
+          <button
+            type="button"
+            onClick={handleJumpToSponsors}
+            className="col-span-2 sm:col-span-1 text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 hover:shadow-sm transition-all cursor-pointer group"
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-xl font-extrabold font-mono tabular-nums text-amber-600 dark:text-amber-400">
+                {sponsors.length}
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Partner Retailers</div>
-            <p className="text-[11px] text-slate-500">
-              Amazon, Shopz BD, Releva BD, AliExpress, Alibaba &amp; ExonHost
-            </p>
-          </div>
-
-          <div className="space-y-1">
-            <div className="text-xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-              5
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+              Sponsored
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Display Currencies</div>
-            <p className="text-[11px] text-slate-500">USD, EUR, GBP, BDT &amp; INR (approx. FX)</p>
-          </div>
-
-          <div className="space-y-1">
-            <div className="text-xl sm:text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
-              8
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+              Partner promotions
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Shopping Regions</div>
-            <p className="text-[11px] text-slate-500">BD, US, UK, EU, IN, APAC, MENA &amp; Global</p>
-          </div>
+          </button>
         </div>
       </div>
+
+      <ModernProductModal product={modalProduct} onClose={() => setModalProduct(null)} />
     </section>
   );
 };

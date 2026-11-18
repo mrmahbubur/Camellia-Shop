@@ -56,13 +56,13 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, AliExpress, Alibaba & ExonHost',
-  heroTitle: 'Curated Workspace Tech, Desk Hardware & Partner Checkout.',
+    'Camellia Shop · Curated Tech, Watches, Workspace Gear & Cloud Hosting',
+  heroTitle: 'Curated Workspace Tech, Desk Hardware & Everyday Gadgets.',
   heroSubtitle:
-    'Browse workspace electronics, audio gear, watches, cloud hosting, and regional partner stores across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Partner Deals & Cloud Hosting',
+    'Shop workspace electronics, audio gear, watches, cloud hosting, and deals across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Tech Deals & Cloud Hosting',
   storeSubtitle:
-    'Explore electronics, everyday tech, and hosting portals across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost. Every order completes directly on the partner store.'
+    'Explore electronics, everyday gadgets, and hosting across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;

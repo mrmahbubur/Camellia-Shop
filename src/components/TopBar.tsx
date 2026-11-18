@@ -330,7 +330,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 onClick={handleRelevaClick}
                 className="text-left px-3 min-h-[44px] rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-teal-700 dark:text-teal-400 font-semibold cursor-pointer"
               >
-                Releva BD Tracked Products
+                Releva BD Featured Picks
               </button>
               <button
                 type="button"

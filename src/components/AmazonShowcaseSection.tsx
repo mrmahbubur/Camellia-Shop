@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ExternalLink, Check, Zap, ShoppingCart, ShoppingBag, ShieldCheck, Info, Eye } from 'lucide-react';
+import { ExternalLink, Check, Zap, ShoppingCart, ShoppingBag, ShieldCheck, Eye } from 'lucide-react';
 import { AMAZON_PRODUCTS } from '../data/amazonProductsData';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -12,7 +12,6 @@ export const AmazonShowcaseSection: React.FC = () => {
   const { addToCart, cart } = useCart();
   const { products, sponsors, recordAffiliateClick, amazonStoreUrl, amazonShortUrl } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [showAmazonInfo, setShowAmazonInfo] = useState(false);
   const [modalProduct, setModalProduct] = useState<EcomProduct | null>(null);
 
   const categories = [
@@ -48,7 +47,7 @@ export const AmazonShowcaseSection: React.FC = () => {
       deliveryEstimate: item.deliveryInfo,
       affiliateUrl: item.affiliateUrl,
       urlKind: 'product',
-      imageIsIllustrative: true,
+      imageIsIllustrative: item.imageIsIllustrative,
       mainImage: item.image,
       galleryImages: [item.image],
       description: item.description,
@@ -68,46 +67,26 @@ export const AmazonShowcaseSection: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              <span className="text-amber-600 dark:text-amber-400 font-bold">Amazon Associates Picks</span>
+              <span className="text-amber-600 dark:text-amber-400 font-bold">Amazon Picks</span>
               <span aria-hidden="true">·</span>
-              <span>Direct Product ASIN Links ({AMAZON_PRODUCTS.length})</span>
+              <span>{AMAZON_PRODUCTS.length} Featured Products</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               Featured Tech &amp; Workspace Gear on Amazon
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowAmazonInfo(!showAmazonInfo)}
-              className="px-3.5 min-h-[40px] py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
-            >
-              <Info className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>{showAmazonInfo ? 'Hide Amazon Info' : 'Amazon Pricing & Checkout Info'}</span>
-            </button>
-          </div>
+          <a
+            href={amazonStoreUrl}
+            target="_blank"
+            rel="sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('amazon-header-store', 'Amazon')}
+            className="px-4 min-h-[40px] py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap self-start md:self-auto"
+          >
+            <span>Explore Amazon Storefront</span>
+            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+          </a>
         </div>
-
-        {/* Amazon Info Banner */}
-        {showAmazonInfo && (
-          <div className="p-4 sm:p-5 bg-amber-50/80 dark:bg-amber-950/30 rounded-2xl border border-amber-200/80 dark:border-amber-700/40 mb-8 space-y-2 text-xs text-slate-700 dark:text-slate-300 shadow-xs">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-bold text-amber-950 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Direct Amazon Product Page Checkout</span>
-              </span>
-              <span className="text-[11px] font-semibold text-amber-900 dark:text-amber-200">
-                Live Price &amp; Stock Verified on Amazon
-              </span>
-            </div>
-
-            <p className="leading-relaxed">
-              Every card below links directly to its Amazon.com product detail page (<code className="font-mono">/dp/ASIN</code>) with tag{' '}
-              <code className="font-mono">mrxshahin06-20</code>. Live pricing, Prime eligibility, stock status, shipping rates, and return policies are displayed on Amazon rather than cached here.
-            </p>
-          </div>
-        )}
 
         {/* Category Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-8 scrollbar-none">
@@ -140,20 +119,16 @@ export const AmazonShowcaseSection: React.FC = () => {
                 className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
               >
                 {/* Product Visual */}
-                <div className="relative aspect-4/3 bg-slate-50 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-4/3 bg-white p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                   <ResilientImage
                     src={product.image}
                     alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                    className="w-full h-full object-contain group-hover:scale-103 transition-transform duration-300"
                     referrerPolicy="no-referrer"
                   />
 
                   <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow-xs uppercase tracking-wider">
-                    {product.badge || 'Amazon Listing'}
-                  </span>
-
-                  <span className="absolute bottom-2.5 left-2.5 bg-slate-950/75 text-slate-200 text-[10px] px-2 py-0.5 rounded">
-                    Illustrative photo
+                    {product.badge || 'Amazon'}
                   </span>
 
                   <button
@@ -163,7 +138,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                       setModalProduct(fullProduct);
                     }}
                     aria-label={`Inspect ${product.title} specs`}
-                    className="absolute bottom-2.5 right-2.5 p-2 bg-white/95 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-lg shadow-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[11px] font-semibold cursor-pointer"
+                    className="absolute bottom-2.5 right-2.5 p-2 bg-white/95 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-lg shadow-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[11px] font-semibold cursor-pointer border border-slate-200/80 dark:border-slate-700"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Specs</span>
@@ -198,8 +173,8 @@ export const AmazonShowcaseSection: React.FC = () => {
                       <span className="text-sm font-bold text-amber-800 dark:text-amber-300">
                         Check live price on Amazon
                       </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono shrink-0">
-                        Live at Amazon
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
+                        Direct Checkout
                       </span>
                     </div>
 
@@ -236,7 +211,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                               category: fullProduct.category,
                               price: 0,
                               priceStatus: 'live-at-partner',
-                              imageIsIllustrative: true,
+                              imageIsIllustrative: fullProduct.imageIsIllustrative ?? false,
                               urlKind: 'product',
                               badge: fullProduct.badge,
                               description: fullProduct.description,
@@ -306,7 +281,7 @@ export const AmazonShowcaseSection: React.FC = () => {
           <div className="flex items-start sm:items-center gap-2 min-w-0">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
             <span>
-              As an Amazon Associate, Camellia Shop earns from qualifying purchases. Product photos shown are illustrative; live pricing, stock, and delivery terms appear on Amazon.
+              As an Amazon Associate, Camellia Shop earns from qualifying purchases. All prices and stock update live on Amazon.
             </span>
           </div>
 

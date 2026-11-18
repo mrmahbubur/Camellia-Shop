@@ -44,16 +44,16 @@ export const SponsorsSection: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-amber-600 dark:text-amber-400 inline-flex items-center gap-1.5">
                 <Megaphone className="w-3.5 h-3.5 shrink-0" />
-                <span>Sponsored Partner Redirects</span>
+                <span>Sponsored Partner Offers</span>
               </span>
               <span aria-hidden="true">·</span>
-              <span>External Partner Links</span>
+              <span>Featured Promotions</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               Sponsored Partner Links &amp; Promotions
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
-              These links are sponsored external partner redirects (<code className="font-mono">uplcm.com</code>). Live merchant identity, product details, and offer terms appear on the destination site in a new tab.
+              Explore curated external partner promotions. Current offers, product details, and pricing open directly on the sponsor store.
             </p>
           </div>
 
@@ -104,9 +104,6 @@ export const SponsorsSection: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
                     referrerPolicy="no-referrer"
                   />
-                  <span className="absolute bottom-2 left-2 bg-slate-950/75 text-slate-200 text-[10px] px-2 py-0.5 rounded">
-                    Illustrative
-                  </span>
                 </div>
                 <div className="sm:col-span-7 p-5 flex flex-col justify-between gap-4 min-w-0">
                   <div>
@@ -129,7 +126,7 @@ export const SponsorsSection: React.FC = () => {
                       <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     </span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                      External Sponsor
+                      Partner Offer
                     </span>
                   </div>
                 </div>
@@ -148,27 +145,38 @@ export const SponsorsSection: React.FC = () => {
                 target="_blank"
                 rel="sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sponsor.id)}
-                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 flex flex-col justify-between gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
               >
-                <div className="space-y-2.5 min-w-0">
-                  <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
-                    <span aria-hidden="true">·</span>
-                    <span className="truncate flex-1">{sponsor.category}</span>
-                  </div>
-
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                    {sponsor.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">
-                    {sponsor.subtitle}
-                  </p>
+                <div className="aspect-16/10 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                  <ResilientImage
+                    src={sponsor.image}
+                    alt={sponsor.title}
+                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-                  <span className="truncate">{sponsor.ctaLabel}</span>
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                <div className="p-4 flex-1 flex flex-col justify-between gap-4">
+                  <div className="space-y-2 min-w-0">
+                    <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
+                      <span aria-hidden="true">·</span>
+                      <span className="truncate flex-1">{sponsor.category}</span>
+                    </div>
+
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      {sponsor.title}
+                    </h3>
+
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
+                      {sponsor.subtitle}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                    <span className="truncate">{sponsor.ctaLabel}</span>
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </div>
                 </div>
               </a>
             ))}

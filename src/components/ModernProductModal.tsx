@@ -131,11 +131,11 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 )}
               </div>
 
-              <div className="relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center">
+              <div className="relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white p-3 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center">
                 <ResilientImage
                   src={currentImage}
                   alt={product.title}
-                  className="w-full h-full object-cover transition-all duration-300"
+                  className="w-full h-full object-contain transition-all duration-300"
                   referrerPolicy="no-referrer"
                 />
 
@@ -144,10 +144,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                     {product.badge}
                   </span>
                 )}
-
-                <span className="absolute bottom-2.5 right-2.5 bg-slate-950/75 text-slate-200 text-[10px] px-2 py-0.5 rounded">
-                  Illustrative image
-                </span>
               </div>
 
               {product.galleryImages.length > 1 && (
@@ -157,13 +153,13 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       key={idx}
                       type="button"
                       onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                      className={`relative w-14 h-14 rounded-lg overflow-hidden bg-white p-1 border-2 transition-all cursor-pointer shrink-0 ${
                         activeImageIndex === idx
                           ? 'border-slate-900 dark:border-amber-400 shadow-xs scale-103'
                           : 'border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <ResilientImage src={img} alt="Thumbnail view" className="w-full h-full object-cover" />
+                      <ResilientImage src={img} alt="Thumbnail view" className="w-full h-full object-contain" />
                     </button>
                   ))}
                 </div>
@@ -176,7 +172,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <span>{product.deliveryEstimate}</span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Photos shown are illustrative. Live stock, product specifications, shipping, and return terms are verified directly on {product.originStore}.
+                Stock, full specifications, shipping, and return options are finalized directly on {product.originStore}.
               </p>
             </div>
           </div>
@@ -205,10 +201,12 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : `Check live price on ${product.originStore}`}
                   </span>
                   <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                    {hasKnownPrice ? 'Historical CSV Reference Price' : 'Live Partner Pricing'}
+                    {hasKnownPrice ? 'Listed Price' : 'Live Partner Pricing'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">{ratesDisclaimer}</p>
+                {hasKnownPrice && (
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{ratesDisclaimer}</p>
+                )}
               </div>
 
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-5 leading-relaxed">
@@ -237,7 +235,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Listing Info
+                  Specifications
                 </button>
                 <button
                   type="button"
@@ -248,7 +246,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Checkout &amp; Disclosure
+                  Shipping &amp; Checkout
                 </button>
               </div>
 
