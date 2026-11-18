@@ -10,9 +10,14 @@ import {
   Smartphone,
   GraduationCap,
   Globe,
-  Compass
+  Compass,
+  SlidersHorizontal,
+  ShieldCheck,
+  RotateCcw,
+  Trash2,
+  CheckCircle2
 } from 'lucide-react';
-import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
+import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
 import { StoreFilterOption, useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
@@ -20,8 +25,10 @@ import {
   REGION_ORDER,
   REGION_PROFILES,
   VisitorRegionCode,
+  PartnerStoreOrigin,
   getStorePriorityRank
 } from '../utils/regionProfile';
+import { BUYING_NEED_META, type BuyingNeed } from '../utils/recommendations';
 import { ModernProductModal } from './ModernProductModal';
 import { ResilientImage } from './ResilientImage';
 
@@ -45,7 +52,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     label: 'Remote Desk & Pro',
     headline: 'Ergonomic Workstation Hardware & Dual-Screen Productivity',
     summary:
-      'Built for remote engineers, analysts, and home office professionals looking for tactile precision, glare-free lighting, and single-cable laptop docking.',
+      'Built for remote engineers, analysts, and home office setups looking for tactile mice, task lighting, USB-C docking, and display mounting.',
     idealFor: 'Software Engineers, Analysts & Home Offices',
     partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
     targetStore: 'all',
@@ -53,7 +60,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     sponsorContextKey: 'Office & Workspace',
     productIds: [
       'amz-mx-master-3s',
-      'aliexpress-keychron-k2-pro',
+      'aliexpress-keyboards-portal',
       'alibaba-ergonomic-monitor-arm-bulk',
       'amz-benq-screenbar',
       'amz-caldigit-ts4-dock',
@@ -66,7 +73,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     label: 'Creator & Studio',
     headline: 'Podcast Audio, Studio Noise Isolation & Portable Editing Storage',
     summary:
-      'Tailored for video creators, podcasters, and mobile streamers combining XLR/USB broadcast microphones, RGB fill lights, tripods, and rugged 2TB NVMe storage.',
+      'Tailored for video creators, podcasters, and mobile streamers combining USB/XLR microphones, RGB fill lights, tripods, and 2TB portable SSDs.',
     idealFor: 'Podcasters, YouTubers & Mobile Photographers',
     partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
     targetStore: 'all',
@@ -74,7 +81,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     sponsorContextKey: 'Audio & Studio',
     productIds: [
       'amz-shure-mv7-mic',
-      'aliexpress-ugreen-hitune-max5',
+      'aliexpress-audio-portal',
       'alibaba-studio-creator-desk-bundle',
       'amz-samsung-t7-shield-2tb',
       'csv-ulanzi-a100-wireless-lavalier-microphone',
@@ -85,17 +92,17 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
   {
     id: 'mobile-commuter',
     label: 'Mobile & Travel',
-    headline: 'Fast GaN Power, Active Earbuds & Connected Wristwear',
+    headline: 'USB-C Power Banks, Wireless Earbuds & Connected Wristwear',
     summary:
-      'Designed for daily commuters and frequent flyers who need multi-device Qi2 charging, airline-ready 250W laptop power banks, ANC audio, and rugged watches.',
-    idealFor: 'Travelers, Commuters & Fitness Trackers',
+      'Designed for daily commuters and travelers who want multi-device Qi2 charging, high-capacity power banks, wireless earbuds, and everyday watches.',
+    idealFor: 'Travelers, Commuters & Daily Carry',
     partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Wearables & Smartwatches',
     sponsorContextKey: 'Smart Home & Power',
     productIds: [
       'amz-anker-magsafe-3in1',
-      'aliexpress-baseus-blade-100w',
+      'aliexpress-power-portal',
       'alibaba-smart-qi2-charging-pad-pro',
       'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
       'csv-zeblaze-btalk-3-pro',
@@ -105,32 +112,32 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
   },
   {
     id: 'student-home',
-    label: 'Student & Home Living',
-    headline: 'Study Desk Lighting, Calculators & Everyday Home Utilities',
+    label: 'Student & BD Retail',
+    headline: 'Study Desk Lighting, Calculators & Regional Partner Picks',
     summary:
-      'Practical, budget-friendly essentials delivered nationwide through Shopz BD—from engineering calculators and rechargeable fans to reading clip lamps and grooming kits.',
-    idealFor: 'University Students, Dorms & Everyday Households',
-    partnerStores: 'Shopz BD Nationwide Courier · AliExpress',
+      'Practical desk lighting, scientific calculators, earbuds, and Bangladesh partner store links from Shopz BD and Releva BD alongside AliExpress portals.',
+    idealFor: 'University Students, Dorms & Bangladesh Shoppers',
+    partnerStores: 'Shopz BD · Releva BD · AliExpress',
     targetStore: 'Shopz BD',
     targetCategory: 'Shopz BD Tech Deals',
     sponsorContextKey: 'Shopz BD Tech Deals',
     productIds: [
       'csv-casio-fx-991ex-scientific-calculator',
+      'releva-bd-130',
       'csv-baseus-comfort-reading-mini-clip-lamp',
       'csv-yage-yg-t109-table-lamp-pen-holder-desk-lamp',
-      'aliexpress-essager-140w-gan',
-      'csv-lenovo-livepods-lp1s-tws-bluetooth-earphone',
-      'csv-binge-android-tv-box-dongle'
+      'aliexpress-gadgets-portal',
+      'csv-lenovo-livepods-lp1s-tws-bluetooth-earphone'
     ],
     icon: GraduationCap
   },
   {
     id: 'web-builder',
     label: 'Web Builder & Brand',
-    headline: 'NVMe Cloud Hosting, Domains & Studio Hardware to Launch Online',
+    headline: 'Web Hosting, Domain Portals & Studio Desk Hardware',
     summary:
-      'For independent founders and agencies launching real storefronts or web apps—pairing ExonHost LiteSpeed NVMe hosting and domains with factory-direct and studio desk gear.',
-    idealFor: 'Founders, Freelance Web Developers & Agencies',
+      'For independent founders and developers launching web storefronts—pairing ExonHost hosting portals with desk hardware and accessory sourcing links.',
+    idealFor: 'Founders, Web Developers & Agencies',
     partnerStores: 'ExonHost · Alibaba · AliExpress · Amazon',
     targetStore: 'ExonHost',
     targetCategory: 'Cloud Hosting & Domains',
@@ -140,7 +147,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'exonhost-managed-wp',
       'exonhost-domain-bundle',
       'alibaba-usb-c-dock-factory-lot',
-      'aliexpress-essager-140w-gan',
+      'aliexpress-power-portal',
       'amz-mx-master-3s'
     ],
     icon: Globe
@@ -154,6 +161,26 @@ interface AffiliateCategoryLink {
   category: ProductCategory;
 }
 
+const BUYING_NEEDS = Object.keys(BUYING_NEED_META) as BuyingNeed[];
+
+const BUDGET_OPTIONS: Array<{ value: number | null; label: string }> = [
+  { value: null, label: 'Any price (all partners)' },
+  { value: 15, label: 'Up to ~$15 (CSV priced)' },
+  { value: 25, label: 'Up to ~$25 (CSV priced)' },
+  { value: 50, label: 'Up to ~$50 (CSV priced)' },
+  { value: 100, label: 'Up to ~$100 (CSV priced)' }
+];
+
+const PREFERRED_STORES: Array<{ value: PartnerStoreOrigin | 'all'; label: string }> = [
+  { value: 'all', label: 'Regional priority (All)' },
+  { value: 'Amazon', label: 'Amazon' },
+  { value: 'Shopz BD', label: 'Shopz BD' },
+  { value: 'Releva BD', label: 'Releva BD' },
+  { value: 'AliExpress', label: 'AliExpress' },
+  { value: 'Alibaba', label: 'Alibaba' },
+  { value: 'ExonHost', label: 'ExonHost' }
+];
+
 export const CustomerThemesSection: React.FC = () => {
   const {
     products,
@@ -163,6 +190,16 @@ export const CustomerThemesSection: React.FC = () => {
     visitorRegion,
     setVisitorRegion,
     regionProfile,
+    buyingNeed,
+    setBuyingNeed,
+    buyingBudgetUsd,
+    setBuyingBudgetUsd,
+    buyingPreferredStore,
+    setBuyingPreferredStore,
+    recommendations,
+    personalizationEnabled,
+    setPersonalizationEnabled,
+    resetPersonalization,
     getAffiliateBuyUrl,
     amazonShortUrl,
     amazonStoreUrl,
@@ -172,9 +209,11 @@ export const CustomerThemesSection: React.FC = () => {
     alibabaStoreUrl,
     recordAffiliateClick
   } = useProducts();
-  const { formatPrice, addToCart } = useCart();
+  const { formatPrice, addToCart, clearCart, cart } = useCart();
 
-  const [activeThemeId, setActiveThemeId] = useState<string>(regionProfile.preferredThemeId || CUSTOMER_THEMES[0].id);
+  const [activeThemeId, setActiveThemeId] = useState<string>(
+    regionProfile.preferredThemeId || CUSTOMER_THEMES[0].id
+  );
   const [hasPickedTheme, setHasPickedTheme] = useState(false);
   const [modalProduct, setModalProduct] = useState<EcomProduct | null>(null);
 
@@ -199,23 +238,25 @@ export const CustomerThemesSection: React.FC = () => {
     if (resolved.length < 6) {
       const fallbacks = products.filter(
         (p) =>
-          (p.category === activeTheme.targetCategory || p.department === activeTheme.targetCategory) &&
+          (p.category === activeTheme.targetCategory ||
+            p.department === activeTheme.targetCategory) &&
           !resolved.some((r) => r.id === p.id)
       );
       resolved.push(...fallbacks.slice(0, 6 - resolved.length));
     }
     return [...resolved.slice(0, 6)].sort(
-      (a, b) => getStorePriorityRank(a.originStore, visitorRegion) - getStorePriorityRank(b.originStore, visitorRegion)
+      (a, b) =>
+        getStorePriorityRank(a.originStore, visitorRegion) -
+        getStorePriorityRank(b.originStore, visitorRegion)
     );
   }, [products, activeTheme, visitorRegion]);
 
   const affiliateDirectory = useMemo(() => {
-    const countFor = (
-      store: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba',
-      category: ProductCategory
-    ) =>
+    const countFor = (store: PartnerStoreOrigin, category: ProductCategory) =>
       products.filter(
-        (p) => p.originStore === store && (p.category === category || p.department === category)
+        (p) =>
+          p.originStore === store &&
+          (p.category === category || p.department === category)
       ).length;
 
     const rawAmazon: AffiliateCategoryLink[] = [
@@ -236,56 +277,49 @@ export const CustomerThemesSection: React.FC = () => {
     ];
     const shopzCategories = rawShopz.filter((c) => c.count > 0);
 
+    const rawReleva: AffiliateCategoryLink[] = [
+      { label: 'Releva BD Tracked Products', count: countFor('Releva BD', 'Releva BD Picks'), store: 'Releva BD', category: 'Releva BD Picks' }
+    ];
+    const relevaCategories = rawReleva.filter((c) => c.count > 0);
+
     const rawAliExpress: AffiliateCategoryLink[] = [
-      { label: 'Keyboards & Accessories', count: countFor('AliExpress', 'Computers & Accessories'), store: 'AliExpress', category: 'Computers & Accessories' },
-      { label: 'Hi-Res ANC Audio', count: countFor('AliExpress', 'Audio & Headphones'), store: 'AliExpress', category: 'Audio & Headphones' },
-      { label: 'Laptop Power & GaN Hubs', count: countFor('AliExpress', 'Smart Home & Power'), store: 'AliExpress', category: 'Smart Home & Power' },
-      { label: 'Global Tech Gadgets', count: countFor('AliExpress', 'Electronics & Gadgets'), store: 'AliExpress', category: 'Electronics & Gadgets' }
+      { label: 'Keyboards & Peripherals', count: countFor('AliExpress', 'Computers & Accessories'), store: 'AliExpress', category: 'Computers & Accessories' },
+      { label: 'Wireless Audio & Headphones', count: countFor('AliExpress', 'Audio & Headphones'), store: 'AliExpress', category: 'Audio & Headphones' },
+      { label: 'GaN Chargers & USB-C Power', count: countFor('AliExpress', 'Smart Home & Power'), store: 'AliExpress', category: 'Smart Home & Power' },
+      { label: 'Everyday Tech & Studio', count: countFor('AliExpress', 'Electronics & Gadgets'), store: 'AliExpress', category: 'Electronics & Gadgets' }
     ];
     const aliexpressCategories = rawAliExpress.filter((c) => c.count > 0);
 
     const rawAlibaba: AffiliateCategoryLink[] = [
-      { label: 'Workspace Mounts & Stands', count: countFor('Alibaba', 'Office & Workspace'), store: 'Alibaba', category: 'Office & Workspace' },
-      { label: 'USB-C Hubs (Sample/Bulk)', count: countFor('Alibaba', 'Computers & Accessories'), store: 'Alibaba', category: 'Computers & Accessories' },
-      { label: 'Creator Studio Bundles', count: countFor('Alibaba', 'Audio & Headphones'), store: 'Alibaba', category: 'Audio & Headphones' },
-      { label: 'Qi2 Wireless Power OEM', count: countFor('Alibaba', 'Smart Home & Power'), store: 'Alibaba', category: 'Smart Home & Power' }
+      { label: 'Monitor Arms & Desk Mounts', count: countFor('Alibaba', 'Office & Workspace'), store: 'Alibaba', category: 'Office & Workspace' },
+      { label: 'USB-C Hubs & Peripherals', count: countFor('Alibaba', 'Computers & Accessories'), store: 'Alibaba', category: 'Computers & Accessories' },
+      { label: 'Studio Lighting & Audio', count: countFor('Alibaba', 'Audio & Headphones'), store: 'Alibaba', category: 'Audio & Headphones' },
+      { label: 'Wireless Chargers & Power', count: countFor('Alibaba', 'Smart Home & Power'), store: 'Alibaba', category: 'Smart Home & Power' }
     ];
     const alibabaCategories = rawAlibaba.filter((c) => c.count > 0);
 
     const rawExonhost: AffiliateCategoryLink[] = [
-      {
-        label: 'Turbo NVMe, Managed WP & Domains',
-        count: countFor('ExonHost', 'Cloud Hosting & Domains'),
-        store: 'ExonHost',
-        category: 'Cloud Hosting & Domains'
-      }
+      { label: 'Hosting, WordPress & Domains', count: countFor('ExonHost', 'Cloud Hosting & Domains'), store: 'ExonHost', category: 'Cloud Hosting & Domains' }
     ];
     const exonhostCategories = rawExonhost.filter((c) => c.count > 0);
 
     const sponsorGroups = [
-      {
-        label: 'Hardware & Power Partners',
-        count: sponsors.filter((s) => s.group === 'Hardware & Power').length
-      },
-      {
-        label: 'Workspace & Audio Partners',
-        count: sponsors.filter((s) => s.group === 'Workspace & Audio').length
-      },
-      {
-        label: 'Deals & Bundle Promotions',
-        count: sponsors.filter((s) => s.group === 'Deals & Bundles').length
-      }
+      { label: 'Hardware & Power Partners', count: sponsors.filter((s) => s.group === 'Hardware & Power').length },
+      { label: 'Workspace & Audio Partners', count: sponsors.filter((s) => s.group === 'Workspace & Audio').length },
+      { label: 'Deals & Bundle Promotions', count: sponsors.filter((s) => s.group === 'Deals & Bundles').length }
     ];
 
     return {
       amazonTotal: products.filter((p) => p.originStore === 'Amazon').length,
       shopzTotal: products.filter((p) => p.originStore === 'Shopz BD').length,
+      relevaTotal: products.filter((p) => p.originStore === 'Releva BD').length,
       aliexpressTotal: products.filter((p) => p.originStore === 'AliExpress').length,
       alibabaTotal: products.filter((p) => p.originStore === 'Alibaba').length,
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
       sponsorsTotal: sponsors.length,
       amazonCategories,
       shopzCategories,
+      relevaCategories,
       aliexpressCategories,
       alibabaCategories,
       exonhostCategories,
@@ -325,6 +359,9 @@ export const CustomerThemesSection: React.FC = () => {
         image: product.mainImage,
         nativePrice: product.nativePrice,
         nativeCurrency: product.nativeCurrency,
+        priceStatus: product.priceStatus,
+        imageIsIllustrative: product.imageIsIllustrative,
+        urlKind: product.urlKind,
         csvCategory: product.csvCategory,
         sourceType: product.sourceType,
         originStore: product.originStore,
@@ -334,12 +371,263 @@ export const CustomerThemesSection: React.FC = () => {
     );
   };
 
+  const getStoreColorText = (store: PartnerStoreOrigin) => {
+    if (store === 'ExonHost') return 'text-sky-600 dark:text-sky-400';
+    if (store === 'Shopz BD') return 'text-emerald-600 dark:text-emerald-400';
+    if (store === 'Releva BD') return 'text-teal-600 dark:text-teal-400';
+    if (store === 'AliExpress') return 'text-orange-600 dark:text-orange-400';
+    if (store === 'Alibaba') return 'text-indigo-600 dark:text-indigo-400';
+    return 'text-amber-700 dark:text-amber-400';
+  };
+
+  const getStoreButtonClass = (store: PartnerStoreOrigin) => {
+    if (store === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
+    if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
+    if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
+    if (store === 'AliExpress') return 'bg-orange-500 hover:bg-orange-400 text-slate-950';
+    if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
+    return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
+  };
+
   return (
     <section
       id="customer-themes"
       className="py-12 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 scroll-mt-14 sm:scroll-mt-16 transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] space-y-12 sm:space-y-14">
+        {/* PART 0: INTERACTIVE BUYING GUIDE & TRANSPARENT RECOMMENDATIONS */}
+        <div
+          id="buying-guide"
+          className="scroll-mt-20 bg-slate-50/80 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 space-y-6"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>Interactive Buying Guide</span>
+                <span aria-hidden="true">·</span>
+                <span>{regionProfile.label}</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+                Match Partner Listings to Your Goal &amp; Budget
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
+                {BUYING_NEED_META[buyingNeed].description}{' '}
+                <span className="text-slate-500 dark:text-slate-400">
+                  Budget filters evaluate items with recorded CSV reference prices; live partner-only listings are never ranked as budget matches.
+                </span>
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-end">
+              <select
+                value={buyingBudgetUsd === null ? '' : String(buyingBudgetUsd)}
+                onChange={(e) =>
+                  setBuyingBudgetUsd(e.target.value ? Number(e.target.value) : null)
+                }
+                aria-label="Filter recommendations by approximate budget"
+                className="min-h-[40px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+              >
+                {BUDGET_OPTIONS.map((opt) => (
+                  <option key={opt.label} value={opt.value === null ? '' : String(opt.value)}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={buyingPreferredStore}
+                onChange={(e) =>
+                  setBuyingPreferredStore(e.target.value as PartnerStoreOrigin | 'all')
+                }
+                aria-label="Preferred partner store for buying guide"
+                className="min-h-[40px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+              >
+                {PREFERRED_STORES.map((st) => (
+                  <option key={st.value} value={st.value}>
+                    {st.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Goal Switcher Row */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {BUYING_NEEDS.map((needKey) => {
+              const active = buyingNeed === needKey;
+              return (
+                <button
+                  key={needKey}
+                  type="button"
+                  onClick={() => setBuyingNeed(needKey)}
+                  aria-pressed={active}
+                  className={`px-3.5 min-h-[38px] py-1.5 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                    active
+                      ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 font-bold shadow-xs'
+                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {BUYING_NEED_META[needKey].label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Recommendations Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {recommendations.map((rec) => {
+              const product = rec.item;
+              const buyUrl = getAffiliateBuyUrl(product);
+              const hasPrice =
+                product.nativePrice !== undefined ? product.nativePrice > 0 : product.price > 0;
+
+              return (
+                <article
+                  key={`rec-${product.id}`}
+                  className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between gap-3.5 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start gap-3.5">
+                    <button
+                      type="button"
+                      onClick={() => setModalProduct(product)}
+                      className="w-20 h-20 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative"
+                    >
+                      <ResilientImage
+                        src={product.mainImage}
+                        alt={product.title}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </button>
+
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex items-center justify-between gap-2 text-[11px]">
+                        <span className={`font-bold uppercase tracking-wider ${getStoreColorText(product.originStore)}`}>
+                          {product.originStore}
+                        </span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                          Illustrative photo
+                        </span>
+                      </div>
+                      <h3
+                        onClick={() => setModalProduct(product)}
+                        className="text-sm font-bold text-slate-900 dark:text-white leading-snug line-clamp-2 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                      >
+                        {product.title}
+                      </h3>
+                      <div className="text-xs font-mono font-bold tabular-nums text-slate-800 dark:text-slate-100">
+                        {hasPrice ? (
+                          <span>
+                            {formatPrice(product.price, product.nativePrice, product.nativeCurrency)}{' '}
+                            <span className="font-sans font-normal text-[10px] text-slate-500 dark:text-slate-400">
+                              (CSV ref.)
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="font-sans text-emerald-700 dark:text-emerald-400">
+                            Check Live Price on {product.originStore}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 rounded-lg px-2.5 py-2 border border-slate-200/70 dark:border-slate-800 leading-relaxed">
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      Why recommended:{' '}
+                    </span>
+                    {rec.whyRecommended}
+                  </p>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <a
+                      href={buyUrl}
+                      target="_blank"
+                      rel="sponsored noopener noreferrer"
+                      onClick={() =>
+                        recordAffiliateClick(product.id, product.originStore, product.category)
+                      }
+                      className={`flex-1 min-h-[38px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
+                        product.originStore
+                      )}`}
+                    >
+                      <span>
+                        {product.urlKind === 'portal'
+                          ? `Open ${product.originStore}`
+                          : `View on ${product.originStore}`}
+                      </span>
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => setModalProduct(product)}
+                      aria-label={`Inspect ${product.title}`}
+                      className="min-h-[38px] min-w-[38px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSaveToCart(product)}
+                      aria-label={`Save ${product.title}`}
+                      className="min-h-[38px] min-w-[38px] p-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {/* Privacy & Controls Bar (Explicit Separation of Personalization vs Saved Items) */}
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+            <div className="flex items-start sm:items-center gap-2 text-slate-600 dark:text-slate-300">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+              <span>
+                <strong>Privacy &amp; Controls:</strong> Personalization uses only anonymous category/store click counts (never raw search text or raw IP addresses).{' '}
+                <button
+                  type="button"
+                  onClick={() => setPersonalizationEnabled(!personalizationEnabled)}
+                  className="underline font-semibold text-slate-900 dark:text-amber-300 hover:text-amber-700 cursor-pointer ml-1"
+                >
+                  {personalizationEnabled ? 'Pause Personalization' : 'Resume Personalization'}
+                </button>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 mr-1">
+                <CheckCircle2 className={`w-3.5 h-3.5 ${personalizationEnabled ? 'text-emerald-500' : 'text-slate-400'}`} />
+                {personalizationEnabled ? 'Ranking signals active' : 'Ranking signals paused'}
+              </span>
+
+              <button
+                type="button"
+                onClick={resetPersonalization}
+                className="min-h-[36px] px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Clear Personalization</span>
+              </button>
+
+              {cart.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearCart}
+                  className="min-h-[36px] px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50/70 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/60 text-red-700 dark:text-red-300 font-semibold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Saved Items ({cart.length})</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* PART 1: Customer-Based Lifestyle Collections */}
         <div>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6 sm:mb-8">
@@ -382,7 +670,7 @@ export const CustomerThemesSection: React.FC = () => {
                 onClick={() => jumpToFilteredStore(activeTheme.targetStore, activeTheme.targetCategory)}
                 className="px-4 min-h-[40px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors inline-flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
-                <span>Filter Full {activeTheme.targetCategory}</span>
+                <span>Filter {activeTheme.targetCategory}</span>
                 <ArrowRight className="w-3.5 h-3.5 shrink-0" />
               </button>
             </div>
@@ -429,7 +717,7 @@ export const CustomerThemesSection: React.FC = () => {
               <span>{activeTheme.partnerStores}</span>
             </div>
             <span className="font-mono tabular-nums text-slate-500 dark:text-slate-400">
-              {themeProducts.length} Featured Picks
+              {themeProducts.length} Featured Picks · Photos illustrative
             </span>
           </div>
 
@@ -437,9 +725,6 @@ export const CustomerThemesSection: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {themeProducts.map((product) => {
               const buyUrl = getAffiliateBuyUrl(product);
-              const isShopz = product.originStore === 'Shopz BD';
-              const isExonHost = product.originStore === 'ExonHost';
-              const isAliExpress = product.originStore === 'AliExpress';
               const isAlibaba = product.originStore === 'Alibaba';
               const hasPrice =
                 product.nativePrice !== undefined ? product.nativePrice > 0 : product.price > 0;
@@ -459,24 +744,15 @@ export const CustomerThemesSection: React.FC = () => {
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
+                    <span className="absolute bottom-2 right-2 bg-slate-950/75 text-slate-200 text-[10px] px-2 py-0.5 rounded">
+                      Illustrative image
+                    </span>
                   </div>
 
                   <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 truncate">
-                        <span
-                          className={`font-bold ${
-                            isExonHost
-                              ? 'text-sky-600 dark:text-sky-400'
-                              : isShopz
-                              ? 'text-emerald-600 dark:text-emerald-400'
-                              : isAliExpress
-                              ? 'text-orange-600 dark:text-orange-400'
-                              : isAlibaba
-                              ? 'text-indigo-600 dark:text-indigo-400'
-                              : 'text-amber-700 dark:text-amber-400'
-                          }`}
-                        >
+                        <span className={`font-bold ${getStoreColorText(product.originStore)}`}>
                           {product.originStore}
                         </span>
                         <span aria-hidden="true">·</span>
@@ -502,11 +778,9 @@ export const CustomerThemesSection: React.FC = () => {
                             <span className="text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                               {formatPrice(product.price, product.nativePrice, product.nativeCurrency)}
                             </span>
-                            {product.originalPrice && product.originalPrice > product.price && (
-                              <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
-                                {formatPrice(product.originalPrice)}
-                              </span>
-                            )}
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                              CSV Ref.
+                            </span>
                           </div>
                         ) : (
                           <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
@@ -523,21 +797,21 @@ export const CustomerThemesSection: React.FC = () => {
                         <a
                           href={buyUrl}
                           target="_blank"
-                          rel="noreferrer noopener sponsored"
-                          onClick={() => recordAffiliateClick(`theme-${activeTheme.id}-${product.id}`)}
-                          className={`flex-1 min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${
-                            isExonHost
-                              ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
-                              : isShopz
-                              ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
-                              : isAliExpress
-                              ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
-                              : isAlibaba
-                              ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
-                              : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
-                          }`}
+                          rel="sponsored noopener noreferrer"
+                          onClick={() =>
+                            recordAffiliateClick(product.id, product.originStore, product.category)
+                          }
+                          className={`flex-1 min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
+                            product.originStore
+                          )}`}
                         >
-                          <span>{isAlibaba ? 'Source on Alibaba' : `Buy on ${product.originStore}`}</span>
+                          <span>
+                            {isAlibaba
+                              ? 'Open Alibaba'
+                              : product.urlKind === 'portal'
+                              ? `Open ${product.originStore}`
+                              : `View on ${product.originStore}`}
+                          </span>
                           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                         </a>
 
@@ -554,7 +828,7 @@ export const CustomerThemesSection: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleSaveToCart(product)}
-                          title="Save to hardware list"
+                          title="Save to list"
                           aria-label={`Save ${product.title}`}
                           className="min-h-[40px] min-w-[40px] p-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
                         >
@@ -576,13 +850,13 @@ export const CustomerThemesSection: React.FC = () => {
                   key={sp.id}
                   href={sp.url}
                   target="_blank"
-                  rel="noreferrer noopener sponsored"
+                  rel="sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick(`theme-sponsor-${sp.id}`)}
                   className="group bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:shadow-md transition-all duration-200"
                 >
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <span className="font-bold text-amber-700 dark:text-amber-400">Sponsored Match</span>
+                      <span className="font-bold text-amber-700 dark:text-amber-400">Sponsored</span>
                       <span aria-hidden="true">·</span>
                       <span className="truncate">{sp.category}</span>
                     </div>
@@ -603,7 +877,7 @@ export const CustomerThemesSection: React.FC = () => {
           )}
         </div>
 
-        {/* PART 2: Categorized Affiliate Sites by Real Products */}
+        {/* PART 2: Categorized Affiliate Sites by Partner Store */}
         <div className="pt-10 border-t border-slate-200 dark:border-slate-800">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
             <div>
@@ -612,11 +886,11 @@ export const CustomerThemesSection: React.FC = () => {
                 <span>Partner Storefront Directory · {regionProfile.label} Order</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
-                All Affiliate Sites Categorized by Real Product Lines
+                All Partner Sites Categorized by Product Lines
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
-              Prioritized for {regionProfile.label}: select any product category below to filter the live catalog or open the official merchant store directly.
+              Prioritized for {regionProfile.label}: filter a category below or open the external partner store directly.
             </p>
           </div>
 
@@ -635,7 +909,7 @@ export const CustomerThemesSection: React.FC = () => {
                             Amazon Associates
                           </h4>
                           <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
-                            Global Prime &amp; Tech Catalog
+                            Direct ASIN Product Pages &amp; Store
                           </p>
                         </div>
                         <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
@@ -665,8 +939,8 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={amazonStoreUrl}
                         target="_blank"
-                        rel="noreferrer noopener sponsored"
-                        onClick={() => recordAffiliateClick('dir-amazon-store')}
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-amazon-store', 'Amazon')}
                         className="flex-1 min-h-[38px] px-3 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Amazon Store</span>
@@ -675,11 +949,11 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={amazonShortUrl}
                         target="_blank"
-                        rel="noreferrer noopener sponsored"
-                        onClick={() => recordAffiliateClick('dir-amazon-deals')}
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-amazon-deals', 'Amazon')}
                         className="min-h-[38px] px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-lg inline-flex items-center justify-center gap-1 transition-colors whitespace-nowrap"
                       >
-                        <span>Deals</span>
+                        <span>Shortlink</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>
@@ -700,7 +974,7 @@ export const CustomerThemesSection: React.FC = () => {
                             Shopz BD
                           </h4>
                           <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
-                            Bangladesh Express &amp; BDT Catalog
+                            CSV Affiliate Catalog &amp; BDT Reference
                           </p>
                         </div>
                         <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
@@ -730,11 +1004,69 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={shopzStoreUrl}
                         target="_blank"
-                        rel="noreferrer noopener sponsored"
-                        onClick={() => recordAffiliateClick('dir-shopz-store')}
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-shopz-store', 'Shopz BD')}
                         className="w-full min-h-[38px] px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Shopz.com.bd</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'Releva BD') {
+                return (
+                  <div
+                    key="dir-releva"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Releva BD
+                          </h4>
+                          <p className="text-[11px] text-teal-700 dark:text-teal-400 font-medium">
+                            Tracked Partner Product Links
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.relevaTotal} links
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.relevaCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Direct tracked product URLs (#129, #130, #131, #133, #135). Live item details and BDT prices load on releva.com.bd.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={buildRelevaProductUrl(130)}
+                        target="_blank"
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-releva-store', 'Releva BD')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit Releva BD</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>
@@ -755,11 +1087,11 @@ export const CustomerThemesSection: React.FC = () => {
                             AliExpress
                           </h4>
                           <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium">
-                            Global Choice Electronics &amp; Audio
+                            Partner Promotion Portal
                           </p>
                         </div>
                         <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                          {affiliateDirectory.aliexpressTotal} items
+                          {affiliateDirectory.aliexpressTotal} portals
                         </span>
                       </div>
 
@@ -785,11 +1117,11 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={aliexpressStoreUrl}
                         target="_blank"
-                        rel="noreferrer noopener sponsored"
-                        onClick={() => recordAffiliateClick('dir-aliexpress-store')}
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-aliexpress-store', 'AliExpress')}
                         className="w-full min-h-[38px] px-3 py-2 bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
-                        <span>Visit AliExpress Store</span>
+                        <span>Open AliExpress Portal</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>
@@ -807,14 +1139,14 @@ export const CustomerThemesSection: React.FC = () => {
                       <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
                         <div>
                           <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                            Alibaba.com Direct
+                            Alibaba.com Offer Portal
                           </h4>
                           <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
-                            Trade Assurance &amp; Bulk Sourcing
+                            Sourcing &amp; Offer Portal
                           </p>
                         </div>
                         <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                          {affiliateDirectory.alibabaTotal} items
+                          {affiliateDirectory.alibabaTotal} portals
                         </span>
                       </div>
 
@@ -840,11 +1172,11 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={alibabaStoreUrl}
                         target="_blank"
-                        rel="noreferrer noopener sponsored"
-                        onClick={() => recordAffiliateClick('dir-alibaba-store')}
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-alibaba-store', 'Alibaba')}
                         className="w-full min-h-[38px] px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
-                        <span>Visit Alibaba Offers</span>
+                        <span>Open Alibaba Portal</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>
@@ -864,11 +1196,11 @@ export const CustomerThemesSection: React.FC = () => {
                           ExonHost Partner
                         </h4>
                         <p className="text-[11px] text-sky-700 dark:text-sky-400 font-medium">
-                          NVMe Hosting, WordPress &amp; Domains
+                          Web Hosting, WordPress &amp; Domains
                         </p>
                       </div>
                       <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                        {affiliateDirectory.exonhostTotal} plans
+                        {affiliateDirectory.exonhostTotal} portals
                       </span>
                     </div>
 
@@ -888,7 +1220,7 @@ export const CustomerThemesSection: React.FC = () => {
                         </li>
                       ))}
                       <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                        USA, Singapore &amp; Bangladesh NVMe server nodes with instant SSL and daily JetBackup snapshots.
+                        Browse live hosting plans, SSL options, and domain availability on the ExonHost partner portal.
                       </li>
                     </ul>
                   </div>
@@ -897,8 +1229,8 @@ export const CustomerThemesSection: React.FC = () => {
                     <a
                       href={exonhostStoreUrl}
                       target="_blank"
-                      rel="noreferrer noopener sponsored"
-                      onClick={() => recordAffiliateClick('dir-exonhost-store')}
+                      rel="sponsored noopener noreferrer"
+                      onClick={() => recordAffiliateClick('dir-exonhost-store', 'ExonHost')}
                       className="w-full min-h-[38px] px-3 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                     >
                       <span>Open ExonHost Portal</span>
@@ -909,20 +1241,20 @@ export const CustomerThemesSection: React.FC = () => {
               );
             })}
 
-            {/* 4. Sponsored Partners */}
+            {/* Sponsored Partners Card */}
             <div className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4">
               <div>
                 <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
                   <div>
                     <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                      Sponsored Offers
+                      Sponsored Links
                     </h4>
                     <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
-                      Curated Tech &amp; Deal Promotions
+                      External Partner Promotions
                     </p>
                   </div>
                   <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                    {affiliateDirectory.sponsorsTotal} offers
+                    {affiliateDirectory.sponsorsTotal} links
                   </span>
                 </div>
 

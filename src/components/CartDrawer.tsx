@@ -14,6 +14,9 @@ export const CartDrawer: React.FC = () => {
     removeFromCart,
     clearCart,
     subtotalUSD,
+    pricedSavedItemsCount,
+    unpricedSavedItemsCount,
+    ratesDisclaimer,
     formatPrice
   } = useCart();
   const { sponsors, products, affiliateTag, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
@@ -59,9 +62,14 @@ export const CartDrawer: React.FC = () => {
   const handleCopyAllLinks = () => {
     const lines = cart.map((item, idx) => {
       const url = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
-      return `${idx + 1}. ${item.product.title} (x${item.quantity}) — ${formatPrice(
-        item.product.price * item.quantity
-      )}\n   ${url}`;
+      const priceLabel = formatPrice(
+        item.product.price * item.quantity,
+        typeof item.product.nativePrice === 'number'
+          ? item.product.nativePrice * item.quantity
+          : undefined,
+        item.product.nativeCurrency
+      );
+      return `${idx + 1}. ${item.product.title} (x${item.quantity}) — ${priceLabel}\n   ${url}`;
     });
     navigator.clipboard.writeText(lines.join('\n\n'));
     setCopiedLinks(true);
@@ -74,6 +82,9 @@ export const CartDrawer: React.FC = () => {
       className="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-xs flex justify-end"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Saved hardware list"
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md bg-white dark:bg-slate-900 h-dvh shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800"
       >
@@ -90,8 +101,9 @@ export const CartDrawer: React.FC = () => {
           </div>
 
           <button
+            type="button"
             onClick={() => setIsCartOpen(false)}
-            aria-label="Close list"
+            aria-label="Close saved items drawer"
             className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -100,7 +112,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Direct Purchase Notice */}
         <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
-          Every item purchases directly on Amazon, Shopz BD, AliExpress, Alibaba, or ExonHost.
+          All checkout completes on Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, or ExonHost.
         </div>
 
         {/* Saved Items List */}
@@ -114,9 +126,10 @@ export const CartDrawer: React.FC = () => {
                 Your saved list is empty.
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mx-auto">
-                Save products while browsing to compare setup totals and open direct Amazon or Shopz BD links.
+                Save products while browsing to keep track of partner links and reference prices.
               </p>
               <button
+                type="button"
                 onClick={() => setIsCartOpen(false)}
                 className="mt-2 text-xs font-semibold text-slate-950 dark:text-amber-400 underline underline-offset-4 cursor-pointer"
               >
@@ -127,9 +140,15 @@ export const CartDrawer: React.FC = () => {
             cart.map((item) => {
               const partnerUrl = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
               const isShopz = item.product.originStore === 'Shopz BD';
+              const isReleva = item.product.originStore === 'Releva BD';
               const isExonHost = item.product.originStore === 'ExonHost';
               const isAliExpress = item.product.originStore === 'AliExpress';
               const isAlibaba = item.product.originStore === 'Alibaba';
+
+              const hasKnownPrice =
+                item.product.nativeCurrency === 'BDT'
+                  ? typeof item.product.nativePrice === 'number' && item.product.nativePrice > 0
+                  : item.product.price > 0;
 
               return (
                 <div
@@ -150,18 +169,21 @@ export const CartDrawer: React.FC = () => {
 
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums">
-                        {formatPrice(
-                          item.product.price * item.quantity,
-                          typeof item.product.nativePrice === 'number'
-                            ? item.product.nativePrice * item.quantity
-                            : undefined,
-                          item.product.nativeCurrency
-                        )}
+                        {hasKnownPrice
+                          ? formatPrice(
+                              item.product.price * item.quantity,
+                              typeof item.product.nativePrice === 'number'
+                                ? item.product.nativePrice * item.quantity
+                                : undefined,
+                              item.product.nativeCurrency
+                            )
+                          : 'Live price at partner'}
                       </span>
 
                       <div className="flex items-center gap-1.5">
                         <div className="flex items-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-md">
                           <button
+                            type="button"
                             onClick={() => updateQuantity(item.product.id, -1)}
                             className="min-h-[30px] min-w-[28px] px-1.5 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             aria-label="Decrease quantity"
@@ -172,6 +194,7 @@ export const CartDrawer: React.FC = () => {
                             {item.quantity}
                           </span>
                           <button
+                            type="button"
                             onClick={() => updateQuantity(item.product.id, 1)}
                             className="min-h-[30px] min-w-[28px] px-1.5 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             aria-label="Increase quantity"
@@ -181,9 +204,10 @@ export const CartDrawer: React.FC = () => {
                         </div>
 
                         <button
+                          type="button"
                           onClick={() => removeFromCart(item.product.id)}
                           className="text-slate-400 hover:text-red-500 p-1.5 transition-colors cursor-pointer"
-                          aria-label="Remove item"
+                          aria-label={`Remove ${item.product.title}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -193,13 +217,21 @@ export const CartDrawer: React.FC = () => {
                     <a
                       href={partnerUrl}
                       target="_blank"
-                      rel="noreferrer noopener sponsored"
-                      onClick={() => recordAffiliateClick(item.product.id)}
+                      rel="sponsored noopener noreferrer"
+                      onClick={() =>
+                        recordAffiliateClick(
+                          item.product.id,
+                          item.product.originStore,
+                          item.product.category
+                        )
+                      }
                       className={`w-full min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors ${
                         isExonHost
                           ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                           : isShopz
                           ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                          : isReleva
+                          ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
                           : isAliExpress
                           ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
                           : isAlibaba
@@ -208,11 +240,7 @@ export const CartDrawer: React.FC = () => {
                       }`}
                     >
                       <span>
-                        {isExonHost
-                          ? 'Order on ExonHost'
-                          : isAlibaba
-                          ? 'Source on Alibaba'
-                          : `Buy on ${item.product.originStore || 'Amazon'}`}
+                        {`Open on ${item.product.originStore || 'Amazon'}`}
                       </span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
@@ -231,7 +259,7 @@ export const CartDrawer: React.FC = () => {
                 key={sp.id}
                 href={sp.url}
                 target="_blank"
-                rel="noreferrer noopener sponsored"
+                rel="sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sp.id)}
                 className="flex items-center justify-between gap-2.5 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 text-xs hover:border-amber-400 transition-colors"
               >
@@ -245,23 +273,28 @@ export const CartDrawer: React.FC = () => {
               </a>
             ))}
 
-            <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm">
-              <span>Estimated Setup Total</span>
-              <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
-            </div>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              Live pricing, shipping, and taxes are applied directly on the official partner store.
+            {pricedSavedItemsCount > 0 && (
+              <div className="flex justify-between text-slate-900 dark:text-white font-bold text-sm">
+                <span>CSV Ref. Subtotal ({pricedSavedItemsCount} priced)</span>
+                <span className="font-mono tabular-nums">{formatPrice(subtotalUSD)}</span>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {unpricedSavedItemsCount > 0
+                ? `${unpricedSavedItemsCount} saved item(s) use live partner pricing. ${ratesDisclaimer}`
+                : ratesDisclaimer}
             </p>
 
             {amazonCartCheckoutUrl && (
               <a
                 href={amazonCartCheckoutUrl}
                 target="_blank"
-                rel="noreferrer noopener sponsored"
-                onClick={() => recordAffiliateClick('amazon-cart-checkout')}
+                rel="sponsored noopener noreferrer"
+                onClick={() => recordAffiliateClick('amazon-cart-checkout', 'Amazon')}
                 className="w-full min-h-[44px] px-4 py-2.5 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-xs whitespace-nowrap"
               >
-                <span>Checkout Amazon Items on Amazon ({amazonAsinItems.reduce((sum, i) => sum + i.quantity, 0)})</span>
+                <span>Open Amazon Items on Amazon ({amazonAsinItems.reduce((sum, i) => sum + i.quantity, 0)})</span>
                 <ExternalLink className="w-3.5 h-3.5 shrink-0" />
               </a>
             )}
@@ -290,7 +323,7 @@ export const CartDrawer: React.FC = () => {
                 onClick={clearCart}
                 className="min-h-[42px] px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
               >
-                Clear
+                Clear Saved
               </button>
             </div>
           </div>

@@ -1,3 +1,11 @@
+export type PartnerStoreName =
+  | 'Amazon'
+  | 'Shopz BD'
+  | 'Releva BD'
+  | 'ExonHost'
+  | 'AliExpress'
+  | 'Alibaba';
+
 export interface Product {
   id: string;
   asin?: string;
@@ -7,13 +15,16 @@ export interface Product {
   originalPrice?: number;
   nativePrice?: number;
   nativeCurrency?: 'USD' | 'BDT';
+  priceStatus?: 'reference' | 'live-at-partner';
   csvCategory?: string;
   sourceType?: 'linked-shop' | 'uploaded-csv';
+  imageIsIllustrative?: boolean;
+  urlKind?: 'product' | 'portal' | 'category';
   badge?: string;
   description: string;
   highlights: string[];
   specs: { label: string; value: string }[];
   image: string;
-  originStore?: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba';
+  originStore?: PartnerStoreName;
   affiliateUrl?: string;
 }

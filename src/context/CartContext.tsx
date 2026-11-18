@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types/product';
+import type { CurrencyCode } from '../utils/regionProfile';
+import { isStaticHostedWithoutApi, resolveApiUrl } from '../utils/apiClient';
 
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'BDT';
+export type Currency = CurrencyCode;
 
 export interface SavedItem {
   product: Product;
@@ -19,21 +21,37 @@ interface CartContextType {
   setIsCartOpen: (open: boolean) => void;
   currency: Currency;
   setCurrency: (c: Currency) => void;
+  exchangeRates: Record<Currency, number>;
+  ratesDisclaimer: string;
   bdtRate: number;
   toUsdAmount: (usdFallback: number, nativePrice?: number, nativeCurrency?: 'USD' | 'BDT') => number;
   formatPrice: (usdAmount: number, nativePrice?: number, nativeCurrency?: 'USD' | 'BDT') => string;
   subtotalUSD: number;
+  pricedSavedItemsCount: number;
+  unpricedSavedItemsCount: number;
   activeNotification: string | null;
   dismissNotification: () => void;
   showNotification: (msg: string) => void;
 }
 
-const CURRENCY_META: Record<Currency, { symbol: string; prefix: boolean }> = {
-  USD: { symbol: '$', prefix: true },
-  EUR: { symbol: '€', prefix: true },
-  GBP: { symbol: '£', prefix: true },
-  BDT: { symbol: '৳', prefix: false }
+const CURRENCY_META: Record<Currency, { symbol: string; prefix: boolean; decimals: number }> = {
+  USD: { symbol: '$', prefix: true, decimals: 2 },
+  EUR: { symbol: '€', prefix: true, decimals: 2 },
+  GBP: { symbol: '£', prefix: true, decimals: 2 },
+  BDT: { symbol: '৳', prefix: false, decimals: 0 },
+  INR: { symbol: '₹', prefix: true, decimals: 0 }
 };
+
+const DEFAULT_RATES: Record<Currency, number> = {
+  USD: 1,
+  EUR: 0.92,
+  GBP: 0.79,
+  BDT: 121.5,
+  INR: 84.5
+};
+
+const DEFAULT_RATES_DISCLAIMER =
+  'Displayed conversions use approximate FX rates. Partners determine final live pricing, currency, shipping, and taxes at checkout.';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -49,13 +67,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  const [exchangeRates, setExchangeRates] = useState<Record<Currency, number>>({
-    USD: 1,
-    EUR: 0.92,
-    GBP: 0.79,
-    BDT: 121.5
-  });
-
+  const [exchangeRates, setExchangeRates] = useState<Record<Currency, number>>(DEFAULT_RATES);
+  const [ratesDisclaimer, setRatesDisclaimer] = useState<string>(DEFAULT_RATES_DISCLAIMER);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currency, setCurrencyState] = useState<Currency>(() => {
     try {
@@ -68,9 +81,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeNotification, setActiveNotification] = useState<string | null>(null);
 
   useEffect(() => {
-    const isGitHubPages =
-      typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-
     const loadDirectRates = () =>
       fetch('https://open.er-api.com/v6/latest/USD')
         .then((res) => (res.ok ? res.json() : null))
@@ -78,31 +88,36 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (payload?.result === 'success' && payload?.rates) {
             setExchangeRates({
               USD: 1,
-              EUR: Number(payload.rates.EUR) || 0.92,
-              GBP: Number(payload.rates.GBP) || 0.79,
-              BDT: Number(payload.rates.BDT) || 121.5
+              EUR: Number(payload.rates.EUR) || DEFAULT_RATES.EUR,
+              GBP: Number(payload.rates.GBP) || DEFAULT_RATES.GBP,
+              BDT: Number(payload.rates.BDT) || DEFAULT_RATES.BDT,
+              INR: Number(payload.rates.INR) || DEFAULT_RATES.INR
             });
           }
         })
         .catch(() => {
-          // Keep initial rates if unreachable
+          // Keep default approximate rates
         });
 
-    if (isGitHubPages) {
+    if (isStaticHostedWithoutApi()) {
       loadDirectRates();
       return;
     }
 
-    fetch('/api/rates')
+    fetch(resolveApiUrl('/api/rates'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.rates) {
           setExchangeRates({
             USD: 1,
-            EUR: Number(data.rates.EUR) || 0.92,
-            GBP: Number(data.rates.GBP) || 0.79,
-            BDT: Number(data.rates.BDT) || 121.5
+            EUR: Number(data.rates.EUR) || DEFAULT_RATES.EUR,
+            GBP: Number(data.rates.GBP) || DEFAULT_RATES.GBP,
+            BDT: Number(data.rates.BDT) || DEFAULT_RATES.BDT,
+            INR: Number(data.rates.INR) || DEFAULT_RATES.INR
           });
+          if (typeof data.disclaimer === 'string' && data.disclaimer.trim()) {
+            setRatesDisclaimer(data.disclaimer);
+          }
           return;
         }
         return loadDirectRates();
@@ -136,7 +151,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const dismissNotification = () => setActiveNotification(null);
 
-  const bdtRate = exchangeRates.BDT || 121.5;
+  const bdtRate = exchangeRates.BDT || DEFAULT_RATES.BDT;
 
   const toUsdAmount = (
     usdFallback: number,
@@ -146,7 +161,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (nativeCurrency === 'BDT' && typeof nativePrice === 'number') {
       return nativePrice > 0 ? nativePrice / bdtRate : 0;
     }
-    return usdFallback;
+    return usdFallback > 0 ? usdFallback : 0;
   };
 
   const addToCart = (product: Product, quantity = 1) => {
@@ -192,9 +207,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     setCart([]);
+    showNotification('Saved items list cleared');
   };
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const pricedSavedItemsCount = cart.filter(
+    (item) =>
+      toUsdAmount(item.product.price, item.product.nativePrice, item.product.nativeCurrency) > 0
+  ).length;
+  const unpricedSavedItemsCount = cart.length - pricedSavedItemsCount;
 
   const subtotalUSD = cart.reduce(
     (sum, item) =>
@@ -218,23 +240,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       const usdEquiv = nativePrice / bdtRate;
       const converted = usdEquiv * (exchangeRates[currency] || 1);
-      const formatted = converted.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+      const formatted =
+        meta.decimals === 0
+          ? Math.round(converted).toLocaleString('en-US')
+          : converted.toLocaleString('en-US', {
+              minimumFractionDigits: meta.decimals,
+              maximumFractionDigits: meta.decimals
+            });
       return meta.prefix ? `${meta.symbol}${formatted}` : `${formatted} ${meta.symbol}`;
+    }
+
+    if (usdAmount <= 0) {
+      return 'Check Live Price';
     }
 
     const rate = exchangeRates[currency] || 1;
     const raw = usdAmount * rate;
-    if (currency === 'BDT') {
-      const rounded = Math.round(raw).toLocaleString('en-US');
-      return `${rounded} ${meta.symbol}`;
-    }
-    const formatted = raw.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    const formatted =
+      meta.decimals === 0
+        ? Math.round(raw).toLocaleString('en-US')
+        : raw.toLocaleString('en-US', {
+            minimumFractionDigits: meta.decimals,
+            maximumFractionDigits: meta.decimals
+          });
     return meta.prefix ? `${meta.symbol}${formatted}` : `${formatted} ${meta.symbol}`;
   };
 
@@ -251,10 +279,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsCartOpen,
         currency,
         setCurrency,
+        exchangeRates,
+        ratesDisclaimer,
         bdtRate,
         toUsdAmount,
         formatPrice,
         subtotalUSD,
+        pricedSavedItemsCount,
+        unpricedSavedItemsCount,
         activeNotification,
         dismissNotification,
         showNotification

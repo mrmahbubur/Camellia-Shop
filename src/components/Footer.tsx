@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowUp, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
+import { isStaticHostedWithoutApi, resolveApiUrl } from '../utils/apiClient';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -19,14 +20,13 @@ const DEFAULT_OWNER_CREDIT: OwnerCredit = {
 };
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const { setSelectedCategory, storefrontCopy } = useProducts();
+  const { setSelectedCategory, setSelectedStoreFilter, storefrontCopy } = useProducts();
   const [owner, setOwner] = useState<OwnerCredit>(DEFAULT_OWNER_CREDIT);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
-      return;
-    }
-    fetch('/api/owner')
+    if (isStaticHostedWithoutApi()) return;
+
+    fetch(resolveApiUrl('/api/owner'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.displayName) {
@@ -47,6 +47,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   };
 
   const handleCategoryNav = (category: string) => {
+    setSelectedStoreFilter('all');
     setSelectedCategory(category);
     onNavigate('store');
   };
@@ -61,10 +62,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {storefrontCopy.siteName}
             </span>
             <p className="text-slate-400 max-w-sm leading-relaxed">
-              Curated electronics, computer peripherals, and workspace hardware linked directly to Amazon, Shopz BD, AliExpress, Alibaba, and ExonHost.
+              Curated workspace electronics, everyday tech, and hosting portals linked directly to Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
-              <span>Founder &amp; Engineer: {owner.displayName}</span>
+              <span>Owner: {owner.displayName}</span>
               <span aria-hidden="true">·</span>
               <a
                 href={owner.gravatarUrl}
@@ -90,30 +91,34 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2">
               <li>
                 <button
+                  type="button"
+                  onClick={() => onNavigate('buying-guide')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Buying Guide &amp; Privacy
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => onNavigate('customer-themes')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
-                  Customer Themes &amp; Stores
+                  Collections &amp; Store Directory
                 </button>
               </li>
               <li>
                 <button
+                  type="button"
                   onClick={() => handleCategoryNav('All Departments (Mega Store)')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
-                  All Store Hardware
+                  All Store Listings
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => handleCategoryNav('Electronics & Gadgets')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
-                >
-                  Electronics &amp; Gadgets
-                </button>
-              </li>
-              <li>
-                <button
+                  type="button"
                   onClick={() => handleCategoryNav('Shopz BD Tech Deals')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
@@ -122,6 +127,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
+                  type="button"
+                  onClick={() => handleCategoryNav('Releva BD Picks')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Releva BD Picks
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => onNavigate('amazon-products')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
@@ -130,6 +145,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
+                  type="button"
                   onClick={() => onNavigate('sponsors')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
@@ -142,17 +158,20 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Partner Fulfillment & Disclosure */}
           <div className="sm:col-span-2 md:col-span-4 space-y-3">
             <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2">
-              Affiliate Disclosure &amp; Fulfillment
+              Affiliate Disclosure &amp; Notices
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              As an Amazon Associate and Shopz BD / AliExpress / Alibaba / ExonHost partner affiliate, {storefrontCopy.siteName} earns from qualifying purchases. All transactions, final pricing, shipping, and warranties are fulfilled directly by the official merchant.
+              As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also participate in affiliate programs with Shopz BD, Releva BD, AliExpress, Alibaba, ExonHost, and labeled Sponsored partner links.
             </p>
-            <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
+            <p className="text-slate-400 leading-relaxed text-[11px]">
+              Product images are illustrative. Historical CSV BDT prices are reference snapshots only; the destination partner determines current prices, stock, shipping coverage, and returns.
+            </p>
+            <div className="pt-1 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
               <span className="flex items-center gap-1 text-emerald-400">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Direct Retailer Checkout</span>
               </span>
-              <span>Amazon · Shopz BD · AliExpress · Alibaba · ExonHost</span>
+              <span>Amazon · Shopz BD · Releva BD · AliExpress · Alibaba · ExonHost</span>
             </div>
           </div>
         </div>
@@ -160,17 +179,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
           <div>
-            © {new Date().getFullYear()} {storefrontCopy.siteName} · Owned &amp; Engineered by {owner.displayName}.
+            © {new Date().getFullYear()} {storefrontCopy.siteName} · Owned by {owner.displayName}.
           </div>
 
           <div className="flex items-center gap-6">
             <button
+              type="button"
               onClick={() => onNavigate('store')}
               className="hover:text-slate-300 transition-colors cursor-pointer py-1"
             >
               Shop Catalog
             </button>
             <button
+              type="button"
               onClick={scrollToTop}
               className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer py-1"
             >

@@ -1,13 +1,17 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import {
   EcomProduct,
+  ProductCategory,
   UNIFIED_PRODUCTS,
+  AMAZON_ASSOCIATE_TAG,
+  AMAZON_LINK_ID,
   AMAZON_LINK_SHORT,
   AMAZON_STORE_URL,
   SHOPZ_REF_BASE,
   EXONHOST_AFFILIATE_URL,
   ALIEXPRESS_AFFILIATE_URL,
-  ALIBABA_AFFILIATE_URL
+  ALIBABA_AFFILIATE_URL,
+  RELEVA_TRACKING_PARAM
 } from '../data/unifiedProductsData';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
 import {
@@ -19,9 +23,17 @@ import {
   REGION_PROFILES,
   RegionProfile,
   VisitorRegionCode,
+  PartnerStoreOrigin,
   detectBrowserRegionFallback,
   getStorePriorityRank
 } from '../utils/regionProfile';
+import {
+  computeRecommendations,
+  type BuyingNeed,
+  type InteractionSignals,
+  type RecommendedItem
+} from '../utils/recommendations';
+import { isStaticHostedWithoutApi, resolveApiUrl } from '../utils/apiClient';
 import { useCart } from './CartContext';
 
 export interface StorefrontCopyConfig {
@@ -43,16 +55,36 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
-  announcementText: 'Camellia Shop · Curated Amazon, Shopz BD, AliExpress, Alibaba & ExonHost',
-  heroTitle: 'Curated Workspace Electronics, Desk Hardware & Direct Checkout.',
+  announcementText:
+    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, AliExpress, Alibaba & ExonHost',
+  heroTitle: 'Curated Workspace Tech, Desk Hardware & Partner Checkout.',
   heroSubtitle:
-    'Shop workspace electronics, accessories, smartwatches, wholesale studio gear, and cloud hosting with multi-currency pricing and direct checkout on Amazon, Shopz BD, AliExpress, Alibaba, and ExonHost.',
-  storeTitle: 'Shop Prime Gear, Shopz BD, AliExpress, Alibaba & Hosting',
+    'Browse workspace electronics, audio gear, watches, cloud hosting, and regional partner stores across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Partner Deals & Cloud Hosting',
   storeSubtitle:
-    'Browse electronics, personal gadgets, factory-direct hardware, and cloud hosting across Amazon, Shopz BD, AliExpress, Alibaba, and ExonHost. Every purchase completes directly on the official partner store.'
+    'Explore electronics, everyday tech, and hosting portals across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost. Every order completes directly on the partner store.'
 };
 
-export type StoreFilterOption = 'all' | 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba';
+export type StoreFilterOption = 'all' | PartnerStoreOrigin;
+
+const EMPTY_INTERACTIONS: InteractionSignals = {
+  categoryCounts: {},
+  storeCounts: {},
+  recentProductIds: []
+};
+
+function getOrCreateAnonymousSessionId(): string {
+  try {
+    const existing = localStorage.getItem('mrs_anon_session');
+    if (existing && /^[a-zA-Z0-9_-]{8,64}$/.test(existing)) return existing;
+    const rand = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const created = `cam_${rand.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24)}`;
+    localStorage.setItem('mrs_anon_session', created);
+    return created;
+  } catch {
+    return 'cam_ephemeral_session';
+  }
+}
 
 interface ProductsContextType {
   products: EcomProduct[];
@@ -61,15 +93,36 @@ interface ProductsContextType {
   uploadedCsvPath: string;
   sponsors: SponsorPlacement[];
   storefrontCopy: StorefrontCopyConfig;
-  selectedCategory: string;
+  selectedCategory: ProductCategory | string;
   setSelectedCategory: (cat: string) => void;
   selectedStoreFilter: StoreFilterOption;
   setSelectedStoreFilter: (store: StoreFilterOption) => void;
   visitorRegion: VisitorRegionCode;
   setVisitorRegion: (region: VisitorRegionCode) => void;
+  regionDetectionSource: string;
   regionProfile: RegionProfile;
   highlightedProductId: string | null;
   setHighlightedProductId: (id: string | null) => void;
+  // Buying Guide & Recommendations
+  buyingNeed: BuyingNeed;
+  setBuyingNeed: (need: BuyingNeed) => void;
+  buyingBudgetUsd: number | null;
+  setBuyingBudgetUsd: (budget: number | null) => void;
+  buyingPreferredStore: PartnerStoreOrigin | 'all';
+  setBuyingPreferredStore: (store: PartnerStoreOrigin | 'all') => void;
+  recommendations: RecommendedItem<EcomProduct>[];
+  // Privacy & Anonymized Interaction Controls
+  personalizationEnabled: boolean;
+  setPersonalizationEnabled: (enabled: boolean) => void;
+  interactions: InteractionSignals;
+  trackInteraction: (params: {
+    eventType: 'view_category' | 'view_store' | 'save_item' | 'outbound_click' | 'buying_guide';
+    category?: string;
+    store?: PartnerStoreOrigin;
+    productId?: string;
+  }) => void;
+  resetPersonalization: () => Promise<void>;
+  // Affiliate links & helpers
   getAffiliateBuyUrl: (product: EcomProduct) => string;
   getAmazonSearchAffiliateUrl: (query: string) => string;
   getShopzSearchAffiliateUrl: (query: string) => string;
@@ -80,19 +133,16 @@ interface ProductsContextType {
   aliexpressStoreUrl: string;
   alibabaStoreUrl: string;
   affiliateTag: string;
-  recordAffiliateClick: (productId?: string) => void;
+  recordAffiliateClick: (productId?: string, store?: PartnerStoreOrigin, category?: string) => void;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
 
-const FIXED_AFFILIATE_TAG = 'mrxshahin06-20';
-const FIXED_LINK_ID = 'f69ce6631cea5fb5a49ce7ba4d3968b6';
-const PRIMARY_AMAZON_SHORTLINK = 'https://link.amazon/B0io1BQfg';
-
 export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { setCurrency } = useCart();
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Departments (Mega Store)');
-  const [selectedStoreFilter, setSelectedStoreFilter] = useState<StoreFilterOption>('all');
+  const { setCurrency, exchangeRates, showNotification } = useCart();
+  const [selectedCategory, setSelectedCategoryState] = useState<string>('All Departments (Mega Store)');
+  const [selectedStoreFilter, setSelectedStoreFilterState] = useState<StoreFilterOption>('all');
+  const [regionDetectionSource, setRegionDetectionSource] = useState<string>('browser');
   const [visitorRegion, setVisitorRegionState] = useState<VisitorRegionCode>(() => {
     try {
       const saved = localStorage.getItem('mrs_region') as VisitorRegionCode | null;
@@ -106,10 +156,44 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [storefrontData, setStorefrontData] = useState<StorefrontResponse | null>(null);
   const [csvProducts, setCsvProducts] = useState<EcomProduct[]>([]);
 
+  // Buying Guide state
+  const [buyingNeed, setBuyingNeedState] = useState<BuyingNeed>('balanced');
+  const [buyingBudgetUsd, setBuyingBudgetUsd] = useState<number | null>(null);
+  const [buyingPreferredStore, setBuyingPreferredStore] = useState<PartnerStoreOrigin | 'all'>('all');
+
+  // Privacy & consent state
+  const [personalizationEnabled, setPersonalizationEnabledState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('mrs_personalization_consent');
+      if (saved === 'false') return false;
+    } catch {
+      // Storage unavailable
+    }
+    return true;
+  });
+
+  const [interactions, setInteractions] = useState<InteractionSignals>(() => {
+    try {
+      const saved = localStorage.getItem('mrs_interactions');
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<InteractionSignals>;
+        return {
+          categoryCounts: parsed.categoryCounts || {},
+          storeCounts: parsed.storeCounts || {},
+          recentProductIds: Array.isArray(parsed.recentProductIds) ? parsed.recentProductIds : []
+        };
+      }
+    } catch {
+      // Ignore parse failures
+    }
+    return EMPTY_INTERACTIONS;
+  });
+
   const regionProfile = REGION_PROFILES[visitorRegion] || REGION_PROFILES.GLOBAL;
 
   const setVisitorRegion = (region: VisitorRegionCode) => {
     setVisitorRegionState(region);
+    setRegionDetectionSource('manual');
     const nextProfile = REGION_PROFILES[region];
     if (nextProfile) {
       setCurrency(nextProfile.defaultCurrency);
@@ -121,13 +205,123 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const amazonShortUrl = AMAZON_LINK_SHORT;
-  const amazonStoreUrl = AMAZON_STORE_URL;
-  const shopzStoreUrl = SHOPZ_REF_BASE;
-  const exonhostStoreUrl = EXONHOST_AFFILIATE_URL;
-  const aliexpressStoreUrl = ALIEXPRESS_AFFILIATE_URL;
-  const alibabaStoreUrl = ALIBABA_AFFILIATE_URL;
-  const affiliateTag = FIXED_AFFILIATE_TAG;
+  const trackInteraction = useCallback(
+    (params: {
+      eventType: 'view_category' | 'view_store' | 'save_item' | 'outbound_click' | 'buying_guide';
+      category?: string;
+      store?: PartnerStoreOrigin;
+      productId?: string;
+    }) => {
+      if (!personalizationEnabled) return;
+
+      setInteractions((prev) => {
+        const next: InteractionSignals = {
+          categoryCounts: { ...prev.categoryCounts },
+          storeCounts: { ...prev.storeCounts },
+          recentProductIds: [...prev.recentProductIds]
+        };
+
+        if (params.category && params.category !== 'All Departments (Mega Store)') {
+          next.categoryCounts[params.category] = (next.categoryCounts[params.category] || 0) + 1;
+        }
+        if (params.store) {
+          next.storeCounts[params.store] = (next.storeCounts[params.store] || 0) + 1;
+        }
+        if (params.productId) {
+          next.recentProductIds = [
+            params.productId,
+            ...next.recentProductIds.filter((id) => id !== params.productId)
+          ].slice(0, 20);
+        }
+
+        try {
+          localStorage.setItem('mrs_interactions', JSON.stringify(next));
+        } catch {
+          // Storage unavailable
+        }
+        return next;
+      });
+
+      if (!isStaticHostedWithoutApi()) {
+        const sessionId = getOrCreateAnonymousSessionId();
+        fetch(resolveApiUrl('/api/events'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId,
+            eventType: params.eventType,
+            category: params.category,
+            store: params.store,
+            productId: params.productId
+          })
+        }).catch(() => {
+          // Non-blocking anonymous telemetry
+        });
+      }
+    },
+    [personalizationEnabled]
+  );
+
+  const setPersonalizationEnabled = (enabled: boolean) => {
+    setPersonalizationEnabledState(enabled);
+    try {
+      localStorage.setItem('mrs_personalization_consent', enabled ? 'true' : 'false');
+    } catch {
+      // Storage unavailable
+    }
+    showNotification(
+      enabled ? 'Anonymous personalization enabled' : 'Anonymous personalization paused'
+    );
+  };
+
+  const resetPersonalization = async () => {
+    setInteractions(EMPTY_INTERACTIONS);
+    setBuyingNeedState('balanced');
+    setBuyingBudgetUsd(null);
+    setBuyingPreferredStore('all');
+    try {
+      localStorage.removeItem('mrs_interactions');
+    } catch {
+      // Storage unavailable
+    }
+
+    if (!isStaticHostedWithoutApi()) {
+      try {
+        const sessionId = localStorage.getItem('mrs_anon_session') || '';
+        if (sessionId) {
+          await fetch(
+            resolveApiUrl(`/api/profile?sessionId=${encodeURIComponent(sessionId)}`),
+            { method: 'DELETE' }
+          );
+        }
+      } catch {
+        // Non-blocking server reset
+      }
+    }
+
+    showNotification('Personalization profile cleared (saved items unchanged)');
+  };
+
+  const setSelectedCategory = (cat: string) => {
+    setSelectedCategoryState(cat);
+    if (cat && cat !== 'All Departments (Mega Store)') {
+      trackInteraction({ eventType: 'view_category', category: cat });
+    }
+  };
+
+  const setSelectedStoreFilter = (store: StoreFilterOption) => {
+    setSelectedStoreFilterState(store);
+    if (store !== 'all') {
+      trackInteraction({ eventType: 'view_store', store });
+    }
+  };
+
+  const setBuyingNeed = (need: BuyingNeed) => {
+    setBuyingNeedState(need);
+    if (need !== 'balanced') {
+      trackInteraction({ eventType: 'buying_guide' });
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -174,45 +368,49 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     })();
 
-    const applyDetectedRegion = (code: VisitorRegionCode) => {
+    const applyDetectedRegion = (code: VisitorRegionCode, sourceLabel: string) => {
       setVisitorRegionState(code);
+      setRegionDetectionSource(sourceLabel);
       if (!hasManualCurrency) {
         setCurrency(REGION_PROFILES[code].defaultCurrency);
       }
     };
 
-    const isStaticDocs = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-    if (isStaticDocs) {
+    if (hasManualRegion) {
+      setRegionDetectionSource('manual');
+    }
+
+    if (isStaticHostedWithoutApi()) {
       if (!hasManualRegion) {
-        applyDetectedRegion(detectBrowserRegionFallback());
+        applyDetectedRegion(detectBrowserRegionFallback(), 'browser-locale');
       } else if (!hasManualCurrency) {
         setCurrency(REGION_PROFILES[visitorRegion].defaultCurrency);
       }
       return;
     }
 
-    fetch('/api/region')
+    fetch(resolveApiUrl('/api/region'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data: { regionCode?: VisitorRegionCode; source?: string } | null) => {
         if (!hasManualRegion && data?.regionCode && REGION_PROFILES[data.regionCode]) {
           const resolved =
-            data.source === 'network' || data.source === 'locale'
+            data.source === 'network' || data.source === 'geoip' || data.source === 'locale'
               ? data.regionCode
               : detectBrowserRegionFallback();
-          applyDetectedRegion(resolved);
+          applyDetectedRegion(resolved, data.source || 'network');
         } else if (!hasManualCurrency) {
           setCurrency(REGION_PROFILES[visitorRegion].defaultCurrency);
         }
       })
       .catch(() => {
         if (!hasManualRegion) {
-          applyDetectedRegion(detectBrowserRegionFallback());
+          applyDetectedRegion(detectBrowserRegionFallback(), 'browser-locale');
         } else if (!hasManualCurrency) {
           setCurrency(REGION_PROFILES[visitorRegion].defaultCurrency);
         }
       });
 
-    fetch('/api/storefront')
+    fetch(resolveApiUrl('/api/storefront'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data: StorefrontResponse | null) => {
         if (data && typeof data === 'object') {
@@ -220,7 +418,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       })
       .catch(() => {
-        // Keep static storefront defaults if unreachable
+        // Keep static defaults
       });
   }, []);
 
@@ -260,7 +458,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const overrides = storefrontData?.priceOverrides || {};
 
     const combined = [...extraCustom, ...mergedBase]
-      .filter((p) => !hiddenSet.has(p.id))
+      .filter((p) => !hiddenSet.has(p.id) && !p.affiliateUrl.toLowerCase().includes('fabrilife.com'))
       .map((p) => {
         const ov = overrides[p.id];
         if (!ov) return p;
@@ -286,6 +484,30 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   }, [storefrontData, csvProducts, visitorRegion]);
 
+  const recommendations = useMemo<RecommendedItem<EcomProduct>[]>(() => {
+    return computeRecommendations({
+      catalog: products,
+      region: visitorRegion,
+      buyingGuide: {
+        need: buyingNeed,
+        budgetUsd: buyingBudgetUsd,
+        preferredStore: buyingPreferredStore
+      },
+      interactions: personalizationEnabled ? interactions : EMPTY_INTERACTIONS,
+      rates: exchangeRates,
+      limit: 6
+    });
+  }, [
+    products,
+    visitorRegion,
+    buyingNeed,
+    buyingBudgetUsd,
+    buyingPreferredStore,
+    personalizationEnabled,
+    interactions,
+    exchangeRates
+  ]);
+
   const csvProductsCount = useMemo(
     () => products.filter((p) => p.sourceType === 'uploaded-csv').length,
     [products]
@@ -306,27 +528,35 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             .filter((s) => s && typeof s.url === 'string' && s.url.startsWith('https://'))
             .map((s) => ({
               ...s,
+              disclosure: s.disclosure || 'Sponsored external partner redirect',
               image: s.image || defaultById.get(s.id)?.image || fallbackImg
             }))
         : DEFAULT_SPONSORS;
 
-    if (visitorRegion === 'BD') {
-      const bdOrder = new Set(['sponsor-11683560', 'sponsor-9912130', 'sponsor-11242069']);
-      return [...baseList].sort((a, b) => Number(bdOrder.has(b.id)) - Number(bdOrder.has(a.id)));
-    }
     return baseList;
-  }, [storefrontData, visitorRegion]);
+  }, [storefrontData]);
 
-  const recordAffiliateClick = (productId?: string) => {
-    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
-      return;
+  const recordAffiliateClick = (
+    productId?: string,
+    store?: PartnerStoreOrigin,
+    category?: string
+  ) => {
+    if (productId || store || category) {
+      trackInteraction({
+        eventType: 'outbound_click',
+        productId,
+        store,
+        category
+      });
     }
-    fetch('/api/clicks', {
+    if (isStaticHostedWithoutApi()) return;
+
+    fetch(resolveApiUrl('/api/clicks'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ targetId: productId || 'outbound' })
     }).catch(() => {
-      // Non-blocking outbound click log
+      // Non-blocking
     });
   };
 
@@ -341,55 +571,59 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const applyPartnerTracking = (
     rawUrl: string,
-    originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba',
-    asin?: string,
-    title?: string
+    originStore: PartnerStoreOrigin,
+    asin?: string
   ): string => {
     const trimmed = rawUrl.trim();
-    if (!trimmed) {
-      if (originStore === 'ExonHost') return exonhostStoreUrl;
-      if (originStore === 'AliExpress') return aliexpressStoreUrl;
-      if (originStore === 'Alibaba') return alibabaStoreUrl;
-      return originStore === 'Shopz BD' ? shopzStoreUrl : amazonStoreUrl;
+    if (!trimmed || trimmed.toLowerCase().includes('fabrilife.com')) {
+      if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
+      if (originStore === 'AliExpress') return ALIEXPRESS_AFFILIATE_URL;
+      if (originStore === 'Alibaba') return ALIBABA_AFFILIATE_URL;
+      if (originStore === 'Releva BD') {
+        return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING_PARAM}`;
+      }
+      if (originStore === 'Shopz BD') return SHOPZ_REF_BASE;
+      if (asin) {
+        return `https://www.amazon.com/dp/${asin}?tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
+      }
+      return AMAZON_STORE_URL;
     }
 
     if (originStore === 'AliExpress' || trimmed.includes('1e8d114494cb5002cfdd16525dc3e8')) {
-      return trimmed.includes('rzekl.com/') ? trimmed : aliexpressStoreUrl;
+      return trimmed.includes('rzekl.com/') ? trimmed : ALIEXPRESS_AFFILIATE_URL;
     }
-
     if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
-      return trimmed.includes('rzekl.com/') ? trimmed : alibabaStoreUrl;
+      return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_AFFILIATE_URL;
     }
-
+    if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
+      if (trimmed.includes('tracking=')) return trimmed;
+      const sep = trimmed.includes('?') ? '&' : '?';
+      return `${trimmed}${sep}tracking=${RELEVA_TRACKING_PARAM}`;
+    }
     if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
-      if (trimmed.includes('aff=')) return trimmed;
-      return exonhostStoreUrl;
+      return trimmed.includes('aff=') ? trimmed : EXONHOST_AFFILIATE_URL;
     }
-
     if (originStore === 'Shopz BD' || trimmed.includes('shopz.com.bd')) {
       if (trimmed.includes('ref=')) return trimmed;
       const sep = trimmed.includes('?') ? '&' : '?';
       return `${trimmed}${sep}ref=mahbubur-rahman-shahin`;
     }
-
     if (trimmed.includes('link.amazon/B0io1BQfg') || trimmed.includes('amzn.to')) {
       return trimmed;
     }
-
     if (trimmed.includes('link.amazon')) {
-      return PRIMARY_AMAZON_SHORTLINK;
+      return AMAZON_LINK_SHORT;
     }
-
     if (trimmed.includes('amazon.com')) {
       try {
         const url = new URL(trimmed);
-        url.searchParams.set('tag', affiliateTag);
+        url.searchParams.set('tag', AMAZON_ASSOCIATE_TAG);
         url.searchParams.set('linkCode', 'll2');
-        url.searchParams.set('linkId', FIXED_LINK_ID);
+        url.searchParams.set('linkId', AMAZON_LINK_ID);
         return url.toString();
       } catch {
         const sep = trimmed.includes('?') ? '&' : '?';
-        return `${trimmed}${sep}tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
+        return `${trimmed}${sep}tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
       }
     }
 
@@ -398,24 +632,24 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getAffiliateBuyUrl = (product: EcomProduct): string => {
     if (product.affiliateUrl) {
-      return applyPartnerTracking(product.affiliateUrl, product.originStore, product.asin, product.title);
-    }
-
-    if (product.originStore === 'Amazon') {
-      return amazonStoreUrl;
+      return applyPartnerTracking(product.affiliateUrl, product.originStore, product.asin);
     }
 
     if (product.asin) {
-      return `https://www.amazon.com/dp/${product.asin}?tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
+      return `https://www.amazon.com/dp/${product.asin}?tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
     }
 
-    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
+    if (product.originStore === 'Amazon') {
+      return AMAZON_STORE_URL;
+    }
+
+    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
   };
 
   const getAmazonSearchAffiliateUrl = (query: string): string => {
     const clean = query.trim();
-    if (!clean) return amazonStoreUrl;
-    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${affiliateTag}&linkCode=ll2&linkId=${FIXED_LINK_ID}`;
+    if (!clean) return AMAZON_STORE_URL;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
   };
 
   const getShopzSearchAffiliateUrl = (query: string): string => {
@@ -438,19 +672,32 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSelectedStoreFilter,
         visitorRegion,
         setVisitorRegion,
+        regionDetectionSource,
         regionProfile,
         highlightedProductId,
         setHighlightedProductId,
+        buyingNeed,
+        setBuyingNeed,
+        buyingBudgetUsd,
+        setBuyingBudgetUsd,
+        buyingPreferredStore,
+        setBuyingPreferredStore,
+        recommendations,
+        personalizationEnabled,
+        setPersonalizationEnabled,
+        interactions,
+        trackInteraction,
+        resetPersonalization,
         getAffiliateBuyUrl,
         getAmazonSearchAffiliateUrl,
         getShopzSearchAffiliateUrl,
-        amazonShortUrl,
-        amazonStoreUrl,
-        shopzStoreUrl,
-        exonhostStoreUrl,
-        aliexpressStoreUrl,
-        alibabaStoreUrl,
-        affiliateTag,
+        amazonShortUrl: AMAZON_LINK_SHORT,
+        amazonStoreUrl: AMAZON_STORE_URL,
+        shopzStoreUrl: SHOPZ_REF_BASE,
+        exonhostStoreUrl: EXONHOST_AFFILIATE_URL,
+        aliexpressStoreUrl: ALIEXPRESS_AFFILIATE_URL,
+        alibabaStoreUrl: ALIBABA_AFFILIATE_URL,
+        affiliateTag: AMAZON_ASSOCIATE_TAG,
         recordAffiliateClick
       }}
     >

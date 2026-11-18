@@ -1,4 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import type { PartnerStoreOrigin } from '../src/utils/regionProfile.ts';
+import type { ProductCategory } from '../src/data/catalogRecords.ts';
 
 export interface ProductSpec {
   label: string;
@@ -10,15 +12,7 @@ export interface CustomStoreProduct {
   title: string;
   asin?: string;
   brand: string;
-  category:
-    | 'Electronics & Gadgets'
-    | 'Computers & Accessories'
-    | 'Audio & Headphones'
-    | 'Smart Home & Power'
-    | 'Wearables & Smartwatches'
-    | 'Office & Workspace'
-    | 'Shopz BD Tech Deals'
-    | 'Cloud Hosting & Domains';
+  category: Exclude<ProductCategory, 'All Departments (Mega Store)'>;
   department: string;
   price: number;
   originalPrice?: number;
@@ -31,7 +25,7 @@ export interface CustomStoreProduct {
   description: string;
   highlights: string[];
   specs: ProductSpec[];
-  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba';
+  originStore: PartnerStoreOrigin;
 }
 
 export interface PriceOverride {
@@ -68,13 +62,14 @@ export interface StorefrontConfig {
 
 export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
-  announcementText: 'Camellia Shop · Curated Amazon Prime & Shopz BD Hardware',
-  heroTitle: 'Curated Workspace Electronics, Desk Hardware & Direct Checkout.',
+  announcementText:
+    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, AliExpress, Alibaba & ExonHost',
+  heroTitle: 'Curated Workspace Tech, Desk Hardware & Partner Checkout.',
   heroSubtitle:
-    'Shop curated computer peripherals, GaN chargers, studio audio gear, monitors, and desk accessories with live multi-currency pricing and direct Amazon and Shopz BD product links.',
-  storeTitle: 'Shop Prime Gear & Shopz BD Electronics',
+    'Explore workspace electronics, accessories, smartwatches, cloud hosting, and partner store offers across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Partner Deals & Cloud Hosting',
   storeSubtitle:
-    'Curated hardware across Amazon and Shopz BD. Every purchase completes directly on the official retailer store with manufacturer warranties and buyer protection.',
+    'Browse electronics, accessories, personal tech, and hosting portals across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost. Every order completes directly on the partner store.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -86,7 +81,8 @@ const BLOCKED_AD_DOMAINS = [
   'profitableratecpmnetwork',
   'adsterra',
   'quge5',
-  'blogspot.com'
+  'blogspot.com',
+  'fabrilife.com'
 ];
 
 function isBlockedUrl(url: string): boolean {
@@ -96,39 +92,55 @@ function isBlockedUrl(url: string): boolean {
 
 function sanitizePartnerUrl(
   rawUrl: string,
-  originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba',
-  _asin?: string
+  originStore: PartnerStoreOrigin,
+  asin?: string
 ): string {
   const AMAZON_NODE_URL =
     'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
   const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
   const ALIEXPRESS_URL = 'https://rzekl.com/g/1e8d114494cb5002cfdd16525dc3e8/';
   const ALIBABA_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
+  const RELEVA_TRACKING =
+    'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
-    if (originStore === 'ExonHost') {
-      return 'https://my.exonhost.com/affiliate?aff=5993';
+    if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
+    if (originStore === 'AliExpress') return ALIEXPRESS_URL;
+    if (originStore === 'Alibaba') return ALIBABA_URL;
+    if (originStore === 'Releva BD') {
+      return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING}`;
     }
-    if (originStore === 'AliExpress') {
-      return ALIEXPRESS_URL;
+    if (originStore === 'Shopz BD') {
+      return 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin';
     }
-    if (originStore === 'Alibaba') {
-      return ALIBABA_URL;
+    if (asin && /^[A-Z0-9]{10}$/.test(asin.trim())) {
+      return `https://www.amazon.com/dp/${asin.trim()}?tag=mrxshahin06-20&linkCode=ll2&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6`;
     }
-    return originStore === 'Shopz BD'
-      ? 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin'
-      : AMAZON_NODE_URL;
+    return AMAZON_NODE_URL;
   }
+
   if (originStore === 'AliExpress' || trimmed.includes('1e8d114494cb5002cfdd16525dc3e8')) {
     return trimmed.includes('rzekl.com/') ? trimmed : ALIEXPRESS_URL;
   }
   if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
     return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;
   }
+  if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
+    try {
+      const u = new URL(trimmed);
+      if (!u.searchParams.has('tracking')) {
+        u.searchParams.set('tracking', RELEVA_TRACKING);
+      }
+      return u.toString();
+    } catch {
+      return trimmed.includes('tracking=')
+        ? trimmed
+        : `${trimmed}${trimmed.includes('?') ? '&' : '?'}tracking=${RELEVA_TRACKING}`;
+    }
+  }
   if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
-    if (trimmed.includes('aff=')) return trimmed;
-    return 'https://my.exonhost.com/affiliate?aff=5993';
+    return trimmed.includes('aff=') ? trimmed : 'https://my.exonhost.com/affiliate?aff=5993';
   }
   if (originStore === 'Shopz BD' || trimmed.includes('shopz.com.bd')) {
     if (trimmed.includes('ref=')) return trimmed;
@@ -164,13 +176,17 @@ const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
   'Wearables & Smartwatches',
   'Office & Workspace',
   'Shopz BD Tech Deals',
+  'Releva BD Picks',
   'Cloud Hosting & Domains'
 ]);
 
 function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): StorefrontConfig {
   const src = raw && typeof raw === 'object' ? raw : {};
   return {
-    siteName: typeof src.siteName === 'string' && src.siteName.trim() ? src.siteName.trim() : DEFAULT_STOREFRONT.siteName,
+    siteName:
+      typeof src.siteName === 'string' && src.siteName.trim()
+        ? src.siteName.trim()
+        : DEFAULT_STOREFRONT.siteName,
     announcementText:
       typeof src.announcementText === 'string' && src.announcementText.trim()
         ? src.announcementText.trim()
@@ -192,10 +208,22 @@ function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): Storefront
         ? src.storeSubtitle.trim()
         : DEFAULT_STOREFRONT.storeSubtitle,
     hiddenProductIds: Array.isArray(src.hiddenProductIds)
-      ? Array.from(new Set(src.hiddenProductIds.filter((id): id is string => typeof id === 'string' && id.trim().length > 0)))
+      ? Array.from(
+          new Set(
+            src.hiddenProductIds.filter(
+              (id): id is string => typeof id === 'string' && id.trim().length > 0
+            )
+          )
+        )
       : [],
     featuredProductIds: Array.isArray(src.featuredProductIds)
-      ? Array.from(new Set(src.featuredProductIds.filter((id): id is string => typeof id === 'string' && id.trim().length > 0)))
+      ? Array.from(
+          new Set(
+            src.featuredProductIds.filter(
+              (id): id is string => typeof id === 'string' && id.trim().length > 0
+            )
+          )
+        )
       : [],
     priceOverrides:
       src.priceOverrides && typeof src.priceOverrides === 'object' && !Array.isArray(src.priceOverrides)
@@ -276,7 +304,10 @@ interface ControlPatch {
   }>;
 }
 
-async function callGeminiWithRetry(instruction: string, current: StorefrontConfig): Promise<ControlPatch> {
+async function callGeminiWithRetry(
+  instruction: string,
+  current: StorefrontConfig
+): Promise<ControlPatch> {
   const ai = getAiClient();
   const maxAttempts = 3;
   let lastErr: unknown;
@@ -291,49 +322,30 @@ async function callGeminiWithRetry(instruction: string, current: StorefrontConfi
         }),
         config: {
           systemInstruction: [
-            'You are the silent backend storefront operations engine for Camellia Shop, a pure e-commerce electronics and workspace hardware store.',
+            'You are the silent backend storefront operations engine for Camellia Shop, a curated e-commerce affiliate catalog.',
             'Given an operator instruction and the currentStorefront JSON state, return a minimal JSON patch object describing the exact updates to apply.',
             'Rules:',
-            '1. Never mention AI, models, automation, prompts, or system internals in any storefront copy (siteName, announcementText, heroTitle, heroSubtitle, storeTitle, storeSubtitle, product descriptions, or badges).',
-            '2. Keep everything strictly e-commerce focused.',
-            '3. Preserve approved sponsor links (https://uplcm.com/4/...) and partner store checkout URLs; never add unrelated ad network links.',
-            '4. Preserve existing fields unless the instruction requests modifying them; omit unchanged optional fields.',
-            '5. Keep copy crisp, natural, and concise.'
+            '1. Never mention AI, models, automation, prompts, or system internals in any storefront copy.',
+            '2. Keep everything strictly e-commerce focused and never fabricate live prices, discounts, reviews, or delivery guarantees.',
+            '3. Preserve approved sponsor links (https://uplcm.com/4/...) and partner store checkout URLs; never add Fabrilife or blocked ad network links.',
+            '4. Preserve existing fields unless the instruction requests modifying them.'
           ].join(' '),
           responseMimeType: 'application/json',
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              summary: {
-                type: Type.STRING,
-                description: 'Short operator-facing summary of changes applied.'
-              },
+              summary: { type: Type.STRING },
               siteName: { type: Type.STRING },
               announcementText: { type: Type.STRING },
               heroTitle: { type: Type.STRING },
               heroSubtitle: { type: Type.STRING },
               storeTitle: { type: Type.STRING },
               storeSubtitle: { type: Type.STRING },
-              hideProductIds: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-              },
-              unhideProductIds: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-              },
-              featuredProductIds: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-              },
-              removeCustomProductIds: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-              },
-              removeSponsorIds: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-              },
+              hideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
+              unhideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
+              featuredProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
+              removeCustomProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
+              removeSponsorIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               upsertSponsors: {
                 type: Type.ARRAY,
                 items: {
@@ -383,10 +395,7 @@ async function callGeminiWithRetry(instruction: string, current: StorefrontConfi
                     affiliateUrl: { type: Type.STRING },
                     mainImage: { type: Type.STRING },
                     description: { type: Type.STRING },
-                    highlights: {
-                      type: Type.ARRAY,
-                      items: { type: Type.STRING }
-                    },
+                    highlights: { type: Type.ARRAY, items: { type: Type.STRING } },
                     originStore: { type: Type.STRING }
                   },
                   required: ['id', 'title', 'brand', 'category', 'price', 'affiliateUrl', 'originStore']
@@ -470,7 +479,11 @@ export async function executeBackendSiteControl(
 
   if (Array.isArray(patch.featuredProductIds)) {
     next.featuredProductIds = Array.from(
-      new Set(patch.featuredProductIds.filter((id): id is string => typeof id === 'string' && id.trim().length > 0))
+      new Set(
+        patch.featuredProductIds.filter(
+          (id): id is string => typeof id === 'string' && id.trim().length > 0
+        )
+      )
     );
   }
 
@@ -481,7 +494,11 @@ export async function executeBackendSiteControl(
       if (typeof ov.price === 'number' && Number.isFinite(ov.price) && ov.price >= 0) {
         cleanOv.price = Number(ov.price.toFixed(2));
       }
-      if (typeof ov.originalPrice === 'number' && Number.isFinite(ov.originalPrice) && ov.originalPrice > 0) {
+      if (
+        typeof ov.originalPrice === 'number' &&
+        Number.isFinite(ov.originalPrice) &&
+        ov.originalPrice > 0
+      ) {
         cleanOv.originalPrice = Number(ov.originalPrice.toFixed(2));
       }
       if (typeof ov.badge === 'string' && ov.badge.trim()) {
@@ -502,9 +519,11 @@ export async function executeBackendSiteControl(
   if (Array.isArray(patch.upsertProducts)) {
     for (const rawProd of patch.upsertProducts) {
       if (!rawProd?.id || !rawProd?.title) continue;
-      const originStore: 'Amazon' | 'Shopz BD' | 'ExonHost' | 'AliExpress' | 'Alibaba' =
+      const originStore: PartnerStoreOrigin =
         rawProd.originStore === 'Shopz BD'
           ? 'Shopz BD'
+          : rawProd.originStore === 'Releva BD'
+          ? 'Releva BD'
           : rawProd.originStore === 'ExonHost'
           ? 'ExonHost'
           : rawProd.originStore === 'AliExpress'
@@ -518,44 +537,51 @@ export async function executeBackendSiteControl(
         ? 'Cloud Hosting & Domains'
         : originStore === 'Shopz BD'
         ? 'Shopz BD Tech Deals'
+        : originStore === 'Releva BD'
+        ? 'Releva BD Picks'
         : 'Electronics & Gadgets';
       const safeImage =
-        typeof rawProd.mainImage === 'string' && rawProd.mainImage.trim() && !isBlockedUrl(rawProd.mainImage)
+        typeof rawProd.mainImage === 'string' &&
+        rawProd.mainImage.trim() &&
+        !isBlockedUrl(rawProd.mainImage)
           ? rawProd.mainImage.trim()
           : '';
       const safeProd: CustomStoreProduct = {
         id: rawProd.id.trim(),
         title: rawProd.title.trim(),
-        asin: typeof rawProd.asin === 'string' && rawProd.asin.trim() ? rawProd.asin.trim() : undefined,
+        asin:
+          typeof rawProd.asin === 'string' && rawProd.asin.trim()
+            ? rawProd.asin.trim()
+            : undefined,
         brand: (rawProd.brand || 'Camellia Pick').trim(),
         category,
         department: (rawProd.department || category).trim(),
-        price: typeof rawProd.price === 'number' && Number.isFinite(rawProd.price) && rawProd.price >= 0 ? Number(rawProd.price.toFixed(2)) : 0,
+        price:
+          typeof rawProd.price === 'number' && Number.isFinite(rawProd.price) && rawProd.price >= 0
+            ? Number(rawProd.price.toFixed(2))
+            : 0,
         originalPrice:
-          typeof rawProd.originalPrice === 'number' && Number.isFinite(rawProd.originalPrice) && rawProd.originalPrice > 0
+          typeof rawProd.originalPrice === 'number' &&
+          Number.isFinite(rawProd.originalPrice) &&
+          rawProd.originalPrice > 0
             ? Number(rawProd.originalPrice.toFixed(2))
             : undefined,
-        badge: typeof rawProd.badge === 'string' && rawProd.badge.trim() ? rawProd.badge.trim() : undefined,
-        primeEligible: Boolean(rawProd.primeEligible),
-        deliveryEstimate:
-          (
-            rawProd.deliveryEstimate ||
-            (originStore === 'ExonHost'
-              ? 'Instant Cloud Provisioning'
-              : originStore === 'Shopz BD'
-              ? 'Fulfilled by Shopz BD Courier'
-              : originStore === 'AliExpress'
-              ? 'AliExpress Choice Global Dispatch'
-              : originStore === 'Alibaba'
-              ? 'Alibaba Trade Assurance Dispatch'
-              : 'Fulfilled by Amazon')
-          ).trim(),
+        badge:
+          typeof rawProd.badge === 'string' && rawProd.badge.trim()
+            ? rawProd.badge.trim()
+            : undefined,
+        primeEligible: false,
+        deliveryEstimate: (
+          rawProd.deliveryEstimate || `Check live shipping & terms on ${originStore}`
+        ).trim(),
         affiliateUrl: sanitizePartnerUrl(rawProd.affiliateUrl || '', originStore, rawProd.asin),
         mainImage: safeImage,
         galleryImages: safeImage ? [safeImage] : [],
         description: (rawProd.description || rawProd.title).trim(),
         highlights: Array.isArray(rawProd.highlights)
-          ? rawProd.highlights.filter((h): h is string => typeof h === 'string' && h.trim().length > 0)
+          ? rawProd.highlights.filter(
+              (h): h is string => typeof h === 'string' && h.trim().length > 0
+            )
           : [],
         specs: [{ label: 'Retailer', value: originStore }],
         originStore
@@ -593,9 +619,9 @@ export async function executeBackendSiteControl(
         id: rawSp.id.trim(),
         title: rawSp.title.trim(),
         subtitle: (rawSp.subtitle || rawSp.title).trim(),
-        category: (rawSp.category || 'Partner Offer').trim(),
+        category: (rawSp.category || 'Sponsored Partner Offer').trim(),
         group,
-        ctaLabel: (rawSp.ctaLabel || 'Explore Offer').trim(),
+        ctaLabel: (rawSp.ctaLabel || 'Open Offer').trim(),
         url: cleanUrl,
         featured: Boolean(rawSp.featured)
       };
@@ -611,6 +637,9 @@ export async function executeBackendSiteControl(
 
   return {
     storefront: next,
-    summary: typeof patch.summary === 'string' && patch.summary.trim() ? patch.summary.trim() : 'Storefront updated.'
+    summary:
+      typeof patch.summary === 'string' && patch.summary.trim()
+        ? patch.summary.trim()
+        : 'Storefront updated.'
   };
 }

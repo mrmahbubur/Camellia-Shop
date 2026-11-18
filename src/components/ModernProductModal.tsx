@@ -19,7 +19,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   onToggleCompare,
   isCompared = false
 }) => {
-  const { addToCart, formatPrice } = useCart();
+  const { addToCart, formatPrice, ratesDisclaimer } = useCart();
   const { sponsors, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'guarantee'>('highlights');
@@ -45,10 +45,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   if (!product) return null;
 
   const currentImage = product.galleryImages[activeImageIndex] || product.mainImage;
-  const savingsAmount = product.originalPrice ? product.originalPrice - product.price : 0;
-  const savingsPercent = product.originalPrice
-    ? Math.round((savingsAmount / product.originalPrice) * 100)
-    : 0;
+  const hasKnownPrice =
+    product.nativeCurrency === 'BDT'
+      ? typeof product.nativePrice === 'number' && product.nativePrice > 0
+      : product.price > 0;
 
   const buyUrl = getAffiliateBuyUrl(product);
 
@@ -68,6 +68,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
         image: product.mainImage,
         nativePrice: product.nativePrice,
         nativeCurrency: product.nativeCurrency,
+        priceStatus: product.priceStatus,
+        imageIsIllustrative: product.imageIsIllustrative,
+        urlKind: product.urlKind,
         csvCategory: product.csvCategory,
         sourceType: product.sourceType,
         originStore: product.originStore,
@@ -84,6 +87,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   };
 
   const isShopz = product.originStore === 'Shopz BD';
+  const isReleva = product.originStore === 'Releva BD';
   const isExonHost = product.originStore === 'ExonHost';
   const isAliExpress = product.originStore === 'AliExpress';
   const isAlibaba = product.originStore === 'Alibaba';
@@ -94,11 +98,15 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
       className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-5"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={product.title}
         onClick={(e) => e.stopPropagation()}
         className="relative bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[92dvh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]"
       >
         {/* Floating Close Button */}
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close product view"
           className="sticky sm:absolute top-3 right-3 sm:top-4 sm:right-4 float-right sm:float-none z-20 min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white/95 dark:bg-slate-800/95 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors shadow-sm cursor-pointer m-2 sm:m-0"
@@ -136,11 +144,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   </span>
                 )}
 
-                {product.primeEligible && (
-                  <span className="absolute bottom-3 left-3 bg-slate-900/90 text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5 shadow-sm">
-                    <span className="text-amber-400 font-extrabold italic">prime</span>
-                  </span>
-                )}
+                <span className="absolute bottom-2.5 right-2.5 bg-slate-950/75 text-slate-200 text-[10px] px-2 py-0.5 rounded">
+                  Illustrative image
+                </span>
               </div>
 
               {product.galleryImages.length > 1 && (
@@ -148,6 +154,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   {product.galleryImages.map((img, idx) => (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => setActiveImageIndex(idx)}
                       className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
                         activeImageIndex === idx
@@ -168,7 +175,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <span>{product.deliveryEstimate}</span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Live stock, shipping speed, and verified buyer reviews are displayed directly on {product.originStore}.
+                Photos shown are illustrative. Live stock, product specifications, shipping, and return terms are verified directly on {product.originStore}.
               </p>
             </div>
           </div>
@@ -181,7 +188,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                 </span>
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                  Retailer: {product.originStore}
+                  Partner: {product.originStore}
                 </span>
               </div>
 
@@ -189,22 +196,18 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 {product.title}
               </h2>
 
-              <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3 mb-4 p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
-                  {product.price > 0
-                    ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
-                    : 'Check Live Price'}
-                </span>
-                {product.originalPrice && product.price > 0 && (
-                  <span className="text-sm text-slate-400 line-through font-mono tabular-nums">
-                    {formatPrice(product.originalPrice)}
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700 mb-4 space-y-1">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
+                    {hasKnownPrice
+                      ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
+                      : `Check live price on ${product.originStore}`}
                   </span>
-                )}
-                {savingsAmount > 0 && product.price > 0 && (
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded">
-                    Est. {savingsPercent}% Below List
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    {hasKnownPrice ? 'Historical CSV Reference Price' : 'Live Partner Pricing'}
                   </span>
-                )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">{ratesDisclaimer}</p>
               </div>
 
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-5 leading-relaxed">
@@ -214,6 +217,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
               {/* Tab Navigation */}
               <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg mb-4 text-xs font-medium overflow-x-auto scrollbar-none">
                 <button
+                  type="button"
                   onClick={() => setActiveTab('highlights')}
                   className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'highlights'
@@ -221,9 +225,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Key Highlights
+                  Key Details
                 </button>
                 <button
+                  type="button"
                   onClick={() => setActiveTab('specs')}
                   className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'specs'
@@ -231,9 +236,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Technical Specs
+                  Listing Info
                 </button>
                 <button
+                  type="button"
                   onClick={() => setActiveTab('guarantee')}
                   className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'guarantee'
@@ -241,15 +247,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {isExonHost
-                    ? 'ExonHost Policy'
-                    : isShopz
-                    ? 'Shopz BD Policy'
-                    : isAliExpress
-                    ? 'AliExpress Policy'
-                    : isAlibaba
-                    ? 'Alibaba Policy'
-                    : 'Amazon Buyer Policy'}
+                  Checkout &amp; Disclosure
                 </button>
               </div>
 
@@ -279,28 +277,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <div className="p-4 bg-amber-50/70 dark:bg-amber-500/15 rounded-xl border border-amber-200/80 dark:border-amber-500/30 mb-6 text-xs text-amber-950 dark:text-amber-200 space-y-2">
                   <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>
-                      {isExonHost
-                        ? 'Direct ExonHost Official Portal Link'
-                        : isShopz
-                        ? 'Direct Shopz BD Official Product Link'
-                        : isAliExpress
-                        ? 'Direct AliExpress Choice Partner Link'
-                        : isAlibaba
-                        ? 'Direct Alibaba Trade Assurance Link'
-                        : 'Direct Amazon Official Product Link'}
-                    </span>
+                    <span>Direct {product.originStore} Checkout</span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                    {isExonHost
-                      ? 'Your hosting or domain order completes directly on ExonHost with instant provisioning, 24/7 live support, and a 30-day money-back guarantee.'
-                      : isShopz
-                      ? 'Your purchase completes directly on Shopz.com.bd under their official store checkout, courier tracking, and seller warranty terms.'
-                      : isAliExpress
-                      ? 'Your order completes directly on AliExpress under official Buyer Protection, global tracked shipping, and refund coverage.'
-                      : isAlibaba
-                      ? 'Your sample or bulk order completes directly on Alibaba.com protected by Trade Assurance escrow and verified supplier commitments.'
-                      : 'Your purchase completes directly on Amazon.com under Amazon’s official checkout, return window, and A-to-z Guarantee.'}
+                    Camellia Shop is a curated affiliate storefront. All checkout, payment, live pricing, stock availability, shipping speed, returns, and customer support occur directly on {product.originStore}.
                   </p>
                 </div>
               )}
@@ -312,13 +292,15 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <a
                   href={buyUrl}
                   target="_blank"
-                  rel="noreferrer noopener sponsored"
-                  onClick={() => recordAffiliateClick(product.id)}
+                  rel="sponsored noopener noreferrer"
+                  onClick={() => recordAffiliateClick(product.id, product.originStore, product.category)}
                   className={`flex-1 min-h-[46px] py-3 px-4 font-extrabold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
                     isExonHost
                       ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                       : isShopz
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : isReleva
+                      ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
                       : isAliExpress
                       ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
                       : isAlibaba
@@ -328,15 +310,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 >
                   <ShoppingCart className="w-4 h-4 shrink-0" />
                   <span className="truncate">
-                    {isExonHost
-                      ? 'Order on ExonHost'
-                      : isShopz
-                      ? 'Buy on Shopz BD'
-                      : isAliExpress
-                      ? 'Buy on AliExpress'
-                      : isAlibaba
-                      ? 'Source on Alibaba'
-                      : 'Buy on Amazon'}
+                    {product.urlKind === 'portal'
+                      ? `Open ${product.originStore}`
+                      : `View on ${product.originStore}`}
                   </span>
                   <ExternalLink className={`w-4 h-4 shrink-0 ${isAlibaba ? 'text-white' : 'text-slate-900'}`} />
                 </a>
@@ -344,7 +320,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  title="Copy product link"
+                  title="Copy affiliate link"
                   className="min-h-[46px] py-3 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                 >
                   {copiedLink ? (
@@ -361,74 +337,67 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 </button>
               </div>
 
-              {product.price > 0 && (
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="min-h-[42px] px-3 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-l-lg transition-colors cursor-pointer"
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 text-xs font-bold font-mono tabular-nums text-slate-800 dark:text-white">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="min-h-[42px] px-3 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-r-lg transition-colors cursor-pointer"
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
-                  </div>
-
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
                   <button
-                    onClick={handleDirectAdd}
-                    className="flex-1 min-h-[42px] py-2.5 px-4 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="min-h-[42px] px-3 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-l-lg transition-colors cursor-pointer"
+                    aria-label="Decrease quantity"
                   >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Save to List</span>
+                    -
                   </button>
-
-                  {onToggleCompare && (
-                    <button
-                      onClick={() => onToggleCompare(product)}
-                      className={`min-h-[42px] min-w-[42px] p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer flex items-center justify-center ${
-                        isCompared
-                          ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40 text-amber-900 dark:text-amber-300'
-                          : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
-                      }`}
-                      title={isCompared ? 'Remove from comparison' : 'Compare product'}
-                    >
-                      <Layers className="w-4 h-4" />
-                    </button>
-                  )}
+                  <span className="px-3 text-xs font-bold font-mono tabular-nums text-slate-800 dark:text-white">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="min-h-[42px] px-3 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-r-lg transition-colors cursor-pointer"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
                 </div>
-              )}
+
+                <button
+                  type="button"
+                  onClick={handleDirectAdd}
+                  className="flex-1 min-h-[42px] py-2.5 px-4 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-semibold dark:font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                >
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Save to List</span>
+                </button>
+
+                {onToggleCompare && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleCompare(product)}
+                    className={`min-h-[42px] min-w-[42px] p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer flex items-center justify-center ${
+                      isCompared
+                        ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40 text-amber-900 dark:text-amber-300'
+                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+                    }`}
+                    title={isCompared ? 'Remove from comparison' : 'Compare product'}
+                    aria-label={isCompared ? 'Remove from comparison' : 'Compare product'}
+                  >
+                    <Layers className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
               <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-500 dark:text-slate-400 text-center pt-2">
                 <div className="flex flex-col items-center">
                   <Truck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>
-                    {isExonHost
-                      ? 'Instant Provisioning'
-                      : isShopz
-                      ? 'Shopz Courier'
-                      : isAliExpress
-                      ? 'Choice Global Dispatch'
-                      : isAlibaba
-                      ? 'Trade Assurance'
-                      : 'Amazon Delivery'}
-                  </span>
+                  <span>Shipping on Partner</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>Official Checkout</span>
+                  <span>Partner Checkout</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Award className="w-3.5 h-3.5 text-slate-400 mb-0.5" />
-                  <span>Retailer Warranty</span>
+                  <span>Partner Terms</span>
                 </div>
               </div>
 
@@ -437,7 +406,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   key={sp.id}
                   href={sp.url}
                   target="_blank"
-                  rel="noreferrer noopener sponsored"
+                  rel="sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick(sp.id)}
                   className="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                 >

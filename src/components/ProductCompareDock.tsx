@@ -34,7 +34,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
   return (
     <>
       {/* Sticky Bottom Dock */}
-      <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-40 bg-slate-900 dark:bg-slate-800 text-white px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-2.5 sm:gap-4 animate-fade-in sm:max-w-xl sm:w-auto">
+      <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-40 bg-slate-900 dark:bg-slate-800 text-white px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-2.5 sm:gap-4 sm:max-w-xl sm:w-auto">
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Layers className="w-4 h-4 text-amber-400 shrink-0" />
           <span className="text-xs font-bold text-white hidden xs:inline">Compare</span>
@@ -51,10 +51,11 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                 className="w-8 h-8 sm:w-9 sm:h-9 object-cover rounded-lg border border-slate-700 bg-white"
               />
               <button
+                type="button"
                 onClick={() => onRemove(p.id)}
                 className="absolute -top-1 -right-1 bg-slate-800 text-slate-200 hover:text-white rounded-full p-0.5 cursor-pointer border border-slate-600"
                 title="Remove"
-                aria-label={`Remove ${p.title}`}
+                aria-label={`Remove ${p.title} from compare`}
               >
                 <X className="w-2.5 h-2.5" />
               </button>
@@ -65,12 +66,14 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            type="button"
             onClick={() => setIsModalOpen(true)}
             className="px-3 sm:px-3.5 min-h-[36px] py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-lg transition-colors cursor-pointer whitespace-nowrap"
           >
             Compare
           </button>
           <button
+            type="button"
             onClick={onClear}
             className="text-[11px] text-slate-300 hover:text-white underline cursor-pointer px-1 py-1"
           >
@@ -86,6 +89,9 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
           className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Compare products side by side"
             onClick={(e) => e.stopPropagation()}
             className="relative bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90dvh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-8"
           >
@@ -95,10 +101,11 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                   Side-by-Side Product Comparison
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-                  Compare Specs &amp; Partner Pricing
+                  Compare Partner Listings &amp; Reference Prices
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close comparison"
                 className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-full cursor-pointer"
@@ -112,7 +119,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800">
                     <th className="p-3 bg-slate-50 dark:bg-slate-800/70 font-bold text-slate-700 dark:text-slate-200 w-1/4">
-                      Feature
+                      Attribute
                     </th>
                     {comparedProducts.map((p) => (
                       <th key={p.id} className="p-3 font-bold text-slate-900 dark:text-white text-center">
@@ -129,13 +136,24 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
-                      Reference Price
+                      Pricing Status
                     </td>
-                    {comparedProducts.map((p) => (
-                      <td key={p.id} className="p-3 text-center font-mono font-bold text-sm text-slate-900 dark:text-white">
-                        {p.price > 0 ? formatPrice(p.price, p.nativePrice, p.nativeCurrency) : 'Check Live Price'}
-                      </td>
-                    ))}
+                    {comparedProducts.map((p) => {
+                      const hasPrice =
+                        p.nativeCurrency === 'BDT'
+                          ? typeof p.nativePrice === 'number' && p.nativePrice > 0
+                          : p.price > 0;
+                      return (
+                        <td
+                          key={p.id}
+                          className="p-3 text-center font-mono font-bold text-sm text-slate-900 dark:text-white"
+                        >
+                          {hasPrice
+                            ? `${formatPrice(p.price, p.nativePrice, p.nativeCurrency)} (CSV Ref.)`
+                            : 'Check live price'}
+                        </td>
+                      );
+                    })}
                   </tr>
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
@@ -143,46 +161,38 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                     </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center text-slate-700 dark:text-slate-300 font-medium">
-                        {p.category}
+                        {p.csvCategory ? `${p.category} · ${p.csvCategory}` : p.category}
                       </td>
                     ))}
                   </tr>
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
-                      Fulfillment
+                      Shipping &amp; Terms
                     </td>
                     {comparedProducts.map((p) => (
-                      <td key={p.id} className="p-3 text-center text-emerald-700 dark:text-emerald-400 font-semibold">
-                        {p.originStore === 'ExonHost'
-                          ? 'Instant Cloud Setup'
-                          : p.originStore === 'Shopz BD'
-                          ? 'Shopz BD Courier'
-                          : p.originStore === 'AliExpress'
-                          ? 'Choice Global Dispatch'
-                          : p.originStore === 'Alibaba'
-                          ? 'Trade Assurance'
-                          : p.primeEligible
-                          ? 'Free Prime 1-2 Day'
-                          : 'Standard Shipping'}
+                      <td key={p.id} className="p-3 text-center text-slate-600 dark:text-slate-300 font-medium">
+                        Verified on {p.originStore}
                       </td>
                     ))}
                   </tr>
                   <tr>
                     <td className="p-3 font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40">
-                      Direct Purchase Outlet
+                      Partner Checkout
                     </td>
                     {comparedProducts.map((p) => (
                       <td key={p.id} className="p-3 text-center">
                         <a
                           href={getAffiliateBuyUrl(p)}
                           target="_blank"
-                          rel="noreferrer noopener sponsored"
-                          onClick={() => recordAffiliateClick(p.id)}
+                          rel="sponsored noopener noreferrer"
+                          onClick={() => recordAffiliateClick(p.id, p.originStore, p.category)}
                           className={`inline-flex items-center gap-1.5 px-3 py-2 font-bold rounded-lg text-xs shadow-xs whitespace-nowrap ${
                             p.originStore === 'ExonHost'
                               ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                               : p.originStore === 'Shopz BD'
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                              : p.originStore === 'Releva BD'
+                              ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
                               : p.originStore === 'AliExpress'
                               ? 'bg-orange-500 hover:bg-orange-400 text-slate-950'
                               : p.originStore === 'Alibaba'
@@ -190,13 +200,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                               : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                           }`}
                         >
-                          <span>
-                            {p.originStore === 'ExonHost'
-                              ? 'Order on ExonHost'
-                              : p.originStore === 'Alibaba'
-                              ? 'Source on Alibaba'
-                              : `Buy on ${p.originStore}`}
-                          </span>
+                          <span>{`Open on ${p.originStore}`}</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       </td>
@@ -208,6 +212,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
 
             <div className="mt-6 flex justify-end pb-[env(safe-area-inset-bottom)]">
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="px-5 min-h-[42px] py-2 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 rounded-lg text-xs font-semibold hover:bg-slate-800 dark:hover:bg-amber-300 cursor-pointer"
               >

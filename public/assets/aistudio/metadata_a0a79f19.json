@@ -1,0 +1,6 @@
+{
+  "name": "Camellia Shop | The Everyday Edit",
+  "description": "A curated affiliate storefront for workspace essentials, audio and everyday technology, with regional discovery and personalized recommendations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
