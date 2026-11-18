@@ -93,17 +93,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'deskMat',
     imageIsIllustrative: true,
     description:
-      'Ergonomic wireless mouse with quiet clicks, MagSpeed electromagnetic scroll wheel, and multi-device pairing. Open Amazon for live pricing and stock.',
+      'Ergonomic wireless mouse featuring an 8,000 DPI Darkfield sensor, Quiet Clicks switches, MagSpeed electromagnetic scrolling, and dual Bluetooth LE + Logi Bolt wireless.',
     highlights: [
       'Direct Amazon product page (ASIN B09HM94VDS)',
-      'Sculpted thumb rest and MagSpeed scroll wheel',
-      'Live price, variants, and regional shipping appear on Amazon'
+      '200–8,000 DPI Darkfield sensor (tracks on glass) + MagSpeed scroll',
+      'Up to 70-day rechargeable 500mAh Li-Po battery; Quiet Clicks tactile switches'
     ],
     specs: [
       { label: 'ASIN', value: 'B09HM94VDS' },
-      { label: 'Brand', value: 'Logitech' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Sensor', value: '200–8,000 DPI Darkfield' },
+      { label: 'Connectivity', value: 'Bluetooth LE & Logi Bolt USB' },
+      { label: 'Battery', value: '500mAh Li-Po (up to 70 days)' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['workspace', 'mouse', 'ergonomic', 'productivity', 'computers']
@@ -127,17 +128,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Monitor-mounted asymmetric task light with wireless rotary dimmer and rear bias lighting. Open Amazon for live pricing and specifications.',
+      'Asymmetrical monitor light bar with front task illumination, rear ambient bias backlight, and a wireless desktop rotary controller (2700K–6500K).',
     highlights: [
       'Direct Amazon product page (ASIN B08WT889V3)',
-      'Saves desk space by mounting atop the display',
-      'Live price, dimensions, and shipping shown on Amazon'
+      'Asymmetrical zero-glare optics + Front / Back / Dual lighting modes',
+      'Wireless rotary dial (2700K–6500K); USB 5V/1.7A powered'
     ],
     specs: [
       { label: 'ASIN', value: 'B08WT889V3' },
-      { label: 'Brand', value: 'BenQ' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Color Temp', value: '2700K–6500K Stepless Dial' },
+      { label: 'Controller', value: 'Wireless RF Desktop Dial' },
+      { label: 'Power', value: 'USB 5V / 1.7A' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['workspace', 'lighting', 'monitor', 'desk', 'ergonomic']
@@ -161,17 +163,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'headphoneStand',
     imageIsIllustrative: true,
     description:
-      'Over-ear wireless active noise canceling headphones designed for calls, studio monitoring, and travel. Open Amazon for current colorway pricing.',
+      'Over-ear ANC headphones powered by Integrated Processor V1 and HD QN1 with 8 microphones, 30mm drivers, Bluetooth 5.2 multipoint, and up to 30-hour battery.',
     highlights: [
       'Direct Amazon product page (ASIN B09XS7JWHH)',
-      'Over-ear wireless active noise cancelation',
-      'Live price, stock, and color options on Amazon'
+      'Dual V1 + QN1 ANC processors managing 8 microphones + Auto NC Optimizer',
+      '30mm custom drivers, Bluetooth 5.2 multipoint (SBC/AAC/LDAC), up to 30h ANC'
     ],
     specs: [
       { label: 'ASIN', value: 'B09XS7JWHH' },
-      { label: 'Brand', value: 'Sony' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Drivers & ANC', value: '30mm Drivers · 8-Mic V1 + QN1' },
+      { label: 'Bluetooth', value: '5.2 Multipoint (SBC/AAC/LDAC)' },
+      { label: 'Battery', value: 'Up to 30 hours with ANC' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['audio', 'headphones', 'anc', 'creator', 'commuter']
@@ -195,17 +198,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Foldable Qi2 magnetic 3-in-1 desktop and travel charger for compatible phone, watch, and earbuds. Check Amazon for live compatibility and price.',
+      'Foldable Qi2-certified 15W magnetic 3-in-1 wireless charging station for iPhone, Apple Watch, and wireless earbuds, bundled with a 40W USB-C power adapter.',
     highlights: [
       'Direct Amazon product page (ASIN B0CFPHZZYT)',
-      'Compact 3-in-1 Qi2 magnetic stand design',
-      'Live pricing and included adapter info on Amazon'
+      'Qi2 certified 15W MagSafe-compatible fast wireless charging',
+      'Foldable 3-in-1 desktop & travel form factor + 40W USB-C wall adapter'
     ],
     specs: [
       { label: 'ASIN', value: 'B0CFPHZZYT' },
-      { label: 'Brand', value: 'Anker' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Wireless Spec', value: 'Qi2 Certified 15W Max' },
+      { label: 'Outputs', value: '3-in-1 (Phone + Watch + Earbuds)' },
+      { label: 'Adapter', value: '40W USB-C PSU Included' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['power', 'charging', 'qi2', 'travel', 'wireless']
@@ -229,17 +233,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Multi-port 13-in-1 USB-C laptop dock for dual displays, ethernet, SD card, and host power delivery. Verify port compatibility and price on Amazon.',
+      '13-in-1 powered USB-C docking station with 85W upstream laptop charging, 2x HDMI, 1x DisplayPort, 10Gbps USB-C, Gigabit Ethernet, SD/microSD, and 135W PSU.',
     highlights: [
       'Direct Amazon product page (ASIN B088F7SY6S)',
-      '13-port USB-C desktop expansion hub',
-      'Verify laptop compatibility and live pricing on Amazon'
+      '13 ports: 2x HDMI, 1x DisplayPort, 10Gbps USB-C, 3x USB-A, GbE & SD/microSD',
+      '85W upstream host Power Delivery + 18W front USB-C PD + 135W power supply'
     ],
     specs: [
       { label: 'ASIN', value: 'B088F7SY6S' },
-      { label: 'Brand', value: 'Anker' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Video Out', value: '2x HDMI + 1x DisplayPort' },
+      { label: 'Power Delivery', value: '85W Host PD (135W Adapter)' },
+      { label: 'Network & IO', value: 'GbE, SD/microSD, 10Gbps USB-C' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['workspace', 'computers', 'dock', 'usb-c', 'laptop']
@@ -263,17 +268,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Gas-spring VESA monitor arm mount for ergonomic display positioning and clearer desk space. Check supported monitor size and weight on Amazon.',
+      'Aluminum gas-spring VESA desk mount supporting 13" to 34" displays (4.4 to 19.8 lbs) with C-clamp/grommet installation, tilt, swivel, and 360-degree rotation.',
     highlights: [
       'Direct Amazon product page (ASIN B08FB7WFCT)',
-      'Articulating VESA monitor arm for home and office desks',
-      'Verify VESA weight limits and live price on Amazon'
+      'Fits 13"–34" monitors (4.4–19.8 lbs) with 75x75 or 100x100mm VESA',
+      '+85°/-30° tilt, 180° swivel, 360° rotation; C-clamp or grommet mount'
     ],
     specs: [
       { label: 'ASIN', value: 'B08FB7WFCT' },
-      { label: 'Brand', value: 'HUANUO' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Display Size', value: '13" to 34" (4.4–19.8 lbs)' },
+      { label: 'VESA Mount', value: '75x75mm & 100x100mm' },
+      { label: 'Mounting', value: 'C-Clamp (0.39"–3.54") / Grommet' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['workspace', 'monitor', 'ergonomic', 'office']
@@ -297,17 +303,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'mouse',
     imageIsIllustrative: true,
     description:
-      'Rugged 2TB portable USB 3.2 Gen 2 external SSD built for field shoots, creative backups, and mobile workflows. Check Amazon for live pricing.',
+      'Rugged 2TB portable NVMe SSD with IP65 water/dust resistance, 3-meter drop rating, AES 256-bit hardware encryption, and USB 3.2 Gen 2 (up to 1,050 MB/s read).',
     highlights: [
       'Direct Amazon product page (ASIN B09VLHR4JC)',
-      '2TB portable solid-state backup capacity',
-      'Live speed specs and price displayed on Amazon'
+      'USB 3.2 Gen 2 (10Gbps): up to 1,050 MB/s read / 1,000 MB/s write',
+      'IP65 dust/water resistance, up to 3m drop protection, AES 256-bit encryption'
     ],
     specs: [
       { label: 'ASIN', value: 'B09VLHR4JC' },
-      { label: 'Brand', value: 'Samsung' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Capacity & Bus', value: '2TB · USB 3.2 Gen 2 (10Gbps)' },
+      { label: 'Speed', value: 'Up to 1,050 MB/s Read / 1,000 Write' },
+      { label: 'Protection', value: 'IP65 & 3m Drop · 98g' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['computers', 'storage', 'creator', 'ssd', 'backup']
@@ -331,17 +338,17 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'mouse',
     imageIsIllustrative: true,
     description:
-      'Extended spill-resistant desk pad designed to anchor wireless keyboards and mice on home or studio desks. Check colorway prices on Amazon.',
+      'Extended spill-repellent desk pad (27.6 x 11.8 in, 2mm thick) with recycled polyester cloth weave, flat anti-fray edges, and natural rubber anti-slip base.',
     highlights: [
       'Direct Amazon product page (ASIN B09DV85M6Y)',
-      'Smooth cloth weave and anti-slip base',
-      'Verify dimensions and current price on Amazon'
+      'Large 27.6" × 11.8" (70 × 30 cm) × 2mm surface with anti-fray stitching',
+      'Spill-repellent recycled polyester fabric & natural rubber anti-slip base'
     ],
     specs: [
       { label: 'ASIN', value: 'B09DV85M6Y' },
-      { label: 'Brand', value: 'Logitech' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Dimensions', value: '70 × 30 cm (27.6" × 11.8" × 2mm)' },
+      { label: 'Materials', value: 'Spill-Repellent Polyester & Rubber' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['workspace', 'desk', 'office', 'accessories']
@@ -365,17 +372,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'High-output USB-C portable power bank engineered for charging laptops, tablets, and phones on the move. Check live Amazon price and terms.',
+      'Airline-compliant 99.54Wh (27,650mAh) 3-port USB-C power bank delivering up to 250W total output with smart digital telemetry display and app monitoring.',
     highlights: [
       'Direct Amazon product page (ASIN B0BYP2F3SG)',
-      '27,650mAh capacity with high-wattage USB-C PD',
-      'Verify airline rules and live pricing on Amazon'
+      '27,650mAh (99.54Wh) capacity · 250W total across 2x USB-C + 1x USB-A',
+      'Rapid dual USB-C recharge + smart display & companion app monitoring'
     ],
     specs: [
       { label: 'ASIN', value: 'B0BYP2F3SG' },
-      { label: 'Brand', value: 'Anker' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Capacity', value: '27,650mAh (99.54Wh)' },
+      { label: 'Output & Ports', value: '250W Max (2x USB-C + 1x USB-A)' },
+      { label: 'Display', value: 'Digital Wattage Telemetry' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['power', 'travel', 'commuter', 'usb-c', 'laptop']
@@ -399,17 +407,18 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'headphones',
     imageIsIllustrative: true,
     description:
-      'Dynamic vocal microphone with both USB and XLR outputs for podcasting, calls, and home studio recording. Open Amazon for current edition & price.',
+      'Dynamic broadcast microphone with dual USB and XLR outputs, Voice Isolation directional capsule, built-in touch panel controls, and 3.5mm zero-latency monitoring.',
     highlights: [
       'Direct Amazon product page (ASIN B08G7RG9ML)',
-      'Dual USB and XLR connectivity for flexible studio setups',
-      'Live bundle pricing and stock verified on Amazon'
+      'Hybrid USB + XLR connectivity for laptops or studio audio interfaces',
+      'Voice Isolation capsule, integrated touch controls & 3.5mm headphone jack'
     ],
     specs: [
       { label: 'ASIN', value: 'B08G7RG9ML' },
-      { label: 'Brand', value: 'Shure' },
-      { label: 'Price', value: 'Check live price on Amazon' },
-      { label: 'Checkout', value: 'Amazon.com' }
+      { label: 'Transducer', value: 'Dynamic (Voice Isolation)' },
+      { label: 'Outputs', value: 'USB + XLR + 3.5mm Monitor' },
+      { label: 'Software', value: 'ShurePlus MOTIV Auto-Level & EQ' },
+      { label: 'Price', value: 'Check live price on Amazon' }
     ],
     originStore: 'Amazon',
     tags: ['audio', 'creator', 'microphone', 'studio', 'podcast']
@@ -580,7 +589,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   // --- 3 EXONHOST CLOUD HOSTING & DOMAIN PLANS ---
   {
     id: 'exonhost-turbo-nvme',
-    title: 'ExonHost Web Hosting & NVMe Plans',
+    title: 'ExonHost Shared & Turbo NVMe Web Hosting',
     brand: 'ExonHost',
     category: 'Cloud Hosting & Domains',
     department: 'Cloud Hosting & Domains',
@@ -596,14 +605,16 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'heroWorkspace',
     imageIsIllustrative: true,
     description:
-      'Explore NVMe shared and cloud web hosting plans directly on ExonHost. Current billing cycles, storage quotas, and terms appear on ExonHost.',
+      'LiteSpeed + LSCache web hosting with unlimited Let’s Encrypt SSL, JetBackup daily backups, CloudLinux CageFS security, and BDIX or international servers.',
     highlights: [
       'Opens the official ExonHost affiliate portal (aff=5993)',
-      'Check live monthly/annual plans, SLA, and datacenter options on site'
+      'LiteSpeed Web Server + LSCache, Unlimited Let’s Encrypt SSL & JetBackup daily backups',
+      'BDIX (Dhaka) & international data center options; verify live rates on ExonHost'
     ],
     specs: [
-      { label: 'Partner', value: 'ExonHost' },
-      { label: 'Destination', value: 'Affiliate Portal (aff=5993)' },
+      { label: 'Partner', value: 'ExonHost (aff=5993)' },
+      { label: 'Stack', value: 'LiteSpeed + LSCache · CloudLinux' },
+      { label: 'Backups & SSL', value: 'JetBackup Daily · Free SSL' },
       { label: 'Price', value: 'Check live plan rates on ExonHost' }
     ],
     originStore: 'ExonHost',
@@ -611,7 +622,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'exonhost-managed-wp',
-    title: 'ExonHost Managed WordPress Hosting Portal',
+    title: 'ExonHost WordPress Hosting & LSCache Portal',
     brand: 'ExonHost',
     category: 'Cloud Hosting & Domains',
     department: 'Cloud Hosting & Domains',
@@ -627,14 +638,16 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'growthBundle',
     imageIsIllustrative: true,
     description:
-      'Browse WordPress and business site hosting packages on ExonHost. Verify live pricing, backups, and renewal rates before ordering.',
+      'WordPress-optimized hosting featuring Softaculous 1-click installer, WP Manager, LSCache acceleration, PHP selector (5.6–8.x), and free site migration.',
     highlights: [
       'Opens ExonHost affiliate portal (aff=5993)',
-      'Inspect managed WordPress features and billing terms on ExonHost'
+      'Softaculous 1-click WordPress setup, LSCache & free website migration',
+      'Verify live monthly/annual plans and renewal terms on ExonHost'
     ],
     specs: [
-      { label: 'Partner', value: 'ExonHost' },
-      { label: 'Destination', value: 'Affiliate Portal (aff=5993)' },
+      { label: 'Partner', value: 'ExonHost (aff=5993)' },
+      { label: 'Tools', value: 'Softaculous · WordPress Manager' },
+      { label: 'Protection', value: 'CageFS + 20 Gbps+ DDoS Filtering' },
       { label: 'Price', value: 'Check live plan rates on ExonHost' }
     ],
     originStore: 'ExonHost',
@@ -642,7 +655,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
   },
   {
     id: 'exonhost-domain-bundle',
-    title: 'ExonHost Domain Registration & VPS Portal',
+    title: 'ExonHost KVM NVMe VPS & Domain Portal',
     brand: 'ExonHost',
     category: 'Cloud Hosting & Domains',
     department: 'Cloud Hosting & Domains',
@@ -658,14 +671,16 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     secondaryImageKey: 'deskMat',
     imageIsIllustrative: true,
     description:
-      'Search domain extensions and cloud server packages directly through the ExonHost partner portal.',
+      'Linux KVM NVMe VPS (BDIX & global nodes) with full root SSH access, dedicated static IPv4, weekly snapshots, and domain registration via ExonHost.',
     highlights: [
       'Opens ExonHost affiliate portal (aff=5993)',
-      'Verify live TLD availability, renewal pricing, and VPS plans on site'
+      'Dedicated NVMe storage, full root SSH access, static IPv4 & BDIX low-latency routing',
+      'Verify live VPS configs, TLDs, and billing cycles on ExonHost'
     ],
     specs: [
-      { label: 'Partner', value: 'ExonHost' },
-      { label: 'Destination', value: 'Affiliate Portal (aff=5993)' },
+      { label: 'Partner', value: 'ExonHost (aff=5993)' },
+      { label: 'Virtualization', value: 'Linux KVM · NVMe SSD · Root SSH' },
+      { label: 'Nodes', value: 'BDIX (Dhaka) & International' },
       { label: 'Price', value: 'Check live rates on ExonHost' }
     ],
     originStore: 'ExonHost',
@@ -698,7 +713,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Link Type', value: 'Partner Portal / Showcase' },
+      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -729,7 +744,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Link Type', value: 'Partner Portal / Showcase' },
+      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -760,7 +775,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Link Type', value: 'Partner Portal / Showcase' },
+      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -791,7 +806,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'AliExpress' },
-      { label: 'Link Type', value: 'Partner Portal / Showcase' },
+      { label: 'Destination', value: 'best.aliexpress.com (Showcase Portal)' },
       { label: 'Price', value: 'Check live listings on AliExpress' }
     ],
     originStore: 'AliExpress',
@@ -824,7 +839,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Link Type', value: 'Sourcing Offer Portal' },
+      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -855,7 +870,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Link Type', value: 'Sourcing Offer Portal' },
+      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -886,7 +901,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Link Type', value: 'Sourcing Offer Portal' },
+      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',
@@ -917,7 +932,7 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     specs: [
       { label: 'Partner', value: 'Alibaba' },
-      { label: 'Link Type', value: 'Sourcing Offer Portal' },
+      { label: 'Destination', value: 'offer.alibaba.com (Sourcing Offer Portal)' },
       { label: 'Price', value: 'Check live supplier quotes on Alibaba' }
     ],
     originStore: 'Alibaba',

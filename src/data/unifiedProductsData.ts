@@ -8,9 +8,11 @@ import mouseMxImg from '../assets/images/amazon_mouse_mx_1792276213882.jpg';
 import screenbarLightImg from '../assets/images/amazon_screenbar_light_1792276214090.jpg';
 import heroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
 import cloudServerImg from '../assets/images/product_cloud_server_1794916703257.jpg';
+import shopzCsvRaw from '../../public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv?raw';
 
 import {
   CURATED_CATALOG_RECORDS,
+  parseShopzCsvRecords,
   AMAZON_ASSOCIATE_TAG,
   AMAZON_LINK_ID,
   AMAZON_STORE_URL,
@@ -119,4 +121,9 @@ export function hydrateCatalogRecord(record: CatalogRecord): EcomProduct {
   };
 }
 
-export const UNIFIED_PRODUCTS: EcomProduct[] = CURATED_CATALOG_RECORDS.map(hydrateCatalogRecord);
+const BUNDLED_CSV_RECORDS = parseShopzCsvRecords(shopzCsvRaw);
+
+export const UNIFIED_PRODUCTS: EcomProduct[] = [
+  ...CURATED_CATALOG_RECORDS,
+  ...BUNDLED_CSV_RECORDS
+].map(hydrateCatalogRecord);

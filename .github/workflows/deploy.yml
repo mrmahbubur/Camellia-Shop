@@ -35,6 +35,7 @@ jobs:
       - name: Build with Vite
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
         run: npm run build
       - name: Add SPA 404 fallback and disable Jekyll
         run: |

@@ -84,6 +84,11 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
     assert.equal(rec.priceStatus, 'live-at-partner');
   }
 
+  assert.ok(
+    amazonRecords.every((r) => r.specs.some((s) => s.label !== 'ASIN' && s.label !== 'Price')),
+    'Expected hardware specs on every Amazon ASIN listing'
+  );
+
   const expectedRelevaIds = [130, 131, 129, 133, 135];
   const relevaRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Releva BD');
   assert.equal(relevaRecords.length, expectedRelevaIds.length);
@@ -95,20 +100,30 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
     );
   }
 
+  const aliExpressRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'AliExpress');
+  assert.equal(aliExpressRecords.length, 4);
+  assert.ok(aliExpressRecords.every((r) => r.affiliateUrl === ALIEXPRESS_AFFILIATE_URL));
   assert.ok(
-    CURATED_CATALOG_RECORDS.some(
-      (r) => r.originStore === 'AliExpress' && r.affiliateUrl === ALIEXPRESS_AFFILIATE_URL
+    aliExpressRecords.every((r) =>
+      r.specs.some((s) => s.value.includes('best.aliexpress.com'))
     )
   );
+
+  const alibabaRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Alibaba');
+  assert.equal(alibabaRecords.length, 4);
+  assert.ok(alibabaRecords.every((r) => r.affiliateUrl === ALIBABA_AFFILIATE_URL));
   assert.ok(
-    CURATED_CATALOG_RECORDS.some(
-      (r) => r.originStore === 'Alibaba' && r.affiliateUrl === ALIBABA_AFFILIATE_URL
+    alibabaRecords.every((r) =>
+      r.specs.some((s) => s.value.includes('offer.alibaba.com'))
     )
   );
+
+  const exonHostRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'ExonHost');
+  assert.equal(exonHostRecords.length, 3);
+  assert.ok(exonHostRecords.every((r) => r.affiliateUrl === EXONHOST_AFFILIATE_URL));
   assert.ok(
-    CURATED_CATALOG_RECORDS.some(
-      (r) => r.originStore === 'ExonHost' && r.affiliateUrl === EXONHOST_AFFILIATE_URL
-    )
+    exonHostRecords.every((r) => r.specs.length >= 4),
+    'Expected technical stack specs on ExonHost plans'
   );
 });
 
