@@ -63,13 +63,13 @@ export interface StorefrontConfig {
 export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, AliExpress, Alibaba & ExonHost',
+    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, Alibaba & ExonHost',
   heroTitle: 'Curated Workspace Tech, Desk Hardware & Partner Checkout.',
   heroSubtitle:
-    'Explore workspace electronics, accessories, smartwatches, cloud hosting, and partner store offers across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.',
+    'Explore workspace electronics, accessories, smartwatches, cloud hosting, and partner store offers across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Partner Deals & Cloud Hosting',
   storeSubtitle:
-    'Browse electronics, accessories, personal tech, and hosting portals across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost. Every order completes directly on the partner store.',
+    'Browse electronics, accessories, personal tech, and hosting portals across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost. Every order completes directly on the partner store.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -98,7 +98,6 @@ function sanitizePartnerUrl(
   const AMAZON_NODE_URL =
     'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
   const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
-  const ALIEXPRESS_URL = 'https://rzekl.com/g/1e8d114494cb5002cfdd16525dc3e8/';
   const ALIBABA_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
   const RELEVA_TRACKING =
     'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
@@ -106,7 +105,6 @@ function sanitizePartnerUrl(
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
-    if (originStore === 'AliExpress') return ALIEXPRESS_URL;
     if (originStore === 'Alibaba') return ALIBABA_URL;
     if (originStore === 'Releva BD') {
       return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING}`;
@@ -120,9 +118,6 @@ function sanitizePartnerUrl(
     return AMAZON_NODE_URL;
   }
 
-  if (originStore === 'AliExpress' || trimmed.includes('1e8d114494cb5002cfdd16525dc3e8')) {
-    return trimmed.includes('rzekl.com/') ? trimmed : ALIEXPRESS_URL;
-  }
   if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
     return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;
   }
@@ -526,8 +521,6 @@ export async function executeBackendSiteControl(
           ? 'Releva BD'
           : rawProd.originStore === 'ExonHost'
           ? 'ExonHost'
-          : rawProd.originStore === 'AliExpress'
-          ? 'AliExpress'
           : rawProd.originStore === 'Alibaba'
           ? 'Alibaba'
           : 'Amazon';

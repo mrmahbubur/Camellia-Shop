@@ -81,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
             <div className="text-sm font-bold text-white">Complete Order on Partner Site</div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Verify live price, stock, shipping, and returns directly on Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, or ExonHost.
+              Verify live price, stock, shipping, and returns directly on Amazon, Shopz BD, Releva BD, Alibaba, or ExonHost.
             </p>
           </div>
         </div>
@@ -93,7 +93,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {storefrontCopy.siteName}
             </span>
             <p className="text-slate-400 max-w-sm leading-relaxed">
-              Curated workspace electronics, everyday tech, and hosting portals linked directly to Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.
+              Curated workspace electronics, everyday tech, and hosting portals linked directly to Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
               <span>Owner: {owner.displayName}</span>
@@ -201,7 +201,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 Affiliate Disclosure
               </div>
               <p className="text-slate-400 leading-relaxed text-[11px]">
-                As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also partner with Shopz BD, Releva BD, AliExpress, Alibaba, ExonHost, and featured sponsors.
+                As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also partner with Shopz BD, Releva BD, Alibaba, ExonHost, and featured sponsors.
               </p>
               <p className="text-slate-400 leading-relaxed text-[11px]">
                 All live prices, stock status, shipping coverage, and returns are set directly by each partner store at checkout.
@@ -211,7 +211,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Direct Retailer Checkout</span>
               </span>
-              <span>Amazon · Shopz BD · Releva BD · AliExpress · Alibaba · ExonHost</span>
+              <span>Amazon · Shopz BD · Releva BD · Alibaba · ExonHost</span>
             </div>
           </div>
         </div>

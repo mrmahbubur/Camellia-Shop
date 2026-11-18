@@ -33,7 +33,7 @@ const SPOTLIGHT_PRODUCT_IDS = [
   'releva-bd-130',
   'exonhost-turbo-nvme',
   'amz-benq-screenbar',
-  'aliexpress-keyboards-portal'
+  'alibaba-smart-qi2-charging-pad-pro'
 ];
 
 export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
@@ -44,7 +44,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     amazonShortUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
-    aliexpressStoreUrl,
     alibabaStoreUrl,
     products,
     sponsors,
@@ -91,7 +90,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
       Amazon: 0,
       'Shopz BD': 0,
       'Releva BD': 0,
-      AliExpress: 0,
       Alibaba: 0,
       ExonHost: 0
     };
@@ -163,7 +161,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
     if (store === 'Shopz BD') return 'bg-emerald-500 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-400 text-slate-950';
-    if (store === 'AliExpress') return 'bg-orange-500 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 text-white';
     return 'bg-amber-400 text-slate-950';
   };
@@ -211,21 +208,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         >
           <span>ExonHost</span>
           <ExternalLink className="w-3 h-3 text-sky-600 dark:text-sky-400" />
-        </a>
-      );
-    }
-    if (store === 'AliExpress') {
-      return (
-        <a
-          key="aliexpress"
-          href={aliexpressStoreUrl}
-          target="_blank"
-          rel="sponsored noopener noreferrer"
-          onClick={() => recordAffiliateClick('hero-aliexpress-store', 'AliExpress')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
-        >
-          <span>AliExpress</span>
-          <ExternalLink className="w-3 h-3 text-orange-600 dark:text-orange-400" />
         </a>
       );
     }
@@ -566,13 +548,12 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         </div>
 
         {/* Interactive Partner Coverage Strip (Clicks Jump & Filter Real Products) */}
-        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {(
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
               { store: 'Shopz BD' as const, label: 'Shopz BD', count: storeCounts['Shopz BD'], sub: 'Tech, watches, mics' },
               { store: 'Releva BD' as const, label: 'Releva BD', count: storeCounts['Releva BD'], sub: 'Featured picks' },
-              { store: 'AliExpress' as const, label: 'AliExpress', count: storeCounts.AliExpress, sub: 'Global deals' },
               { store: 'Alibaba' as const, label: 'Alibaba', count: storeCounts.Alibaba, sub: 'Direct sourcing' },
               { store: 'ExonHost' as const, label: 'ExonHost', count: storeCounts.ExonHost, sub: 'NVMe, WP & VPS' }
             ] as const

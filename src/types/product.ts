@@ -3,7 +3,6 @@ export type PartnerStoreName =
   | 'Shopz BD'
   | 'Releva BD'
   | 'ExonHost'
-  | 'AliExpress'
   | 'Alibaba';
 
 export interface Product {

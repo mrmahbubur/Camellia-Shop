@@ -95,9 +95,9 @@ export const BUYING_NEED_META: Record<
   },
   sourcing: {
     label: 'Direct Sourcing & Wholesale',
-    description: 'Portal sourcing via Alibaba and AliExpress for studio & hardware bundles.',
+    description: 'Portal sourcing via Alibaba for studio & hardware bundles.',
     targetCategories: ['Office & Workspace', 'Computers & Accessories', 'Smart Home & Power'],
-    keywords: ['sourcing', 'wholesale', 'alibaba', 'aliexpress']
+    keywords: ['sourcing', 'wholesale', 'alibaba']
   }
 };
 
@@ -179,7 +179,7 @@ export function computeRecommendations<T extends RecommendationCandidate>(option
         reasons.push(`Relevant to ${needMeta.label}`);
       }
 
-      if (buyingGuide.need === 'sourcing' && (item.originStore === 'Alibaba' || item.originStore === 'AliExpress')) {
+      if (buyingGuide.need === 'sourcing' && item.originStore === 'Alibaba') {
         score += 35;
         reasons.push(`Direct sourcing portal on ${item.originStore}`);
       }

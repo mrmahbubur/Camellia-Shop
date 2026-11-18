@@ -11,7 +11,6 @@ import {
   AMAZON_STORE_URL,
   AMAZON_LINK_SHORT,
   SHOPZ_REF_BASE,
-  ALIEXPRESS_AFFILIATE_URL,
   ALIBABA_AFFILIATE_URL,
   EXONHOST_AFFILIATE_URL,
   parseShopzCsvRecords
@@ -103,13 +102,10 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
     );
   }
 
-  const aliExpressRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'AliExpress');
-  assert.equal(aliExpressRecords.length, 4);
-  assert.ok(aliExpressRecords.every((r) => r.affiliateUrl === ALIEXPRESS_AFFILIATE_URL));
-  assert.ok(
-    aliExpressRecords.every((r) =>
-      r.specs.some((s) => s.value === 'AliExpress Global Deals')
-    )
+  assert.equal(
+    CURATED_CATALOG_RECORDS.some((r) => r.affiliateUrl.includes('1e8d114494cb5002cfdd16525dc3e8')),
+    false,
+    'Removed affiliate link must not exist in curated catalog'
   );
 
   const alibabaRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Alibaba');
@@ -227,13 +223,13 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
   assert.equal(AMAZON_LINK_SHORT, 'https://link.amazon/B0io1BQfg');
   assert.equal(SHOPZ_REF_BASE, 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin');
 
-  const srcDir = path.join(ROOT, 'src');
+  const scanDirs = [path.join(ROOT, 'src'), path.join(ROOT, 'server')];
   const fabrilifeUrlPattern = /https?:\/\/[^"'\s]*fabrilife\.com/i;
-  const checkNoFabrilifeUrls = (dir: string) => {
+  const checkCleanCode = (dir: string) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        checkNoFabrilifeUrls(fullPath);
+        checkCleanCode(fullPath);
       } else if (/\.(ts|tsx|js|jsx|html|css|json)$/.test(entry.name)) {
         const content = fs.readFileSync(fullPath, 'utf8');
         assert.equal(
@@ -241,20 +237,35 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
           false,
           `Unexpected fabrilife.com URL in ${fullPath}`
         );
+        assert.equal(
+          content.includes('1e8d114494cb5002cfdd16525dc3e8'),
+          false,
+          `Removed affiliate link token found in ${fullPath}`
+        );
       }
     }
   };
-  checkNoFabrilifeUrls(srcDir);
+  for (const dir of scanDirs) {
+    checkCleanCode(dir);
+  }
+  assert.equal(
+    fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8').includes('1e8d114494cb5002cfdd16525dc3e8'),
+    false
+  );
+  assert.equal(
+    fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('1e8d114494cb5002cfdd16525dc3e8'),
+    false
+  );
 });
 
-test('productImageManifest maps 80+ real product images on disk (>1.2KB each)', () => {
+test('productImageManifest maps 77+ real product images on disk (>1.2KB each)', () => {
   const manifestRaw = fs.readFileSync(
     path.join(ROOT, 'src/data/productImageManifest.json'),
     'utf8'
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 80, `Expected at least 80 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 77, `Expected at least 77 mapped images, got ${entries.length}`);
 
   for (const [productId, relPath] of entries) {
     assert.ok(

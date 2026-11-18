@@ -51,13 +51,13 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Built for remote engineers, analysts, and home office setups looking for tactile mice, task lighting, USB-C docking, and display mounting.',
     idealFor: 'Software Engineers, Analysts & Home Offices',
-    partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
+    partnerStores: 'Amazon · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Office & Workspace',
     sponsorContextKey: 'Office & Workspace',
     productIds: [
       'amz-mx-master-3s',
-      'aliexpress-keyboards-portal',
+      'amz-huanuo-monitor-arm',
       'alibaba-ergonomic-monitor-arm-bulk',
       'amz-benq-screenbar',
       'amz-caldigit-ts4-dock',
@@ -72,13 +72,13 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Tailored for video creators, podcasters, and mobile streamers combining USB/XLR microphones, RGB fill lights, tripods, and 2TB portable SSDs.',
     idealFor: 'Podcasters, YouTubers & Mobile Photographers',
-    partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
+    partnerStores: 'Amazon · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Audio & Headphones',
     sponsorContextKey: 'Audio & Studio',
     productIds: [
       'amz-shure-mv7-mic',
-      'aliexpress-audio-portal',
+      'amz-sony-wh1000xm5',
       'alibaba-studio-creator-desk-bundle',
       'amz-samsung-t7-shield-2tb',
       'csv-ulanzi-a100-wireless-lavalier-microphone',
@@ -93,13 +93,13 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Designed for daily commuters and travelers who want multi-device Qi2 charging, high-capacity power banks, wireless earbuds, and everyday watches.',
     idealFor: 'Travelers, Commuters & Daily Carry',
-    partnerStores: 'Amazon · AliExpress · Alibaba · Shopz BD',
+    partnerStores: 'Amazon · Alibaba · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Wearables & Smartwatches',
     sponsorContextKey: 'Smart Home & Power',
     productIds: [
       'amz-anker-magsafe-3in1',
-      'aliexpress-power-portal',
+      'amz-anker-prime-250w',
       'alibaba-smart-qi2-charging-pad-pro',
       'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
       'csv-zeblaze-btalk-3-pro',
@@ -112,9 +112,9 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     label: 'Student & BD Retail',
     headline: 'Study Desk Lighting, Calculators & Regional Partner Picks',
     summary:
-      'Practical desk lighting, scientific calculators, earbuds, and Bangladesh partner store links from Shopz BD and Releva BD alongside AliExpress portals.',
+      'Practical desk lighting, scientific calculators, earbuds, and Bangladesh partner store links from Shopz BD and Releva BD.',
     idealFor: 'University Students, Dorms & Bangladesh Shoppers',
-    partnerStores: 'Shopz BD · Releva BD · AliExpress',
+    partnerStores: 'Shopz BD · Releva BD · Amazon',
     targetStore: 'Shopz BD',
     targetCategory: 'Shopz BD Tech Deals',
     sponsorContextKey: 'Shopz BD Tech Deals',
@@ -123,7 +123,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'releva-bd-130',
       'csv-baseus-comfort-reading-mini-clip-lamp',
       'csv-yage-yg-t109-table-lamp-pen-holder-desk-lamp',
-      'aliexpress-gadgets-portal',
+      'releva-bd-131',
       'csv-lenovo-livepods-lp1s-tws-bluetooth-earphone'
     ],
     icon: GraduationCap
@@ -135,7 +135,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'For independent founders and developers launching web storefronts—pairing ExonHost hosting portals with desk hardware and accessory sourcing links.',
     idealFor: 'Founders, Web Developers & Agencies',
-    partnerStores: 'ExonHost · Alibaba · AliExpress · Amazon',
+    partnerStores: 'ExonHost · Alibaba · Amazon',
     targetStore: 'ExonHost',
     targetCategory: 'Cloud Hosting & Domains',
     sponsorContextKey: 'Cloud Hosting & Domains',
@@ -144,7 +144,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'exonhost-managed-wp',
       'exonhost-domain-bundle',
       'alibaba-usb-c-dock-factory-lot',
-      'aliexpress-power-portal',
+      'amz-caldigit-ts4-dock',
       'amz-mx-master-3s'
     ],
     icon: Globe
@@ -173,7 +173,6 @@ const PREFERRED_STORES: Array<{ value: PartnerStoreOrigin | 'all'; label: string
   { value: 'Amazon', label: 'Amazon' },
   { value: 'Shopz BD', label: 'Shopz BD' },
   { value: 'Releva BD', label: 'Releva BD' },
-  { value: 'AliExpress', label: 'AliExpress' },
   { value: 'Alibaba', label: 'Alibaba' },
   { value: 'ExonHost', label: 'ExonHost' }
 ];
@@ -199,7 +198,6 @@ export const CustomerThemesSection: React.FC = () => {
     amazonStoreUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
-    aliexpressStoreUrl,
     alibabaStoreUrl,
     recordAffiliateClick
   } = useProducts();
@@ -278,14 +276,6 @@ export const CustomerThemesSection: React.FC = () => {
     ];
     const relevaCategories = rawReleva.filter((c) => c.count > 0);
 
-    const rawAliExpress: AffiliateCategoryLink[] = [
-      { label: 'Keyboards & Peripherals', count: countFor('AliExpress', 'Computers & Accessories'), store: 'AliExpress', category: 'Computers & Accessories' },
-      { label: 'Wireless Audio & Headphones', count: countFor('AliExpress', 'Audio & Headphones'), store: 'AliExpress', category: 'Audio & Headphones' },
-      { label: 'GaN Chargers & USB-C Power', count: countFor('AliExpress', 'Smart Home & Power'), store: 'AliExpress', category: 'Smart Home & Power' },
-      { label: 'Everyday Tech & Studio', count: countFor('AliExpress', 'Electronics & Gadgets'), store: 'AliExpress', category: 'Electronics & Gadgets' }
-    ];
-    const aliexpressCategories = rawAliExpress.filter((c) => c.count > 0);
-
     const rawAlibaba: AffiliateCategoryLink[] = [
       { label: 'Monitor Arms & Desk Mounts', count: countFor('Alibaba', 'Office & Workspace'), store: 'Alibaba', category: 'Office & Workspace' },
       { label: 'USB-C Hubs & Peripherals', count: countFor('Alibaba', 'Computers & Accessories'), store: 'Alibaba', category: 'Computers & Accessories' },
@@ -309,14 +299,12 @@ export const CustomerThemesSection: React.FC = () => {
       amazonTotal: products.filter((p) => p.originStore === 'Amazon').length,
       shopzTotal: products.filter((p) => p.originStore === 'Shopz BD').length,
       relevaTotal: products.filter((p) => p.originStore === 'Releva BD').length,
-      aliexpressTotal: products.filter((p) => p.originStore === 'AliExpress').length,
       alibabaTotal: products.filter((p) => p.originStore === 'Alibaba').length,
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
       sponsorsTotal: sponsors.length,
       amazonCategories,
       shopzCategories,
       relevaCategories,
-      aliexpressCategories,
       alibabaCategories,
       exonhostCategories,
       sponsorGroups
@@ -371,7 +359,6 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'ExonHost') return 'text-sky-600 dark:text-sky-400';
     if (store === 'Shopz BD') return 'text-emerald-600 dark:text-emerald-400';
     if (store === 'Releva BD') return 'text-teal-600 dark:text-teal-400';
-    if (store === 'AliExpress') return 'text-orange-600 dark:text-orange-400';
     if (store === 'Alibaba') return 'text-indigo-600 dark:text-indigo-400';
     return 'text-amber-700 dark:text-amber-400';
   };
@@ -380,7 +367,6 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
-    if (store === 'AliExpress') return 'bg-orange-500 hover:bg-orange-400 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
     return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
   };
@@ -1041,61 +1027,6 @@ export const CustomerThemesSection: React.FC = () => {
                         className="w-full min-h-[38px] px-3 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Releva BD</span>
-                        <ExternalLink className="w-3 h-3 shrink-0" />
-                      </a>
-                    </div>
-                  </div>
-                );
-              }
-
-              if (storeName === 'AliExpress') {
-                return (
-                  <div
-                    key="dir-aliexpress"
-                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
-                  >
-                    <div>
-                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
-                        <div>
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                            AliExpress
-                          </h4>
-                          <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium">
-                            Partner Promotion Portal
-                          </p>
-                        </div>
-                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                          {affiliateDirectory.aliexpressTotal} portals
-                        </span>
-                      </div>
-
-                      <ul className="space-y-1.5">
-                        {affiliateDirectory.aliexpressCategories.map((cat) => (
-                          <li key={cat.label}>
-                            <button
-                              type="button"
-                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
-                            >
-                              <span className="truncate">{cat.label}</span>
-                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
-                                {cat.count}
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
-                      <a
-                        href={aliexpressStoreUrl}
-                        target="_blank"
-                        rel="sponsored noopener noreferrer"
-                        onClick={() => recordAffiliateClick('dir-aliexpress-store', 'AliExpress')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
-                      >
-                        <span>Open AliExpress Portal</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>

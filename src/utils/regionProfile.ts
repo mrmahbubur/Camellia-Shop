@@ -15,7 +15,6 @@ export type PartnerStoreOrigin =
   | 'Shopz BD'
   | 'Releva BD'
   | 'ExonHost'
-  | 'AliExpress'
   | 'Alibaba';
 
 export interface RegionProfile {
@@ -36,21 +35,21 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'Bangladesh',
     shortLabel: 'BD · BDT',
     defaultCurrency: 'BDT',
-    storePriority: ['Shopz BD', 'Releva BD', 'ExonHost', 'AliExpress', 'Alibaba', 'Amazon'],
+    storePriority: ['Shopz BD', 'Releva BD', 'ExonHost', 'Alibaba', 'Amazon'],
     preferredThemeId: 'student-home',
     prioritySummary: 'Shopz BD, Releva BD & ExonHost Prioritized for Bangladesh',
     deliverySummary: 'Local Bangladesh partners first; global delivery varies by merchant',
     availabilityNote:
-      'Shopz BD and Releva BD fulfill locally within Bangladesh; international shipping from Amazon, AliExpress, or Alibaba depends on item eligibility and customs at partner checkout.'
+      'Shopz BD and Releva BD fulfill locally within Bangladesh; international shipping from Amazon or Alibaba depends on item eligibility and customs at partner checkout.'
   },
   US: {
     code: 'US',
     label: 'United States',
     shortLabel: 'US · USD',
     defaultCurrency: 'USD',
-    storePriority: ['Amazon', 'ExonHost', 'AliExpress', 'Alibaba', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Amazon', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'remote-desk',
-    prioritySummary: 'Amazon US, ExonHost & AliExpress Prioritized',
+    prioritySummary: 'Amazon US, ExonHost & Alibaba Prioritized',
     deliverySummary: 'Direct partner checkout; live US shipping verified on retailer site',
     availabilityNote:
       'Amazon US listings target US delivery addresses; Bangladesh retailers (Shopz BD, Releva BD) primarily deliver inside Bangladesh.'
@@ -60,9 +59,9 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'United Kingdom',
     shortLabel: 'UK · GBP',
     defaultCurrency: 'GBP',
-    storePriority: ['Amazon', 'AliExpress', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Amazon', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'remote-desk',
-    prioritySummary: 'Amazon, AliExpress & GBP Display Prioritized',
+    prioritySummary: 'Amazon, ExonHost & GBP Display Prioritized',
     deliverySummary: 'Partner-set UK shipping, VAT & import terms at destination checkout',
     availabilityNote:
       'Displayed GBP values are approximate conversions for reference only; verify UK dispatch eligibility and final GBP price on the partner checkout.'
@@ -72,9 +71,9 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'Europe',
     shortLabel: 'EU · EUR',
     defaultCurrency: 'EUR',
-    storePriority: ['Amazon', 'AliExpress', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Amazon', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'creator-studio',
-    prioritySummary: 'Amazon, AliExpress & EUR Display Prioritized',
+    prioritySummary: 'Amazon, ExonHost & EUR Display Prioritized',
     deliverySummary: 'EU VAT, shipping rates & availability verified on partner store',
     availabilityNote:
       'Displayed EUR values are approximate conversions for reference only; verify EU regional availability and import terms on the retailer checkout.'
@@ -84,7 +83,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'India',
     shortLabel: 'IN · INR',
     defaultCurrency: 'INR',
-    storePriority: ['Amazon', 'AliExpress', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Amazon', 'ExonHost', 'Alibaba', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'remote-desk',
     prioritySummary: 'INR Currency Display with Global Tech & Hosting Partners',
     deliverySummary: 'Cross-border shipping & local availability checked on partner site',
@@ -96,9 +95,9 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'Asia-Pacific',
     shortLabel: 'APAC · USD',
     defaultCurrency: 'USD',
-    storePriority: ['AliExpress', 'Alibaba', 'Amazon', 'ExonHost', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Alibaba', 'Amazon', 'ExonHost', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'mobile-commuter',
-    prioritySummary: 'AliExpress, Alibaba, Amazon & ExonHost APAC Nodes Prioritized',
+    prioritySummary: 'Alibaba, Amazon & ExonHost APAC Nodes Prioritized',
     deliverySummary: 'Regional dispatch & currency converted at partner checkout',
     availabilityNote:
       'Partner stores set regional delivery coverage and shipping fees individually; local Bangladesh stores do not typically ship internationally.'
@@ -108,9 +107,9 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'Middle East & North Africa',
     shortLabel: 'MENA · USD',
     defaultCurrency: 'USD',
-    storePriority: ['AliExpress', 'Amazon', 'Alibaba', 'ExonHost', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Amazon', 'Alibaba', 'ExonHost', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'mobile-commuter',
-    prioritySummary: 'AliExpress, Amazon & Alibaba Global Partners Prioritized',
+    prioritySummary: 'Amazon & Alibaba Global Partners Prioritized',
     deliverySummary: 'Destination shipping & customs terms confirmed at partner checkout',
     availabilityNote:
       'Cross-border delivery eligibility varies by country and product; verify shipping before ordering on the partner site.'
@@ -120,7 +119,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     label: 'Global / Worldwide',
     shortLabel: 'Global · USD',
     defaultCurrency: 'USD',
-    storePriority: ['Amazon', 'AliExpress', 'Alibaba', 'ExonHost', 'Shopz BD', 'Releva BD'],
+    storePriority: ['Amazon', 'Alibaba', 'ExonHost', 'Shopz BD', 'Releva BD'],
     preferredThemeId: 'mobile-commuter',
     prioritySummary: 'Balanced Partner Directory Across All Curated Stores',
     deliverySummary: 'Retailer sets live price, regional shipping, stock & returns',

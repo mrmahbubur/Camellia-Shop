@@ -9,7 +9,6 @@ import {
   AMAZON_STORE_URL,
   SHOPZ_REF_BASE,
   EXONHOST_AFFILIATE_URL,
-  ALIEXPRESS_AFFILIATE_URL,
   ALIBABA_AFFILIATE_URL,
   RELEVA_TRACKING_PARAM
 } from '../data/unifiedProductsData';
@@ -59,10 +58,10 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
     'Camellia Shop · Curated Tech, Watches, Workspace Gear & Cloud Hosting',
   heroTitle: 'Curated Workspace Tech, Desk Hardware & Everyday Gadgets.',
   heroSubtitle:
-    'Shop workspace electronics, audio gear, watches, cloud hosting, and deals across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.',
+    'Shop workspace electronics, audio gear, watches, cloud hosting, and deals across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Tech Deals & Cloud Hosting',
   storeSubtitle:
-    'Explore electronics, everyday gadgets, and hosting across Amazon, Shopz BD, Releva BD, AliExpress, Alibaba, and ExonHost.'
+    'Explore electronics, everyday gadgets, and hosting across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -130,7 +129,6 @@ interface ProductsContextType {
   amazonStoreUrl: string;
   shopzStoreUrl: string;
   exonhostStoreUrl: string;
-  aliexpressStoreUrl: string;
   alibabaStoreUrl: string;
   affiliateTag: string;
   recordAffiliateClick: (productId?: string, store?: PartnerStoreOrigin, category?: string) => void;
@@ -577,7 +575,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const trimmed = rawUrl.trim();
     if (!trimmed || trimmed.toLowerCase().includes('fabrilife.com')) {
       if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
-      if (originStore === 'AliExpress') return ALIEXPRESS_AFFILIATE_URL;
       if (originStore === 'Alibaba') return ALIBABA_AFFILIATE_URL;
       if (originStore === 'Releva BD') {
         return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING_PARAM}`;
@@ -589,9 +586,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return AMAZON_STORE_URL;
     }
 
-    if (originStore === 'AliExpress' || trimmed.includes('1e8d114494cb5002cfdd16525dc3e8')) {
-      return trimmed.includes('rzekl.com/') ? trimmed : ALIEXPRESS_AFFILIATE_URL;
-    }
     if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
       return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_AFFILIATE_URL;
     }
@@ -695,7 +689,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         amazonStoreUrl: AMAZON_STORE_URL,
         shopzStoreUrl: SHOPZ_REF_BASE,
         exonhostStoreUrl: EXONHOST_AFFILIATE_URL,
-        aliexpressStoreUrl: ALIEXPRESS_AFFILIATE_URL,
         alibabaStoreUrl: ALIBABA_AFFILIATE_URL,
         affiliateTag: AMAZON_ASSOCIATE_TAG,
         recordAffiliateClick

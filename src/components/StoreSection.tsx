@@ -56,7 +56,6 @@ export const StoreSection: React.FC = () => {
     amazonStoreUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
-    aliexpressStoreUrl,
     alibabaStoreUrl
   } = useProducts();
 
@@ -112,7 +111,6 @@ export const StoreSection: React.FC = () => {
       Amazon: 0,
       'Shopz BD': 0,
       'Releva BD': 0,
-      AliExpress: 0,
       Alibaba: 0,
       ExonHost: 0
     };
@@ -250,8 +248,6 @@ export const StoreSection: React.FC = () => {
   const livePartnerSearchHref =
     targetPlatform === 'ExonHost'
       ? exonhostStoreUrl
-      : targetPlatform === 'AliExpress'
-      ? aliexpressStoreUrl
       : targetPlatform === 'Alibaba'
       ? alibabaStoreUrl
       : targetPlatform === 'Releva BD'
@@ -264,7 +260,6 @@ export const StoreSection: React.FC = () => {
     if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
     if (store === 'Shopz BD') return 'bg-emerald-600 text-white';
     if (store === 'Releva BD') return 'bg-teal-500 text-slate-950';
-    if (store === 'AliExpress') return 'bg-orange-500 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 text-white';
     return 'bg-amber-500 text-slate-950';
   };
@@ -273,7 +268,6 @@ export const StoreSection: React.FC = () => {
     if (store === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
-    if (store === 'AliExpress') return 'bg-orange-500 hover:bg-orange-400 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
     return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
   };
@@ -357,17 +351,6 @@ export const StoreSection: React.FC = () => {
             </a>
 
             <a
-              href={aliexpressStoreUrl}
-              target="_blank"
-              rel="sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-aliexpress', 'AliExpress')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-orange-400 hover:bg-orange-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
-            >
-              <span>AliExpress</span>
-              <ExternalLink className="w-3 h-3 text-slate-950" />
-            </a>
-
-            <a
               href={alibabaStoreUrl}
               target="_blank"
               rel="sponsored noopener noreferrer"
@@ -401,7 +384,7 @@ export const StoreSection: React.FC = () => {
                 <span>Direct Partner Store Search</span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
-                Search Amazon, Shopz BD, Releva BD, AliExpress, Alibaba &amp; ExonHost
+                Search Amazon, Shopz BD, Releva BD, Alibaba &amp; ExonHost
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
                 Filter products below or search directly on your chosen partner store.
@@ -416,7 +399,6 @@ export const StoreSection: React.FC = () => {
                     { name: 'Amazon', activeClass: 'bg-amber-500 text-slate-950' },
                     { name: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
                     { name: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
-                    { name: 'AliExpress', activeClass: 'bg-orange-400 text-slate-950' },
                     { name: 'Alibaba', activeClass: 'bg-indigo-500 text-white' },
                     { name: 'ExonHost', activeClass: 'bg-sky-400 text-slate-950' }
                   ] as const
@@ -461,8 +443,6 @@ export const StoreSection: React.FC = () => {
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                       : targetPlatform === 'Releva BD'
                       ? 'bg-teal-400 hover:bg-teal-300 text-slate-950'
-                      : targetPlatform === 'AliExpress'
-                      ? 'bg-orange-400 hover:bg-orange-300 text-slate-950'
                       : targetPlatform === 'Alibaba'
                       ? 'bg-indigo-500 hover:bg-indigo-400 text-white'
                       : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
@@ -633,7 +613,6 @@ export const StoreSection: React.FC = () => {
                     { key: 'Amazon', label: 'Amazon', activeClass: 'bg-amber-400 text-slate-950' },
                     { key: 'Shopz BD', label: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
                     { key: 'Releva BD', label: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
-                    { key: 'AliExpress', label: 'AliExpress', activeClass: 'bg-orange-400 text-slate-950' },
                     { key: 'Alibaba', label: 'Alibaba', activeClass: 'bg-indigo-600 text-white' },
                     { key: 'ExonHost', label: 'ExonHost', activeClass: 'bg-sky-500 text-slate-950' }
                   ] as const
