@@ -19,7 +19,8 @@ import {
   Zap,
   Building2,
   Check,
-  Cloud
+  Cloud,
+  Sparkles
 } from 'lucide-react';
 import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -56,7 +57,10 @@ export const StoreSection: React.FC = () => {
     amazonStoreUrl,
     shopzStoreUrl,
     exonhostStoreUrl,
-    alibabaStoreUrl
+    alibabaStoreUrl,
+    banglashoppersStoreUrl,
+    illinStoreUrl,
+    sohojStoreUrl
   } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -89,8 +93,11 @@ export const StoreSection: React.FC = () => {
     'Wearables & Smartwatches',
     'Office & Workspace',
     'Shopz BD Tech Deals',
+    'BanglaShoppers Beauty',
+    'Illin BD Home & Tech',
     'Releva BD Picks',
-    'Cloud Hosting & Domains'
+    'Cloud Hosting & Domains',
+    'Sohoj Affiliate Network'
   ];
 
   const categoryCounts = useMemo(() => {
@@ -112,7 +119,10 @@ export const StoreSection: React.FC = () => {
       'Shopz BD': 0,
       'Releva BD': 0,
       Alibaba: 0,
-      ExonHost: 0
+      ExonHost: 0,
+      BanglaShoppers: 0,
+      'Illin BD': 0,
+      'Sohoj Affiliates': 0
     };
     for (const item of products) {
       if (item.originStore in counts) {
@@ -250,6 +260,12 @@ export const StoreSection: React.FC = () => {
       ? exonhostStoreUrl
       : targetPlatform === 'Alibaba'
       ? alibabaStoreUrl
+      : targetPlatform === 'BanglaShoppers'
+      ? banglashoppersStoreUrl
+      : targetPlatform === 'Illin BD'
+      ? illinStoreUrl
+      : targetPlatform === 'Sohoj Affiliates'
+      ? sohojStoreUrl
       : targetPlatform === 'Releva BD'
       ? relevaStoreUrl
       : targetPlatform === 'Shopz BD'
@@ -261,6 +277,9 @@ export const StoreSection: React.FC = () => {
     if (store === 'Shopz BD') return 'bg-emerald-600 text-white';
     if (store === 'Releva BD') return 'bg-teal-500 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 text-white';
+    if (store === 'BanglaShoppers') return 'bg-rose-500 text-white';
+    if (store === 'Illin BD') return 'bg-cyan-400 text-slate-950';
+    if (store === 'Sohoj Affiliates') return 'bg-violet-600 text-white';
     return 'bg-amber-500 text-slate-950';
   };
 
@@ -269,6 +288,9 @@ export const StoreSection: React.FC = () => {
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
+    if (store === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
+    if (store === 'Illin BD') return 'bg-cyan-400 hover:bg-cyan-300 text-slate-950';
+    if (store === 'Sohoj Affiliates') return 'bg-violet-600 hover:bg-violet-500 text-white';
     return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
   };
 
@@ -372,6 +394,40 @@ export const StoreSection: React.FC = () => {
               <span>ExonHost</span>
               <ExternalLink className="w-3 h-3 text-slate-950" />
             </a>
+
+            <a
+              href={banglashoppersStoreUrl}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              onClick={() => recordAffiliateClick('store-header-banglashoppers', 'BanglaShoppers')}
+              className="flex items-center gap-1.5 text-xs text-white bg-rose-500 hover:bg-rose-400 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <Sparkles className="w-4 h-4 text-white" />
+              <span>BanglaShoppers</span>
+              <ExternalLink className="w-3 h-3 text-white" />
+            </a>
+
+            <a
+              href={illinStoreUrl}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              onClick={() => recordAffiliateClick('store-header-illin', 'Illin BD')}
+              className="flex items-center gap-1.5 text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <span>Illin BD</span>
+              <ExternalLink className="w-3 h-3 text-slate-950" />
+            </a>
+
+            <a
+              href={sohojStoreUrl}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              onClick={() => recordAffiliateClick('store-header-sohoj', 'Sohoj Affiliates')}
+              className="flex items-center gap-1.5 text-xs text-white bg-violet-600 hover:bg-violet-500 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <span>Sohoj Affiliates</span>
+              <ExternalLink className="w-3 h-3 text-white" />
+            </a>
           </div>
         </div>
 
@@ -384,7 +440,7 @@ export const StoreSection: React.FC = () => {
                 <span>Direct Partner Store Search</span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
-                Search Amazon, Shopz BD, Releva BD, Alibaba &amp; ExonHost
+                Search Amazon, Shopz BD, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost &amp; Sohoj
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
                 Filter products below or search directly on your chosen partner store.
@@ -393,21 +449,24 @@ export const StoreSection: React.FC = () => {
 
             {/* Platform Switcher & Direct Live Search Trigger */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 lg:max-w-3xl lg:w-full justify-end">
-              <div className="flex flex-wrap sm:flex-nowrap bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0 gap-0.5">
+              <div className="flex flex-wrap bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0 gap-0.5">
                 {(
                   [
                     { name: 'Amazon', activeClass: 'bg-amber-500 text-slate-950' },
                     { name: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
+                    { name: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
+                    { name: 'Illin BD', activeClass: 'bg-cyan-400 text-slate-950' },
                     { name: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
                     { name: 'Alibaba', activeClass: 'bg-indigo-500 text-white' },
-                    { name: 'ExonHost', activeClass: 'bg-sky-400 text-slate-950' }
+                    { name: 'ExonHost', activeClass: 'bg-sky-400 text-slate-950' },
+                    { name: 'Sohoj Affiliates', activeClass: 'bg-violet-600 text-white' }
                   ] as const
                 ).map((plat) => (
                   <button
                     key={plat.name}
                     type="button"
                     onClick={() => setTargetPlatform(plat.name)}
-                    className={`flex-1 sm:flex-initial px-2.5 min-h-[36px] py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`flex-1 sm:flex-initial px-2.5 min-h-[34px] py-1 text-[11px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                       targetPlatform === plat.name
                         ? `${plat.activeClass} shadow-xs`
                         : 'text-slate-400 hover:text-white'
@@ -421,7 +480,7 @@ export const StoreSection: React.FC = () => {
               <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 flex-1 min-w-0">
                 <input
                   type="text"
-                  placeholder="e.g., 'Logitech', 'Casio', 'Qi2', 'Shure'..."
+                  placeholder="e.g., 'COSRX', 'Miyako', 'Casio', 'Logitech'..."
                   value={partnerQuery}
                   onChange={(e) => {
                     setPartnerQuery(e.target.value);
@@ -441,6 +500,12 @@ export const StoreSection: React.FC = () => {
                       ? 'bg-sky-400 hover:bg-sky-300 text-slate-950'
                       : targetPlatform === 'Shopz BD'
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : targetPlatform === 'BanglaShoppers'
+                      ? 'bg-rose-500 hover:bg-rose-400 text-white'
+                      : targetPlatform === 'Illin BD'
+                      ? 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                      : targetPlatform === 'Sohoj Affiliates'
+                      ? 'bg-violet-600 hover:bg-violet-500 text-white'
                       : targetPlatform === 'Releva BD'
                       ? 'bg-teal-400 hover:bg-teal-300 text-slate-950'
                       : targetPlatform === 'Alibaba'
@@ -503,6 +568,9 @@ export const StoreSection: React.FC = () => {
                 const count = categoryCounts[c] || 0;
                 const isSelected = selectedCategory === c;
                 const isShopzTab = c === 'Shopz BD Tech Deals';
+                const isBanglaShoppersTab = c === 'BanglaShoppers Beauty';
+                const isIllinTab = c === 'Illin BD Home & Tech';
+                const isSohojTab = c === 'Sohoj Affiliate Network';
                 const isRelevaTab = c === 'Releva BD Picks';
                 const isCloudTab = c === 'Cloud Hosting & Domains';
                 const isMegaStoreTab = c === 'All Departments (Mega Store)';
@@ -515,6 +583,12 @@ export const StoreSection: React.FC = () => {
                       isSelected
                         ? isShopzTab
                           ? 'bg-emerald-600 text-white shadow-xs font-extrabold'
+                          : isBanglaShoppersTab
+                          ? 'bg-rose-500 text-white shadow-xs font-extrabold'
+                          : isIllinTab
+                          ? 'bg-cyan-400 text-slate-950 shadow-xs font-extrabold'
+                          : isSohojTab
+                          ? 'bg-violet-600 text-white shadow-xs font-extrabold'
                           : isRelevaTab
                           ? 'bg-teal-500 text-slate-950 shadow-xs font-extrabold'
                           : isCloudTab
@@ -522,6 +596,12 @@ export const StoreSection: React.FC = () => {
                           : 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 shadow-xs'
                         : isShopzTab
                         ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-950 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 font-bold'
+                        : isBanglaShoppersTab
+                        ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-950 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/25 font-bold'
+                        : isIllinTab
+                        ? 'bg-cyan-50 dark:bg-cyan-500/15 text-cyan-950 dark:text-cyan-300 border border-cyan-200/80 dark:border-cyan-500/30 hover:bg-cyan-100 dark:hover:bg-cyan-500/25 font-bold'
+                        : isSohojTab
+                        ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-950 dark:text-violet-300 border border-violet-200/80 dark:border-violet-500/30 hover:bg-violet-100 dark:hover:bg-violet-500/25 font-bold'
                         : isRelevaTab
                         ? 'bg-teal-50 dark:bg-teal-500/15 text-teal-950 dark:text-teal-300 border border-teal-200/80 dark:border-teal-500/30 hover:bg-teal-100 dark:hover:bg-teal-500/25 font-bold'
                         : isCloudTab
@@ -530,7 +610,8 @@ export const StoreSection: React.FC = () => {
                     }`}
                   >
                     {isMegaStoreTab && <Compass className="w-3.5 h-3.5 opacity-75" />}
-                    {(isShopzTab || isRelevaTab) && <Building2 className="w-3.5 h-3.5" />}
+                    {isBanglaShoppersTab && <Sparkles className="w-3.5 h-3.5" />}
+                    {(isShopzTab || isRelevaTab || isIllinTab || isSohojTab) && <Building2 className="w-3.5 h-3.5" />}
                     {isCloudTab && <Cloud className="w-3.5 h-3.5" />}
                     {c.includes('Audio') && <Headphones className="w-3.5 h-3.5 opacity-75" />}
                     {c.includes('Computers') && <Laptop className="w-3.5 h-3.5 opacity-75" />}
@@ -589,7 +670,7 @@ export const StoreSection: React.FC = () => {
               <input
                 id="catalog-search-input"
                 type="text"
-                placeholder="Filter catalog: 'Casio', 'earbuds', 'releva', 'lamp', 'exonhost'..."
+                placeholder="Filter catalog: 'COSRX', 'Miyako', 'Casio', 'earbuds', 'exonhost'..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full min-h-[40px] pl-8 pr-14 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-800 text-xs"
@@ -612,9 +693,12 @@ export const StoreSection: React.FC = () => {
                     { key: 'all', label: 'All Stores', activeClass: 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white' },
                     { key: 'Amazon', label: 'Amazon', activeClass: 'bg-amber-400 text-slate-950' },
                     { key: 'Shopz BD', label: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
+                    { key: 'BanglaShoppers', label: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
+                    { key: 'Illin BD', label: 'Illin BD', activeClass: 'bg-cyan-400 text-slate-950' },
                     { key: 'Releva BD', label: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
                     { key: 'Alibaba', label: 'Alibaba', activeClass: 'bg-indigo-600 text-white' },
-                    { key: 'ExonHost', label: 'ExonHost', activeClass: 'bg-sky-500 text-slate-950' }
+                    { key: 'ExonHost', label: 'ExonHost', activeClass: 'bg-sky-500 text-slate-950' },
+                    { key: 'Sohoj Affiliates', label: 'Sohoj Affiliates', activeClass: 'bg-violet-600 text-white' }
                   ] as const
                 ).map((tab) => (
                   <button

@@ -13,6 +13,9 @@ import {
   SHOPZ_REF_BASE,
   ALIBABA_AFFILIATE_URL,
   EXONHOST_AFFILIATE_URL,
+  BANGLASHOPPERS_AFFILIATE_URL,
+  ILLIN_AFFILIATE_URL,
+  SOHOJ_AFFILIATE_URL,
   parseShopzCsvRecords
 } from '../src/data/catalogRecords.ts';
 import {
@@ -124,6 +127,27 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
     exonHostRecords.every((r) => r.specs.length >= 4),
     'Expected technical stack specs on ExonHost plans'
   );
+
+  const banglaShoppersRecords = CURATED_CATALOG_RECORDS.filter(
+    (r) => r.originStore === 'BanglaShoppers'
+  );
+  assert.equal(banglaShoppersRecords.length, 5);
+  assert.equal(BANGLASHOPPERS_AFFILIATE_URL, 'https://www.banglashoppers.com/r/4ehxtB1p/');
+  assert.ok(banglaShoppersRecords.every((r) => r.affiliateUrl === BANGLASHOPPERS_AFFILIATE_URL));
+
+  const illinRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Illin BD');
+  assert.equal(illinRecords.length, 5);
+  assert.equal(ILLIN_AFFILIATE_URL, 'https://www.illin.com.bd/40989');
+  assert.ok(illinRecords.every((r) => r.affiliateUrl === ILLIN_AFFILIATE_URL));
+  assert.ok(
+    illinRecords.every((r) => r.nativeCurrency === 'BDT' && typeof r.nativePrice === 'number' && r.nativePrice > 0),
+    'Expected authentic BDT prices on Illin BD items'
+  );
+
+  const sohojRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Sohoj Affiliates');
+  assert.equal(sohojRecords.length, 2);
+  assert.equal(SOHOJ_AFFILIATE_URL, 'https://sohojaffiliates.com/reffer/40989');
+  assert.ok(sohojRecords.every((r) => r.affiliateUrl === SOHOJ_AFFILIATE_URL));
 });
 
 test('parseShopzCsvRecords imports all 60 CSV rows and skips any fabrilife rows', () => {
@@ -178,6 +202,17 @@ test('computeRecommendations responds to Buying Guide need and never treats unkn
   assert.ok(
     watchRecs.every((r) => r.item.category === 'Wearables & Smartwatches'),
     'Watch goal should prioritize Wearables & Smartwatches'
+  );
+
+  const beautyRecs = computeRecommendations({
+    catalog: fullCatalog,
+    region: 'BD',
+    buyingGuide: { need: 'beauty', budgetUsd: null, preferredStore: 'all' },
+    limit: 5
+  });
+  assert.ok(
+    beautyRecs.some((r) => r.item.originStore === 'BanglaShoppers' || r.item.originStore === 'Illin BD'),
+    'Beauty & home goal should surface BanglaShoppers and Illin BD listings'
   );
 
   // Strict budget check: every item returned under a $15 budget must have a real resolved price <= $15
@@ -258,14 +293,14 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
   );
 });
 
-test('productImageManifest maps 77+ real product images on disk (>1.2KB each)', () => {
+test('productImageManifest maps 89+ real product images on disk (>1.2KB each)', () => {
   const manifestRaw = fs.readFileSync(
     path.join(ROOT, 'src/data/productImageManifest.json'),
     'utf8'
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 77, `Expected at least 77 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 89, `Expected at least 89 mapped images, got ${entries.length}`);
 
   for (const [productId, relPath] of entries) {
     assert.ok(

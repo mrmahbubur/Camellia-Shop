@@ -112,7 +112,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Direct Purchase Notice */}
         <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
-          All checkout completes on Amazon, Shopz BD, Releva BD, Alibaba, or ExonHost.
+          All checkout completes on Amazon, Shopz BD, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost, or Sohoj Affiliates.
         </div>
 
         {/* Saved Items List */}
@@ -143,6 +143,9 @@ export const CartDrawer: React.FC = () => {
               const isReleva = item.product.originStore === 'Releva BD';
               const isExonHost = item.product.originStore === 'ExonHost';
               const isAlibaba = item.product.originStore === 'Alibaba';
+              const isBanglaShoppers = item.product.originStore === 'BanglaShoppers';
+              const isIllin = item.product.originStore === 'Illin BD';
+              const isSohoj = item.product.originStore === 'Sohoj Affiliates';
 
               const hasKnownPrice =
                 item.product.nativeCurrency === 'BDT'
@@ -237,6 +240,12 @@ export const CartDrawer: React.FC = () => {
                           ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                           : isShopz
                           ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                          : isBanglaShoppers
+                          ? 'bg-rose-500 hover:bg-rose-400 text-white'
+                          : isIllin
+                          ? 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                          : isSohoj
+                          ? 'bg-violet-600 hover:bg-violet-500 text-white'
                           : isReleva
                           ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
                           : isAlibaba

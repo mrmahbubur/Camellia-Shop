@@ -12,7 +12,8 @@ import {
   Globe,
   Compass,
   SlidersHorizontal,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react';
 import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -148,6 +149,27 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'amz-mx-master-3s'
     ],
     icon: Globe
+  },
+  {
+    id: 'beauty-home',
+    label: 'Skincare & Home',
+    headline: 'Korean Skincare, Espresso & Coffee Makers & BD Home Upgrades',
+    summary:
+      'Authentic skincare serums, sunscreens, and toners from BanglaShoppers alongside real kitchen appliances, mini air coolers, and reseller portals from Illin BD & Sohoj Affiliates.',
+    idealFor: 'Daily Skincare, Coffee Lovers & Home Upgrades',
+    partnerStores: 'BanglaShoppers · Illin BD · Sohoj Affiliates',
+    targetStore: 'BanglaShoppers',
+    targetCategory: 'BanglaShoppers Beauty',
+    sponsorContextKey: 'BanglaShoppers Beauty',
+    productIds: [
+      'bs-some-by-mi-miracle-serum',
+      'bs-cosrx-propolis-toner',
+      'illin-miyako-coffee-maker-cm327',
+      'illin-mini-air-cooler',
+      'illin-miyako-espresso-cm2038',
+      'sohoj-affiliate-program'
+    ],
+    icon: Sparkles
   }
 ];
 
@@ -172,9 +194,12 @@ const PREFERRED_STORES: Array<{ value: PartnerStoreOrigin | 'all'; label: string
   { value: 'all', label: 'Regional priority (All)' },
   { value: 'Amazon', label: 'Amazon' },
   { value: 'Shopz BD', label: 'Shopz BD' },
+  { value: 'BanglaShoppers', label: 'BanglaShoppers' },
+  { value: 'Illin BD', label: 'Illin BD' },
   { value: 'Releva BD', label: 'Releva BD' },
   { value: 'Alibaba', label: 'Alibaba' },
-  { value: 'ExonHost', label: 'ExonHost' }
+  { value: 'ExonHost', label: 'ExonHost' },
+  { value: 'Sohoj Affiliates', label: 'Sohoj Affiliates' }
 ];
 
 export const CustomerThemesSection: React.FC = () => {
@@ -199,6 +224,9 @@ export const CustomerThemesSection: React.FC = () => {
     shopzStoreUrl,
     exonhostStoreUrl,
     alibabaStoreUrl,
+    banglashoppersStoreUrl,
+    illinStoreUrl,
+    sohojStoreUrl,
     recordAffiliateClick
   } = useProducts();
   const { formatPrice, addToCart, cart } = useCart();
@@ -289,6 +317,21 @@ export const CustomerThemesSection: React.FC = () => {
     ];
     const exonhostCategories = rawExonhost.filter((c) => c.count > 0);
 
+    const rawBanglaShoppers: AffiliateCategoryLink[] = [
+      { label: 'Serums, Toners & Sunscreens', count: countFor('BanglaShoppers', 'BanglaShoppers Beauty'), store: 'BanglaShoppers', category: 'BanglaShoppers Beauty' }
+    ];
+    const banglaShoppersCategories = rawBanglaShoppers.filter((c) => c.count > 0);
+
+    const rawIllin: AffiliateCategoryLink[] = [
+      { label: 'Coffee Makers, Coolers & Kitchen', count: countFor('Illin BD', 'Illin BD Home & Tech'), store: 'Illin BD', category: 'Illin BD Home & Tech' }
+    ];
+    const illinCategories = rawIllin.filter((c) => c.count > 0);
+
+    const rawSohoj: AffiliateCategoryLink[] = [
+      { label: 'Affiliate & Reseller Portals', count: countFor('Sohoj Affiliates', 'Sohoj Affiliate Network'), store: 'Sohoj Affiliates', category: 'Sohoj Affiliate Network' }
+    ];
+    const sohojCategories = rawSohoj.filter((c) => c.count > 0);
+
     const sponsorGroups = [
       { label: 'Hardware & Power Partners', count: sponsors.filter((s) => s.group === 'Hardware & Power').length },
       { label: 'Workspace & Audio Partners', count: sponsors.filter((s) => s.group === 'Workspace & Audio').length },
@@ -301,12 +344,18 @@ export const CustomerThemesSection: React.FC = () => {
       relevaTotal: products.filter((p) => p.originStore === 'Releva BD').length,
       alibabaTotal: products.filter((p) => p.originStore === 'Alibaba').length,
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
+      banglaShoppersTotal: products.filter((p) => p.originStore === 'BanglaShoppers').length,
+      illinTotal: products.filter((p) => p.originStore === 'Illin BD').length,
+      sohojTotal: products.filter((p) => p.originStore === 'Sohoj Affiliates').length,
       sponsorsTotal: sponsors.length,
       amazonCategories,
       shopzCategories,
       relevaCategories,
       alibabaCategories,
       exonhostCategories,
+      banglaShoppersCategories,
+      illinCategories,
+      sohojCategories,
       sponsorGroups
     };
   }, [products, sponsors]);
@@ -360,6 +409,9 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'Shopz BD') return 'text-emerald-600 dark:text-emerald-400';
     if (store === 'Releva BD') return 'text-teal-600 dark:text-teal-400';
     if (store === 'Alibaba') return 'text-indigo-600 dark:text-indigo-400';
+    if (store === 'BanglaShoppers') return 'text-rose-600 dark:text-rose-400';
+    if (store === 'Illin BD') return 'text-cyan-700 dark:text-cyan-400';
+    if (store === 'Sohoj Affiliates') return 'text-violet-600 dark:text-violet-400';
     return 'text-amber-700 dark:text-amber-400';
   };
 
@@ -368,6 +420,9 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
+    if (store === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
+    if (store === 'Illin BD') return 'bg-cyan-400 hover:bg-cyan-300 text-slate-950';
+    if (store === 'Sohoj Affiliates') return 'bg-violet-600 hover:bg-violet-500 text-white';
     return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
   };
 
@@ -1082,6 +1137,180 @@ export const CustomerThemesSection: React.FC = () => {
                         className="w-full min-h-[38px] px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Open Alibaba Portal</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'BanglaShoppers') {
+                return (
+                  <div
+                    key="dir-banglashoppers"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            BanglaShoppers
+                          </h4>
+                          <p className="text-[11px] text-rose-600 dark:text-rose-400 font-medium">
+                            K-Beauty, Serums &amp; Authentic Skincare
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.banglaShoppersTotal} items
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.banglaShoppersCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Some By Mi, COSRX, Missha, Neutrogena &amp; The Body Shop authentic skincare shipped nationwide.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={banglashoppersStoreUrl}
+                        target="_blank"
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-banglashoppers-store', 'BanglaShoppers')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit BanglaShoppers</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'Illin BD') {
+                return (
+                  <div
+                    key="dir-illin"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Illin BD
+                          </h4>
+                          <p className="text-[11px] text-cyan-700 dark:text-cyan-400 font-medium">
+                            Home Appliances, Coffee Makers &amp; Gadgets
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.illinTotal} items
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.illinCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Miyako coffee &amp; espresso machines, bread toasters, food choppers &amp; mini air coolers.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={illinStoreUrl}
+                        target="_blank"
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-illin-store', 'Illin BD')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit Illin BD</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'Sohoj Affiliates') {
+                return (
+                  <div
+                    key="dir-sohoj"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Sohoj Affiliates
+                          </h4>
+                          <p className="text-[11px] text-violet-600 dark:text-violet-400 font-medium">
+                            BD Reseller &amp; Affiliate Hub
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.sohojTotal} portals
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.sohojCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Access 3,930+ Illin BD products, 100 Tk onboarding credit &amp; bKash/Nagad/Rocket payouts.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={sohojStoreUrl}
+                        target="_blank"
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-sohoj-store', 'Sohoj Affiliates')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Open Sohoj Affiliates</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>

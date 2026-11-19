@@ -14,6 +14,7 @@ export type BuyingNeed =
   | 'power'
   | 'watches'
   | 'everyday'
+  | 'beauty'
   | 'hosting'
   | 'sourcing';
 
@@ -83,9 +84,15 @@ export const BUYING_NEED_META: Record<
   },
   everyday: {
     label: 'Everyday Tech & Bangladesh Retail',
-    description: 'Daily utilities, calculators, trimmers, Shopz BD, and Releva BD picks.',
-    targetCategories: ['Electronics & Gadgets', 'Shopz BD Tech Deals', 'Releva BD Picks'],
-    keywords: ['everyday', 'calculator', 'trimmer', 'releva', 'shopz', 'bangladesh', 'cooler', 'lens']
+    description: 'Daily utilities, calculators, Shopz BD, Releva BD, and Illin BD picks.',
+    targetCategories: ['Electronics & Gadgets', 'Shopz BD Tech Deals', 'Releva BD Picks', 'Illin BD Home & Tech'],
+    keywords: ['everyday', 'calculator', 'trimmer', 'releva', 'shopz', 'bangladesh', 'cooler', 'coffee', 'toaster', 'illin']
+  },
+  beauty: {
+    label: 'Skincare, Beauty & Home Appliances',
+    description: 'Korean & global skincare from BanglaShoppers plus kitchen appliances from Illin BD.',
+    targetCategories: ['BanglaShoppers Beauty', 'Illin BD Home & Tech'],
+    keywords: ['skincare', 'serum', 'toner', 'sunscreen', 'cream', 'banglashoppers', 'coffee', 'appliance', 'illin']
   },
   hosting: {
     label: 'Web Hosting & Domains',
@@ -94,10 +101,10 @@ export const BUYING_NEED_META: Record<
     keywords: ['hosting', 'domain', 'cloud', 'wordpress', 'vps', 'exonhost']
   },
   sourcing: {
-    label: 'Direct Sourcing & Wholesale',
-    description: 'Portal sourcing via Alibaba for studio & hardware bundles.',
-    targetCategories: ['Office & Workspace', 'Computers & Accessories', 'Smart Home & Power'],
-    keywords: ['sourcing', 'wholesale', 'alibaba']
+    label: 'Sourcing & Affiliate Networks',
+    description: 'Wholesale portals via Alibaba plus affiliate/reseller onboarding via Sohoj Affiliates.',
+    targetCategories: ['Office & Workspace', 'Computers & Accessories', 'Smart Home & Power', 'Sohoj Affiliate Network'],
+    keywords: ['sourcing', 'wholesale', 'alibaba', 'sohoj', 'affiliate', 'reseller']
   }
 };
 
@@ -179,9 +186,15 @@ export function computeRecommendations<T extends RecommendationCandidate>(option
         reasons.push(`Relevant to ${needMeta.label}`);
       }
 
-      if (buyingGuide.need === 'sourcing' && item.originStore === 'Alibaba') {
+      if (
+        buyingGuide.need === 'sourcing' &&
+        (item.originStore === 'Alibaba' || item.originStore === 'Sohoj Affiliates')
+      ) {
         score += 35;
-        reasons.push(`Direct sourcing portal on ${item.originStore}`);
+        reasons.push(`Direct partner portal on ${item.originStore}`);
+      }
+      if (buyingGuide.need === 'beauty' && item.originStore === 'BanglaShoppers') {
+        score += 30;
       }
       if (buyingGuide.need === 'hosting' && item.originStore === 'ExonHost') {
         score += 40;

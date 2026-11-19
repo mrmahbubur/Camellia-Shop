@@ -27,12 +27,14 @@ interface HeroProps {
 
 const SPOTLIGHT_PRODUCT_IDS = [
   'amz-mx-master-3s',
+  'bs-some-by-mi-miracle-serum',
+  'illin-miyako-coffee-maker-cm327',
   'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
+  'sohoj-affiliate-program',
   'amz-sony-wh1000xm5',
   'csv-casio-f-91w-1-digital-watch',
   'releva-bd-130',
   'exonhost-turbo-nvme',
-  'amz-benq-screenbar',
   'alibaba-smart-qi2-charging-pad-pro'
 ];
 
@@ -45,6 +47,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     shopzStoreUrl,
     exonhostStoreUrl,
     alibabaStoreUrl,
+    banglashoppersStoreUrl,
+    illinStoreUrl,
+    sohojStoreUrl,
     products,
     sponsors,
     storefrontCopy,
@@ -91,7 +96,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
       'Shopz BD': 0,
       'Releva BD': 0,
       Alibaba: 0,
-      ExonHost: 0
+      ExonHost: 0,
+      BanglaShoppers: 0,
+      'Illin BD': 0,
+      'Sohoj Affiliates': 0
     };
     for (const item of products) {
       if (item.originStore in counts) {
@@ -162,6 +170,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     if (store === 'Shopz BD') return 'bg-emerald-500 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-400 text-slate-950';
     if (store === 'Alibaba') return 'bg-indigo-600 text-white';
+    if (store === 'BanglaShoppers') return 'bg-rose-500 text-white';
+    if (store === 'Illin BD') return 'bg-cyan-400 text-slate-950';
+    if (store === 'Sohoj Affiliates') return 'bg-violet-600 text-white';
     return 'bg-amber-400 text-slate-950';
   };
 
@@ -178,6 +189,51 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         >
           <span>Shopz BD</span>
           <ExternalLink className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+        </a>
+      );
+    }
+    if (store === 'BanglaShoppers') {
+      return (
+        <a
+          key="banglashoppers"
+          href={banglashoppersStoreUrl}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          onClick={() => recordAffiliateClick('hero-banglashoppers-store', 'BanglaShoppers')}
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 hover:border-rose-400 bg-rose-50 dark:bg-rose-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <span>BanglaShoppers</span>
+          <ExternalLink className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+        </a>
+      );
+    }
+    if (store === 'Illin BD') {
+      return (
+        <a
+          key="illin"
+          href={illinStoreUrl}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          onClick={() => recordAffiliateClick('hero-illin-store', 'Illin BD')}
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 hover:border-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <span>Illin BD</span>
+          <ExternalLink className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+        </a>
+      );
+    }
+    if (store === 'Sohoj Affiliates') {
+      return (
+        <a
+          key="sohoj"
+          href={sohojStoreUrl}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          onClick={() => recordAffiliateClick('hero-sohoj-store', 'Sohoj Affiliates')}
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-violet-800 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40 hover:border-violet-400 bg-violet-50 dark:bg-violet-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <span>Sohoj Affiliates</span>
+          <ExternalLink className="w-3 h-3 text-violet-600 dark:text-violet-400" />
         </a>
       );
     }
@@ -548,14 +604,17 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         </div>
 
         {/* Interactive Partner Coverage Strip (Clicks Jump & Filter Real Products) */}
-        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
           {(
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
               { store: 'Shopz BD' as const, label: 'Shopz BD', count: storeCounts['Shopz BD'], sub: 'Tech, watches, mics' },
+              { store: 'BanglaShoppers' as const, label: 'BanglaShoppers', count: storeCounts.BanglaShoppers, sub: 'Skincare & beauty' },
+              { store: 'Illin BD' as const, label: 'Illin BD', count: storeCounts['Illin BD'], sub: 'Kitchen & coolers' },
               { store: 'Releva BD' as const, label: 'Releva BD', count: storeCounts['Releva BD'], sub: 'Featured picks' },
               { store: 'Alibaba' as const, label: 'Alibaba', count: storeCounts.Alibaba, sub: 'Direct sourcing' },
-              { store: 'ExonHost' as const, label: 'ExonHost', count: storeCounts.ExonHost, sub: 'NVMe, WP & VPS' }
+              { store: 'ExonHost' as const, label: 'ExonHost', count: storeCounts.ExonHost, sub: 'NVMe, WP & VPS' },
+              { store: 'Sohoj Affiliates' as const, label: 'Sohoj', count: storeCounts['Sohoj Affiliates'], sub: 'BD affiliate hub' }
             ] as const
           ).map((entry) => (
             <button
@@ -570,7 +629,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                 </span>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
               </div>
-              <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5 truncate">
                 {entry.label}
               </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">

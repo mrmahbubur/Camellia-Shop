@@ -10,6 +10,9 @@ import {
   SHOPZ_REF_BASE,
   EXONHOST_AFFILIATE_URL,
   ALIBABA_AFFILIATE_URL,
+  BANGLASHOPPERS_AFFILIATE_URL,
+  ILLIN_AFFILIATE_URL,
+  SOHOJ_AFFILIATE_URL,
   RELEVA_TRACKING_PARAM
 } from '../data/unifiedProductsData';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
@@ -55,13 +58,13 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Tech, Watches, Workspace Gear & Cloud Hosting',
-  heroTitle: 'Curated Workspace Tech, Desk Hardware & Everyday Gadgets.',
+    'Camellia Shop · Curated Tech, Skincare, Appliances, Watches & Cloud Hosting',
+  heroTitle: 'Curated Workspace Tech, Skincare, Appliances & Partner Stores.',
   heroSubtitle:
-    'Shop workspace electronics, audio gear, watches, cloud hosting, and deals across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Tech Deals & Cloud Hosting',
+    'Shop workspace electronics, skincare, home appliances, watches, and cloud hosting across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Skincare, Home Tech & Hosting',
   storeSubtitle:
-    'Explore electronics, everyday gadgets, and hosting across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.'
+    'Explore electronics, authentic skincare, home appliances, and hosting across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -130,6 +133,9 @@ interface ProductsContextType {
   shopzStoreUrl: string;
   exonhostStoreUrl: string;
   alibabaStoreUrl: string;
+  banglashoppersStoreUrl: string;
+  illinStoreUrl: string;
+  sohojStoreUrl: string;
   affiliateTag: string;
   recordAffiliateClick: (productId?: string, store?: PartnerStoreOrigin, category?: string) => void;
 }
@@ -576,6 +582,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!trimmed || trimmed.toLowerCase().includes('fabrilife.com')) {
       if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
       if (originStore === 'Alibaba') return ALIBABA_AFFILIATE_URL;
+      if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_AFFILIATE_URL;
+      if (originStore === 'Illin BD') return ILLIN_AFFILIATE_URL;
+      if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
       if (originStore === 'Releva BD') {
         return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING_PARAM}`;
       }
@@ -586,6 +595,15 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return AMAZON_STORE_URL;
     }
 
+    if (originStore === 'BanglaShoppers' || trimmed.includes('banglashoppers.com')) {
+      return trimmed.includes('/r/4ehxtB1p') ? trimmed : BANGLASHOPPERS_AFFILIATE_URL;
+    }
+    if (originStore === 'Illin BD' || trimmed.includes('illin.com.bd')) {
+      return trimmed.includes('/40989') ? trimmed : ILLIN_AFFILIATE_URL;
+    }
+    if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
+      return trimmed.includes('/reffer/40989') ? trimmed : SOHOJ_AFFILIATE_URL;
+    }
     if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
       return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_AFFILIATE_URL;
     }
@@ -690,6 +708,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         shopzStoreUrl: SHOPZ_REF_BASE,
         exonhostStoreUrl: EXONHOST_AFFILIATE_URL,
         alibabaStoreUrl: ALIBABA_AFFILIATE_URL,
+        banglashoppersStoreUrl: BANGLASHOPPERS_AFFILIATE_URL,
+        illinStoreUrl: ILLIN_AFFILIATE_URL,
+        sohojStoreUrl: SOHOJ_AFFILIATE_URL,
         affiliateTag: AMAZON_ASSOCIATE_TAG,
         recordAffiliateClick
       }}

@@ -610,6 +610,9 @@ const VALID_STORES = new Set<PartnerStoreOrigin>([
   'Amazon',
   'Shopz BD',
   'Releva BD',
+  'BanglaShoppers',
+  'Illin BD',
+  'Sohoj Affiliates',
   'ExonHost',
   'Alibaba'
 ]);

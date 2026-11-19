@@ -91,6 +91,10 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const isReleva = product.originStore === 'Releva BD';
   const isExonHost = product.originStore === 'ExonHost';
   const isAlibaba = product.originStore === 'Alibaba';
+  const isBanglaShoppers = product.originStore === 'BanglaShoppers';
+  const isIllin = product.originStore === 'Illin BD';
+  const isSohoj = product.originStore === 'Sohoj Affiliates';
+  const isDarkCta = isAlibaba || isBanglaShoppers || isSohoj;
 
   return (
     <div
@@ -297,6 +301,12 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                       : isShopz
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : isBanglaShoppers
+                      ? 'bg-rose-500 hover:bg-rose-400 text-white'
+                      : isIllin
+                      ? 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                      : isSohoj
+                      ? 'bg-violet-600 hover:bg-violet-500 text-white'
                       : isReleva
                       ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
                       : isAlibaba
@@ -310,7 +320,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ? `Open ${product.originStore}`
                       : `View on ${product.originStore}`}
                   </span>
-                  <ExternalLink className={`w-4 h-4 shrink-0 ${isAlibaba ? 'text-white' : 'text-slate-900'}`} />
+                  <ExternalLink className={`w-4 h-4 shrink-0 ${isDarkCta ? 'text-white' : 'text-slate-900'}`} />
                 </a>
 
                 <button

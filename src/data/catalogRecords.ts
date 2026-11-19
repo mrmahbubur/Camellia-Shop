@@ -10,6 +10,9 @@ export type ProductCategory =
   | 'Office & Workspace'
   | 'Shopz BD Tech Deals'
   | 'Releva BD Picks'
+  | 'BanglaShoppers Beauty'
+  | 'Illin BD Home & Tech'
+  | 'Sohoj Affiliate Network'
   | 'Cloud Hosting & Domains';
 
 export type ImageKey =
@@ -61,6 +64,9 @@ export const AMAZON_LINK_SHORT = 'https://link.amazon/B0io1BQfg';
 export const SHOPZ_REF_BASE = 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin';
 export const EXONHOST_AFFILIATE_URL = 'https://my.exonhost.com/affiliate?aff=5993';
 export const ALIBABA_AFFILIATE_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
+export const BANGLASHOPPERS_AFFILIATE_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
+export const ILLIN_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
+export const SOHOJ_AFFILIATE_URL = 'https://sohojaffiliates.com/reffer/40989';
 export const RELEVA_TRACKING_PARAM = 'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
 export function buildAmazonAsinUrl(asin: string): string {
@@ -810,6 +816,431 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     originStore: 'Alibaba',
     tags: ['sourcing', 'power', 'charging', 'alibaba']
+  },
+
+  // --- 5 BANGLASHOPPERS REAL SKINCARE & BEAUTY PRODUCTS ---
+  {
+    id: 'bs-some-by-mi-miracle-serum',
+    title: 'Some By Mi AHA.BHA.PHA 30 Days Miracle Serum (50ml)',
+    brand: 'Some By Mi',
+    category: 'BanglaShoppers Beauty',
+    department: 'BanglaShoppers Beauty',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'BanglaShoppers',
+    primeEligible: false,
+    deliveryEstimate: 'Authentic skincare delivery in Bangladesh via BanglaShoppers',
+    affiliateUrl: BANGLASHOPPERS_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Dual-layer AHA, BHA, and PHA soothing serum with tea tree leaf water and Centella Asiatica extract, available on BanglaShoppers.',
+    highlights: [
+      'Authentic Korean skincare distributed via BanglaShoppers',
+      '50ml bottle with gentle exfoliating AHA/BHA/PHA blend & tea tree calm care',
+      'Check live pricing, discount campaigns & Bangladesh delivery on BanglaShoppers'
+    ],
+    specs: [
+      { label: 'Brand', value: 'Some By Mi' },
+      { label: 'Volume', value: '50 ml' },
+      { label: 'Origin', value: 'South Korea' },
+      { label: 'Retailer', value: 'BanglaShoppers' }
+    ],
+    originStore: 'BanglaShoppers',
+    tags: ['skincare', 'serum', 'some by mi', 'banglashoppers', 'beauty', 'bangladesh']
+  },
+  {
+    id: 'bs-cosrx-propolis-toner',
+    title: 'COSRX Full Fit Propolis Synergy Toner (150ml)',
+    brand: 'COSRX',
+    category: 'BanglaShoppers Beauty',
+    department: 'BanglaShoppers Beauty',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'BanglaShoppers',
+    primeEligible: false,
+    deliveryEstimate: 'Authentic skincare delivery in Bangladesh via BanglaShoppers',
+    affiliateUrl: BANGLASHOPPERS_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Hydrating daily toner formulated with 72.6% black bee propolis extract and 10% honey extract for smooth skin barrier support.',
+    highlights: [
+      '150ml alcohol-free nourishing K-beauty toner available at BanglaShoppers',
+      'Formulated with propolis and honey extracts for lightweight hydration',
+      'Live price, stock & nationwide shipping confirmed on BanglaShoppers'
+    ],
+    specs: [
+      { label: 'Brand', value: 'COSRX' },
+      { label: 'Volume', value: '150 ml' },
+      { label: 'Key Ingredient', value: 'Black Bee Propolis & Honey Extract' },
+      { label: 'Retailer', value: 'BanglaShoppers' }
+    ],
+    originStore: 'BanglaShoppers',
+    tags: ['skincare', 'toner', 'cosrx', 'banglashoppers', 'beauty', 'bangladesh']
+  },
+  {
+    id: 'bs-missha-aqua-sun-gel',
+    title: 'Missha All Around Safe Block Aqua Sun Gel SPF50+ / PA++++ (50ml)',
+    brand: 'Missha',
+    category: 'BanglaShoppers Beauty',
+    department: 'BanglaShoppers Beauty',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'BanglaShoppers',
+    primeEligible: false,
+    deliveryEstimate: 'Authentic skincare delivery in Bangladesh via BanglaShoppers',
+    affiliateUrl: BANGLASHOPPERS_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Lightweight cooling water-gel sunscreen offering SPF50+ PA++++ broad-spectrum protection with zero white cast.',
+    highlights: [
+      'Fast-absorbing gel finish suitable for humid weather & daily wear',
+      'Glacier water & ice plant extracts refresh skin without stickiness',
+      'Verify live availability and promotional offers on BanglaShoppers'
+    ],
+    specs: [
+      { label: 'Brand', value: 'Missha' },
+      { label: 'Protection', value: 'SPF50+ / PA++++' },
+      { label: 'Volume', value: '50 ml' },
+      { label: 'Retailer', value: 'BanglaShoppers' }
+    ],
+    originStore: 'BanglaShoppers',
+    tags: ['sunscreen', 'sunblock', 'missha', 'banglashoppers', 'skincare', 'beauty']
+  },
+  {
+    id: 'bs-neutrogena-ultra-sheer',
+    title: 'Neutrogena Ultra Sheer Dry-Touch Sunscreen SPF 55 (88ml)',
+    brand: 'Neutrogena',
+    category: 'BanglaShoppers Beauty',
+    department: 'BanglaShoppers Beauty',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'BanglaShoppers',
+    primeEligible: false,
+    deliveryEstimate: 'Authentic skincare delivery in Bangladesh via BanglaShoppers',
+    affiliateUrl: BANGLASHOPPERS_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Non-greasy, water-resistant SPF 55 broad-spectrum UVA/UVB sunscreen with Dry-Touch matte finish, stocked at BanglaShoppers.',
+    highlights: [
+      'Helioplex broad-spectrum UVA/UVB protection; water-resistant up to 80 minutes',
+      'Oil-free, non-comedogenic dry-touch matte formula for face and body',
+      'Check live BanglaShoppers price & showroom/home delivery options'
+    ],
+    specs: [
+      { label: 'Brand', value: 'Neutrogena' },
+      { label: 'Protection', value: 'Broad Spectrum SPF 55' },
+      { label: 'Volume', value: '88 ml (3 fl oz)' },
+      { label: 'Retailer', value: 'BanglaShoppers' }
+    ],
+    originStore: 'BanglaShoppers',
+    tags: ['sunscreen', 'neutrogena', 'banglashoppers', 'skincare', 'beauty']
+  },
+  {
+    id: 'bs-body-shop-vitamin-e',
+    title: 'The Body Shop Vitamin E Moisture Day Cream (50ml)',
+    brand: 'The Body Shop',
+    category: 'BanglaShoppers Beauty',
+    department: 'BanglaShoppers Beauty',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'BanglaShoppers',
+    primeEligible: false,
+    deliveryEstimate: 'Authentic skincare delivery in Bangladesh via BanglaShoppers',
+    affiliateUrl: BANGLASHOPPERS_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Everyday hydrating day cream enriched with natural-origin Vitamin E and hyaluronic acid for 48-hour moisture lock.',
+    highlights: [
+      'Lightweight fast-absorbing day moisturizer suitable for all skin types',
+      'Official The Body Shop skincare curated through BanglaShoppers',
+      'Verify latest price & nationwide BD courier delivery on BanglaShoppers'
+    ],
+    specs: [
+      { label: 'Brand', value: 'The Body Shop' },
+      { label: 'Volume', value: '50 ml' },
+      { label: 'Formula', value: 'Vitamin E & Bio-Fermented Hyaluronic Acid' },
+      { label: 'Retailer', value: 'BanglaShoppers' }
+    ],
+    originStore: 'BanglaShoppers',
+    tags: ['moisturizer', 'cream', 'the body shop', 'banglashoppers', 'skincare', 'beauty']
+  },
+
+  // --- 5 ILLIN BD REAL LIVE HOME & GADGET PRODUCTS ---
+  {
+    id: 'illin-miyako-coffee-maker-cm327',
+    title: 'Miyako Electric Coffee Maker CM-327 (1000W)',
+    brand: 'Miyako',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 2950,
+    nativeCurrency: 'BDT',
+    price: 24.28,
+    originalPrice: 32.51,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: ILLIN_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      '1000W electric drip coffee maker brewing 12–15 cups with Auto Keep Warm warming plate, permanent filter, and overheat protection.',
+    highlights: [
+      '1000W rapid brewing system with 12–15 cup glass carafe capacity',
+      'Reusable permanent mesh filter, Auto Keep Warm & overheat cutoff',
+      'Ref. 2,950 BDT (regular 3,950 BDT) via Illin BD partner storefront'
+    ],
+    specs: [
+      { label: 'Brand / Model', value: 'Miyako CM-327' },
+      { label: 'Power', value: '1000W · Auto Keep Warm' },
+      { label: 'Capacity', value: '12–15 Cups' },
+      { label: 'Price', value: '2,950 BDT (Ref.)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['coffee maker', 'miyako', 'kitchen', 'appliance', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-bread-toaster-kt420fs',
+    title: 'Electric Bread Toaster KT-420 FS Stainless Finish',
+    brand: 'Illin Appliance',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 3650,
+    nativeCurrency: 'BDT',
+    price: 30.04,
+    originalPrice: 39.92,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: ILLIN_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Dual-slot electric bread toaster with variable browning control, quick-cancel button, and removable crumb tray for daily breakfast prep.',
+    highlights: [
+      'Wide dual slots with multi-level toast shade dial & auto pop-up',
+      'Compact stainless-accent body with slide-out crumb tray',
+      'Ref. 3,650 BDT (regular 4,850 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Model', value: 'KT-420 FS' },
+      { label: 'Slots', value: '2-Slice Auto Pop-Up' },
+      { label: 'Price', value: '3,650 BDT (Ref.)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['toaster', 'kitchen', 'appliance', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-mini-air-cooler',
+    title: 'Original Mini Air Cooler — Portable USB Desk AC',
+    brand: 'Illin Tech',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 1099,
+    nativeCurrency: 'BDT',
+    price: 9.05,
+    originalPrice: 16.05,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: ILLIN_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Compact USB evaporative mini air cooler designed for study desks, workspaces, and bedside cooling with 3-speed fan control.',
+    highlights: [
+      'Portable USB-powered personal evaporative air cooler for desk use',
+      'Three fan speed levels with compact water reservoir & mist cooling',
+      'Ref. 1,099 BDT (regular 1,950 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Type', value: 'Portable USB Evaporative Mini Air Cooler' },
+      { label: 'Speed Modes', value: '3-Speed Adjustable Fan' },
+      { label: 'Price', value: '1,099 BDT (Ref.)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['air cooler', 'fan', 'desk', 'cooling', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-miyako-espresso-cm2038',
+    title: 'Miyako CM-2038 BT Espresso & Cappuccino Maker',
+    brand: 'Miyako',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 8499,
+    nativeCurrency: 'BDT',
+    price: 69.95,
+    originalPrice: 119.34,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: ILLIN_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Countertop pressure espresso machine with integrated steam milk frother wand for espresso shots, cappuccino, and latte drinks.',
+    highlights: [
+      'High-pressure espresso extraction + adjustable stainless steam wand',
+      'Removable drip tray and cup warmer top plate for office or home bars',
+      'Ref. 8,499 BDT (regular 14,500 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Brand / Model', value: 'Miyako CM-2038 BT' },
+      { label: 'Features', value: 'Espresso Extraction + Milk Frother Wand' },
+      { label: 'Price', value: '8,499 BDT (Ref.)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['espresso', 'coffee', 'miyako', 'appliance', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-miyako-food-chopper',
+    title: 'Miyako Food Chopper MC-065 Multi-Speed Grinder',
+    brand: 'Miyako',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 2850,
+    nativeCurrency: 'BDT',
+    price: 23.46,
+    originalPrice: 31.69,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: ILLIN_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Heavy-duty kitchen food chopper with multi-blade stainless steel cutter and large-capacity bowl for vegetables, meats, and spices.',
+    highlights: [
+      'Dual-speed pulse motor & sharp stainless multi-blade assembly',
+      'Easy-clean bowl and non-slip base for everyday home cooking',
+      'Ref. 2,850 BDT (regular 3,850 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Brand / Model', value: 'Miyako MC-065' },
+      { label: 'Blades', value: 'Stainless Steel Multi-Blade' },
+      { label: 'Price', value: '2,850 BDT (Ref.)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['food chopper', 'kitchen', 'miyako', 'appliance', 'illin', 'bangladesh']
+  },
+
+  // --- 2 SOHOJ AFFILIATES PARTNER NETWORK PORTALS ---
+  {
+    id: 'sohoj-affiliate-program',
+    title: 'Sohoj Affiliates — Bangladesh Reseller & Affiliate Network',
+    brand: 'Sohoj Affiliates',
+    category: 'Sohoj Affiliate Network',
+    department: 'Sohoj Affiliate Network',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'Sohoj Affiliates',
+    primeEligible: false,
+    deliveryEstimate: 'Free Bangladesh creator & reseller onboarding on Sohoj Affiliates',
+    affiliateUrl: SOHOJ_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'cloudServer',
+    imageIsIllustrative: false,
+    description:
+      'Bangladesh affiliate and reseller platform connected to 3,900+ Illin BD consumer products with bKash, Nagad, Rocket & bank payouts and a 100 Tk onboarding credit.',
+    highlights: [
+      'Free sign-up with 100 Tk shopping credit bonus via referral link 40989',
+      'Promote 3,930+ local e-commerce products with bKash/Nagad/Rocket payouts',
+      '10% lifetime referral tier & live dashboard analytics on Sohoj Affiliates'
+    ],
+    specs: [
+      { label: 'Partner', value: 'Sohoj Affiliates' },
+      { label: 'Catalog', value: '3,930+ Illin BD Products' },
+      { label: 'Payouts', value: 'bKash · Nagad · Rocket · Bank (min 500 Tk)' },
+      { label: 'Program', value: 'Open via Referral Portal' }
+    ],
+    originStore: 'Sohoj Affiliates',
+    tags: ['sohoj', 'affiliate', 'reseller', 'bangladesh', 'earning', 'partner']
+  },
+  {
+    id: 'sohoj-affiliate-mobile',
+    title: 'Sohoj Affiliates — Mobile Dashboard & Link Builder',
+    brand: 'Sohoj Affiliates',
+    category: 'Sohoj Affiliate Network',
+    department: 'Sohoj Affiliate Network',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'BDT',
+    priceStatus: 'live-at-partner',
+    badge: 'Sohoj Affiliates',
+    primeEligible: false,
+    deliveryEstimate: 'Instant registration & tracking dashboard via Sohoj Affiliates',
+    affiliateUrl: SOHOJ_AFFILIATE_URL,
+    urlKind: 'portal',
+    imageKey: 'cloudServer',
+    secondaryImageKey: 'growthBundle',
+    imageIsIllustrative: false,
+    description:
+      'Mobile-ready link tracking, real-time sales performance analytics, and guided affiliate onboarding connected with Jibonpata IT Limited (Dhaka).',
+    highlights: [
+      'Track clicks, conversions & bonus milestones in real time from mobile',
+      'Invite creators to earn extra lifetime referral commission tiers',
+      'Direct registration through referral ID 40989 on Sohoj Affiliates'
+    ],
+    specs: [
+      { label: 'Partner', value: 'Sohoj Affiliates' },
+      { label: 'Access', value: 'Web & Mobile Partner Dashboard' },
+      { label: 'Support', value: 'Mirpur 10, Dhaka · Step-by-Step Guides' },
+      { label: 'Registration', value: 'Free Creator & Marketer Sign-Up' }
+    ],
+    originStore: 'Sohoj Affiliates',
+    tags: ['sohoj', 'affiliate', 'mobile', 'dashboard', 'bangladesh', 'partner']
   }
 ];
 

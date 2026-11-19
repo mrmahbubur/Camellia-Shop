@@ -81,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
             <div className="text-sm font-bold text-white">Complete Order on Partner Site</div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Verify live price, stock, shipping, and returns directly on Amazon, Shopz BD, Releva BD, Alibaba, or ExonHost.
+              Verify live price, stock, shipping, and returns directly on Amazon, Shopz BD, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost, or Sohoj Affiliates.
             </p>
           </div>
         </div>
@@ -93,7 +93,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {storefrontCopy.siteName}
             </span>
             <p className="text-slate-400 max-w-sm leading-relaxed">
-              Curated workspace electronics, everyday tech, and hosting portals linked directly to Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.
+              Curated workspace electronics, skincare, home appliances, and hosting portals linked directly to Amazon, Shopz BD, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost, and Sohoj Affiliates.
             </p>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-400 pt-1">
               <span>Owner: {owner.displayName}</span>
@@ -159,6 +159,33 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   type="button"
+                  onClick={() => handleCategoryNav('BanglaShoppers Beauty')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  BanglaShoppers Skincare &amp; Beauty
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryNav('Illin BD Home & Tech')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Illin BD Home &amp; Appliances
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryNav('Sohoj Affiliate Network')}
+                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                >
+                  Sohoj Affiliates Partner Hub
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => handleCategoryNav('Releva BD Picks')}
                   className="hover:text-white transition-colors cursor-pointer py-0.5"
                 >
@@ -201,7 +228,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 Affiliate Disclosure
               </div>
               <p className="text-slate-400 leading-relaxed text-[11px]">
-                As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also partner with Shopz BD, Releva BD, Alibaba, ExonHost, and featured sponsors.
+                As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also partner with Shopz BD, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost, Sohoj Affiliates, and featured sponsors.
               </p>
               <p className="text-slate-400 leading-relaxed text-[11px]">
                 All live prices, stock status, shipping coverage, and returns are set directly by each partner store at checkout.
@@ -211,7 +238,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Direct Retailer Checkout</span>
               </span>
-              <span>Amazon · Shopz BD · Releva BD · Alibaba · ExonHost</span>
+              <span>Amazon · Shopz BD · BanglaShoppers · Illin BD · Releva BD · Alibaba · ExonHost · Sohoj Affiliates</span>
             </div>
           </div>
         </div>

@@ -63,13 +63,13 @@ export interface StorefrontConfig {
 export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, Alibaba & ExonHost',
-  heroTitle: 'Curated Workspace Tech, Desk Hardware & Partner Checkout.',
+    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba & ExonHost',
+  heroTitle: 'Curated Workspace Tech, Skincare, Appliances & Partner Checkout.',
   heroSubtitle:
-    'Explore workspace electronics, accessories, smartwatches, cloud hosting, and partner store offers across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Partner Deals & Cloud Hosting',
+    'Explore workspace electronics, authentic skincare, home appliances, smartwatches, cloud hosting, and partner offers across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Skincare, Home Tech & Cloud Hosting',
   storeSubtitle:
-    'Browse electronics, accessories, personal tech, and hosting portals across Amazon, Shopz BD, Releva BD, Alibaba, and ExonHost. Every order completes directly on the partner store.',
+    'Browse electronics, skincare, home appliances, and hosting portals across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost. Every order completes directly on the partner store.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -99,6 +99,9 @@ function sanitizePartnerUrl(
     'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
   const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
   const ALIBABA_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
+  const BANGLASHOPPERS_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
+  const ILLIN_URL = 'https://www.illin.com.bd/40989';
+  const SOHOJ_URL = 'https://sohojaffiliates.com/reffer/40989';
   const RELEVA_TRACKING =
     'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
@@ -106,6 +109,9 @@ function sanitizePartnerUrl(
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
     if (originStore === 'Alibaba') return ALIBABA_URL;
+    if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
+    if (originStore === 'Illin BD') return ILLIN_URL;
+    if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
     if (originStore === 'Releva BD') {
       return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING}`;
     }
@@ -118,6 +124,15 @@ function sanitizePartnerUrl(
     return AMAZON_NODE_URL;
   }
 
+  if (originStore === 'BanglaShoppers' || trimmed.includes('banglashoppers.com')) {
+    return trimmed.includes('/r/4ehxtB1p') ? trimmed : BANGLASHOPPERS_URL;
+  }
+  if (originStore === 'Illin BD' || trimmed.includes('illin.com.bd')) {
+    return trimmed.includes('/40989') ? trimmed : ILLIN_URL;
+  }
+  if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
+    return trimmed.includes('/reffer/40989') ? trimmed : SOHOJ_URL;
+  }
   if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
     return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;
   }
@@ -172,6 +187,9 @@ const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
   'Office & Workspace',
   'Shopz BD Tech Deals',
   'Releva BD Picks',
+  'BanglaShoppers Beauty',
+  'Illin BD Home & Tech',
+  'Sohoj Affiliate Network',
   'Cloud Hosting & Domains'
 ]);
 
@@ -519,6 +537,12 @@ export async function executeBackendSiteControl(
           ? 'Shopz BD'
           : rawProd.originStore === 'Releva BD'
           ? 'Releva BD'
+          : rawProd.originStore === 'BanglaShoppers'
+          ? 'BanglaShoppers'
+          : rawProd.originStore === 'Illin BD'
+          ? 'Illin BD'
+          : rawProd.originStore === 'Sohoj Affiliates'
+          ? 'Sohoj Affiliates'
           : rawProd.originStore === 'ExonHost'
           ? 'ExonHost'
           : rawProd.originStore === 'Alibaba'
@@ -532,6 +556,12 @@ export async function executeBackendSiteControl(
         ? 'Shopz BD Tech Deals'
         : originStore === 'Releva BD'
         ? 'Releva BD Picks'
+        : originStore === 'BanglaShoppers'
+        ? 'BanglaShoppers Beauty'
+        : originStore === 'Illin BD'
+        ? 'Illin BD Home & Tech'
+        : originStore === 'Sohoj Affiliates'
+        ? 'Sohoj Affiliate Network'
         : 'Electronics & Gadgets';
       const safeImage =
         typeof rawProd.mainImage === 'string' &&
