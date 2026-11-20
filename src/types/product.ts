@@ -2,6 +2,7 @@ export type PartnerStoreName =
   | 'Amazon'
   | 'Shopz BD'
   | 'Releva BD'
+  | 'Star Tech'
   | 'BanglaShoppers'
   | 'Illin BD'
   | 'Sohoj Affiliates'

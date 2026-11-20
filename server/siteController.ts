@@ -63,13 +63,13 @@ export interface StorefrontConfig {
 export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba & ExonHost',
-  heroTitle: 'Curated Workspace Tech, Skincare, Appliances & Partner Checkout.',
+    'Camellia Shop · Curated Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba & ExonHost',
+  heroTitle: 'Curated Workspace Tech, Smartwatches, Skincare, Appliances & Partner Stores.',
   heroSubtitle:
-    'Explore workspace electronics, authentic skincare, home appliances, smartwatches, cloud hosting, and partner offers across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Skincare, Home Tech & Cloud Hosting',
+    'Explore workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, cloud hosting, and partner offers across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Home & Hosting',
   storeSubtitle:
-    'Browse electronics, skincare, home appliances, and hosting portals across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost. Every order completes directly on the partner store.',
+    'Browse electronics, smartwatches, skincare, home essentials, and hosting portals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost. Every order completes directly on the partner store.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -102,6 +102,8 @@ function sanitizePartnerUrl(
   const BANGLASHOPPERS_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
   const ILLIN_URL = 'https://www.illin.com.bd/40989';
   const SOHOJ_URL = 'https://sohojaffiliates.com/reffer/40989';
+  const STARTECH_TRACKING = '6ad935b5df200';
+  const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
   const RELEVA_TRACKING =
     'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
@@ -112,6 +114,7 @@ function sanitizePartnerUrl(
     if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
     if (originStore === 'Illin BD') return ILLIN_URL;
     if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
+    if (originStore === 'Star Tech') return STARTECH_URL;
     if (originStore === 'Releva BD') {
       return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING}`;
     }
@@ -124,6 +127,11 @@ function sanitizePartnerUrl(
     return AMAZON_NODE_URL;
   }
 
+  if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
+    if (trimmed.includes('tracking=')) return trimmed;
+    const sep = trimmed.includes('?') ? '&' : '?';
+    return `${trimmed}${sep}tracking=${STARTECH_TRACKING}`;
+  }
   if (originStore === 'BanglaShoppers' || trimmed.includes('banglashoppers.com')) {
     return trimmed.includes('/r/4ehxtB1p') ? trimmed : BANGLASHOPPERS_URL;
   }
@@ -186,6 +194,7 @@ const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
   'Wearables & Smartwatches',
   'Office & Workspace',
   'Shopz BD Tech Deals',
+  'Star Tech BD Gadgets',
   'Releva BD Picks',
   'BanglaShoppers Beauty',
   'Illin BD Home & Tech',
@@ -535,6 +544,8 @@ export async function executeBackendSiteControl(
       const originStore: PartnerStoreOrigin =
         rawProd.originStore === 'Shopz BD'
           ? 'Shopz BD'
+          : rawProd.originStore === 'Star Tech'
+          ? 'Star Tech'
           : rawProd.originStore === 'Releva BD'
           ? 'Releva BD'
           : rawProd.originStore === 'BanglaShoppers'
@@ -554,6 +565,8 @@ export async function executeBackendSiteControl(
         ? 'Cloud Hosting & Domains'
         : originStore === 'Shopz BD'
         ? 'Shopz BD Tech Deals'
+        : originStore === 'Star Tech'
+        ? 'Star Tech BD Gadgets'
         : originStore === 'Releva BD'
         ? 'Releva BD Picks'
         : originStore === 'BanglaShoppers'

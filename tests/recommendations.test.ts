@@ -15,6 +15,8 @@ import {
   EXONHOST_AFFILIATE_URL,
   BANGLASHOPPERS_AFFILIATE_URL,
   ILLIN_AFFILIATE_URL,
+  STARTECH_AFFILIATE_URL,
+  STARTECH_TRACKING_PARAM,
   SOHOJ_AFFILIATE_URL,
   parseShopzCsvRecords
 } from '../src/data/catalogRecords.ts';
@@ -136,12 +138,48 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.ok(banglaShoppersRecords.every((r) => r.affiliateUrl === BANGLASHOPPERS_AFFILIATE_URL));
 
   const illinRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Illin BD');
-  assert.equal(illinRecords.length, 5);
+  assert.equal(illinRecords.length, 9);
   assert.equal(ILLIN_AFFILIATE_URL, 'https://www.illin.com.bd/40989');
-  assert.ok(illinRecords.every((r) => r.affiliateUrl === ILLIN_AFFILIATE_URL));
+  const expectedDirectIllinUrls = [
+    'https://illin.com.bd/royal-purple-floral-cotton-bedsheet-set/40989',
+    'https://illin.com.bd/jennie-moon-90x-power-of-moonlight-brightening-soap/40989',
+    'https://illin.com.bd/sp-6-probiotic-bright-whitening-toothpaste/40989',
+    'https://illin.com.bd/german-toenailplus-anti-paronychia-relief-oil/40989'
+  ];
+  for (const directUrl of expectedDirectIllinUrls) {
+    assert.ok(
+      illinRecords.some((r) => r.affiliateUrl === directUrl),
+      `Missing direct Illin BD affiliate URL: ${directUrl}`
+    );
+  }
   assert.ok(
     illinRecords.every((r) => r.nativeCurrency === 'BDT' && typeof r.nativePrice === 'number' && r.nativePrice > 0),
     'Expected authentic BDT prices on Illin BD items'
+  );
+
+  const startechRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Star Tech');
+  assert.equal(startechRecords.length, 2);
+  assert.equal(STARTECH_AFFILIATE_URL, `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING_PARAM}`);
+  const expectedStartechUrls = [
+    'https://www.startech.com.bd/colmi-p71-bluetooth-calling-smart-watch?tracking=6ad935b5df200',
+    'https://www.startech.com.bd/colmi-p81-bluetooth-calling-smart-watch?tracking=6ad935b5df200'
+  ];
+  for (const stUrl of expectedStartechUrls) {
+    assert.ok(
+      startechRecords.some((r) => r.affiliateUrl === stUrl),
+      `Missing Star Tech affiliate URL: ${stUrl}`
+    );
+  }
+  assert.ok(
+    startechRecords.every(
+      (r) =>
+        r.category === 'Wearables & Smartwatches' &&
+        r.department === 'Star Tech BD Gadgets' &&
+        r.nativeCurrency === 'BDT' &&
+        typeof r.nativePrice === 'number' &&
+        r.nativePrice > 0
+    ),
+    'Expected authentic BDT smartwatch specs & pricing on Star Tech items'
   );
 
   const sohojRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Sohoj Affiliates');
@@ -293,14 +331,14 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
   );
 });
 
-test('productImageManifest maps 89+ real product images on disk (>1.2KB each)', () => {
+test('productImageManifest maps 95+ real product images on disk (>1.2KB each)', () => {
   const manifestRaw = fs.readFileSync(
     path.join(ROOT, 'src/data/productImageManifest.json'),
     'utf8'
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 89, `Expected at least 89 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 95, `Expected at least 95 mapped images, got ${entries.length}`);
 
   for (const [productId, relPath] of entries) {
     assert.ok(

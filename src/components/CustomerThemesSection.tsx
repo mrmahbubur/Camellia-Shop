@@ -94,16 +94,16 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Designed for daily commuters and travelers who want multi-device Qi2 charging, high-capacity power banks, wireless earbuds, and everyday watches.',
     idealFor: 'Travelers, Commuters & Daily Carry',
-    partnerStores: 'Amazon · Alibaba · Shopz BD',
+    partnerStores: 'Amazon · Star Tech · Shopz BD · Alibaba',
     targetStore: 'all',
     targetCategory: 'Wearables & Smartwatches',
     sponsorContextKey: 'Smart Home & Power',
     productIds: [
+      'startech-colmi-p71',
+      'startech-colmi-p81',
       'amz-anker-magsafe-3in1',
       'amz-anker-prime-250w',
-      'alibaba-smart-qi2-charging-pad-pro',
       'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
-      'csv-zeblaze-btalk-3-pro',
       'csv-casio-f-91w-1-digital-watch'
     ],
     icon: Smartphone
@@ -162,12 +162,12 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     targetCategory: 'BanglaShoppers Beauty',
     sponsorContextKey: 'BanglaShoppers Beauty',
     productIds: [
+      'illin-royal-purple-bedsheet',
+      'illin-jennie-moon-soap',
+      'illin-sp6-whitening-toothpaste',
+      'illin-toenailplus-relief-oil',
       'bs-some-by-mi-miracle-serum',
-      'bs-cosrx-propolis-toner',
-      'illin-miyako-coffee-maker-cm327',
-      'illin-mini-air-cooler',
-      'illin-miyako-espresso-cm2038',
-      'sohoj-affiliate-program'
+      'illin-miyako-coffee-maker-cm327'
     ],
     icon: Sparkles
   }
@@ -194,6 +194,7 @@ const PREFERRED_STORES: Array<{ value: PartnerStoreOrigin | 'all'; label: string
   { value: 'all', label: 'Regional priority (All)' },
   { value: 'Amazon', label: 'Amazon' },
   { value: 'Shopz BD', label: 'Shopz BD' },
+  { value: 'Star Tech', label: 'Star Tech' },
   { value: 'BanglaShoppers', label: 'BanglaShoppers' },
   { value: 'Illin BD', label: 'Illin BD' },
   { value: 'Releva BD', label: 'Releva BD' },
@@ -226,6 +227,7 @@ export const CustomerThemesSection: React.FC = () => {
     alibabaStoreUrl,
     banglashoppersStoreUrl,
     illinStoreUrl,
+    startechStoreUrl,
     sohojStoreUrl,
     recordAffiliateClick
   } = useProducts();
@@ -323,9 +325,14 @@ export const CustomerThemesSection: React.FC = () => {
     const banglaShoppersCategories = rawBanglaShoppers.filter((c) => c.count > 0);
 
     const rawIllin: AffiliateCategoryLink[] = [
-      { label: 'Coffee Makers, Coolers & Kitchen', count: countFor('Illin BD', 'Illin BD Home & Tech'), store: 'Illin BD', category: 'Illin BD Home & Tech' }
+      { label: 'Bedding, Oral Care, Coffee & Home', count: countFor('Illin BD', 'Illin BD Home & Tech'), store: 'Illin BD', category: 'Illin BD Home & Tech' }
     ];
     const illinCategories = rawIllin.filter((c) => c.count > 0);
+
+    const rawStartech: AffiliateCategoryLink[] = [
+      { label: 'Bluetooth Calling Smartwatches', count: countFor('Star Tech', 'Star Tech BD Gadgets'), store: 'Star Tech', category: 'Star Tech BD Gadgets' }
+    ];
+    const startechCategories = rawStartech.filter((c) => c.count > 0);
 
     const rawSohoj: AffiliateCategoryLink[] = [
       { label: 'Affiliate & Reseller Portals', count: countFor('Sohoj Affiliates', 'Sohoj Affiliate Network'), store: 'Sohoj Affiliates', category: 'Sohoj Affiliate Network' }
@@ -346,6 +353,7 @@ export const CustomerThemesSection: React.FC = () => {
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
       banglaShoppersTotal: products.filter((p) => p.originStore === 'BanglaShoppers').length,
       illinTotal: products.filter((p) => p.originStore === 'Illin BD').length,
+      startechTotal: products.filter((p) => p.originStore === 'Star Tech').length,
       sohojTotal: products.filter((p) => p.originStore === 'Sohoj Affiliates').length,
       sponsorsTotal: sponsors.length,
       amazonCategories,
@@ -355,6 +363,7 @@ export const CustomerThemesSection: React.FC = () => {
       exonhostCategories,
       banglaShoppersCategories,
       illinCategories,
+      startechCategories,
       sohojCategories,
       sponsorGroups
     };
@@ -411,6 +420,7 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'Alibaba') return 'text-indigo-600 dark:text-indigo-400';
     if (store === 'BanglaShoppers') return 'text-rose-600 dark:text-rose-400';
     if (store === 'Illin BD') return 'text-cyan-700 dark:text-cyan-400';
+    if (store === 'Star Tech') return 'text-orange-600 dark:text-orange-400';
     if (store === 'Sohoj Affiliates') return 'text-violet-600 dark:text-violet-400';
     return 'text-amber-700 dark:text-amber-400';
   };
@@ -422,6 +432,7 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
     if (store === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
     if (store === 'Illin BD') return 'bg-cyan-400 hover:bg-cyan-300 text-slate-950';
+    if (store === 'Star Tech') return 'bg-orange-600 hover:bg-orange-500 text-white';
     if (store === 'Sohoj Affiliates') return 'bg-violet-600 hover:bg-violet-500 text-white';
     return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
   };
@@ -1239,7 +1250,7 @@ export const CustomerThemesSection: React.FC = () => {
                           </li>
                         ))}
                         <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                          Miyako coffee &amp; espresso machines, bread toasters, food choppers &amp; mini air coolers.
+                          Cotton bedsheets, SP-6 probiotic toothpaste, Jennie Moon soap, nail relief oil, Miyako coffee makers &amp; coolers.
                         </li>
                       </ul>
                     </div>
@@ -1253,6 +1264,64 @@ export const CustomerThemesSection: React.FC = () => {
                         className="w-full min-h-[38px] px-3 py-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Illin BD</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'Star Tech') {
+                return (
+                  <div
+                    key="dir-startech"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            Star Tech BD
+                          </h4>
+                          <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium">
+                            Smartwatches &amp; Tech Gadgets
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.startechTotal} items
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.startechCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          COLMI P71 &amp; P81 Bluetooth calling smartwatches with SpO2, IP68 protection &amp; Star Tech Bangladesh delivery.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={startechStoreUrl}
+                        target="_blank"
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-startech-store', 'Star Tech')}
+                        className="w-full min-h-[38px] px-3 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit Star Tech BD</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>

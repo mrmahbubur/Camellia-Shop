@@ -93,8 +93,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const isAlibaba = product.originStore === 'Alibaba';
   const isBanglaShoppers = product.originStore === 'BanglaShoppers';
   const isIllin = product.originStore === 'Illin BD';
+  const isStarTech = product.originStore === 'Star Tech';
   const isSohoj = product.originStore === 'Sohoj Affiliates';
-  const isDarkCta = isAlibaba || isBanglaShoppers || isSohoj;
+  const isDarkCta = isAlibaba || isBanglaShoppers || isStarTech || isSohoj;
 
   return (
     <div
@@ -305,6 +306,8 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ? 'bg-rose-500 hover:bg-rose-400 text-white'
                       : isIllin
                       ? 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                      : isStarTech
+                      ? 'bg-orange-600 hover:bg-orange-500 text-white'
                       : isSohoj
                       ? 'bg-violet-600 hover:bg-violet-500 text-white'
                       : isReleva

@@ -13,6 +13,8 @@ import {
   BANGLASHOPPERS_AFFILIATE_URL,
   ILLIN_AFFILIATE_URL,
   SOHOJ_AFFILIATE_URL,
+  STARTECH_AFFILIATE_URL,
+  STARTECH_TRACKING_PARAM,
   RELEVA_TRACKING_PARAM
 } from '../data/unifiedProductsData';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
@@ -58,13 +60,13 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Tech, Skincare, Appliances, Watches & Cloud Hosting',
-  heroTitle: 'Curated Workspace Tech, Skincare, Appliances & Partner Stores.',
+    'Camellia Shop · Curated Tech, Watches, Skincare, Appliances & Partner Stores',
+  heroTitle: 'Curated Workspace Tech, Watches, Skincare & Partner Stores.',
   heroSubtitle:
-    'Shop workspace electronics, skincare, home appliances, watches, and cloud hosting across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Skincare, Home Tech & Hosting',
+    'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, and cloud hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare & Home Essentials',
   storeSubtitle:
-    'Explore electronics, authentic skincare, home appliances, and hosting across Amazon, Shopz BD, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.'
+    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, home appliances, and hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -136,6 +138,7 @@ interface ProductsContextType {
   banglashoppersStoreUrl: string;
   illinStoreUrl: string;
   sohojStoreUrl: string;
+  startechStoreUrl: string;
   affiliateTag: string;
   recordAffiliateClick: (productId?: string, store?: PartnerStoreOrigin, category?: string) => void;
 }
@@ -585,6 +588,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_AFFILIATE_URL;
       if (originStore === 'Illin BD') return ILLIN_AFFILIATE_URL;
       if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
+      if (originStore === 'Star Tech') return STARTECH_AFFILIATE_URL;
       if (originStore === 'Releva BD') {
         return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING_PARAM}`;
       }
@@ -595,6 +599,11 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return AMAZON_STORE_URL;
     }
 
+    if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
+      if (trimmed.includes('tracking=')) return trimmed;
+      const sep = trimmed.includes('?') ? '&' : '?';
+      return `${trimmed}${sep}tracking=${STARTECH_TRACKING_PARAM}`;
+    }
     if (originStore === 'BanglaShoppers' || trimmed.includes('banglashoppers.com')) {
       return trimmed.includes('/r/4ehxtB1p') ? trimmed : BANGLASHOPPERS_AFFILIATE_URL;
     }
@@ -711,6 +720,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         banglashoppersStoreUrl: BANGLASHOPPERS_AFFILIATE_URL,
         illinStoreUrl: ILLIN_AFFILIATE_URL,
         sohojStoreUrl: SOHOJ_AFFILIATE_URL,
+        startechStoreUrl: STARTECH_AFFILIATE_URL,
         affiliateTag: AMAZON_ASSOCIATE_TAG,
         recordAffiliateClick
       }}

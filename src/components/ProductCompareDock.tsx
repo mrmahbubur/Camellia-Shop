@@ -225,6 +225,8 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                               ? 'bg-rose-500 hover:bg-rose-400 text-white'
                               : p.originStore === 'Illin BD'
                               ? 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                              : p.originStore === 'Star Tech'
+                              ? 'bg-orange-600 hover:bg-orange-500 text-white'
                               : p.originStore === 'Sohoj Affiliates'
                               ? 'bg-violet-600 hover:bg-violet-500 text-white'
                               : p.originStore === 'Releva BD'

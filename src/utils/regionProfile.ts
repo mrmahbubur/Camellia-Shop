@@ -14,6 +14,7 @@ export type PartnerStoreOrigin =
   | 'Amazon'
   | 'Shopz BD'
   | 'Releva BD'
+  | 'Star Tech'
   | 'BanglaShoppers'
   | 'Illin BD'
   | 'Sohoj Affiliates'
@@ -40,6 +41,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'BDT',
     storePriority: [
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -49,10 +51,10 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Amazon'
     ],
     preferredThemeId: 'student-home',
-    prioritySummary: 'Shopz BD, Releva BD, BanglaShoppers, Illin BD & Sohoj Affiliates Prioritized for Bangladesh',
+    prioritySummary: 'Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD & Sohoj Affiliates Prioritized for Bangladesh',
     deliverySummary: 'Local Bangladesh partners first; global delivery varies by merchant',
     availabilityNote:
-      'Shopz BD, Releva BD, BanglaShoppers, and Illin BD fulfill locally within Bangladesh; international shipping from Amazon or Alibaba depends on item eligibility and customs at partner checkout.'
+      'Shopz BD, Star Tech, Releva BD, BanglaShoppers, and Illin BD fulfill locally within Bangladesh; international shipping from Amazon or Alibaba depends on item eligibility and customs at partner checkout.'
   },
   US: {
     code: 'US',
@@ -64,6 +66,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'ExonHost',
       'Alibaba',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -73,7 +76,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     prioritySummary: 'Amazon US, ExonHost & Alibaba Prioritized',
     deliverySummary: 'Direct partner checkout; live US shipping verified on retailer site',
     availabilityNote:
-      'Amazon US listings target US delivery addresses; Bangladesh retailers (Shopz BD, Releva BD, BanglaShoppers, Illin BD) primarily deliver inside Bangladesh.'
+      'Amazon US listings target US delivery addresses; Bangladesh retailers (Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD) primarily deliver inside Bangladesh.'
   },
   GB: {
     code: 'GB',
@@ -85,6 +88,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'ExonHost',
       'Alibaba',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -106,6 +110,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'ExonHost',
       'Alibaba',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -127,6 +132,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'ExonHost',
       'Alibaba',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -148,6 +154,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Amazon',
       'ExonHost',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -169,6 +176,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Alibaba',
       'ExonHost',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',
@@ -190,6 +198,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Alibaba',
       'ExonHost',
       'Shopz BD',
+      'Star Tech',
       'Releva BD',
       'BanglaShoppers',
       'Illin BD',

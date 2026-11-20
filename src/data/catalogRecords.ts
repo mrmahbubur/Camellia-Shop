@@ -12,6 +12,7 @@ export type ProductCategory =
   | 'Releva BD Picks'
   | 'BanglaShoppers Beauty'
   | 'Illin BD Home & Tech'
+  | 'Star Tech BD Gadgets'
   | 'Sohoj Affiliate Network'
   | 'Cloud Hosting & Domains';
 
@@ -66,6 +67,8 @@ export const EXONHOST_AFFILIATE_URL = 'https://my.exonhost.com/affiliate?aff=599
 export const ALIBABA_AFFILIATE_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
 export const BANGLASHOPPERS_AFFILIATE_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
 export const ILLIN_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
+export const STARTECH_TRACKING_PARAM = '6ad935b5df200';
+export const STARTECH_AFFILIATE_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING_PARAM}`;
 export const SOHOJ_AFFILIATE_URL = 'https://sohojaffiliates.com/reffer/40989';
 export const RELEVA_TRACKING_PARAM = 'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
@@ -1171,6 +1174,228 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     originStore: 'Illin BD',
     tags: ['food chopper', 'kitchen', 'miyako', 'appliance', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-royal-purple-bedsheet',
+    title: 'Royal Purple Floral Cotton Bedsheet Set',
+    brand: 'Illin BD',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 949,
+    nativeCurrency: 'BDT',
+    price: 7.81,
+    originalPrice: 9.87,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/royal-purple-floral-cotton-bedsheet-set/40989',
+    urlKind: 'product',
+    imageKey: 'deskMat',
+    secondaryImageKey: 'growthBundle',
+    imageIsIllustrative: false,
+    description:
+      'Breathable cotton double-size bedsheet set in a rich royal purple floral print with matching pillow covers for everyday bedroom comfort.',
+    highlights: [
+      'Soft breathable cotton weave with fade-resistant royal purple floral pattern',
+      'Direct affiliate product listing on Illin BD with matching pillowcase set',
+      'Ref. 949 BDT (regular 1,199 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Material', value: 'Soft Breathable Cotton' },
+      { label: 'Colorway', value: 'Royal Purple Floral' },
+      { label: 'Price', value: '949 BDT (Ref. · orig. 1,199 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['bedsheet', 'cotton', 'purple', 'floral', 'home', 'bedding', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-jennie-moon-soap',
+    title: 'Jennie Moon 90X Power of Moonlight Brightening Soap (160g)',
+    brand: 'Jennie Moon',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 499,
+    nativeCurrency: 'BDT',
+    price: 4.11,
+    originalPrice: 7.4,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/jennie-moon-90x-power-of-moonlight-brightening-soap/40989',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      '160g daily cleansing bar formulated to gently wash away dull surface buildup and leave skin feeling smooth, clean, and refreshed.',
+    highlights: [
+      '160g rich-lather brightening soap bar for face and body skincare routines',
+      'Direct Illin BD affiliate link with nationwide cash-on-delivery checkout',
+      'Ref. 499 BDT (regular 899 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Brand', value: 'Jennie Moon' },
+      { label: 'Net Weight', value: '160g' },
+      { label: 'Price', value: '499 BDT (Ref. · orig. 899 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['soap', 'jennie moon', 'brightening', 'skincare', 'beauty', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-sp6-whitening-toothpaste',
+    title: 'SP-6 Probiotic Bright Whitening Toothpaste',
+    brand: 'SP-6',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 449,
+    nativeCurrency: 'BDT',
+    price: 3.7,
+    originalPrice: 6.17,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/sp-6-probiotic-bright-whitening-toothpaste/40989',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Probiotic whitening toothpaste crafted to polish daily coffee and tea surface stains while supporting fresh breath and balanced oral care.',
+    highlights: [
+      'Probiotic oral-care formula for gentle everyday enamel brightening & fresh breath',
+      'Direct Illin BD affiliate product page with verified partner pricing',
+      'Ref. 449 BDT (regular 750 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Formula', value: 'SP-6 Probiotic Bright Whitening' },
+      { label: 'Use', value: 'Daily Enamel Polish & Fresh Breath' },
+      { label: 'Price', value: '449 BDT (Ref. · orig. 750 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['toothpaste', 'sp-6', 'probiotic', 'whitening', 'oral care', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-toenailplus-relief-oil',
+    title: 'German ToenailPlus Anti Paronychia Relief Oil',
+    brand: 'ToenailPlus',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 299,
+    nativeCurrency: 'BDT',
+    price: 2.46,
+    originalPrice: 4.11,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/german-toenailplus-anti-paronychia-relief-oil/40989',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Targeted dropper oil designed to soothe discomfort around the nail fold, soften thick edges, and support clean daily foot and nail care.',
+    highlights: [
+      'Precision dropper serum for soothing cuticles & supporting healthy nail beds',
+      'Direct affiliate URL on Illin BD with doorstep delivery across Bangladesh',
+      'Ref. 299 BDT (regular 499 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Type', value: 'Anti-Paronychia Nail Relief Oil' },
+      { label: 'Application', value: 'Dropper Bottle for Nails & Cuticles' },
+      { label: 'Price', value: '299 BDT (Ref. · orig. 499 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['oil', 'nail care', 'toenail', 'relief', 'personal care', 'illin', 'bangladesh']
+  },
+
+  // --- 2 STAR TECH BANGLADESH SMARTWATCH LISTINGS ---
+  {
+    id: 'startech-colmi-p71',
+    title: 'COLMI P71 Bluetooth Calling Smart Watch',
+    brand: 'COLMI',
+    category: 'Wearables & Smartwatches',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 1450,
+    nativeCurrency: 'BDT',
+    price: 11.93,
+    originalPrice: 12.95,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/colmi-p71-bluetooth-calling-smart-watch?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'heroWorkspace',
+    imageIsIllustrative: false,
+    description:
+      'Feature-packed Bluetooth calling smartwatch with a crisp 1.9-inch IPS HD display, SpO2 and heart-rate tracking, 104 sports modes, and IP68 water resistance.',
+    highlights: [
+      '1.9-inch IPS HD touch display with built-in Bluetooth calling mic & speaker',
+      'SpO2 blood oxygen, 24/7 heart-rate monitoring & 104 workout sport modes',
+      'IP68 waterproof rating · Ref. 1,450 BDT Cash Discount (1,550 BDT Online / 1,573 BDT Reg.)'
+    ],
+    specs: [
+      { label: 'Display', value: '1.9" IPS HD (240x284)' },
+      { label: 'Calling', value: 'Bluetooth Calling (Mic & Speaker)' },
+      { label: 'Health & Fitness', value: 'SpO2, Heart Rate, 104 Sport Modes' },
+      { label: 'Protection & Battery', value: 'IP68 Waterproof · 230mAh' },
+      { label: 'Price', value: '1,450 BDT Cash Discount (Ref.)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['colmi', 'p71', 'smartwatch', 'bluetooth calling', 'startech', 'watch', 'bangladesh']
+  },
+  {
+    id: 'startech-colmi-p81',
+    title: 'COLMI P81 Bluetooth Calling Smart Watch',
+    brand: 'COLMI',
+    category: 'Wearables & Smartwatches',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 1400,
+    nativeCurrency: 'BDT',
+    price: 11.52,
+    originalPrice: 12.5,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/colmi-p81-bluetooth-calling-smart-watch?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'heroWorkspace',
+    imageIsIllustrative: false,
+    description:
+      'Slim everyday Bluetooth calling smartwatch sporting a 1.9-inch HD display, 300mAh long-lasting battery, 100+ sports modes, and IP68 water resistance.',
+    highlights: [
+      '1.9-inch HD display with hands-free Bluetooth calling & voice assistant support',
+      'Large 300mAh battery, 100+ fitness modes & IP68 dust/water protection',
+      'Ref. 1,400 BDT Cash Discount (1,499 BDT Online / 1,519 BDT Reg.) on Star Tech'
+    ],
+    specs: [
+      { label: 'Display', value: '1.9" HD Touch Display' },
+      { label: 'Calling', value: 'Bluetooth Calling (Built-in Mic/Speaker)' },
+      { label: 'Sports & Health', value: '100+ Sport Modes · Heart Rate & SpO2' },
+      { label: 'Battery & Rating', value: '300mAh · IP68 Waterproof' },
+      { label: 'Price', value: '1,400 BDT Cash Discount (Ref.)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['colmi', 'p81', 'smartwatch', 'bluetooth calling', 'startech', 'watch', 'bangladesh']
   },
 
   // --- 2 SOHOJ AFFILIATES PARTNER NETWORK PORTALS ---

@@ -27,12 +27,13 @@ interface HeroProps {
 
 const SPOTLIGHT_PRODUCT_IDS = [
   'amz-mx-master-3s',
+  'startech-colmi-p71',
+  'illin-royal-purple-bedsheet',
   'bs-some-by-mi-miracle-serum',
-  'illin-miyako-coffee-maker-cm327',
+  'illin-jennie-moon-soap',
   'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
   'sohoj-affiliate-program',
-  'amz-sony-wh1000xm5',
-  'csv-casio-f-91w-1-digital-watch',
+  'startech-colmi-p81',
   'releva-bd-130',
   'exonhost-turbo-nvme',
   'alibaba-smart-qi2-charging-pad-pro'
@@ -49,6 +50,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     alibabaStoreUrl,
     banglashoppersStoreUrl,
     illinStoreUrl,
+    startechStoreUrl,
     sohojStoreUrl,
     products,
     sponsors,
@@ -99,6 +101,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
       ExonHost: 0,
       BanglaShoppers: 0,
       'Illin BD': 0,
+      'Star Tech': 0,
       'Sohoj Affiliates': 0
     };
     for (const item of products) {
@@ -172,11 +175,27 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     if (store === 'Alibaba') return 'bg-indigo-600 text-white';
     if (store === 'BanglaShoppers') return 'bg-rose-500 text-white';
     if (store === 'Illin BD') return 'bg-cyan-400 text-slate-950';
+    if (store === 'Star Tech') return 'bg-orange-600 text-white';
     if (store === 'Sohoj Affiliates') return 'bg-violet-600 text-white';
     return 'bg-amber-400 text-slate-950';
   };
 
   const partnerButtons = regionProfile.storePriority.map((store) => {
+    if (store === 'Star Tech') {
+      return (
+        <a
+          key="startech"
+          href={startechStoreUrl}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          onClick={() => recordAffiliateClick('hero-startech-store', 'Star Tech')}
+          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <span>Star Tech</span>
+          <ExternalLink className="w-3 h-3 text-orange-600 dark:text-orange-400" />
+        </a>
+      );
+    }
     if (store === 'Shopz BD') {
       return (
         <a
@@ -604,13 +623,14 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         </div>
 
         {/* Interactive Partner Coverage Strip (Clicks Jump & Filter Real Products) */}
-        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {(
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
               { store: 'Shopz BD' as const, label: 'Shopz BD', count: storeCounts['Shopz BD'], sub: 'Tech, watches, mics' },
+              { store: 'Star Tech' as const, label: 'Star Tech', count: storeCounts['Star Tech'], sub: 'COLMI smartwatches' },
               { store: 'BanglaShoppers' as const, label: 'BanglaShoppers', count: storeCounts.BanglaShoppers, sub: 'Skincare & beauty' },
-              { store: 'Illin BD' as const, label: 'Illin BD', count: storeCounts['Illin BD'], sub: 'Kitchen & coolers' },
+              { store: 'Illin BD' as const, label: 'Illin BD', count: storeCounts['Illin BD'], sub: 'Home, care & kitchen' },
               { store: 'Releva BD' as const, label: 'Releva BD', count: storeCounts['Releva BD'], sub: 'Featured picks' },
               { store: 'Alibaba' as const, label: 'Alibaba', count: storeCounts.Alibaba, sub: 'Direct sourcing' },
               { store: 'ExonHost' as const, label: 'ExonHost', count: storeCounts.ExonHost, sub: 'NVMe, WP & VPS' },

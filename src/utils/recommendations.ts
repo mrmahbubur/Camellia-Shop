@@ -78,21 +78,21 @@ export const BUYING_NEED_META: Record<
   },
   watches: {
     label: 'Watches & Smartwatches',
-    description: 'Digital, quartz, and AMOLED smartwatch models.',
-    targetCategories: ['Wearables & Smartwatches'],
-    keywords: ['watch', 'smartwatch', 'casio', 'skmei', 'curren', 'zeblaze', 'colmi', 'olevs']
+    description: 'Digital, quartz, and Bluetooth calling smartwatch models from Star Tech & Shopz BD.',
+    targetCategories: ['Wearables & Smartwatches', 'Star Tech BD Gadgets'],
+    keywords: ['watch', 'smartwatch', 'casio', 'skmei', 'curren', 'zeblaze', 'colmi', 'olevs', 'startech']
   },
   everyday: {
     label: 'Everyday Tech & Bangladesh Retail',
-    description: 'Daily utilities, calculators, Shopz BD, Releva BD, and Illin BD picks.',
-    targetCategories: ['Electronics & Gadgets', 'Shopz BD Tech Deals', 'Releva BD Picks', 'Illin BD Home & Tech'],
-    keywords: ['everyday', 'calculator', 'trimmer', 'releva', 'shopz', 'bangladesh', 'cooler', 'coffee', 'toaster', 'illin']
+    description: 'Daily utilities, smartwatches, Shopz BD, Star Tech, Releva BD, and Illin BD picks.',
+    targetCategories: ['Electronics & Gadgets', 'Shopz BD Tech Deals', 'Star Tech BD Gadgets', 'Releva BD Picks', 'Illin BD Home & Tech'],
+    keywords: ['everyday', 'calculator', 'trimmer', 'releva', 'shopz', 'startech', 'bangladesh', 'cooler', 'coffee', 'toaster', 'bedsheet', 'illin']
   },
   beauty: {
-    label: 'Skincare, Beauty & Home Appliances',
-    description: 'Korean & global skincare from BanglaShoppers plus kitchen appliances from Illin BD.',
+    label: 'Skincare, Care & Home Essentials',
+    description: 'Skincare & personal care from BanglaShoppers & Illin BD plus home & kitchen essentials.',
     targetCategories: ['BanglaShoppers Beauty', 'Illin BD Home & Tech'],
-    keywords: ['skincare', 'serum', 'toner', 'sunscreen', 'cream', 'banglashoppers', 'coffee', 'appliance', 'illin']
+    keywords: ['skincare', 'serum', 'toner', 'sunscreen', 'cream', 'soap', 'toothpaste', 'oil', 'bedsheet', 'banglashoppers', 'coffee', 'appliance', 'illin']
   },
   hosting: {
     label: 'Web Hosting & Domains',
