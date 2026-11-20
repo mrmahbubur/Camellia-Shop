@@ -161,7 +161,7 @@ export const CartDrawer: React.FC = () => {
                   <ResilientImage
                     src={item.product.image}
                     alt={item.product.title}
-                    className="w-16 h-16 object-contain bg-white p-1 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain bg-white p-1.5 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
                     referrerPolicy="no-referrer"
                   />
 

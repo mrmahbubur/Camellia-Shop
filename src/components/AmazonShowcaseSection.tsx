@@ -119,11 +119,11 @@ export const AmazonShowcaseSection: React.FC = () => {
                 className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
               >
                 {/* Product Visual */}
-                <div className="relative aspect-4/3 bg-white p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                <div className="relative w-full h-52 sm:h-56 md:h-60 bg-white p-2 sm:p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                   <ResilientImage
                     src={product.image}
                     alt={product.title}
-                    className="w-full h-full object-contain group-hover:scale-103 transition-transform duration-300"
+                    className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-103 transition-transform duration-300"
                     referrerPolicy="no-referrer"
                   />
 

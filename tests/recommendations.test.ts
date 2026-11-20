@@ -5,7 +5,11 @@ import path from 'node:path';
 
 import {
   CURATED_CATALOG_RECORDS,
+  RELEVA_HOME_URL,
   RELEVA_TRACKING_PARAM,
+  buildRelevaProductUrl,
+  isRelevaSpecificProductUrl,
+  normalizeRelevaAffiliateUrl,
   AMAZON_ASSOCIATE_TAG,
   AMAZON_LINK_ID,
   AMAZON_STORE_URL,
@@ -96,16 +100,67 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
     'Expected hardware specs on every Amazon ASIN listing'
   );
 
+  assert.equal(RELEVA_HOME_URL, 'https://releva.com.bd/');
+  assert.equal(RELEVA_HOME_URL.includes('tracking='), false);
+
   const expectedRelevaIds = [130, 131, 129, 133, 135];
   const relevaRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Releva BD');
   assert.equal(relevaRecords.length, expectedRelevaIds.length);
   for (const pid of expectedRelevaIds) {
     const expectedUrl = `https://releva.com.bd/index.php?route=product/product&product_id=${pid}&tracking=${RELEVA_TRACKING_PARAM}`;
+    const found = relevaRecords.find((r) => r.affiliateUrl === expectedUrl);
+    assert.ok(found, `Missing Releva BD URL for product_id=${pid}`);
     assert.ok(
-      relevaRecords.some((r) => r.affiliateUrl === expectedUrl),
-      `Missing Releva BD URL for product_id=${pid}`
+      found.affiliateUrl.endsWith(`&tracking=${RELEVA_TRACKING_PARAM}`),
+      `Releva product URL must end with &tracking=... for product_id=${pid}`
     );
   }
+
+  // Verify Releva tracking is applied ONLY to specific product URLs, never homepage/category/search links
+  assert.equal(isRelevaSpecificProductUrl('https://releva.com.bd/'), false);
+  assert.equal(
+    isRelevaSpecificProductUrl('https://releva.com.bd/index.php?route=product/category&path=20'),
+    false
+  );
+  assert.equal(
+    isRelevaSpecificProductUrl('https://releva.com.bd/index.php?route=product/product&product_id=130'),
+    true
+  );
+  assert.equal(
+    normalizeRelevaAffiliateUrl('https://releva.com.bd/').includes('tracking='),
+    false,
+    'Releva homepage link must never include tracking code'
+  );
+  assert.equal(
+    normalizeRelevaAffiliateUrl(
+      `https://releva.com.bd/?tracking=${RELEVA_TRACKING_PARAM}`,
+      'portal'
+    ).includes('tracking='),
+    false,
+    'Releva portal URL must strip tracking code'
+  );
+  assert.equal(
+    normalizeRelevaAffiliateUrl(
+      `https://releva.com.bd/index.php?route=product/category&path=20&tracking=${RELEVA_TRACKING_PARAM}`,
+      'category'
+    ).includes('tracking='),
+    false,
+    'Releva category URL must never include tracking code'
+  );
+  assert.equal(
+    normalizeRelevaAffiliateUrl(
+      'https://releva.com.bd/index.php?route=product/search&search=watch'
+    ).includes('tracking='),
+    false,
+    'Releva search URL must not include product tracking code'
+  );
+  assert.ok(
+    normalizeRelevaAffiliateUrl(
+      'https://releva.com.bd/index.php?route=product/product&product_id=130'
+    ).endsWith(`&tracking=${RELEVA_TRACKING_PARAM}`),
+    'Specific Releva product URL must end with &tracking=...'
+  );
+  assert.equal(buildRelevaProductUrl(130).endsWith(`&tracking=${RELEVA_TRACKING_PARAM}`), true);
 
   assert.equal(
     CURATED_CATALOG_RECORDS.some((r) => r.affiliateUrl.includes('1e8d114494cb5002cfdd16525dc3e8')),
@@ -138,13 +193,19 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.ok(banglaShoppersRecords.every((r) => r.affiliateUrl === BANGLASHOPPERS_AFFILIATE_URL));
 
   const illinRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Illin BD');
-  assert.equal(illinRecords.length, 9);
+  assert.equal(illinRecords.length, 15);
   assert.equal(ILLIN_AFFILIATE_URL, 'https://www.illin.com.bd/40989');
   const expectedDirectIllinUrls = [
     'https://illin.com.bd/royal-purple-floral-cotton-bedsheet-set/40989',
     'https://illin.com.bd/jennie-moon-90x-power-of-moonlight-brightening-soap/40989',
     'https://illin.com.bd/sp-6-probiotic-bright-whitening-toothpaste/40989',
-    'https://illin.com.bd/german-toenailplus-anti-paronychia-relief-oil/40989'
+    'https://illin.com.bd/german-toenailplus-anti-paronychia-relief-oil/40989',
+    'https://illin.com.bd/poedagar-men-watch-1563/40989',
+    'https://illin.com.bd/poedagar-watch-1565/40989',
+    'https://illin.com.bd/poedagar-mens-watch-green-1645/40989',
+    'https://illin.com.bd/poedagar-womens-watch-1727/40989',
+    'https://illin.com.bd/-air-cooling-3-in-1-usb-mini-portable-fan-aircond-humidifier-purifier-mist-cooler-with-led-light/40989',
+    'https://illin.com.bd/folding-fan-with-led-light-lr-2018/40989'
   ];
   for (const directUrl of expectedDirectIllinUrls) {
     assert.ok(
@@ -157,29 +218,43 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
     'Expected authentic BDT prices on Illin BD items'
   );
 
+  const bulkTxt = fs.readFileSync(
+    path.join(ROOT, 'public/assets/aistudio/gemini-code-1795177308224_7bcbca09.txt'),
+    'utf8'
+  );
+  const uniqueBulkUrls = [...new Set(bulkTxt.split(/\r?\n/).map((s) => s.trim()).filter(Boolean))];
+  assert.equal(uniqueBulkUrls.length, 284, 'Expected 284 unique URLs in uploaded Star Tech link file');
+
   const startechRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Star Tech');
-  assert.equal(startechRecords.length, 2);
+  assert.equal(startechRecords.length, 7 + 284);
   assert.equal(STARTECH_AFFILIATE_URL, `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING_PARAM}`);
   const expectedStartechUrls = [
     'https://www.startech.com.bd/colmi-p71-bluetooth-calling-smart-watch?tracking=6ad935b5df200',
-    'https://www.startech.com.bd/colmi-p81-bluetooth-calling-smart-watch?tracking=6ad935b5df200'
+    'https://www.startech.com.bd/colmi-p81-bluetooth-calling-smart-watch?tracking=6ad935b5df200',
+    'https://www.startech.com.bd/bnc-jack?tracking=6ad935b5df200',
+    'https://www.startech.com.bd/value-top-l40b-amd-v2748-all-in-one-pc?tracking=6ad935b5df200',
+    'https://www.startech.com.bd/chuwi-herobook-pro-intel-celeron-laptop?tracking=6ad935b5df200',
+    'https://www.startech.com.bd/acer-aspire-3-a325-45-n4500-laptop?tracking=6ad935b5df200',
+    'https://www.startech.com.bd/flyx-ae8-pro-foldable-drone?tracking=6ad935b5df200',
+    ...uniqueBulkUrls
   ];
+  const startechUrlSet = new Set(startechRecords.map((r) => r.affiliateUrl));
   for (const stUrl of expectedStartechUrls) {
     assert.ok(
-      startechRecords.some((r) => r.affiliateUrl === stUrl),
+      startechUrlSet.has(stUrl),
       `Missing Star Tech affiliate URL: ${stUrl}`
     );
   }
   assert.ok(
     startechRecords.every(
       (r) =>
-        r.category === 'Wearables & Smartwatches' &&
         r.department === 'Star Tech BD Gadgets' &&
         r.nativeCurrency === 'BDT' &&
-        typeof r.nativePrice === 'number' &&
-        r.nativePrice > 0
+        (r.priceStatus === 'live-at-partner'
+          ? r.price === 0 && r.nativePrice === undefined
+          : typeof r.nativePrice === 'number' && r.nativePrice > 0 && r.price > 0)
     ),
-    'Expected authentic BDT smartwatch specs & pricing on Star Tech items'
+    'Expected authentic BDT pricing or honest live-at-partner status across all Star Tech items'
   );
 
   const sohojRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Sohoj Affiliates');
@@ -331,14 +406,14 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
   );
 });
 
-test('productImageManifest maps 95+ real product images on disk (>1.2KB each)', () => {
+test('productImageManifest maps 385+ real product images on disk (>1.2KB each)', () => {
   const manifestRaw = fs.readFileSync(
     path.join(ROOT, 'src/data/productImageManifest.json'),
     'utf8'
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 95, `Expected at least 95 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 385, `Expected at least 385 mapped images, got ${entries.length}`);
 
   for (const [productId, relPath] of entries) {
     assert.ok(

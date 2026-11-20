@@ -15,7 +15,8 @@ import {
   SOHOJ_AFFILIATE_URL,
   STARTECH_AFFILIATE_URL,
   STARTECH_TRACKING_PARAM,
-  RELEVA_TRACKING_PARAM
+  RELEVA_HOME_URL,
+  normalizeRelevaAffiliateUrl
 } from '../data/unifiedProductsData';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
 import {
@@ -130,9 +131,11 @@ interface ProductsContextType {
   getAffiliateBuyUrl: (product: EcomProduct) => string;
   getAmazonSearchAffiliateUrl: (query: string) => string;
   getShopzSearchAffiliateUrl: (query: string) => string;
+  getRelevaSearchUrl: (query: string) => string;
   amazonShortUrl: string;
   amazonStoreUrl: string;
   shopzStoreUrl: string;
+  relevaStoreUrl: string;
   exonhostStoreUrl: string;
   alibabaStoreUrl: string;
   banglashoppersStoreUrl: string;
@@ -579,7 +582,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const applyPartnerTracking = (
     rawUrl: string,
     originStore: PartnerStoreOrigin,
-    asin?: string
+    asin?: string,
+    urlKind?: 'product' | 'portal' | 'category'
   ): string => {
     const trimmed = rawUrl.trim();
     if (!trimmed || trimmed.toLowerCase().includes('fabrilife.com')) {
@@ -590,7 +594,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
       if (originStore === 'Star Tech') return STARTECH_AFFILIATE_URL;
       if (originStore === 'Releva BD') {
-        return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING_PARAM}`;
+        return normalizeRelevaAffiliateUrl('', urlKind);
       }
       if (originStore === 'Shopz BD') return SHOPZ_REF_BASE;
       if (asin) {
@@ -617,9 +621,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_AFFILIATE_URL;
     }
     if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
-      if (trimmed.includes('tracking=')) return trimmed;
-      const sep = trimmed.includes('?') ? '&' : '?';
-      return `${trimmed}${sep}tracking=${RELEVA_TRACKING_PARAM}`;
+      return normalizeRelevaAffiliateUrl(trimmed, urlKind);
     }
     if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
       return trimmed.includes('aff=') ? trimmed : EXONHOST_AFFILIATE_URL;
@@ -653,7 +655,12 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getAffiliateBuyUrl = (product: EcomProduct): string => {
     if (product.affiliateUrl) {
-      return applyPartnerTracking(product.affiliateUrl, product.originStore, product.asin);
+      return applyPartnerTracking(
+        product.affiliateUrl,
+        product.originStore,
+        product.asin,
+        product.urlKind
+      );
     }
 
     if (product.asin) {
@@ -676,6 +683,12 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getShopzSearchAffiliateUrl = (query: string): string => {
     const clean = query.trim() || 'gadgets';
     return `https://www.shopz.com.bd/?s=${encodeURIComponent(clean)}&post_type=product&ref=mahbubur-rahman-shahin`;
+  };
+
+  const getRelevaSearchUrl = (query: string): string => {
+    const clean = query.trim();
+    if (!clean) return RELEVA_HOME_URL;
+    return `https://releva.com.bd/index.php?route=product/search&search=${encodeURIComponent(clean)}`;
   };
 
   return (
@@ -712,9 +725,11 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getAffiliateBuyUrl,
         getAmazonSearchAffiliateUrl,
         getShopzSearchAffiliateUrl,
+        getRelevaSearchUrl,
         amazonShortUrl: AMAZON_LINK_SHORT,
         amazonStoreUrl: AMAZON_STORE_URL,
         shopzStoreUrl: SHOPZ_REF_BASE,
+        relevaStoreUrl: RELEVA_HOME_URL,
         exonhostStoreUrl: EXONHOST_AFFILIATE_URL,
         alibabaStoreUrl: ALIBABA_AFFILIATE_URL,
         banglashoppersStoreUrl: BANGLASHOPPERS_AFFILIATE_URL,

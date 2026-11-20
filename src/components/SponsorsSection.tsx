@@ -97,7 +97,7 @@ export const SponsorsSection: React.FC = () => {
                 onClick={() => recordAffiliateClick(sponsor.id)}
                 className="group bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 grid grid-cols-1 sm:grid-cols-12 items-stretch"
               >
-                <div className="sm:col-span-5 aspect-4/3 sm:aspect-auto bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                <div className="sm:col-span-5 h-48 sm:h-auto sm:min-h-[210px] lg:min-h-[230px] bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                   <ResilientImage
                     src={sponsor.image}
                     alt={sponsor.title}
@@ -147,7 +147,7 @@ export const SponsorsSection: React.FC = () => {
                 onClick={() => recordAffiliateClick(sponsor.id)}
                 className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
               >
-                <div className="aspect-16/10 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                <div className="w-full h-44 sm:h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                   <ResilientImage
                     src={sponsor.image}
                     alt={sponsor.title}

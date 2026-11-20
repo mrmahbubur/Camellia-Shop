@@ -22,7 +22,7 @@ import {
   Cloud,
   Sparkles
 } from 'lucide-react';
-import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
+import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
 import { useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
@@ -53,9 +53,11 @@ export const StoreSection: React.FC = () => {
     getAffiliateBuyUrl,
     getAmazonSearchAffiliateUrl,
     getShopzSearchAffiliateUrl,
+    getRelevaSearchUrl,
     recordAffiliateClick,
     amazonStoreUrl,
     shopzStoreUrl,
+    relevaStoreUrl,
     exonhostStoreUrl,
     alibabaStoreUrl,
     banglashoppersStoreUrl,
@@ -78,7 +80,6 @@ export const StoreSection: React.FC = () => {
   const [activeQuickViewProduct, setActiveQuickViewProduct] = useState<EcomProduct | null>(null);
   const [comparedProducts, setComparedProducts] = useState<EcomProduct[]>([]);
 
-  const relevaStoreUrl = buildRelevaProductUrl(130);
   const savedIds = useMemo(() => new Set(cart.map((c) => c.product.id)), [cart]);
 
   useEffect(() => {
@@ -272,7 +273,7 @@ export const StoreSection: React.FC = () => {
       : targetPlatform === 'Sohoj Affiliates'
       ? sohojStoreUrl
       : targetPlatform === 'Releva BD'
-      ? relevaStoreUrl
+      ? getRelevaSearchUrl(partnerQuery)
       : targetPlatform === 'Shopz BD'
       ? getShopzSearchAffiliateUrl(partnerQuery)
       : getAmazonSearchAffiliateUrl(partnerQuery);
@@ -914,11 +915,11 @@ export const StoreSection: React.FC = () => {
                   }`}
                 >
                   {/* Visual Header */}
-                  <div className="relative aspect-4/3 bg-white p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                  <div className="relative w-full h-52 sm:h-56 md:h-60 bg-white p-2 sm:p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="w-full h-full object-contain group-hover:scale-104 transition-transform duration-300"
+                      className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-104 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
 
@@ -1063,11 +1064,11 @@ export const StoreSection: React.FC = () => {
                   onClick={() => setActiveQuickViewProduct(product)}
                   className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl p-4 sm:p-5 transition-all duration-300 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6 cursor-pointer relative"
                 >
-                  <div className="w-full md:w-48 aspect-4/3 rounded-xl overflow-hidden bg-white p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative flex items-center justify-center">
+                  <div className="w-full sm:w-44 md:w-52 lg:w-60 h-48 sm:h-40 md:h-44 lg:h-48 rounded-xl overflow-hidden bg-white p-2 border border-slate-100 dark:border-slate-800 shrink-0 relative flex items-center justify-center">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="w-full h-full object-contain group-hover:scale-104 transition-transform duration-300"
+                      className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-104 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
                     {product.badge && (

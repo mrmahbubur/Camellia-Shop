@@ -100,11 +100,11 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     sponsorContextKey: 'Smart Home & Power',
     productIds: [
       'startech-colmi-p71',
+      'illin-poedagar-men-watch-1563',
       'startech-colmi-p81',
+      'illin-poedagar-women-1727',
       'amz-anker-magsafe-3in1',
-      'amz-anker-prime-250w',
-      'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
-      'csv-casio-f-91w-1-digital-watch'
+      'amz-anker-prime-250w'
     ],
     icon: Smartphone
   },
@@ -223,6 +223,7 @@ export const CustomerThemesSection: React.FC = () => {
     amazonShortUrl,
     amazonStoreUrl,
     shopzStoreUrl,
+    relevaStoreUrl,
     exonhostStoreUrl,
     alibabaStoreUrl,
     banglashoppersStoreUrl,
@@ -325,12 +326,17 @@ export const CustomerThemesSection: React.FC = () => {
     const banglaShoppersCategories = rawBanglaShoppers.filter((c) => c.count > 0);
 
     const rawIllin: AffiliateCategoryLink[] = [
-      { label: 'Bedding, Oral Care, Coffee & Home', count: countFor('Illin BD', 'Illin BD Home & Tech'), store: 'Illin BD', category: 'Illin BD Home & Tech' }
+      { label: 'Bedsheets, Cooling Fans & Appliances', count: countFor('Illin BD', 'Illin BD Home & Tech'), store: 'Illin BD', category: 'Illin BD Home & Tech' },
+      { label: 'POEDAGAR Luxury & Fashion Watches', count: countFor('Illin BD', 'Wearables & Smartwatches'), store: 'Illin BD', category: 'Wearables & Smartwatches' }
     ];
     const illinCategories = rawIllin.filter((c) => c.count > 0);
 
     const rawStartech: AffiliateCategoryLink[] = [
-      { label: 'Bluetooth Calling Smartwatches', count: countFor('Star Tech', 'Star Tech BD Gadgets'), store: 'Star Tech', category: 'Star Tech BD Gadgets' }
+      { label: 'Desktop PCs, Laptops & Monitors', count: countFor('Star Tech', 'Computers & Accessories'), store: 'Star Tech', category: 'Computers & Accessories' },
+      { label: 'Earbuds, Speakers & Headsets', count: countFor('Star Tech', 'Audio & Headphones'), store: 'Star Tech', category: 'Audio & Headphones' },
+      { label: 'Power Stations, Air Fryers & Smart Home', count: countFor('Star Tech', 'Smart Home & Power'), store: 'Star Tech', category: 'Smart Home & Power' },
+      { label: 'Drones, Trimmers, Gadgets & Parts', count: countFor('Star Tech', 'Electronics & Gadgets'), store: 'Star Tech', category: 'Electronics & Gadgets' },
+      { label: 'Smartwatches & Fitness Wearables', count: countFor('Star Tech', 'Wearables & Smartwatches'), store: 'Star Tech', category: 'Wearables & Smartwatches' }
     ];
     const startechCategories = rawStartech.filter((c) => c.count > 0);
 
@@ -536,12 +542,12 @@ export const CustomerThemesSection: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setModalProduct(product)}
-                      className="w-20 h-20 rounded-lg overflow-hidden bg-white p-1.5 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative flex items-center justify-center"
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-lg overflow-hidden bg-white p-1.5 sm:p-2 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative flex items-center justify-center"
                     >
                       <ResilientImage
                         src={product.mainImage}
                         alt={product.title}
-                        className="w-full h-full object-contain"
+                        className="max-w-full max-h-full w-auto h-auto object-contain"
                         referrerPolicy="no-referrer"
                       />
                     </button>
@@ -740,12 +746,12 @@ export const CustomerThemesSection: React.FC = () => {
                 >
                   <div
                     onClick={() => setModalProduct(product)}
-                    className="relative aspect-4/3 bg-white p-3 overflow-hidden cursor-pointer flex items-center justify-center border-b border-slate-100 dark:border-slate-800"
+                    className="relative w-full h-52 sm:h-56 md:h-60 bg-white p-2 sm:p-2.5 overflow-hidden cursor-pointer flex items-center justify-center border-b border-slate-100 dark:border-slate-800"
                   >
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="w-full h-full object-contain"
+                      className="max-w-full max-h-full w-auto h-auto object-contain"
                       referrerPolicy="no-referrer"
                     />
                   </div>
@@ -1086,7 +1092,7 @@ export const CustomerThemesSection: React.FC = () => {
 
                     <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
                       <a
-                        href={buildRelevaProductUrl(130)}
+                        href={relevaStoreUrl}
                         target="_blank"
                         rel="sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-releva-store', 'Releva BD')}
@@ -1250,7 +1256,7 @@ export const CustomerThemesSection: React.FC = () => {
                           </li>
                         ))}
                         <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                          Cotton bedsheets, SP-6 probiotic toothpaste, Jennie Moon soap, nail relief oil, Miyako coffee makers &amp; coolers.
+                          POEDAGAR quartz watches, 3-in-1 mist &amp; folding fans, cotton bedsheets, SP-6 toothpaste, Jennie Moon soap &amp; Miyako appliances.
                         </li>
                       </ul>
                     </div>
@@ -1284,7 +1290,7 @@ export const CustomerThemesSection: React.FC = () => {
                             Star Tech BD
                           </h4>
                           <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium">
-                            Smartwatches &amp; Tech Gadgets
+                            Laptops, PCs, Drones &amp; Smartwatches
                           </p>
                         </div>
                         <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
@@ -1308,7 +1314,7 @@ export const CustomerThemesSection: React.FC = () => {
                           </li>
                         ))}
                         <li className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                          COLMI P71 &amp; P81 Bluetooth calling smartwatches with SpO2, IP68 protection &amp; Star Tech Bangladesh delivery.
+                          Ryzen &amp; Core desktop PCs, DJI drones, Anker SOLIX power stations, Lenovo/MSI gear, audio earbuds, air fryers &amp; smartwatches.
                         </li>
                       </ul>
                     </div>

@@ -26,9 +26,12 @@ import {
   SOHOJ_AFFILIATE_URL,
   STARTECH_AFFILIATE_URL,
   STARTECH_TRACKING_PARAM,
+  RELEVA_HOME_URL,
   RELEVA_TRACKING_PARAM,
   buildAmazonAsinUrl,
   buildRelevaProductUrl,
+  isRelevaSpecificProductUrl,
+  normalizeRelevaAffiliateUrl,
   type CatalogRecord,
   type ImageKey,
   type ProductCategory
@@ -49,9 +52,12 @@ export {
   SOHOJ_AFFILIATE_URL,
   STARTECH_AFFILIATE_URL,
   STARTECH_TRACKING_PARAM,
+  RELEVA_HOME_URL,
   RELEVA_TRACKING_PARAM,
   buildAmazonAsinUrl,
-  buildRelevaProductUrl
+  buildRelevaProductUrl,
+  isRelevaSpecificProductUrl,
+  normalizeRelevaAffiliateUrl
 };
 
 export const IMAGE_ASSET_MAP: Record<ImageKey, string> = {

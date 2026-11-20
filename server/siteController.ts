@@ -1,6 +1,9 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import type { PartnerStoreOrigin } from '../src/utils/regionProfile.ts';
-import type { ProductCategory } from '../src/data/catalogRecords.ts';
+import {
+  normalizeRelevaAffiliateUrl,
+  type ProductCategory
+} from '../src/data/catalogRecords.ts';
 
 export interface ProductSpec {
   label: string;
@@ -104,8 +107,6 @@ function sanitizePartnerUrl(
   const SOHOJ_URL = 'https://sohojaffiliates.com/reffer/40989';
   const STARTECH_TRACKING = '6ad935b5df200';
   const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
-  const RELEVA_TRACKING =
-    'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
@@ -116,7 +117,7 @@ function sanitizePartnerUrl(
     if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
     if (originStore === 'Star Tech') return STARTECH_URL;
     if (originStore === 'Releva BD') {
-      return `https://releva.com.bd/index.php?route=product/product&product_id=130&tracking=${RELEVA_TRACKING}`;
+      return normalizeRelevaAffiliateUrl('', 'product');
     }
     if (originStore === 'Shopz BD') {
       return 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin';
@@ -145,17 +146,7 @@ function sanitizePartnerUrl(
     return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;
   }
   if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
-    try {
-      const u = new URL(trimmed);
-      if (!u.searchParams.has('tracking')) {
-        u.searchParams.set('tracking', RELEVA_TRACKING);
-      }
-      return u.toString();
-    } catch {
-      return trimmed.includes('tracking=')
-        ? trimmed
-        : `${trimmed}${trimmed.includes('?') ? '&' : '?'}tracking=${RELEVA_TRACKING}`;
-    }
+    return normalizeRelevaAffiliateUrl(trimmed);
   }
   if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
     return trimmed.includes('aff=') ? trimmed : 'https://my.exonhost.com/affiliate?aff=5993';

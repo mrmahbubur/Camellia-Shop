@@ -1,4 +1,5 @@
 import type { PartnerStoreOrigin } from '../utils/regionProfile.ts';
+import startechBulkCatalogRaw from './startechBulkCatalog.json';
 
 export type ProductCategory =
   | 'All Departments (Mega Store)'
@@ -70,6 +71,7 @@ export const ILLIN_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
 export const STARTECH_TRACKING_PARAM = '6ad935b5df200';
 export const STARTECH_AFFILIATE_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING_PARAM}`;
 export const SOHOJ_AFFILIATE_URL = 'https://sohojaffiliates.com/reffer/40989';
+export const RELEVA_HOME_URL = 'https://releva.com.bd/';
 export const RELEVA_TRACKING_PARAM = 'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
 export function buildAmazonAsinUrl(asin: string): string {
@@ -78,6 +80,86 @@ export function buildAmazonAsinUrl(asin: string): string {
 
 export function buildRelevaProductUrl(productId: number): string {
   return `https://releva.com.bd/index.php?route=product/product&product_id=${productId}&tracking=${RELEVA_TRACKING_PARAM}`;
+}
+
+export function isRelevaSpecificProductUrl(
+  rawUrl: string,
+  urlKind?: 'product' | 'portal' | 'category'
+): boolean {
+  if (urlKind === 'portal' || urlKind === 'category') return false;
+  try {
+    const parsed = new URL(rawUrl.trim());
+    if (!parsed.hostname.toLowerCase().includes('releva.com.bd')) return false;
+    const route = (parsed.searchParams.get('route') || '').toLowerCase();
+    if (route === 'product/product' || parsed.searchParams.has('product_id')) {
+      return true;
+    }
+    if (
+      route.startsWith('product/category') ||
+      route.startsWith('product/search') ||
+      route.startsWith('product/manufacturer') ||
+      route.startsWith('common/home') ||
+      parsed.searchParams.has('path') ||
+      parsed.searchParams.has('search')
+    ) {
+      return false;
+    }
+    const cleanPath = parsed.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+    if (!cleanPath || cleanPath === 'index.php') {
+      return false;
+    }
+    if (
+      cleanPath === 'shop' ||
+      cleanPath === 'categories' ||
+      cleanPath === 'category' ||
+      cleanPath.startsWith('category/') ||
+      cleanPath.startsWith('collection/') ||
+      cleanPath.startsWith('collections/') ||
+      cleanPath.startsWith('search')
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function normalizeRelevaAffiliateUrl(
+  rawUrl: string,
+  urlKind?: 'product' | 'portal' | 'category'
+): string {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) {
+    return urlKind === 'portal' || urlKind === 'category'
+      ? RELEVA_HOME_URL
+      : buildRelevaProductUrl(130);
+  }
+  try {
+    const parsed = new URL(trimmed);
+    parsed.searchParams.delete('tracking');
+    if (!isRelevaSpecificProductUrl(parsed.toString(), urlKind)) {
+      return parsed.toString();
+    }
+    const base = parsed.toString();
+    const sep = base.includes('?') ? '&' : '?';
+    return `${base}${sep}tracking=${RELEVA_TRACKING_PARAM}`;
+  } catch {
+    const withoutTracking = trimmed.replace(/([?&])tracking=[^&]*(&?)/gi, (_m, sep, tail) =>
+      sep === '?' && tail ? '?' : tail ? '&' : ''
+    );
+    if (urlKind === 'portal' || urlKind === 'category') {
+      return withoutTracking;
+    }
+    const looksLikeProduct =
+      withoutTracking.includes('route=product/product') ||
+      withoutTracking.includes('product_id=');
+    if (!looksLikeProduct) {
+      return withoutTracking;
+    }
+    const sep = withoutTracking.includes('?') ? '&' : '?';
+    return `${withoutTracking}${sep}tracking=${RELEVA_TRACKING_PARAM}`;
+  }
 }
 
 export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
@@ -1319,6 +1401,227 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     originStore: 'Illin BD',
     tags: ['oil', 'nail care', 'toenail', 'relief', 'personal care', 'illin', 'bangladesh']
   },
+  {
+    id: 'illin-poedagar-men-watch-1563',
+    title: 'POEDAGAR Luxury Business Quartz Men’s Watch (Luminous Week Date)',
+    brand: 'POEDAGAR',
+    category: 'Wearables & Smartwatches',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 1499,
+    nativeCurrency: 'BDT',
+    price: 12.34,
+    originalPrice: 20.99,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/poedagar-men-watch-1563/40989',
+    urlKind: 'product',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Luxury stainless-steel men’s quartz business wristwatch featuring luminous hands, day/week & date calendar window, and daily water resistance.',
+    highlights: [
+      'Stainless steel bracelet, luminous dial hands & week/date calendar window',
+      'Direct Illin BD affiliate product link with cash-on-delivery across Bangladesh',
+      'Ref. 1,499 BDT (regular 2,550 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Brand', value: 'POEDAGAR' },
+      { label: 'Movement', value: 'Business Quartz · Luminous Week/Date' },
+      { label: 'Case & Strap', value: 'Stainless Steel · Waterproof' },
+      { label: 'Price', value: '1,499 BDT (Ref. · orig. 2,550 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['watch', 'poedagar', 'mens watch', 'quartz', 'stainless steel', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-poedagar-watch-1565',
+    title: 'POEDAGAR Waterproof Casual Fashion Watch (Stainless Steel)',
+    brand: 'POEDAGAR',
+    category: 'Wearables & Smartwatches',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 1599,
+    nativeCurrency: 'BDT',
+    price: 13.16,
+    originalPrice: 20.99,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/poedagar-watch-1565/40989',
+    urlKind: 'product',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Everyday casual and fashion wristwatch by POEDAGAR with water-resistant construction, stainless finish, and clean formal-casual dial.',
+    highlights: [
+      'Casual & business-ready waterproof wristwatch with durable clasp strap',
+      'Direct Illin BD affiliate link with nationwide doorstep delivery',
+      'Ref. 1,599 BDT (regular 2,550 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Brand', value: 'POEDAGAR' },
+      { label: 'Style', value: 'Casual & Fashion Dress Watch' },
+      { label: 'Resistance', value: 'Waterproof Daily Wear' },
+      { label: 'Price', value: '1,599 BDT (Ref. · orig. 2,550 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['watch', 'poedagar', 'fashion watch', 'waterproof', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-poedagar-green-1645',
+    title: 'POEDAGAR Emerald Green Luxury Men’s Calendar Watch (Luminous Steel)',
+    brand: 'POEDAGAR',
+    category: 'Wearables & Smartwatches',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 1499,
+    nativeCurrency: 'BDT',
+    price: 12.34,
+    originalPrice: 26.75,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/poedagar-mens-watch-green-1645/40989',
+    urlKind: 'product',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Emerald green dial POEDAGAR men’s business wristwatch built with a brushed steel band, luminous markers, calendar display, and waterproof seal.',
+    highlights: [
+      'Signature green textured dial with luminous hands & date calendar display',
+      'Brushed stainless steel strap suited for office and evening wear',
+      'Ref. 1,499 BDT (regular 3,250 BDT) via direct Illin BD link'
+    ],
+    specs: [
+      { label: 'Brand', value: 'POEDAGAR' },
+      { label: 'Dial', value: 'Emerald Green · Luminous Hands & Calendar' },
+      { label: 'Band', value: 'Stainless Steel Waterproof' },
+      { label: 'Price', value: '1,499 BDT (Ref. · orig. 3,250 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['watch', 'poedagar', 'green watch', 'mens watch', 'steel', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-poedagar-women-1727',
+    title: 'POEDAGAR Rose Gold Women’s Fashion Business Quartz Watch (Week Date)',
+    brand: 'POEDAGAR',
+    category: 'Wearables & Smartwatches',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 1550,
+    nativeCurrency: 'BDT',
+    price: 12.76,
+    originalPrice: 20.58,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/poedagar-womens-watch-1727/40989',
+    urlKind: 'product',
+    imageKey: 'magsafe',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Slim rose-gold stainless steel ladies quartz wristwatch featuring luminous week/date indicators, waterproof casing, and refined bracelet links.',
+    highlights: [
+      'Rose-gold stainless steel bracelet watch with luminous week/date dial',
+      'Water-resistant business & gift-ready timepiece on Illin BD',
+      'Ref. 1,550 BDT (regular 2,500 BDT) on Illin BD'
+    ],
+    specs: [
+      { label: 'Brand', value: 'POEDAGAR' },
+      { label: 'Finish', value: 'Rose Gold Stainless Steel' },
+      { label: 'Features', value: 'Quartz · Luminous Week/Date · Waterproof' },
+      { label: 'Price', value: '1,550 BDT (Ref. · orig. 2,500 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['watch', 'poedagar', 'womens watch', 'rose gold', 'ladies watch', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-air-cooler-3in1-fan',
+    title: 'Air Cooling 3-in-1 USB Mini Portable Fan, Humidifier & LED Mist Cooler',
+    brand: 'Illin Tech',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 1399,
+    nativeCurrency: 'BDT',
+    price: 11.51,
+    originalPrice: 16.45,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/-air-cooling-3-in-1-usb-mini-portable-fan-aircond-humidifier-purifier-mist-cooler-with-led-light/40989',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Compact 3-in-1 desktop air cooler combining cooling fan airflow, fine ultrasonic mist humidification, and ambient LED night light over USB power.',
+    highlights: [
+      '3-in-1 portable desk fan, mist humidifier & soothing LED ambient lamp',
+      'USB-powered for study desks, laptops, power banks, or bedside cooling',
+      'Ref. 1,399 BDT (regular 1,999 BDT) via direct Illin BD link'
+    ],
+    specs: [
+      { label: 'Functions', value: 'Cooling Fan + Mist Humidifier + LED Light' },
+      { label: 'Power', value: 'USB Portable Desktop Cooler' },
+      { label: 'Price', value: '1,399 BDT (Ref. · orig. 1,999 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['fan', 'air cooler', 'mist cooler', 'humidifier', 'usb', 'led', 'illin', 'bangladesh']
+  },
+  {
+    id: 'illin-folding-fan-lr2018',
+    title: 'Rechargeable Folding Table Fan with LED Light (LR-2018)',
+    brand: 'Illin Tech',
+    category: 'Illin BD Home & Tech',
+    department: 'Illin BD Home & Tech',
+    sourceType: 'linked-shop',
+    nativePrice: 999,
+    nativeCurrency: 'BDT',
+    price: 8.22,
+    originalPrice: 15.23,
+    priceStatus: 'reference',
+    badge: 'Illin BD',
+    primeEligible: false,
+    deliveryEstimate: 'Home delivery across Bangladesh via Illin BD',
+    affiliateUrl: 'https://illin.com.bd/folding-fan-with-led-light-lr-2018/40989',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Space-saving rechargeable folding desk and emergency table fan featuring an integrated bright LED lamp for study tables, power outages, and travel.',
+    highlights: [
+      'Compact foldable body doubles as a portable desk fan & emergency LED light',
+      'Built-in rechargeable battery convenient for load-shedding backup in BD',
+      'Ref. 999 BDT (regular 1,850 BDT) via direct Illin BD affiliate link'
+    ],
+    specs: [
+      { label: 'Model', value: 'LR-2018 Foldable Fan' },
+      { label: 'Lighting', value: 'Integrated LED Lamp' },
+      { label: 'Power', value: 'Rechargeable Cordless Battery' },
+      { label: 'Price', value: '999 BDT (Ref. · orig. 1,850 BDT)' },
+      { label: 'Retailer', value: 'Illin BD' }
+    ],
+    originStore: 'Illin BD',
+    tags: ['folding fan', 'rechargeable fan', 'led light', 'lr-2018', 'emergency', 'illin', 'bangladesh']
+  },
 
   // --- 2 STAR TECH BANGLADESH SMARTWATCH LISTINGS ---
   {
@@ -1397,6 +1700,193 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     originStore: 'Star Tech',
     tags: ['colmi', 'p81', 'smartwatch', 'bluetooth calling', 'startech', 'watch', 'bangladesh']
   },
+  {
+    id: 'startech-bnc-jack',
+    title: 'BNC JACK Connector (50 Ohm Coaxial Plug)',
+    brand: 'Star Tech',
+    category: 'Electronics & Gadgets',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 70,
+    nativeCurrency: 'BDT',
+    price: 0.58,
+    originalPrice: 0.61,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/bnc-jack?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      '50 Ohm coaxial BNC plug connector with nickel-plated body, gold-plated center contact, bayonet locking collar, and cable clamp termination for CCTV and lab setups.',
+    highlights: [
+      '50 Ohm BNC coaxial connector with bayonet coupling & cable clamp',
+      'Nickel-plated housing with gold-plated center pin for low-loss signal',
+      'Ref. 70 BDT Cash Discount (74 BDT Reg.) on Star Tech BD'
+    ],
+    specs: [
+      { label: 'Model', value: 'BNC JACK (50 Ohm)' },
+      { label: 'Plating', value: 'Nickel Body · Gold Center Contact' },
+      { label: 'Termination', value: 'Bayonet Coupling + Cable Clamp' },
+      { label: 'Price', value: '70 BDT (Ref. · orig. 74 BDT)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['bnc', 'connector', 'cctv', 'cable', 'startech', 'electronics', 'bangladesh']
+  },
+  {
+    id: 'startech-valuetop-aio',
+    title: 'Value-Top L40B-AMD V2748 23.8" FHD All-in-One PC With Webcam',
+    brand: 'Value-Top',
+    category: 'Computers & Accessories',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 84900,
+    nativeCurrency: 'BDT',
+    price: 698.77,
+    originalPrice: 768.64,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/value-top-l40b-amd-v2748-all-in-one-pc?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'heroWorkspace',
+    secondaryImageKey: 'monitorArm',
+    imageIsIllustrative: false,
+    description:
+      '23.8-inch IPS Full HD All-in-One desktop PC powered by AMD V2748 processor with Radeon RX Vega 7 graphics, 16GB DDR4-3200 RAM, 512GB NVMe SSD, 5MP webcam, and wireless keyboard/mouse kit.',
+    highlights: [
+      '23.8" IPS Full HD display · AMD V2748 + Radeon RX Vega 7 graphics',
+      '16GB DDR4 3200MHz RAM + 512GB M.2 NVMe SSD + 5MP webcam + wireless KB/mouse',
+      'Ref. 84,900 BDT Cash Discount (93,390 BDT Reg.) at Star Tech BD'
+    ],
+    specs: [
+      { label: 'Processor & GPU', value: 'AMD V2748 · Radeon RX Vega 7' },
+      { label: 'Memory & SSD', value: '16GB DDR4 3200MHz · 512GB M.2 NVMe' },
+      { label: 'Display & Cam', value: '23.8" IPS FHD · Built-in 5MP Webcam' },
+      { label: 'Accessories', value: 'Value-Top Wireless Keyboard & Mouse Kit' },
+      { label: 'Price', value: '84,900 BDT (Ref. · reg. 93,390 BDT)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['all in one pc', 'desktop', 'valuetop', 'amd', 'startech', 'computers', 'bangladesh']
+  },
+  {
+    id: 'startech-chuwi-herobook-pro',
+    title: 'Chuwi HeroBook Pro Intel Celeron N4020 14.1" Full HD Laptop (Windows 11)',
+    brand: 'Chuwi',
+    category: 'Computers & Accessories',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 38000,
+    nativeCurrency: 'BDT',
+    price: 312.76,
+    originalPrice: 330.45,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/chuwi-herobook-pro-intel-celeron-laptop?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'heroWorkspace',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Slim 14.1-inch Full HD IPS anti-glare Windows 11 notebook powered by Intel Celeron N4020 (up to 2.80 GHz), 8GB LPDDR4 RAM, and 256GB SSD for study and everyday productivity.',
+    highlights: [
+      '14.1" 1920x1080 IPS anti-glare display with genuine Windows 11',
+      'Intel Celeron N4020 · 8GB LPDDR4 RAM · 256GB SSD storage',
+      'Ref. 38,000 BDT Cash Discount (40,150 BDT Reg.) on Star Tech BD'
+    ],
+    specs: [
+      { label: 'Processor', value: 'Intel Celeron N4020 (up to 2.80 GHz)' },
+      { label: 'Memory & SSD', value: '8GB LPDDR4 RAM · 256GB SSD' },
+      { label: 'Display & OS', value: '14.1" FHD (1920x1080) IPS · Windows 11' },
+      { label: 'Price', value: '38,000 BDT (Ref. · reg. 40,150 BDT)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['laptop', 'chuwi', 'herobook pro', 'windows 11', 'startech', 'computers', 'bangladesh']
+  },
+  {
+    id: 'startech-acer-aspire-3',
+    title: 'Acer Aspire 3 A325-45 Celeron N4500 15.6" HD Laptop (12GB / 512GB)',
+    brand: 'Acer',
+    category: 'Computers & Accessories',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 52000,
+    nativeCurrency: 'BDT',
+    price: 427.98,
+    originalPrice: 452.67,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/acer-aspire-3-a325-45-n4500-laptop?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'heroWorkspace',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      '15.6-inch Acer Aspire 3 notebook equipped with Intel Celeron N4500, 12GB DDR4 3200MHz memory, 512GB NVMe SSD, USB Type-C port, and dual stereo speakers.',
+    highlights: [
+      'Intel Celeron N4500 with 12GB DDR4 3200MHz RAM + 512GB SSD',
+      '15.6" HD display (1366x768), USB Type-C port & dual stereo speakers',
+      'Ref. 52,000 BDT Cash Discount (55,000 BDT Reg.) on Star Tech BD'
+    ],
+    specs: [
+      { label: 'MPN / Model', value: 'Aspire 3 A325-45 (UN.344SI.01B)' },
+      { label: 'Processor', value: 'Intel Celeron N4500 (up to 2.80 GHz)' },
+      { label: 'Memory & SSD', value: '12GB DDR4 3200MHz · 512GB SSD' },
+      { label: 'Display & I/O', value: '15.6" HD · USB Type-C · Stereo Speakers' },
+      { label: 'Price', value: '52,000 BDT (Ref. · reg. 55,000 BDT)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['laptop', 'acer', 'aspire 3', 'n4500', '12gb', 'startech', 'computers', 'bangladesh']
+  },
+  {
+    id: 'startech-flyx-ae8-pro-drone',
+    title: 'FlyX AE8 Pro Dual Camera Foldable Drone (1080P)',
+    brand: 'FlyX',
+    category: 'Electronics & Gadgets',
+    department: 'Star Tech BD Gadgets',
+    sourceType: 'linked-shop',
+    nativePrice: 3300,
+    nativeCurrency: 'BDT',
+    price: 27.16,
+    originalPrice: 32.92,
+    priceStatus: 'reference',
+    badge: 'Star Tech',
+    primeEligible: false,
+    deliveryEstimate: 'Official Star Tech Bangladesh delivery & branch pickup',
+    affiliateUrl: 'https://www.startech.com.bd/flyx-ae8-pro-foldable-drone?tracking=6ad935b5df200',
+    urlKind: 'product',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'deskMat',
+    imageIsIllustrative: false,
+    description:
+      'Compact foldable quadcopter featuring a 1080P dual camera system, dual batteries for up to 20 minutes combined flight time, 200m forward range, and 100m altitude reach.',
+    highlights: [
+      '1080P dual-camera foldable quadcopter with up to 20 min dual-battery flight',
+      'Up to 200m forward range & 100m vertical reach via Star Tech BD',
+      'Ref. 3,300 BDT Cash Discount (4,000 BDT Reg.) at Star Tech BD'
+    ],
+    specs: [
+      { label: 'Model', value: 'FlyX AE8 Pro' },
+      { label: 'Camera', value: '1080P Dual Camera' },
+      { label: 'Flight & Range', value: 'Up to 20 min (Dual Battery) · 200m / 100m' },
+      { label: 'Price', value: '3,300 BDT (Ref. · reg. 4,000 BDT)' },
+      { label: 'Retailer', value: 'Star Tech BD' }
+    ],
+    originStore: 'Star Tech',
+    tags: ['drone', 'flyx', 'ae8 pro', 'foldable drone', 'camera drone', 'startech', 'bangladesh']
+  },
 
   // --- 2 SOHOJ AFFILIATES PARTNER NETWORK PORTALS ---
   {
@@ -1466,7 +1956,8 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     originStore: 'Sohoj Affiliates',
     tags: ['sohoj', 'affiliate', 'mobile', 'dashboard', 'bangladesh', 'partner']
-  }
+  },
+  ...(startechBulkCatalogRaw as CatalogRecord[])
 ];
 
 function parseCsvMatrix(text: string): string[][] {

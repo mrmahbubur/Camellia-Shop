@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
-import { EcomProduct, buildRelevaProductUrl } from '../data/unifiedProductsData';
+import { EcomProduct } from '../data/unifiedProductsData';
 import type { PartnerStoreOrigin } from '../utils/regionProfile';
 import { ModernProductModal } from './ModernProductModal';
 import { ResilientImage } from './ResilientImage';
@@ -27,9 +27,16 @@ interface HeroProps {
 
 const SPOTLIGHT_PRODUCT_IDS = [
   'amz-mx-master-3s',
+  'startech-lenovo-yoga-7-2-in-1-14agp11-ryzen-ai-7-oled-touch-laptop',
+  'startech-dji-mini-5-pro-fly-more-combo-plus',
+  'startech-anker-solix-c1000-gen-2-portable-power-station',
   'startech-colmi-p71',
+  'illin-poedagar-men-watch-1563',
   'illin-royal-purple-bedsheet',
+  'startech-acer-aspire-3',
+  'startech-flyx-ae8-pro-drone',
   'bs-some-by-mi-miracle-serum',
+  'illin-folding-fan-lr2018',
   'illin-jennie-moon-soap',
   'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds',
   'sohoj-affiliate-program',
@@ -46,6 +53,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     amazonStoreUrl,
     amazonShortUrl,
     shopzStoreUrl,
+    relevaStoreUrl,
     exonhostStoreUrl,
     alibabaStoreUrl,
     banglashoppersStoreUrl,
@@ -260,7 +268,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
       return (
         <a
           key="releva"
-          href={buildRelevaProductUrl(130)}
+          href={relevaStoreUrl}
           target="_blank"
           rel="sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-releva-store', 'Releva BD')}
@@ -464,12 +472,13 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                   <button
                     type="button"
                     onClick={() => setModalProduct(activeSpotlight)}
-                    className="sm:col-span-5 relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white border border-slate-200/80 dark:border-slate-700 group cursor-pointer p-2.5 flex items-center justify-center"
+                    className="sm:col-span-5 relative w-full h-56 sm:h-64 md:h-72 lg:h-64 xl:h-72 rounded-xl overflow-hidden bg-white border border-slate-200/80 dark:border-slate-700 group cursor-pointer p-2 sm:p-3 flex items-center justify-center"
                   >
                     <ResilientImage
                       src={activeSpotlight.mainImage}
                       alt={activeSpotlight.title}
-                      className="w-full h-full object-contain group-hover:scale-103 transition-transform duration-300"
+                      priority
+                      className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-103 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
                   </button>
@@ -604,7 +613,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                           <ResilientImage
                             src={item.mainImage}
                             alt={item.title}
-                            className="w-7 h-7 rounded object-contain bg-white p-0.5 shrink-0 border border-slate-200 dark:border-slate-700"
+                            className="w-8 h-8 sm:w-9 sm:h-9 rounded object-contain bg-white p-0.5 shrink-0 border border-slate-200 dark:border-slate-700"
                           />
                           <div className="min-w-0">
                             <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
@@ -628,7 +637,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
               { store: 'Shopz BD' as const, label: 'Shopz BD', count: storeCounts['Shopz BD'], sub: 'Tech, watches, mics' },
-              { store: 'Star Tech' as const, label: 'Star Tech', count: storeCounts['Star Tech'], sub: 'COLMI smartwatches' },
+              { store: 'Star Tech' as const, label: 'Star Tech', count: storeCounts['Star Tech'], sub: 'PCs, audio, drones & power' },
               { store: 'BanglaShoppers' as const, label: 'BanglaShoppers', count: storeCounts.BanglaShoppers, sub: 'Skincare & beauty' },
               { store: 'Illin BD' as const, label: 'Illin BD', count: storeCounts['Illin BD'], sub: 'Home, care & kitchen' },
               { store: 'Releva BD' as const, label: 'Releva BD', count: storeCounts['Releva BD'], sub: 'Featured picks' },

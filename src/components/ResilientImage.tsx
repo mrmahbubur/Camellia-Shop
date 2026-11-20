@@ -4,6 +4,7 @@ import fallbackWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853
 interface ResilientImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
+  priority?: boolean;
 }
 
 export const ResilientImage: React.FC<ResilientImageProps> = ({
@@ -11,6 +12,7 @@ export const ResilientImage: React.FC<ResilientImageProps> = ({
   alt,
   className,
   onError,
+  priority = false,
   ...rest
 }) => {
   const [imgSrc, setImgSrc] = useState<string>(src || fallbackWorkspaceImg);
@@ -24,7 +26,8 @@ export const ResilientImage: React.FC<ResilientImageProps> = ({
       src={imgSrc}
       alt={alt}
       className={className}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
       decoding="async"
       onError={(e) => {
         if (imgSrc !== fallbackWorkspaceImg) {

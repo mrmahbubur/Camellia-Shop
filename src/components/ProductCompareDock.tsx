@@ -48,7 +48,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
               <ResilientImage
                 src={p.mainImage}
                 alt={p.title}
-                className="w-8 h-8 sm:w-9 sm:h-9 object-contain bg-white p-0.5 rounded-lg border border-slate-700"
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain bg-white p-0.5 rounded-lg border border-slate-700"
               />
               <button
                 type="button"
@@ -126,7 +126,7 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                         <ResilientImage
                           src={p.mainImage}
                           alt={p.title}
-                          className="w-16 h-16 object-contain bg-white p-1 rounded-lg mx-auto mb-2 border border-slate-200 dark:border-slate-700"
+                          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain bg-white p-1.5 rounded-lg mx-auto mb-2 border border-slate-200 dark:border-slate-700"
                         />
                         <div className="line-clamp-2 text-xs font-semibold">{p.title}</div>
                       </th>

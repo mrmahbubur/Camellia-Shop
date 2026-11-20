@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, ShoppingCart, ShoppingBag, ShieldCheck, Truck, ExternalLink, Layers, Award, Copy } from 'lucide-react';
+import { X, Check, ShoppingCart, ShoppingBag, ShieldCheck, Truck, ExternalLink, Layers, Award, Copy, ZoomIn, ZoomOut } from 'lucide-react';
 import { EcomProduct } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
 import { useCart } from '../context/CartContext';
@@ -25,12 +25,14 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const [activeTab, setActiveTab] = useState<'highlights' | 'specs' | 'guarantee'>('highlights');
   const [quantity, setQuantity] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     setActiveImageIndex(0);
     setActiveTab('highlights');
     setQuantity(1);
     setCopiedLink(false);
+    setIsZoomed(false);
   }, [product?.id]);
 
   useEffect(() => {
@@ -135,19 +137,41 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 )}
               </div>
 
-              <div className="relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white p-3 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center">
+              <div
+                onClick={() => setIsZoomed((prev) => !prev)}
+                title={isZoomed ? 'Click to reset zoom' : 'Click to inspect closer'}
+                className={`relative w-full h-56 sm:h-72 lg:h-80 xl:h-96 max-h-[44dvh] sm:max-h-[50dvh] lg:max-h-none rounded-xl bg-white p-2 sm:p-3 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center ${
+                  isZoomed ? 'overflow-auto cursor-zoom-out' : 'overflow-hidden cursor-zoom-in'
+                }`}
+              >
                 <ResilientImage
                   src={currentImage}
                   alt={product.title}
-                  className="w-full h-full object-contain transition-all duration-300"
+                  priority
+                  className={`transition-transform duration-300 object-contain ${
+                    isZoomed ? 'scale-150 sm:scale-165 cursor-zoom-out' : 'max-w-full max-h-full w-auto h-auto'
+                  }`}
                   referrerPolicy="no-referrer"
                 />
 
                 {product.badge && (
-                  <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider">
+                  <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
                     {product.badge}
                   </span>
                 )}
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsZoomed((prev) => !prev);
+                  }}
+                  aria-label={isZoomed ? 'Zoom out product image' : 'Zoom in product image'}
+                  className="absolute bottom-2.5 right-2.5 min-h-[36px] min-w-[36px] p-2 rounded-lg bg-slate-900/85 hover:bg-slate-900 text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                >
+                  {isZoomed ? <ZoomOut className="w-3.5 h-3.5" /> : <ZoomIn className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{isZoomed ? 'Reset' : 'Zoom'}</span>
+                </button>
               </div>
 
               {product.galleryImages.length > 1 && (
@@ -156,8 +180,11 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-14 h-14 rounded-lg overflow-hidden bg-white p-1 border-2 transition-all cursor-pointer shrink-0 ${
+                      onClick={() => {
+                        setActiveImageIndex(idx);
+                        setIsZoomed(false);
+                      }}
+                      className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-white p-1 border-2 transition-all cursor-pointer shrink-0 ${
                         activeImageIndex === idx
                           ? 'border-slate-900 dark:border-amber-400 shadow-xs scale-103'
                           : 'border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
