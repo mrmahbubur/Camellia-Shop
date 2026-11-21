@@ -104,7 +104,7 @@ export const CartDrawer: React.FC = () => {
             type="button"
             onClick={() => setIsCartOpen(false)}
             aria-label="Close saved items drawer"
-            className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -196,7 +196,7 @@ export const CartDrawer: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.product.id, -1)}
-                            className="min-h-[30px] min-w-[28px] px-1.5 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            className="min-h-[44px] min-w-[36px] px-2 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             aria-label="Decrease quantity"
                           >
                             -
@@ -207,7 +207,7 @@ export const CartDrawer: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.product.id, 1)}
-                            className="min-h-[30px] min-w-[28px] px-1.5 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            className="min-h-[44px] min-w-[36px] px-2 text-xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             aria-label="Increase quantity"
                           >
                             +
@@ -217,10 +217,10 @@ export const CartDrawer: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-slate-400 hover:text-red-500 p-1.5 transition-colors cursor-pointer"
+                          className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-red-500 p-2 transition-colors cursor-pointer"
                           aria-label={`Remove ${item.product.title}`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -228,7 +228,7 @@ export const CartDrawer: React.FC = () => {
                     <a
                       href={partnerUrl}
                       target="_blank"
-                      rel="sponsored noopener noreferrer"
+                      rel="nofollow sponsored noopener noreferrer"
                       onClick={() =>
                         recordAffiliateClick(
                           item.product.id,
@@ -236,7 +236,7 @@ export const CartDrawer: React.FC = () => {
                           item.product.category
                         )
                       }
-                      className={`w-full min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors ${
+                      className={`w-full min-h-[44px] px-3 py-2 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors ${
                         isExonHost
                           ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                           : isShopz
@@ -276,9 +276,9 @@ export const CartDrawer: React.FC = () => {
                 key={sp.id}
                 href={sp.url}
                 target="_blank"
-                rel="sponsored noopener noreferrer"
+                rel="nofollow sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sp.id)}
-                className="flex items-center justify-between gap-2.5 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 text-xs hover:border-amber-400 transition-colors"
+                className="min-h-[44px] flex items-center justify-between gap-2.5 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 text-xs hover:border-amber-400 transition-colors"
               >
                 <div className="min-w-0">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
@@ -307,7 +307,7 @@ export const CartDrawer: React.FC = () => {
               <a
                 href={amazonCartCheckoutUrl}
                 target="_blank"
-                rel="sponsored noopener noreferrer"
+                rel="nofollow sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick('amazon-cart-checkout', 'Amazon')}
                 className="w-full min-h-[44px] px-4 py-2.5 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-xs whitespace-nowrap"
               >
@@ -320,7 +320,7 @@ export const CartDrawer: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCopyAllLinks}
-                className="flex-1 min-h-[42px] px-3 py-2 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="flex-1 min-h-[44px] px-3 py-2 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 {copiedLinks ? (
                   <>
@@ -338,7 +338,7 @@ export const CartDrawer: React.FC = () => {
               <button
                 type="button"
                 onClick={clearCart}
-                className="min-h-[42px] px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                className="min-h-[44px] px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
               >
                 Clear Saved
               </button>

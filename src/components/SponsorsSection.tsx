@@ -37,7 +37,7 @@ export const SponsorsSection: React.FC = () => {
       id="sponsors"
       className="py-12 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 scroll-mt-14 sm:scroll-mt-16 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
           <div className="min-w-0">
@@ -49,10 +49,10 @@ export const SponsorsSection: React.FC = () => {
               <span aria-hidden="true">·</span>
               <span>Featured Promotions</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+            <h2 className="text-[clamp(1.375rem,2.4vw,1.875rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               Sponsored Partner Links &amp; Promotions
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
               Explore curated external partner promotions. Current offers, product details, and pricing open directly on the sponsor store.
             </p>
           </div>
@@ -61,7 +61,7 @@ export const SponsorsSection: React.FC = () => {
           <div
             role="tablist"
             aria-label="Filter sponsor offers"
-            className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto scrollbar-none shrink-0"
+            className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto scrollbar-none shrink-0 max-w-full"
           >
             {FILTER_TABS.map((tab) => {
               const selected = activeGroup === tab;
@@ -72,7 +72,7 @@ export const SponsorsSection: React.FC = () => {
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveGroup(tab)}
-                  className={`px-3 min-h-[36px] py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`px-3 min-h-[44px] py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                     selected
                       ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -93,15 +93,15 @@ export const SponsorsSection: React.FC = () => {
                 key={sponsor.id}
                 href={sponsor.url}
                 target="_blank"
-                rel="sponsored noopener noreferrer"
+                rel="nofollow sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sponsor.id)}
-                className="group bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 grid grid-cols-1 sm:grid-cols-12 items-stretch"
+                className="responsive-card group bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 grid grid-cols-1 sm:grid-cols-12 items-stretch"
               >
-                <div className="sm:col-span-5 h-48 sm:h-auto sm:min-h-[210px] lg:min-h-[230px] bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                <div className="sm:col-span-5 aspect-[16/10] sm:aspect-auto sm:min-h-[210px] lg:min-h-[230px] bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                   <ResilientImage
                     src={sponsor.image}
                     alt={sponsor.title}
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                    className="w-full h-full object-cover responsive-card-media"
                     referrerPolicy="no-referrer"
                   />
                 </div>
@@ -121,7 +121,7 @@ export const SponsorsSection: React.FC = () => {
                   </div>
 
                   <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3">
-                    <span className="text-xs font-bold text-slate-900 dark:text-amber-400 inline-flex items-center gap-1.5 whitespace-nowrap">
+                    <span className="min-h-[44px] text-xs font-bold text-slate-900 dark:text-amber-400 inline-flex items-center gap-1.5 whitespace-nowrap">
                       <span>{sponsor.ctaLabel}</span>
                       <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     </span>
@@ -137,21 +137,21 @@ export const SponsorsSection: React.FC = () => {
 
         {/* Partner Directory Cards */}
         {directorySponsors.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5">
             {directorySponsors.map((sponsor) => (
               <a
                 key={sponsor.id}
                 href={sponsor.url}
                 target="_blank"
-                rel="sponsored noopener noreferrer"
+                rel="nofollow sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sponsor.id)}
-                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                className="h-full responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col justify-between transition-all duration-200"
               >
-                <div className="w-full h-44 sm:h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                <div className="w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                   <ResilientImage
                     src={sponsor.image}
                     alt={sponsor.title}
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                    className="w-full h-full object-cover responsive-card-media"
                     referrerPolicy="no-referrer"
                   />
                 </div>
@@ -164,7 +164,7 @@ export const SponsorsSection: React.FC = () => {
                       <span className="truncate flex-1">{sponsor.category}</span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                       {sponsor.title}
                     </h3>
 
@@ -173,7 +173,7 @@ export const SponsorsSection: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 min-h-[44px] flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                     <span className="truncate">{sponsor.ctaLabel}</span>
                     <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </div>

@@ -70,7 +70,7 @@ export const BANGLASHOPPERS_AFFILIATE_URL = 'https://www.banglashoppers.com/r/4e
 export const ILLIN_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
 export const STARTECH_TRACKING_PARAM = '6ad935b5df200';
 export const STARTECH_AFFILIATE_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING_PARAM}`;
-export const SOHOJ_AFFILIATE_URL = 'https://sohojaffiliates.com/reffer/40989';
+export const SOHOJ_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
 export const RELEVA_HOME_URL = 'https://releva.com.bd/';
 export const RELEVA_TRACKING_PARAM = 'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
@@ -675,6 +675,56 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     originStore: 'Releva BD',
     tags: ['everyday', 'bangladesh', 'releva']
   },
+  ...([
+    134, 106, 107, 108, 85, 109, 86, 87, 110, 112, 88, 111, 89, 90, 114,
+    91, 115, 93, 120, 117, 94, 95, 118, 96, 119, 97, 121, 98, 99, 122,
+    100, 113, 123, 101, 124, 125, 102, 126, 103, 127, 92, 128, 116
+  ] as const).map((pid, idx): CatalogRecord => {
+    const keys: ImageKey[] = [
+      'growthBundle',
+      'deskMat',
+      'heroWorkspace',
+      'magsafe',
+      'headphoneStand',
+      'screenbar',
+      'headphones',
+      'monitorArm',
+      'mouse'
+    ];
+    const imageKey = keys[idx % keys.length];
+    const secondaryImageKey = keys[(idx + 1) % keys.length];
+    return {
+      id: `releva-bd-${pid}`,
+      title: `Releva BD Featured Product #${pid}`,
+      brand: 'Releva BD',
+      category: 'Releva BD Picks',
+      department: 'Releva BD Picks',
+      sourceType: 'linked-shop',
+      price: 0,
+      priceStatus: 'live-at-partner',
+      badge: 'Releva BD',
+      primeEligible: false,
+      deliveryEstimate: 'Check delivery & BDT price on Releva BD',
+      affiliateUrl: `https://releva.com.bd/index.php?route=product/product&path=&product_id=${pid}&tracking=${RELEVA_TRACKING_PARAM}`,
+      urlKind: 'product',
+      imageKey,
+      secondaryImageKey,
+      imageIsIllustrative: true,
+      description: `Featured product (#${pid}) on Releva BD. Open the product page on Releva BD to inspect full product details, current BDT pricing, stock availability, and local delivery options.`,
+      highlights: [
+        'Official product listing on Releva BD',
+        'Live BDT pricing & stock availability on checkout page',
+        'Local Bangladesh delivery options via Releva BD'
+      ],
+      specs: [
+        { label: 'Partner', value: 'Releva BD' },
+        { label: 'Catalog Item', value: `#${pid}` },
+        { label: 'Price', value: 'Check live price on Releva BD' }
+      ],
+      originStore: 'Releva BD',
+      tags: ['everyday', 'bangladesh', 'releva', String(pid)]
+    };
+  }),
 
   // --- 3 EXONHOST CLOUD HOSTING & DOMAIN PLANS ---
   {

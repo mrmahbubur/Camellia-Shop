@@ -104,7 +104,7 @@ function sanitizePartnerUrl(
   const ALIBABA_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
   const BANGLASHOPPERS_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
   const ILLIN_URL = 'https://www.illin.com.bd/40989';
-  const SOHOJ_URL = 'https://sohojaffiliates.com/reffer/40989';
+  const SOHOJ_URL = 'https://www.illin.com.bd/40989';
   const STARTECH_TRACKING = '6ad935b5df200';
   const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
 
@@ -140,7 +140,8 @@ function sanitizePartnerUrl(
     return trimmed.includes('/40989') ? trimmed : ILLIN_URL;
   }
   if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
-    return trimmed.includes('/reffer/40989') ? trimmed : SOHOJ_URL;
+    if (trimmed.includes('sohojaffiliates.com')) return SOHOJ_URL;
+    return trimmed.includes('/40989') ? trimmed : SOHOJ_URL;
   }
   if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
     return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;

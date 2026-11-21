@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   ShieldCheck,
@@ -9,7 +9,6 @@ import {
   Eye,
   ShoppingBag,
   Check,
-  Sparkles,
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight
@@ -27,7 +26,7 @@ interface HeroProps {
 
 const SPOTLIGHT_PRODUCT_IDS = [
   'amz-mx-master-3s',
-  'startech-lenovo-yoga-7-2-in-1-14agp11-ryzen-ai-7-oled-touch-laptop',
+  'startech-msi-cyborg-15-black-edition-a13uc-core-i5-laptop',
   'startech-dji-mini-5-pro-fly-more-combo-plus',
   'startech-anker-solix-c1000-gen-2-portable-power-station',
   'startech-colmi-p71',
@@ -72,6 +71,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [modalProduct, setModalProduct] = useState<EcomProduct | null>(null);
+  const swipeStartX = useRef<number | null>(null);
 
   const savedIds = useMemo(() => new Set(cart.map((c) => c.product.id)), [cart]);
 
@@ -195,9 +195,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="startech"
           href={startechStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-startech-store', 'Star Tech')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-500/40 hover:border-orange-400 bg-orange-50 dark:bg-orange-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Star Tech</span>
           <ExternalLink className="w-3 h-3 text-orange-600 dark:text-orange-400" />
@@ -210,9 +210,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="shopz"
           href={shopzStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-shopz-store', 'Shopz BD')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 hover:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 hover:border-orange-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Shopz BD</span>
           <ExternalLink className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
@@ -225,9 +225,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="banglashoppers"
           href={banglashoppersStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-banglashoppers-store', 'BanglaShoppers')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 hover:border-rose-400 bg-rose-50 dark:bg-rose-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 hover:border-rose-400 bg-rose-50 dark:bg-rose-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>BanglaShoppers</span>
           <ExternalLink className="w-3 h-3 text-rose-600 dark:text-rose-400" />
@@ -240,9 +240,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="illin"
           href={illinStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-illin-store', 'Illin BD')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 hover:border-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 hover:border-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Illin BD</span>
           <ExternalLink className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
@@ -255,9 +255,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="sohoj"
           href={sohojStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-sohoj-store', 'Sohoj Affiliates')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-violet-800 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40 hover:border-violet-400 bg-violet-50 dark:bg-violet-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-violet-800 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40 hover:border-violet-400 bg-violet-50 dark:bg-violet-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Sohoj Affiliates</span>
           <ExternalLink className="w-3 h-3 text-violet-600 dark:text-violet-400" />
@@ -270,9 +270,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="releva"
           href={relevaStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-releva-store', 'Releva BD')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 hover:border-teal-400 bg-teal-50 dark:bg-teal-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 hover:border-teal-400 bg-teal-50 dark:bg-teal-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Releva BD</span>
           <ExternalLink className="w-3 h-3 text-teal-600 dark:text-teal-400" />
@@ -285,9 +285,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="exonhost"
           href={exonhostStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-exonhost-store', 'ExonHost')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40 hover:border-sky-400 bg-sky-50 dark:bg-sky-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40 hover:border-sky-400 bg-sky-50 dark:bg-sky-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>ExonHost</span>
           <ExternalLink className="w-3 h-3 text-sky-600 dark:text-sky-400" />
@@ -300,9 +300,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           key="alibaba"
           href={alibabaStoreUrl}
           target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="nofollow sponsored noopener noreferrer"
           onClick={() => recordAffiliateClick('hero-alibaba-store', 'Alibaba')}
-          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>Alibaba</span>
           <ExternalLink className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
@@ -314,9 +314,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         key="amazon"
         href={amazonStoreUrl}
         target="_blank"
-        rel="sponsored noopener noreferrer"
+        rel="nofollow sponsored noopener noreferrer"
         onClick={() => recordAffiliateClick('hero-amazon-store', 'Amazon')}
-        className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+        className="min-h-[44px] px-3 py-2 text-xs font-bold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
       >
         <span>Amazon Store</span>
         <ExternalLink className="w-3 h-3 text-amber-600 dark:text-amber-400" />
@@ -337,14 +337,14 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
       id="hero"
       className="relative overflow-hidden bg-gradient-to-b from-amber-50/50 via-white to-slate-50/60 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 text-slate-900 dark:text-white pt-6 sm:pt-10 pb-10 sm:pb-14 border-b border-slate-200 dark:border-slate-800 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
         {/* Main 2-Column Hero Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           {/* Left Column: High-Contrast Storefront Proposition & Partner Access */}
           <div className="lg:col-span-6 flex flex-col justify-center min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-bold tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
               <span className="inline-flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
                 <span>{storefrontCopy.siteName}</span>
               </span>
               <span aria-hidden="true">·</span>
@@ -353,9 +353,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               <span className="text-emerald-700 dark:text-emerald-400">{regionProfile.shortLabel}</span>
             </div>
 
-            <h1 className="text-[clamp(1.75rem,3.6vw,3.1rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 leading-[1.12] [text-wrap:balance]">
+            <h2 className="text-[clamp(1.65rem,3.6vw,3rem)] font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 leading-[1.12] [text-wrap:balance]">
               {storefrontCopy.heroTitle}
-            </h1>
+            </h2>
 
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-6 max-w-xl leading-relaxed">
               {storefrontCopy.heroSubtitle}
@@ -393,9 +393,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                 <a
                   href={amazonShortUrl}
                   target="_blank"
-                  rel="sponsored noopener noreferrer"
+                  rel="nofollow sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick('hero-amazon-shortlink', 'Amazon')}
-                  className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-amber-400 bg-white dark:bg-slate-900 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+                  className="min-h-[44px] px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-amber-400 bg-white dark:bg-slate-900 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
                 >
                   <span>Amazon Deals</span>
                   <ExternalLink className="w-3 h-3" />
@@ -418,16 +418,34 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
             </div>
           </div>
 
-          {/* Right Column: Interactive Real Product Spotlight Stage */}
+          {/* Right Column: Interactive Real Product Spotlight Stage (Touch Swipeable) */}
           {activeSpotlight && (
             <div
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
+              onTouchStart={(e) => {
+                swipeStartX.current = e.touches[0]?.clientX ?? null;
+                setIsPaused(true);
+              }}
+              onTouchEnd={(e) => {
+                if (swipeStartX.current === null || spotlightProducts.length <= 1) return;
+                const endX = e.changedTouches[0]?.clientX ?? swipeStartX.current;
+                const diff = endX - swipeStartX.current;
+                swipeStartX.current = null;
+                if (Math.abs(diff) < 40) return;
+                if (diff < 0) {
+                  setSpotlightIndex((prev) => (prev + 1) % spotlightProducts.length);
+                } else {
+                  setSpotlightIndex(
+                    (prev) => (prev - 1 + spotlightProducts.length) % spotlightProducts.length
+                  );
+                }
+              }}
               className="lg:col-span-6 min-w-0"
             >
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
                 {/* Spotlight Top Bar */}
-                <div className="px-4 py-3 bg-slate-900 dark:bg-slate-950 text-white flex items-center justify-between gap-3 border-b border-slate-800">
+                <div className="px-4 py-2.5 bg-slate-900 dark:bg-slate-950 text-white flex items-center justify-between gap-3 border-b border-slate-800">
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded shrink-0 ${getStoreAccent(
@@ -437,30 +455,32 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                       {activeSpotlight.originStore}
                     </span>
                     <span className="text-xs font-semibold text-slate-200 truncate">
-                      Featured Spotlight ({spotlightIndex + 1}/{spotlightProducts.length})
+                      Spotlight ({spotlightIndex + 1}/{spotlightProducts.length})
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
+                        setIsPaused(true);
                         setSpotlightIndex(
                           (prev) => (prev - 1 + spotlightProducts.length) % spotlightProducts.length
-                        )
-                      }
+                        );
+                      }}
                       aria-label="Previous featured product"
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer flex items-center justify-center"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        setSpotlightIndex((prev) => (prev + 1) % spotlightProducts.length)
-                      }
+                      onClick={() => {
+                        setIsPaused(true);
+                        setSpotlightIndex((prev) => (prev + 1) % spotlightProducts.length);
+                      }}
                       aria-label="Next featured product"
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer flex items-center justify-center"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -472,13 +492,13 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                   <button
                     type="button"
                     onClick={() => setModalProduct(activeSpotlight)}
-                    className="sm:col-span-5 relative w-full h-56 sm:h-64 md:h-72 lg:h-64 xl:h-72 rounded-xl overflow-hidden bg-white border border-slate-200/80 dark:border-slate-700 group cursor-pointer p-2 sm:p-3 flex items-center justify-center"
+                    className="sm:col-span-5 relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-white border border-slate-200/80 dark:border-slate-700 group cursor-pointer p-3 flex items-center justify-center"
                   >
                     <ResilientImage
                       src={activeSpotlight.mainImage}
                       alt={activeSpotlight.title}
                       priority
-                      className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-103 transition-transform duration-300"
+                      className="max-w-full max-h-full w-auto h-auto object-contain responsive-card-media"
                       referrerPolicy="no-referrer"
                     />
                   </button>
@@ -541,7 +561,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                         <a
                           href={activeBuyUrl}
                           target="_blank"
-                          rel="sponsored noopener noreferrer"
+                          rel="nofollow sponsored noopener noreferrer"
                           onClick={() =>
                             recordAffiliateClick(
                               activeSpotlight.id,
@@ -549,7 +569,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                               activeSpotlight.category
                             )
                           }
-                          className="flex-1 min-h-[40px] px-3.5 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-extrabold text-xs rounded-xl inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs whitespace-nowrap"
+                          className={`flex-1 min-h-[44px] px-3.5 py-2 font-extrabold text-xs rounded-xl inline-flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90 shadow-xs whitespace-nowrap ${getStoreAccent(
+                            activeSpotlight.originStore
+                          )}`}
                         >
                           <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
                           <span>
@@ -564,7 +586,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                           type="button"
                           onClick={() => setModalProduct(activeSpotlight)}
                           aria-label={`Inspect ${activeSpotlight.title}`}
-                          className="min-h-[40px] px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                          className="min-h-[44px] px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Specs</span>
@@ -574,7 +596,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                           type="button"
                           onClick={() => handleSaveSpotlight(activeSpotlight)}
                           aria-label={`Save ${activeSpotlight.title} to list`}
-                          className={`min-h-[40px] min-w-[40px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                          className={`min-h-[44px] min-w-[44px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
                             activeIsSaved
                               ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                               : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
@@ -604,7 +626,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
                             setIsPaused(true);
                             setSpotlightIndex(idx);
                           }}
-                          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer shrink-0 max-w-[190px] ${
+                          className={`min-h-[44px] flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer shrink-0 max-w-[190px] ${
                             active
                               ? 'bg-white dark:bg-slate-800 border-amber-500 shadow-xs text-slate-900 dark:text-white'
                               : 'bg-white/60 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -632,7 +654,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         </div>
 
         {/* Interactive Partner Coverage Strip (Clicks Jump & Filter Real Products) */}
-        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-5 gap-3">
           {(
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
@@ -650,7 +672,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               key={entry.store}
               type="button"
               onClick={() => handleJumpToStore(entry.store)}
-              className="text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 hover:shadow-sm transition-all cursor-pointer group"
+              className="responsive-card min-h-[44px] text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-xl font-extrabold font-mono tabular-nums text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
@@ -670,7 +692,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           <button
             type="button"
             onClick={handleJumpToSponsors}
-            className="col-span-2 sm:col-span-1 text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 hover:shadow-sm transition-all cursor-pointer group"
+            className="responsive-card min-h-[44px] min-[481px]:col-span-2 md:col-span-1 text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group"
           >
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-xl font-extrabold font-mono tabular-nums text-amber-600 dark:text-amber-400">

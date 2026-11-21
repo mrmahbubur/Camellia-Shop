@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Search,
   SlidersHorizontal,
@@ -20,7 +20,11 @@ import {
   Building2,
   Check,
   Cloud,
-  Sparkles
+  Droplets,
+  X,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { EcomProduct, ProductCategory } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -32,8 +36,21 @@ import {
   VisitorRegionCode,
   PartnerStoreOrigin
 } from '../utils/regionProfile';
+import {
+  STORE_CATEGORIES,
+  SearchScope,
+  PriceStatusFilter,
+  CatalogSortBy,
+  scoreProductSearchMatch,
+  buildSearchSuggestions,
+  loadRecentSearches,
+  saveRecentSearch,
+  removeRecentSearch,
+  clearRecentSearches
+} from '../utils/catalogSearch';
 import { ModernProductModal } from './ModernProductModal';
 import { ProductCompareDock } from './ProductCompareDock';
+import { SearchSuggestionsDropdown } from './SearchSuggestionsDropdown';
 import { ResilientImage } from './ResilientImage';
 
 export const StoreSection: React.FC = () => {
@@ -46,10 +63,13 @@ export const StoreSection: React.FC = () => {
     setSelectedCategory,
     selectedStoreFilter: storeFilter,
     setSelectedStoreFilter: setStoreFilter,
+    searchQuery,
+    setSearchQuery,
     visitorRegion,
     setVisitorRegion,
     regionProfile,
     highlightedProductId,
+    setHighlightedProductId,
     getAffiliateBuyUrl,
     getAmazonSearchAffiliateUrl,
     getShopzSearchAffiliateUrl,
@@ -66,15 +86,27 @@ export const StoreSection: React.FC = () => {
     sohojStoreUrl
   } = useProducts();
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
+  // Complete Search & Filter Options State
+  const [searchScope, setSearchScope] = useState<SearchScope>('all');
+  const [selectedBrand, setSelectedBrand] = useState<string>('all');
+  const [priceStatusFilter, setPriceStatusFilter] = useState<PriceStatusFilter>('all');
+  const [minPriceUsd, setMinPriceUsd] = useState<number>(0);
+  const [maxPriceUsd, setMaxPriceUsd] = useState<number>(1000);
+  const [sortBy, setSortBy] = useState<CatalogSortBy>('relevance');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [pricedOnly, setPricedOnly] = useState<boolean>(false);
-  const [maxPrice, setMaxPrice] = useState<number>(1000);
-  const [visibleCount, setVisibleCount] = useState<number>(120);
+  const [pageSize, setPageSize] = useState<number>(48);
+  const [visibleCount, setVisibleCount] = useState<number>(48);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  );
+  const [showPartnerSearchBar, setShowPartnerSearchBar] = useState<boolean>(false);
 
-  // Live partner store search query
-  const [partnerQuery, setPartnerQuery] = useState<string>('');
+  // Suggestions UI state
+  const [isSuggestOpen, setIsSuggestOpen] = useState<boolean>(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => loadRecentSearches());
+  const searchBoxWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  // Direct external partner search target
   const [targetPlatform, setTargetPlatform] = useState<PartnerStoreOrigin>('Amazon');
 
   const [activeQuickViewProduct, setActiveQuickViewProduct] = useState<EcomProduct | null>(null);
@@ -83,25 +115,34 @@ export const StoreSection: React.FC = () => {
   const savedIds = useMemo(() => new Set(cart.map((c) => c.product.id)), [cart]);
 
   useEffect(() => {
-    setVisibleCount(120);
-  }, [selectedCategory, storeFilter, searchQuery, sortBy, pricedOnly, maxPrice]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchBoxWrapperRef.current &&
+        !searchBoxWrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsSuggestOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const categories: ProductCategory[] = [
-    'All Departments (Mega Store)',
-    'Electronics & Gadgets',
-    'Computers & Accessories',
-    'Audio & Headphones',
-    'Smart Home & Power',
-    'Wearables & Smartwatches',
-    'Office & Workspace',
-    'Shopz BD Tech Deals',
-    'Star Tech BD Gadgets',
-    'BanglaShoppers Beauty',
-    'Illin BD Home & Tech',
-    'Releva BD Picks',
-    'Cloud Hosting & Domains',
-    'Sohoj Affiliate Network'
-  ];
+  useEffect(() => {
+    setVisibleCount(pageSize);
+  }, [
+    selectedCategory,
+    storeFilter,
+    searchQuery,
+    searchScope,
+    selectedBrand,
+    priceStatusFilter,
+    minPriceUsd,
+    maxPriceUsd,
+    sortBy,
+    pageSize
+  ]);
+
+  const categories = STORE_CATEGORIES;
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -113,7 +154,7 @@ export const StoreSection: React.FC = () => {
       }
     });
     return counts;
-  }, [products]);
+  }, [products, categories]);
 
   const storeCounts = useMemo(() => {
     const counts: Record<'all' | PartnerStoreOrigin, number> = {
@@ -136,63 +177,132 @@ export const StoreSection: React.FC = () => {
     return counts;
   }, [products]);
 
+  const availableBrands = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of products) {
+      const matchCat =
+        selectedCategory === 'All Departments (Mega Store)' ||
+        item.category === selectedCategory ||
+        item.department === selectedCategory;
+      const matchStore = storeFilter === 'all' || item.originStore === storeFilter;
+      if (!matchCat || !matchStore) continue;
+      const cleanBrand = item.brand?.trim();
+      if (cleanBrand) {
+        map.set(cleanBrand, (map.get(cleanBrand) || 0) + 1);
+      }
+    }
+    return Array.from(map.entries())
+      .map(([brand, count]) => ({ brand, count }))
+      .sort((a, b) => b.count - a.count || a.brand.localeCompare(b.brand));
+  }, [products, selectedCategory, storeFilter]);
+
+  useEffect(() => {
+    if (selectedBrand !== 'all' && !availableBrands.some((b) => b.brand === selectedBrand)) {
+      setSelectedBrand('all');
+    }
+  }, [availableBrands, selectedBrand]);
+
+  const searchSuggestions = useMemo(
+    () =>
+      buildSearchSuggestions({
+        query: searchQuery,
+        products,
+        recentSearches,
+        scope: searchScope,
+        limitProducts: 6
+      }),
+    [searchQuery, products, recentSearches, searchScope]
+  );
+
   const filteredProducts = useMemo(() => {
-    return products
-      .filter((item) => {
+    const cleanQuery = searchQuery.trim();
+    const minActive = minPriceUsd > 0;
+    const maxActive = maxPriceUsd < 1000;
+
+    const scored = products
+      .map((item) => {
         const matchCategory =
           selectedCategory === 'All Departments (Mega Store)'
             ? true
             : item.category === selectedCategory || item.department === selectedCategory;
+        if (!matchCategory) return null;
 
         const matchStore = storeFilter === 'all' || item.originStore === storeFilter;
+        if (!matchStore) return null;
 
-        const q = searchQuery.trim().toLowerCase();
-        const matchSearch =
-          q === '' ||
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.brand.toLowerCase().includes(q) ||
-          (item.csvCategory && item.csvCategory.toLowerCase().includes(q)) ||
-          (item.department && item.department.toLowerCase().includes(q)) ||
-          (item.asin && item.asin.toLowerCase().includes(q));
+        const matchBrand =
+          selectedBrand === 'all' ||
+          item.brand.trim().toLowerCase() === selectedBrand.trim().toLowerCase();
+        if (!matchBrand) return null;
 
         const normalizedUsd = toUsdAmount(item.price, item.nativePrice, item.nativeCurrency);
-        const hasKnownPrice = normalizedUsd > 0;
-        const matchPricedOnly = !pricedOnly || hasKnownPrice;
-        // Strict rule: when a budget slider (< 1000) is active, unknown prices ($0) do NOT satisfy budget constraints.
-        const matchPrice = maxPrice >= 1000 ? true : hasKnownPrice && normalizedUsd <= maxPrice;
+        const knownPrice = normalizedUsd > 0;
 
-        return matchCategory && matchStore && matchSearch && matchPricedOnly && matchPrice;
+        if (priceStatusFilter === 'priced' && !knownPrice) return null;
+        if (priceStatusFilter === 'live-at-partner' && knownPrice) return null;
+
+        // Strict numeric bounds: when a min or max price cap is active, unknown prices do not match.
+        if (minActive && (!knownPrice || normalizedUsd < minPriceUsd)) return null;
+        if (maxActive && (!knownPrice || normalizedUsd > maxPriceUsd)) return null;
+
+        const searchResult = scoreProductSearchMatch(item, cleanQuery, searchScope);
+        if (!searchResult.matched) return null;
+
+        return {
+          item,
+          score: searchResult.score,
+          normalizedUsd
+        };
       })
-      .sort((a, b) => {
-        if (a.id === highlightedProductId) return -1;
-        if (b.id === highlightedProductId) return 1;
+      .filter((entry): entry is { item: EcomProduct; score: number; normalizedUsd: number } =>
+        entry !== null
+      );
 
-        const priceA = toUsdAmount(a.price, a.nativePrice, a.nativeCurrency);
-        const priceB = toUsdAmount(b.price, b.nativePrice, b.nativeCurrency);
+    scored.sort((a, b) => {
+      if (a.item.id === highlightedProductId) return -1;
+      if (b.item.id === highlightedProductId) return 1;
 
-        if (sortBy === 'price-asc') {
-          if (priceA <= 0 && priceB <= 0) return 0;
-          if (priceA <= 0) return 1;
-          if (priceB <= 0) return -1;
-          return priceA - priceB;
-        }
-        if (sortBy === 'price-desc') {
-          if (priceA <= 0 && priceB <= 0) return 0;
-          if (priceA <= 0) return 1;
-          if (priceB <= 0) return -1;
-          return priceB - priceA;
-        }
-        return 0;
-      });
+      if (sortBy === 'relevance' && cleanQuery.length > 0 && b.score !== a.score) {
+        return b.score - a.score;
+      }
+
+      if (sortBy === 'price-asc') {
+        if (a.normalizedUsd <= 0 && b.normalizedUsd <= 0) return 0;
+        if (a.normalizedUsd <= 0) return 1;
+        if (b.normalizedUsd <= 0) return -1;
+        return a.normalizedUsd - b.normalizedUsd;
+      }
+
+      if (sortBy === 'price-desc') {
+        if (a.normalizedUsd <= 0 && b.normalizedUsd <= 0) return 0;
+        if (a.normalizedUsd <= 0) return 1;
+        if (b.normalizedUsd <= 0) return -1;
+        return b.normalizedUsd - a.normalizedUsd;
+      }
+
+      if (sortBy === 'title-asc') {
+        return a.item.title.localeCompare(b.item.title);
+      }
+
+      if (sortBy === 'title-desc') {
+        return b.item.title.localeCompare(a.item.title);
+      }
+
+      return 0;
+    });
+
+    return scored.map((entry) => entry.item);
   }, [
     products,
     selectedCategory,
     storeFilter,
+    selectedBrand,
+    priceStatusFilter,
+    minPriceUsd,
+    maxPriceUsd,
     searchQuery,
+    searchScope,
     sortBy,
-    pricedOnly,
-    maxPrice,
     highlightedProductId,
     toUsdAmount
   ]);
@@ -205,9 +315,22 @@ export const StoreSection: React.FC = () => {
   const hasActiveFilter =
     selectedCategory !== 'All Departments (Mega Store)' ||
     storeFilter !== 'all' ||
+    selectedBrand !== 'all' ||
     searchQuery.trim() !== '' ||
-    pricedOnly ||
-    maxPrice < 1000;
+    searchScope !== 'all' ||
+    priceStatusFilter !== 'all' ||
+    minPriceUsd > 0 ||
+    maxPriceUsd < 1000;
+
+  const activeFilterCount = [
+    selectedCategory !== 'All Departments (Mega Store)',
+    storeFilter !== 'all',
+    selectedBrand !== 'all',
+    searchQuery.trim() !== '',
+    searchScope !== 'all',
+    priceStatusFilter !== 'all',
+    minPriceUsd > 0 || maxPriceUsd < 1000
+  ].filter(Boolean).length;
 
   const handleToggleCompare = (product: EcomProduct) => {
     setComparedProducts((prev) => {
@@ -225,10 +348,48 @@ export const StoreSection: React.FC = () => {
   const handleClearFilters = () => {
     setSelectedCategory('All Departments (Mega Store)');
     setStoreFilter('all');
+    setSelectedBrand('all');
     setSearchQuery('');
-    setPricedOnly(false);
-    setMaxPrice(1000);
-    setSortBy('featured');
+    setSearchScope('all');
+    setPriceStatusFilter('all');
+    setMinPriceUsd(0);
+    setMaxPriceUsd(1000);
+    setSortBy('relevance');
+  };
+
+  const handleCommitSearch = (term: string) => {
+    const clean = term.trim();
+    setSearchQuery(term);
+    if (clean.length >= 2) {
+      setRecentSearches(saveRecentSearch(clean));
+    }
+    setIsSuggestOpen(false);
+  };
+
+  const handleSelectSuggestionCategory = (cat: ProductCategory) => {
+    setSelectedCategory(cat);
+    setSearchQuery('');
+    setIsSuggestOpen(false);
+  };
+
+  const handleSelectSuggestionBrand = (brand: string) => {
+    setSelectedBrand(brand);
+    setSearchQuery('');
+    setRecentSearches(saveRecentSearch(brand));
+    setIsSuggestOpen(false);
+  };
+
+  const handleSelectSuggestionStore = (store: PartnerStoreOrigin) => {
+    setStoreFilter(store);
+    setSelectedCategory('All Departments (Mega Store)');
+    setIsSuggestOpen(false);
+  };
+
+  const handleSelectSuggestionProduct = (product: EcomProduct) => {
+    setHighlightedProductId(product.id);
+    setRecentSearches(saveRecentSearch(product.title));
+    setIsSuggestOpen(false);
+    setActiveQuickViewProduct(product);
   };
 
   const handleSaveProduct = (product: EcomProduct, affiliateUrl: string) => {
@@ -273,10 +434,10 @@ export const StoreSection: React.FC = () => {
       : targetPlatform === 'Sohoj Affiliates'
       ? sohojStoreUrl
       : targetPlatform === 'Releva BD'
-      ? getRelevaSearchUrl(partnerQuery)
+      ? getRelevaSearchUrl(searchQuery)
       : targetPlatform === 'Shopz BD'
-      ? getShopzSearchAffiliateUrl(partnerQuery)
-      : getAmazonSearchAffiliateUrl(partnerQuery);
+      ? getShopzSearchAffiliateUrl(searchQuery)
+      : getAmazonSearchAffiliateUrl(searchQuery);
 
   const getStoreBadgeClasses = (store: PartnerStoreOrigin) => {
     if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
@@ -316,16 +477,16 @@ export const StoreSection: React.FC = () => {
   return (
     <section
       id="store"
-      className="py-12 sm:py-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 scroll-mt-14 sm:scroll-mt-16 transition-colors"
+      className="pt-6 sm:pt-8 pb-12 sm:pb-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 scroll-mt-14 sm:scroll-mt-16 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
+        {/* Storefront Catalog Top Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5">
                 <Package className="w-3.5 h-3.5" />
-                <span>Full Store Catalog</span>
+                <span>Product Catalog &amp; Categories</span>
               </span>
               <span aria-hidden="true">·</span>
               <span className="font-mono tabular-nums text-slate-700 dark:text-slate-200">
@@ -336,23 +497,23 @@ export const StoreSection: React.FC = () => {
                 {regionProfile.label}
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+            <h1 className="text-[clamp(1.375rem,2.6vw,2rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance] leading-tight">
               {storefrontCopy.storeTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5 max-w-3xl">
               {storefrontCopy.storeSubtitle}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1 sm:pb-0 scrollbar-none shrink-0 max-w-full">
             <a
               href={amazonStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-amazon', 'Amazon')}
-              className="flex items-center gap-1.5 text-xs text-amber-950 bg-amber-400 hover:bg-amber-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-amber-950 bg-amber-400 hover:bg-amber-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Package className="w-4 h-4 text-slate-950" />
+              <Package className="w-3.5 h-3.5 text-slate-950" />
               <span>Amazon</span>
               <ExternalLink className="w-3 h-3 text-slate-900" />
             </a>
@@ -360,11 +521,11 @@ export const StoreSection: React.FC = () => {
             <a
               href={shopzStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-shopz', 'Shopz BD')}
-              className="flex items-center gap-1.5 text-xs text-emerald-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-emerald-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Building2 className="w-4 h-4 text-emerald-950" />
+              <Building2 className="w-3.5 h-3.5 text-emerald-950" />
               <span>Shopz BD</span>
               <ExternalLink className="w-3 h-3 text-emerald-950" />
             </a>
@@ -372,9 +533,9 @@ export const StoreSection: React.FC = () => {
             <a
               href={relevaStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-releva', 'Releva BD')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-teal-400 hover:bg-teal-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-slate-950 bg-teal-400 hover:bg-teal-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Releva BD</span>
               <ExternalLink className="w-3 h-3 text-slate-950" />
@@ -383,9 +544,9 @@ export const StoreSection: React.FC = () => {
             <a
               href={alibabaStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-alibaba', 'Alibaba')}
-              className="flex items-center gap-1.5 text-xs text-white bg-indigo-600 hover:bg-indigo-500 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-white bg-indigo-600 hover:bg-indigo-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Alibaba</span>
               <ExternalLink className="w-3 h-3 text-white" />
@@ -394,11 +555,11 @@ export const StoreSection: React.FC = () => {
             <a
               href={exonhostStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-exonhost', 'ExonHost')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-sky-400 hover:bg-sky-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-slate-950 bg-sky-400 hover:bg-sky-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Cloud className="w-4 h-4 text-slate-950" />
+              <Cloud className="w-3.5 h-3.5 text-slate-950" />
               <span>ExonHost</span>
               <ExternalLink className="w-3 h-3 text-slate-950" />
             </a>
@@ -406,11 +567,11 @@ export const StoreSection: React.FC = () => {
             <a
               href={banglashoppersStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-banglashoppers', 'BanglaShoppers')}
-              className="flex items-center gap-1.5 text-xs text-white bg-rose-500 hover:bg-rose-400 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-white bg-rose-500 hover:bg-rose-400 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Sparkles className="w-4 h-4 text-white" />
+              <Droplets className="w-3.5 h-3.5 text-white" />
               <span>BanglaShoppers</span>
               <ExternalLink className="w-3 h-3 text-white" />
             </a>
@@ -418,9 +579,9 @@ export const StoreSection: React.FC = () => {
             <a
               href={illinStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-illin', 'Illin BD')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Illin BD</span>
               <ExternalLink className="w-3 h-3 text-slate-950" />
@@ -429,11 +590,11 @@ export const StoreSection: React.FC = () => {
             <a
               href={startechStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-startech', 'Star Tech')}
-              className="flex items-center gap-1.5 text-xs text-white bg-orange-600 hover:bg-orange-500 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-white bg-orange-600 hover:bg-orange-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Watch className="w-4 h-4 text-white" />
+              <Watch className="w-3.5 h-3.5 text-white" />
               <span>Star Tech</span>
               <ExternalLink className="w-3 h-3 text-white" />
             </a>
@@ -441,9 +602,9 @@ export const StoreSection: React.FC = () => {
             <a
               href={sohojStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('store-header-sohoj', 'Sohoj Affiliates')}
-              className="flex items-center gap-1.5 text-xs text-white bg-violet-600 hover:bg-violet-500 font-extrabold px-3 min-h-[40px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 text-xs text-white bg-violet-600 hover:bg-violet-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Sohoj Affiliates</span>
               <ExternalLink className="w-3 h-3 text-white" />
@@ -451,142 +612,15 @@ export const StoreSection: React.FC = () => {
           </div>
         </div>
 
-        {/* DIRECT PARTNER STORE SEARCH */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 shadow-md border border-slate-700">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
-                <Search className="w-4 h-4 shrink-0" />
-                <span>Direct Partner Store Search</span>
-              </div>
-              <h3 className="text-base sm:text-lg font-bold text-white">
-                Search Amazon, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost &amp; Sohoj
-              </h3>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Filter products below or search directly on your chosen partner store.
-              </p>
-            </div>
-
-            {/* Platform Switcher & Direct Live Search Trigger */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 lg:max-w-3xl lg:w-full justify-end">
-              <div className="flex flex-wrap bg-slate-800/90 p-1 rounded-xl border border-slate-700 shrink-0 gap-0.5">
-                {(
-                  [
-                    { name: 'Amazon', activeClass: 'bg-amber-500 text-slate-950' },
-                    { name: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
-                    { name: 'Star Tech', activeClass: 'bg-orange-600 text-white' },
-                    { name: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
-                    { name: 'Illin BD', activeClass: 'bg-cyan-400 text-slate-950' },
-                    { name: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
-                    { name: 'Alibaba', activeClass: 'bg-indigo-500 text-white' },
-                    { name: 'ExonHost', activeClass: 'bg-sky-400 text-slate-950' },
-                    { name: 'Sohoj Affiliates', activeClass: 'bg-violet-600 text-white' }
-                  ] as const
-                ).map((plat) => (
-                  <button
-                    key={plat.name}
-                    type="button"
-                    onClick={() => setTargetPlatform(plat.name)}
-                    className={`flex-1 sm:flex-initial px-2.5 min-h-[34px] py-1 text-[11px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                      targetPlatform === plat.name
-                        ? `${plat.activeClass} shadow-xs`
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {plat.name}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 flex-1 min-w-0">
-                <input
-                  type="text"
-                  placeholder="e.g., 'COSRX', 'Miyako', 'Casio', 'Logitech'..."
-                  value={partnerQuery}
-                  onChange={(e) => {
-                    setPartnerQuery(e.target.value);
-                    setSearchQuery(e.target.value);
-                  }}
-                  className="px-3.5 min-h-[40px] py-2 bg-slate-950/80 border border-slate-600 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-amber-400 min-w-0 flex-1 w-full"
-                />
-                <a
-                  href={livePartnerSearchHref}
-                  target="_blank"
-                  rel="sponsored noopener noreferrer"
-                  onClick={() =>
-                    recordAffiliateClick(`partner-search-${targetPlatform.toLowerCase()}`, targetPlatform)
-                  }
-                  className={`px-4 min-h-[40px] py-2 font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap ${
-                    targetPlatform === 'ExonHost'
-                      ? 'bg-sky-400 hover:bg-sky-300 text-slate-950'
-                      : targetPlatform === 'Shopz BD'
-                      ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
-                      : targetPlatform === 'BanglaShoppers'
-                      ? 'bg-rose-500 hover:bg-rose-400 text-white'
-                      : targetPlatform === 'Illin BD'
-                      ? 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
-                      : targetPlatform === 'Star Tech'
-                      ? 'bg-orange-600 hover:bg-orange-500 text-white'
-                      : targetPlatform === 'Sohoj Affiliates'
-                      ? 'bg-violet-600 hover:bg-violet-500 text-white'
-                      : targetPlatform === 'Releva BD'
-                      ? 'bg-teal-400 hover:bg-teal-300 text-slate-950'
-                      : targetPlatform === 'Alibaba'
-                      ? 'bg-indigo-500 hover:bg-indigo-400 text-white'
-                      : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
-                  }`}
-                >
-                  <span>
-                    {targetPlatform === 'Amazon' || targetPlatform === 'Shopz BD'
-                      ? `Search ${targetPlatform}`
-                      : `Open ${targetPlatform}`}
-                  </span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Direct Live Search Chips */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-slate-800 text-xs">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none min-w-0">
-              <span className="text-[11px] font-bold text-slate-400 shrink-0">Partner Search Shortcuts:</span>
-              {[
-                { label: 'Wireless ANC Earbuds', store: 'Amazon' as const },
-                { label: 'Baseus Lamp', store: 'Shopz BD' as const },
-                { label: 'Mechanical Keyboard', store: 'Amazon' as const },
-                { label: 'AMOLED Smartwatch', store: 'Shopz BD' as const },
-                { label: 'USB-C Dock', store: 'Amazon' as const },
-                { label: 'Casio Watch', store: 'Shopz BD' as const }
-              ].map((chip) => (
-                <a
-                  key={chip.label}
-                  href={
-                    chip.store === 'Shopz BD'
-                      ? getShopzSearchAffiliateUrl(chip.label)
-                      : getAmazonSearchAffiliateUrl(chip.label)
-                  }
-                  target="_blank"
-                  rel="sponsored noopener noreferrer"
-                  onClick={() => recordAffiliateClick(`quick-chip-${chip.store}`, chip.store)}
-                  className="px-2.5 min-h-[34px] py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer text-[11px] shrink-0"
-                >
-                  <span>{chip.label}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-amber-400 font-mono inline-flex items-center gap-1">
-                    <span>{chip.store}</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* DEPARTMENT TABS & STORE FILTER */}
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs mb-8 space-y-4 transition-colors">
-          {/* Row 1: Department Tabs */}
+        {/* CATEGORIES & COMPLETE SEARCH SYSTEM WORKBENCH */}
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs mb-6 space-y-4 transition-colors">
+          {/* 1. Prominent Department & Category Switcher Row */}
           <div className="flex items-center justify-between gap-3 flex-wrap pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none max-w-full flex-1 min-w-0">
+            <div
+              role="tablist"
+              aria-label="Product categories"
+              className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none max-w-full flex-1 min-w-0"
+            >
               {categories.map((c) => {
                 const count = categoryCounts[c] || 0;
                 const isSelected = selectedCategory === c;
@@ -602,8 +636,10 @@ export const StoreSection: React.FC = () => {
                 return (
                   <button
                     key={c}
+                    role="tab"
+                    aria-selected={isSelected}
                     onClick={() => setSelectedCategory(c)}
-                    className={`px-3.5 min-h-[40px] py-2 text-xs font-semibold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                    className={`px-3.5 min-h-[44px] py-2 text-xs font-semibold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
                       isSelected
                         ? isShopzTab
                           ? 'bg-emerald-600 text-white shadow-xs font-extrabold'
@@ -638,9 +674,11 @@ export const StoreSection: React.FC = () => {
                     }`}
                   >
                     {isMegaStoreTab && <Compass className="w-3.5 h-3.5 opacity-75" />}
-                    {isBanglaShoppersTab && <Sparkles className="w-3.5 h-3.5" />}
+                    {isBanglaShoppersTab && <Droplets className="w-3.5 h-3.5" />}
                     {isStarTechTab && <Watch className="w-3.5 h-3.5" />}
-                    {(isShopzTab || isRelevaTab || isIllinTab || isSohojTab) && <Building2 className="w-3.5 h-3.5" />}
+                    {(isShopzTab || isRelevaTab || isIllinTab || isSohojTab) && (
+                      <Building2 className="w-3.5 h-3.5" />
+                    )}
                     {isCloudTab && <Cloud className="w-3.5 h-3.5" />}
                     {c.includes('Audio') && <Headphones className="w-3.5 h-3.5 opacity-75" />}
                     {c.includes('Computers') && <Laptop className="w-3.5 h-3.5 opacity-75" />}
@@ -663,60 +701,198 @@ export const StoreSection: React.FC = () => {
               })}
             </div>
 
-            {/* View Mode Toggle (Grid / List) */}
-            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0">
+            {/* View Mode Toggle + Advanced Search Options Toggle */}
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded transition-colors cursor-pointer ${
-                  viewMode === 'grid'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-                title="Grid View"
-                aria-label="Grid view"
+                type="button"
+                onClick={() => setShowAdvancedSearch((prev) => !prev)}
+                aria-expanded={showAdvancedSearch}
+                className="min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
-                <Grid className="w-4 h-4" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Search Options</span>
+                {activeFilterCount > 0 && (
+                  <span className="bg-amber-400 text-slate-950 text-[10px] font-bold px-1.5 py-0.2 rounded-full font-mono tabular-nums">
+                    {activeFilterCount}
+                  </span>
+                )}
+                {showAdvancedSearch ? (
+                  <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                )}
               </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded transition-colors cursor-pointer ${
-                  viewMode === 'list'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-                title="List View"
-                aria-label="List view"
-              >
-                <List className="w-4 h-4" />
-              </button>
+
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`min-h-[44px] min-w-[44px] p-2 rounded flex items-center justify-center transition-colors cursor-pointer ${
+                    viewMode === 'grid'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Grid View"
+                  aria-label="Grid view"
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`min-h-[44px] min-w-[44px] p-2 rounded flex items-center justify-center transition-colors cursor-pointer ${
+                    viewMode === 'list'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="List View"
+                  aria-label="List view"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Row 2: Search, Store Filter, Price Slider & Sort */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs">
-            <div className="relative flex-1 lg:max-w-lg min-w-0">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                id="catalog-search-input"
-                type="text"
-                placeholder="Filter catalog: 'COSRX', 'Miyako', 'Casio', 'earbuds', 'exonhost'..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full min-h-[40px] pl-8 pr-14 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-800 text-xs"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs cursor-pointer"
+          {/* 2. Primary Search Input with Live Search Suggestions & Search Scope */}
+          <div className="flex flex-col lg:flex-row lg:items-stretch gap-3 text-xs">
+            <div ref={searchBoxWrapperRef} className="relative flex-1 min-w-0">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCommitSearch(searchQuery);
+                }}
+                className="flex flex-col sm:flex-row items-stretch gap-2"
+              >
+                <div className="relative flex-1 min-w-0">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  <input
+                    id="catalog-search-input"
+                    type="search"
+                    placeholder="Search all products, brands, specs, ASINs, categories, or partner stores..."
+                    value={searchQuery}
+                    onFocus={() => setIsSuggestOpen(true)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setIsSuggestOpen(true);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setIsSuggestOpen(false);
+                      }
+                    }}
+                    aria-label="Search store catalog with suggestions"
+                    aria-expanded={isSuggestOpen}
+                    aria-autocomplete="list"
+                    className="w-full min-h-[44px] pl-10 pr-20 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-900 text-xs sm:text-sm"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Clear search query"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 dark:hover:text-white text-xs font-semibold cursor-pointer inline-flex items-center gap-1 px-1.5 py-1 rounded hover:bg-slate-200/70 dark:hover:bg-slate-700"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>Clear</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Search In Scope Selector */}
+                <select
+                  value={searchScope}
+                  onChange={(e) => setSearchScope(e.target.value as SearchScope)}
+                  aria-label="Search field scope"
+                  className="min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer shrink-0"
                 >
-                  Clear
+                  <option value="all">Search: All Fields</option>
+                  <option value="title-brand">Search: Title &amp; Brand</option>
+                  <option value="specs-tags">Search: Specs &amp; Details</option>
+                  <option value="category-store">Search: Category &amp; Store</option>
+                </select>
+
+                <button
+                  type="submit"
+                  className="min-h-[44px] px-5 py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-extrabold text-xs rounded-xl transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap shadow-xs"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Search Catalog</span>
                 </button>
-              )}
+              </form>
+
+              <SearchSuggestionsDropdown
+                isOpen={isSuggestOpen}
+                query={searchQuery}
+                suggestions={searchSuggestions}
+                onSelectQuery={handleCommitSearch}
+                onRemoveRecent={(term) => setRecentSearches(removeRecentSearch(term))}
+                onClearRecent={() => setRecentSearches(clearRecentSearches())}
+                onSelectCategory={handleSelectSuggestionCategory}
+                onSelectBrand={handleSelectSuggestionBrand}
+                onSelectStore={handleSelectSuggestionStore}
+                onSelectProduct={handleSelectSuggestionProduct}
+                onClose={() => setIsSuggestOpen(false)}
+              />
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            {/* Direct Live Partner Search Trigger */}
+            <button
+              type="button"
+              onClick={() => setShowPartnerSearchBar((prev) => !prev)}
+              aria-expanded={showPartnerSearchBar}
+              className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs inline-flex items-center justify-center gap-2 cursor-pointer shrink-0 whitespace-nowrap"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>Live Partner Search</span>
+              {showPartnerSearchBar ? (
+                <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              )}
+            </button>
+          </div>
+
+          {/* Quick Search Chips Strip */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
+              Quick Filters:
+            </span>
+            {[
+              'Smartwatch',
+              'POEDAGAR Watch',
+              'COSRX',
+              'Wireless Earbuds',
+              'Portable Fan',
+              'Laptop',
+              'Coffee Maker',
+              'USB-C Dock',
+              'Power Station',
+              'Monitor'
+            ].map((term) => {
+              const active = searchQuery.trim().toLowerCase() === term.toLowerCase();
+              return (
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => handleCommitSearch(active ? '' : term)}
+                  className={`px-3 min-h-[44px] py-1.5 rounded-lg border text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                    active
+                      ? 'bg-amber-400 border-amber-500 text-slate-950 font-bold'
+                      : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-amber-400'
+                  }`}
+                >
+                  {term}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 3. All Advanced Search Options Panel (Collapsible on all screens) */}
+          {showAdvancedSearch && (
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3 text-xs">
               {/* Store Filter Tabs */}
-              <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+              <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl">
                 {(
                   [
                     { key: 'all', label: 'All Stores', activeClass: 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white' },
@@ -735,10 +911,10 @@ export const StoreSection: React.FC = () => {
                     key={tab.key}
                     type="button"
                     onClick={() => setStoreFilter(tab.key)}
-                    className={`px-2.5 min-h-[34px] py-1 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1 ${
+                    className={`px-3 min-h-[44px] py-1.5 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1 ${
                       storeFilter === tab.key
                         ? `${tab.activeClass} shadow-2xs`
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <span>{tab.label}</span>
@@ -749,73 +925,229 @@ export const StoreSection: React.FC = () => {
                 ))}
               </div>
 
-              {/* Listed Price Only Toggle */}
-              <label className="flex items-center gap-1.5 min-h-[36px] cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={pricedOnly}
-                  onChange={(e) => setPricedOnly(e.target.checked)}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 accent-emerald-600"
-                />
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
-                  With Listed Price
-                </span>
-              </label>
+              {/* Granular Options Grid: Category Dropdown, Brand, Price Status, Min/Max Price, Region, Sort, Page Size */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2.5">
+                {/* Category Select */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    Department / Category
+                  </span>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    aria-label="Filter by category"
+                    className="min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat} ({categoryCounts[cat] || 0})
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              {/* Price Filter Slider */}
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <span>Max Price:</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white tabular-nums">
-                  {maxPrice >= 1000 ? 'All' : formatPrice(maxPrice)}
-                </span>
-                <input
-                  type="range"
-                  min="20"
-                  max="1000"
-                  step="20"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  aria-label="Maximum price cap"
-                  className="w-24 accent-slate-900 dark:accent-amber-400 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
-                />
-              </div>
+                {/* Brand Filter */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    Brand ({availableBrands.length})
+                  </span>
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => setSelectedBrand(e.target.value)}
+                    aria-label="Filter by brand"
+                    className="min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                  >
+                    <option value="all">All Brands</option>
+                    {availableBrands.map((b) => (
+                      <option key={b.brand} value={b.brand}>
+                        {b.brand} ({b.count})
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              {/* Shopping Region Selector */}
-              <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <select
-                  value={visitorRegion}
-                  onChange={(e) => setVisitorRegion(e.target.value as VisitorRegionCode)}
-                  aria-label="Shopping region"
-                  className="min-h-[38px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
-                >
-                  {REGION_ORDER.map((code) => (
-                    <option key={code} value={code}>
-                      Region: {REGION_PROFILES[code].label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {/* Pricing Status Filter */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    Price Display
+                  </span>
+                  <select
+                    value={priceStatusFilter}
+                    onChange={(e) => setPriceStatusFilter(e.target.value as PriceStatusFilter)}
+                    aria-label="Filter by price status"
+                    className="min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                  >
+                    <option value="all">All Listings</option>
+                    <option value="priced">With Listed Price Only</option>
+                    <option value="live-at-partner">Live Price on Partner</option>
+                  </select>
+                </label>
 
-              {/* Sort By Dropdown */}
-              <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  aria-label="Sort products"
-                  className="min-h-[38px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
-                >
-                  <option value="featured">Featured Order</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                </select>
+                {/* Price Range (Min - Max) */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    <span>Price Range (USD ref)</span>
+                    <span className="font-mono text-slate-800 dark:text-slate-200 tabular-nums">
+                      ${minPriceUsd} – {maxPriceUsd >= 1000 ? 'All' : `$${maxPriceUsd}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={980}
+                      step={5}
+                      value={minPriceUsd}
+                      onChange={(e) =>
+                        setMinPriceUsd(Math.max(0, Math.min(Number(e.target.value) || 0, maxPriceUsd)))
+                      }
+                      aria-label="Minimum USD price"
+                      placeholder="Min"
+                      className="w-16 min-h-[44px] px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400"
+                    />
+                    <input
+                      type="range"
+                      min={20}
+                      max={1000}
+                      step={20}
+                      value={maxPriceUsd}
+                      onChange={(e) => {
+                        const nextMax = Number(e.target.value);
+                        setMaxPriceUsd(nextMax);
+                        if (minPriceUsd > nextMax) setMinPriceUsd(nextMax);
+                      }}
+                      aria-label="Maximum USD price cap"
+                      className="flex-1 min-h-[44px] accent-slate-900 dark:accent-amber-400 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Region Priority */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Compass className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                    <span>Shopping Region</span>
+                  </span>
+                  <select
+                    value={visitorRegion}
+                    onChange={(e) => setVisitorRegion(e.target.value as VisitorRegionCode)}
+                    aria-label="Shopping region"
+                    className="min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2.5 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                  >
+                    {REGION_ORDER.map((code) => (
+                      <option key={code} value={code}>
+                        {REGION_PROFILES[code].label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {/* Sort & Per-Page */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    Sort &amp; Show
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as CatalogSortBy)}
+                      aria-label="Sort products"
+                      className="flex-1 min-w-0 min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-2 text-xs focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                    >
+                      <option value="relevance">Best Match</option>
+                      <option value="featured">Featured Order</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                      <option value="title-asc">Name: A–Z</option>
+                      <option value="title-desc">Name: Z–A</option>
+                    </select>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
+                      aria-label="Results per page"
+                      className="w-16 min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg py-1.5 px-1.5 text-xs font-mono focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer shrink-0"
+                    >
+                      <option value={24}>24</option>
+                      <option value={48}>48</option>
+                      <option value={120}>120</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* 4. Expandable Direct Live Partner Search Strip */}
+          {showPartnerSearchBar && (
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl p-4 border border-slate-200 dark:border-slate-800 space-y-3 transition-colors">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                    Direct Partner Site Search
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                    Choose a partner store to open live search results using your current query.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="flex flex-wrap bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 gap-0.5">
+                    {(
+                      [
+                        { name: 'Amazon', activeClass: 'bg-amber-500 text-slate-950' },
+                        { name: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
+                        { name: 'Star Tech', activeClass: 'bg-orange-600 text-white' },
+                        { name: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
+                        { name: 'Illin BD', activeClass: 'bg-cyan-400 text-slate-950' },
+                        { name: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
+                        { name: 'Alibaba', activeClass: 'bg-indigo-500 text-white' },
+                        { name: 'ExonHost', activeClass: 'bg-sky-400 text-slate-950' },
+                        { name: 'Sohoj Affiliates', activeClass: 'bg-violet-600 text-white' }
+                      ] as const
+                    ).map((plat) => (
+                      <button
+                        key={plat.name}
+                        type="button"
+                        onClick={() => setTargetPlatform(plat.name)}
+                        className={`px-2.5 min-h-[40px] py-1 text-[11px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                          targetPlatform === plat.name
+                            ? `${plat.activeClass} shadow-xs`
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
+                        }`}
+                      >
+                        {plat.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  <a
+                    href={livePartnerSearchHref}
+                    target="_blank"
+                    rel="nofollow sponsored noopener noreferrer"
+                    onClick={() =>
+                      recordAffiliateClick(`partner-search-${targetPlatform.toLowerCase()}`, targetPlatform)
+                    }
+                    className={`px-4 min-h-[44px] py-2 font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap ${getStoreCtaClasses(
+                      targetPlatform
+                    )}`}
+                  >
+                    <span>
+                      {targetPlatform === 'Amazon' ||
+                      targetPlatform === 'Shopz BD' ||
+                      targetPlatform === 'Releva BD'
+                        ? `Search ${targetPlatform}`
+                        : `Open ${targetPlatform}`}
+                    </span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Results Summary Bar */}
+        {/* Active Filter Summary & Removable Filter Chips */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5 text-xs text-slate-600 dark:text-slate-400">
           <div className="flex flex-wrap items-center gap-2">
             <span>
@@ -827,17 +1159,80 @@ export const StoreSection: React.FC = () => {
               <strong className="font-mono tabular-nums text-slate-900 dark:text-white">
                 {filteredProducts.length}
               </strong>{' '}
-              matching listings
+              matching products
             </span>
-            {storeFilter !== 'all' && (
-              <span className="font-semibold text-amber-700 dark:text-amber-400">
-                · Store: {storeFilter}
-              </span>
+
+            {searchQuery.trim() && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 font-semibold cursor-pointer"
+              >
+                <span>Query: &quot;{searchQuery.trim()}&quot;</span>
+                <X className="w-3 h-3" />
+              </button>
             )}
+
+            {storeFilter !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setStoreFilter('all')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-500/20 text-sky-900 dark:text-sky-300 font-semibold cursor-pointer"
+              >
+                <span>Store: {storeFilter}</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+
             {selectedCategory !== 'All Departments (Mega Store)' && (
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                · Dept: {selectedCategory}
-              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('All Departments (Mega Store)')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-900 dark:text-emerald-300 font-semibold cursor-pointer"
+              >
+                <span>Category: {selectedCategory}</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+
+            {selectedBrand !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setSelectedBrand('all')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold cursor-pointer"
+              >
+                <span>Brand: {selectedBrand}</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+
+            {priceStatusFilter !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setPriceStatusFilter('all')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold cursor-pointer"
+              >
+                <span>
+                  {priceStatusFilter === 'priced' ? 'With Listed Price' : 'Live Price on Partner'}
+                </span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+
+            {(minPriceUsd > 0 || maxPriceUsd < 1000) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMinPriceUsd(0);
+                  setMaxPriceUsd(1000);
+                }}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold font-mono cursor-pointer"
+              >
+                <span>
+                  ${minPriceUsd} – {maxPriceUsd >= 1000 ? 'Any' : `$${maxPriceUsd}`}
+                </span>
+                <X className="w-3 h-3" />
+              </button>
             )}
           </div>
 
@@ -845,9 +1240,10 @@ export const StoreSection: React.FC = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs font-semibold text-slate-700 dark:text-slate-200 underline underline-offset-4 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 underline underline-offset-4 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer"
             >
-              Reset all filters
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset all filters</span>
             </button>
           )}
         </div>
@@ -857,15 +1253,15 @@ export const StoreSection: React.FC = () => {
           <div className="text-center py-14 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 sm:p-8">
             <Package className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-1">
-              No curated items match those filters
+              No curated items match those search options
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
-              Try widening your price filter or resetting filters to browse all products across our partner stores.
+              Try clearing one of your active filters, changing the search scope, or searching directly on a partner store.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={handleClearFilters}
-                className="px-4 min-h-[40px] py-2 bg-slate-900 dark:bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="px-4 min-h-[44px] py-2 bg-slate-900 dark:bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -874,9 +1270,9 @@ export const StoreSection: React.FC = () => {
                   <a
                     href={getAmazonSearchAffiliateUrl(searchQuery)}
                     target="_blank"
-                    rel="sponsored noopener noreferrer"
+                    rel="nofollow sponsored noopener noreferrer"
                     onClick={() => recordAffiliateClick('empty-search-amazon', 'Amazon')}
-                    className="px-4 min-h-[40px] py-2 bg-[#FF9900] text-slate-950 rounded-xl text-xs font-extrabold hover:bg-[#e88b00] transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 min-h-[44px] py-2 bg-[#FF9900] text-slate-950 rounded-xl text-xs font-extrabold hover:bg-[#e88b00] transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <span>Search &quot;{searchQuery}&quot; on Amazon</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -884,11 +1280,21 @@ export const StoreSection: React.FC = () => {
                   <a
                     href={getShopzSearchAffiliateUrl(searchQuery)}
                     target="_blank"
-                    rel="sponsored noopener noreferrer"
+                    rel="nofollow sponsored noopener noreferrer"
                     onClick={() => recordAffiliateClick('empty-search-shopz', 'Shopz BD')}
-                    className="px-4 min-h-[40px] py-2 bg-emerald-500 text-slate-950 rounded-xl text-xs font-extrabold hover:bg-emerald-400 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 min-h-[44px] py-2 bg-emerald-500 text-slate-950 rounded-xl text-xs font-extrabold hover:bg-emerald-400 transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <span>Search &quot;{searchQuery}&quot; on Shopz BD</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <a
+                    href={getRelevaSearchUrl(searchQuery)}
+                    target="_blank"
+                    rel="nofollow sponsored noopener noreferrer"
+                    onClick={() => recordAffiliateClick('empty-search-releva', 'Releva BD')}
+                    className="px-4 min-h-[44px] py-2 bg-teal-500 text-slate-950 rounded-xl text-xs font-extrabold hover:bg-teal-400 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <span>Search &quot;{searchQuery}&quot; on Releva BD</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </>
@@ -896,106 +1302,89 @@ export const StoreSection: React.FC = () => {
             </div>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-8">
+          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
             {visibleProducts.map((product) => {
               const isCompared = comparedProducts.some((p) => p.id === product.id);
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isHighlighted = product.id === highlightedProductId;
               const knownPrice = hasKnownPrice(product);
+              const hasDiscount =
+                knownPrice &&
+                typeof product.originalPrice === 'number' &&
+                product.originalPrice > product.price &&
+                product.nativeCurrency !== 'BDT';
 
               return (
-                <div
+                <article
                   id={`product-${product.id}`}
                   key={product.id}
                   onClick={() => setActiveQuickViewProduct(product)}
-                  className={`group bg-white dark:bg-slate-900 rounded-2xl border transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer relative ${
+                  className={`h-full responsive-card group bg-white dark:bg-slate-900 rounded-2xl border flex flex-col justify-between overflow-hidden cursor-pointer relative ${
                     isHighlighted
                       ? 'ring-2 ring-amber-500 shadow-xl border-amber-400'
-                      : 'border-slate-200/90 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1'
+                      : 'border-slate-200/90 dark:border-slate-800'
                   }`}
                 >
-                  {/* Visual Header */}
-                  <div className="relative w-full h-52 sm:h-56 md:h-60 bg-white p-2 sm:p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                  {/* Visual Stage (Clean unblocked aspect-ratio container) */}
+                  <div className="relative w-full aspect-[4/3] bg-white p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-104 transition-transform duration-300"
+                      className="max-w-full max-h-full w-auto h-auto object-contain responsive-card-media"
                       referrerPolicy="no-referrer"
                     />
-
-                    {/* Platform Origin Badge */}
-                    <span
-                      className={`absolute top-3 left-3 font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${getStoreBadgeClasses(
-                        product.originStore
-                      )}`}
-                    >
-                      {product.badge || product.originStore}
-                    </span>
-
-                    {/* Quick Look Overlay Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveQuickViewProduct(product);
-                      }}
-                      className="absolute bottom-3 right-3 p-2 bg-white/95 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white rounded-lg shadow-sm sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold cursor-pointer border border-slate-200/80 dark:border-slate-700"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Quick Look</span>
-                    </button>
                   </div>
 
                   {/* Body Metadata & Details */}
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
-                        <span className="uppercase tracking-wider text-[11px] font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[165px]">
-                          {product.csvCategory || product.category}
+                  <div className="p-4 flex-1 flex flex-col justify-between gap-3 min-w-0">
+                    <div className="min-w-0">
+                      {/* Non-overlapping Badge & Origin Metadata Bar */}
+                      <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+                        <span
+                          className={`font-extrabold text-[10px] px-2 py-0.5 rounded uppercase tracking-wider truncate max-w-[60%] ${getStoreBadgeClasses(
+                            product.originStore
+                          )}`}
+                        >
+                          {product.badge || product.originStore}
                         </span>
-                        <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 shrink-0">
+                        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate">
                           {product.brand}
                         </span>
                       </div>
 
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 truncate mb-1">
+                        {product.csvCategory || product.category}
+                      </div>
+
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1.5 leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {product.title}
                       </h3>
 
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                         {product.description}
                       </p>
                     </div>
 
                     {/* Pricing & Actions */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
                       <div className="flex items-baseline justify-between gap-2">
-                        <div className="flex items-baseline gap-1.5 min-w-0">
-                          <span className="text-lg font-extrabold text-slate-900 dark:text-white font-mono tabular-nums truncate">
+                        <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
+                          <span className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white font-mono tabular-nums truncate">
                             {knownPrice
                               ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
                               : 'See Price on Partner'}
                           </span>
+                          {hasDiscount && (
+                            <span className="text-xs font-mono text-slate-400 line-through tabular-nums">
+                              {formatPrice(product.originalPrice!)}
+                            </span>
+                          )}
                           {knownPrice && (
                             <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
                               Listed Price
                             </span>
                           )}
                         </div>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleCompare(product);
-                          }}
-                          className={`flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer shrink-0 ${
-                            isCompared
-                              ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 font-bold'
-                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          <Layers className="w-3 h-3" />
-                          <span>{isCompared ? 'Compared' : 'Compare'}</span>
-                        </button>
                       </div>
 
                       <div className="text-[10px] bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70 dark:border-slate-700 font-semibold flex items-center justify-between gap-2">
@@ -1005,30 +1394,61 @@ export const StoreSection: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <a
                           href={affiliateUrl}
                           target="_blank"
-                          rel="sponsored noopener noreferrer"
+                          rel="nofollow sponsored noopener noreferrer"
                           onClick={(e) => {
                             e.stopPropagation();
                             recordAffiliateClick(product.id, product.originStore, product.category);
                           }}
-                          className={`flex-1 min-h-[40px] py-2.5 px-3 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${getStoreCtaClasses(
+                          className={`flex-1 min-w-0 min-h-[44px] py-2 px-2.5 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs ${getStoreCtaClasses(
                             product.originStore
                           )}`}
                         >
                           <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                          <span>{getStoreCtaLabel(product)}</span>
+                          <span className="truncate">{getStoreCtaLabel(product)}</span>
                           <ExternalLink className="w-3 h-3 shrink-0" />
                         </a>
 
                         <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveQuickViewProduct(product);
+                          }}
+                          title={`Quick look ${product.title}`}
+                          aria-label={`Quick look ${product.title}`}
+                          className="min-h-[44px] min-w-[44px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleCompare(product);
+                          }}
+                          title={isCompared ? 'Remove from comparison' : 'Compare product'}
+                          aria-label={isCompared ? `Remove ${product.title} from comparison` : `Compare ${product.title}`}
+                          className={`min-h-[44px] min-w-[44px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                            isCompared
+                              ? 'bg-amber-400 text-slate-950 font-bold'
+                              : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+                          }`}
+                        >
+                          <Layers className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSaveProduct(product, affiliateUrl);
                           }}
-                          className={`min-h-[40px] min-w-[40px] p-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                          className={`min-h-[44px] min-w-[44px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
                             savedIds.has(product.id)
                               ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                               : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
@@ -1045,7 +1465,7 @@ export const StoreSection: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
@@ -1056,38 +1476,43 @@ export const StoreSection: React.FC = () => {
               const affiliateUrl = getAffiliateBuyUrl(product);
               const isCompared = comparedProducts.some((p) => p.id === product.id);
               const knownPrice = hasKnownPrice(product);
+              const hasDiscount =
+                knownPrice &&
+                typeof product.originalPrice === 'number' &&
+                product.originalPrice > product.price &&
+                product.nativeCurrency !== 'BDT';
 
               return (
-                <div
+                <article
                   id={`product-${product.id}`}
                   key={product.id}
                   onClick={() => setActiveQuickViewProduct(product)}
-                  className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl p-4 sm:p-5 transition-all duration-300 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6 cursor-pointer relative"
+                  className="responsive-card group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 cursor-pointer relative"
                 >
-                  <div className="w-full sm:w-44 md:w-52 lg:w-60 h-48 sm:h-40 md:h-44 lg:h-48 rounded-xl overflow-hidden bg-white p-2 border border-slate-100 dark:border-slate-800 shrink-0 relative flex items-center justify-center">
+                  <div className="w-full sm:w-52 md:w-56 aspect-[4/3] rounded-xl overflow-hidden bg-white p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative flex items-center justify-center">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-104 transition-transform duration-300"
+                      className="max-w-full max-h-full w-auto h-auto object-contain responsive-card-media"
                       referrerPolicy="no-referrer"
                     />
-                    {product.badge && (
-                      <span
-                        className={`absolute top-2 left-2 font-bold text-[9px] px-2 py-0.5 rounded shadow-xs uppercase ${getStoreBadgeClasses(
-                          product.originStore
-                        )}`}
-                      >
-                        {product.badge}
-                      </span>
-                    )}
                   </div>
 
                   <div className="flex-1 w-full min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1 text-xs">
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5 text-xs">
+                      {product.badge && (
+                        <span
+                          className={`font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-wider ${getStoreBadgeClasses(
+                            product.originStore
+                          )}`}
+                        >
+                          {product.badge}
+                        </span>
+                      )}
                       <span className="uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 text-[11px]">
                         {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                       </span>
-                      <span className="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
+                      <span className="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">
                         {product.originStore}
                       </span>
                     </div>
@@ -1101,7 +1526,7 @@ export const StoreSection: React.FC = () => {
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className="text-[11px] text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5 font-medium">
+                      <div className="min-h-[44px] text-[11px] text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5 font-medium">
                         <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <span>{product.deliveryEstimate}</span>
                       </div>
@@ -1111,24 +1536,31 @@ export const StoreSection: React.FC = () => {
                           e.stopPropagation();
                           handleToggleCompare(product);
                         }}
-                        className={`flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-lg border transition-colors cursor-pointer ${
+                        className={`min-h-[44px] flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors cursor-pointer ${
                           isCompared
                             ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40 text-amber-900 dark:text-amber-300 font-bold'
-                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
-                        <Layers className="w-3 h-3" />
+                        <Layers className="w-3.5 h-3.5" />
                         <span>{isCompared ? 'Compared' : 'Compare'}</span>
                       </button>
                     </div>
                   </div>
 
-                  <div className="w-full md:w-56 shrink-0 flex flex-col justify-between items-start md:items-end border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-6 space-y-3">
+                  <div className="w-full md:w-60 shrink-0 flex flex-col justify-between items-start md:items-end border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-6 space-y-3">
                     <div className="text-left md:text-right w-full">
-                      <div className="text-xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
-                        {knownPrice
-                          ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
-                          : 'See Price on Partner'}
+                      <div className="flex items-baseline md:justify-end gap-2">
+                        <div className="text-xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
+                          {knownPrice
+                            ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
+                            : 'See Price on Partner'}
+                        </div>
+                        {hasDiscount && (
+                          <span className="text-xs font-mono text-slate-400 line-through tabular-nums">
+                            {formatPrice(product.originalPrice!)}
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         {knownPrice ? 'Listed Price' : `Live price on ${product.originStore}`}
@@ -1139,26 +1571,27 @@ export const StoreSection: React.FC = () => {
                       <a
                         href={affiliateUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={(e) => {
                           e.stopPropagation();
                           recordAffiliateClick(product.id, product.originStore, product.category);
                         }}
-                        className={`flex-1 min-h-[40px] py-2.5 px-3 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${getStoreCtaClasses(
+                        className={`flex-1 min-h-[44px] py-2.5 px-3 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${getStoreCtaClasses(
                           product.originStore
                         )}`}
                       >
-                        <ShoppingCart className="w-3.5 h-3.5" />
+                        <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
                         <span>{getStoreCtaLabel(product)}</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
 
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSaveProduct(product, affiliateUrl);
                         }}
-                        className={`min-h-[40px] min-w-[40px] p-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                        className={`min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
                           savedIds.has(product.id)
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                             : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
@@ -1174,7 +1607,7 @@ export const StoreSection: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
@@ -1182,26 +1615,36 @@ export const StoreSection: React.FC = () => {
 
         {/* Pagination Controls */}
         {filteredProducts.length > visibleProducts.length && (
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
             <button
               type="button"
-              onClick={() => setVisibleCount((prev) => prev + 24)}
-              className="px-5 min-h-[42px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors cursor-pointer shadow-xs"
+              onClick={() => setVisibleCount((prev) => prev + pageSize)}
+              className="px-5 min-h-[44px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors cursor-pointer shadow-xs"
             >
-              Load {Math.min(24, filteredProducts.length - visibleProducts.length)} More Listings
+              Load {Math.min(pageSize, filteredProducts.length - visibleProducts.length)} More Listings
             </button>
             <button
               type="button"
               onClick={() => setVisibleCount(filteredProducts.length)}
-              className="px-4 min-h-[42px] py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
+              className="px-4 min-h-[44px] py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
             >
               Show All ({filteredProducts.length})
             </button>
           </div>
         )}
 
+        {/* Clear Near-Catalog Affiliate Disclosure */}
+        <div className="mb-8 p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <div className="flex items-start sm:items-center gap-2 min-w-0">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+            <span>
+              <strong>Affiliate Disclosure:</strong> As an Amazon Associate and affiliate partner with Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, Alibaba, ExonHost, and Sohoj Affiliates, {storefrontCopy.siteName} earns from qualifying purchases at no extra cost to you.
+            </span>
+          </div>
+        </div>
+
         {sponsors.length > 0 && (
-          <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+          <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
@@ -1210,7 +1653,7 @@ export const StoreSection: React.FC = () => {
               </div>
               <a
                 href="#sponsors"
-                className="text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                className="min-h-[44px] inline-flex items-center text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
               >
                 View all {sponsors.length} partner offers
               </a>
@@ -1221,9 +1664,9 @@ export const StoreSection: React.FC = () => {
                   key={sp.id}
                   href={sp.url}
                   target="_blank"
-                  rel="sponsored noopener noreferrer"
+                  rel="nofollow sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick(sp.id)}
-                  className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                  className="responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 transition-all duration-200"
                 >
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -1238,7 +1681,7 @@ export const StoreSection: React.FC = () => {
                       {sp.subtitle}
                     </p>
                   </div>
-                  <span className="px-3 min-h-[36px] py-1.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                  <span className="px-3 min-h-[44px] py-2 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap">
                     <span>{sp.ctaLabel}</span>
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </span>

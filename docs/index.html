@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#020617" />
+    <meta name="theme-color" content="#f8fafc" />
     <title>Camellia Shop | Workspace Tech, Hardware &amp; Partner Catalog</title>
     <meta name="description" content="Explore curated workspace electronics, smartwatches, hardware, authentic skincare, home appliances, cloud hosting, and partner store deals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost." />
     <meta property="og:title" content="Camellia Shop | Workspace Tech, Hardware &amp; Partner Catalog" />
@@ -27,8 +26,13 @@
           var saved = localStorage.getItem('mrs_theme') || 'system';
           var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
           var isDark = saved === 'dark' || (saved === 'system' && prefersDark);
-          document.documentElement.classList.toggle('dark', isDark);
-          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+          var resolved = isDark ? 'dark' : 'light';
+          var root = document.documentElement;
+          root.classList.toggle('dark', isDark);
+          root.setAttribute('data-theme', resolved);
+          root.style.colorScheme = resolved;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', isDark ? '#020617' : '#f8fafc');
         } catch (e) {}
       })();
     </script>

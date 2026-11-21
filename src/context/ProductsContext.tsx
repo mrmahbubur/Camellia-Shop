@@ -102,6 +102,8 @@ interface ProductsContextType {
   setSelectedCategory: (cat: string) => void;
   selectedStoreFilter: StoreFilterOption;
   setSelectedStoreFilter: (store: StoreFilterOption) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
   visitorRegion: VisitorRegionCode;
   setVisitorRegion: (region: VisitorRegionCode) => void;
   regionDetectionSource: string;
@@ -152,6 +154,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { setCurrency, exchangeRates, showNotification } = useCart();
   const [selectedCategory, setSelectedCategoryState] = useState<string>('All Departments (Mega Store)');
   const [selectedStoreFilter, setSelectedStoreFilterState] = useState<StoreFilterOption>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [regionDetectionSource, setRegionDetectionSource] = useState<string>('browser');
   const [visitorRegion, setVisitorRegionState] = useState<VisitorRegionCode>(() => {
     try {
@@ -615,7 +618,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return trimmed.includes('/40989') ? trimmed : ILLIN_AFFILIATE_URL;
     }
     if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
-      return trimmed.includes('/reffer/40989') ? trimmed : SOHOJ_AFFILIATE_URL;
+      if (trimmed.includes('sohojaffiliates.com')) return SOHOJ_AFFILIATE_URL;
+      return trimmed.includes('/40989') ? trimmed : SOHOJ_AFFILIATE_URL;
     }
     if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
       return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_AFFILIATE_URL;
@@ -704,6 +708,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSelectedCategory,
         selectedStoreFilter,
         setSelectedStoreFilter,
+        searchQuery,
+        setSearchQuery,
         visitorRegion,
         setVisitorRegion,
         regionDetectionSource,

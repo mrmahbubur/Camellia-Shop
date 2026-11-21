@@ -103,17 +103,36 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.equal(RELEVA_HOME_URL, 'https://releva.com.bd/');
   assert.equal(RELEVA_HOME_URL.includes('tracking='), false);
 
-  const expectedRelevaIds = [130, 131, 129, 133, 135];
+  const relevaUploadTxt = fs.readFileSync(
+    path.join(ROOT, 'public/assets/aistudio/gemini-code-1795179223084_453ee604.txt'),
+    'utf8'
+  );
+  const uploadedRelevaUrls = [
+    ...new Set(relevaUploadTxt.split(/\r?\n/).map((s) => s.trim()).filter(Boolean))
+  ];
+  assert.equal(uploadedRelevaUrls.length, 48, 'Expected 48 unique Releva BD URLs in uploaded file');
+
+  const uploadedRelevaIds = uploadedRelevaUrls.map((u) => {
+    const pid = Number(new URL(u).searchParams.get('product_id'));
+    assert.ok(Number.isFinite(pid) && pid > 0, `Expected valid product_id in ${u}`);
+    return pid;
+  });
+
   const relevaRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Releva BD');
-  assert.equal(relevaRecords.length, expectedRelevaIds.length);
-  for (const pid of expectedRelevaIds) {
-    const expectedUrl = `https://releva.com.bd/index.php?route=product/product&product_id=${pid}&tracking=${RELEVA_TRACKING_PARAM}`;
-    const found = relevaRecords.find((r) => r.affiliateUrl === expectedUrl);
-    assert.ok(found, `Missing Releva BD URL for product_id=${pid}`);
+  assert.equal(relevaRecords.length, uploadedRelevaIds.length);
+  for (const pid of uploadedRelevaIds) {
+    const found = relevaRecords.find((r) => {
+      const parsed = new URL(r.affiliateUrl);
+      return Number(parsed.searchParams.get('product_id')) === pid;
+    });
+    assert.ok(found, `Missing Releva BD record for product_id=${pid}`);
     assert.ok(
       found.affiliateUrl.endsWith(`&tracking=${RELEVA_TRACKING_PARAM}`),
       `Releva product URL must end with &tracking=... for product_id=${pid}`
     );
+    assert.equal(found.urlKind, 'product');
+    assert.equal(found.price, 0);
+    assert.equal(found.priceStatus, 'live-at-partner');
   }
 
   // Verify Releva tracking is applied ONLY to specific product URLs, never homepage/category/search links
@@ -259,7 +278,7 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
 
   const sohojRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Sohoj Affiliates');
   assert.equal(sohojRecords.length, 2);
-  assert.equal(SOHOJ_AFFILIATE_URL, 'https://sohojaffiliates.com/reffer/40989');
+  assert.equal(SOHOJ_AFFILIATE_URL, 'https://www.illin.com.bd/40989');
   assert.ok(sohojRecords.every((r) => r.affiliateUrl === SOHOJ_AFFILIATE_URL));
 });
 
@@ -406,14 +425,20 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
   );
 });
 
-test('productImageManifest maps 385+ real product images on disk (>1.2KB each)', () => {
+test('productImageManifest maps 100% of catalog product images on disk (>1.2KB each)', () => {
   const manifestRaw = fs.readFileSync(
     path.join(ROOT, 'src/data/productImageManifest.json'),
     'utf8'
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 385, `Expected at least 385 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 438, `Expected at least 438 mapped images, got ${entries.length}`);
+
+  const csvPath = path.join(ROOT, 'public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv');
+  const csvProducts = parseShopzCsvRecords(fs.readFileSync(csvPath, 'utf8'));
+  const fullCatalog = [...CURATED_CATALOG_RECORDS, ...csvProducts];
+  const unmapped = fullCatalog.filter((item) => !manifest[item.id]);
+  assert.equal(unmapped.length, 0, `Products missing image manifest entries: ${unmapped.map((u) => u.id).slice(0, 5).join(', ')}`);
 
   for (const [productId, relPath] of entries) {
     assert.ok(
@@ -426,5 +451,74 @@ test('productImageManifest maps 385+ real product images on disk (>1.2KB each)',
     assert.ok(stat.size > 1200, `Image file too small (${stat.size}B) for ${productId}: ${diskPath}`);
   }
 });
+
+import {
+  buildSearchSuggestions,
+  scoreProductSearchMatch
+} from '../src/utils/catalogSearch.ts';
+
+test('catalogSearch provides multi-scope matching and structured search suggestions', () => {
+  const suggestionRes = buildSearchSuggestions({
+    query: 'watch',
+    products: CURATED_CATALOG_RECORDS,
+    recentSearches: ['POEDAGAR Watch', 'COSRX'],
+    scope: 'all',
+    limitProducts: 5
+  });
+
+  assert.ok(suggestionRes.totalMatchingProducts > 0, 'Expected watch matches in catalog');
+  assert.ok(suggestionRes.products.length > 0 && suggestionRes.products.length <= 5);
+  assert.ok(
+    suggestionRes.queryTerms.some((t) => t.kind === 'recent' && t.label.includes('Watch')),
+    'Expected matching recent search suggestion'
+  );
+  assert.ok(
+    suggestionRes.categories.some((c) => c.category === 'Wearables & Smartwatches'),
+    'Expected Wearables & Smartwatches category suggestion'
+  );
+
+  const poedagar = CURATED_CATALOG_RECORDS.find((p) => p.id === 'illin-poedagar-men-watch-1563');
+  assert.ok(poedagar);
+  assert.equal(scoreProductSearchMatch(poedagar, 'poedagar quartz', 'title-brand').matched, true);
+  assert.equal(scoreProductSearchMatch(poedagar, 'poedagar 1563', 'all').matched, true);
+  assert.equal(scoreProductSearchMatch(poedagar, 'illin watch', 'category-store').matched, true);
+  assert.equal(scoreProductSearchMatch(poedagar, 'unrelatedxyz999', 'all').matched, false);
+});
+
+test('Frontend renders StoreSection first with zero AI icons or AI mentions', () => {
+  const appTsx = fs.readFileSync(path.join(ROOT, 'src/App.tsx'), 'utf8');
+  const mainMatch = appTsx.match(/<main[^>]*>([\s\S]*?)<\/main>/);
+  assert.ok(mainMatch, 'Expected <main> element in src/App.tsx');
+  const mainBody = mainMatch[1];
+  const storePos = mainBody.indexOf('<StoreSection');
+  const themesPos = mainBody.indexOf('<CustomerThemesSection');
+  const heroPos = mainBody.indexOf('<Hero');
+  assert.ok(storePos !== -1 && storePos < themesPos && storePos < heroPos, 'Expected <StoreSection /> to render first inside <main>');
+
+  const uiDirs = [
+    path.join(ROOT, 'src/components'),
+    path.join(ROOT, 'src/context'),
+    path.join(ROOT, 'src/utils')
+  ];
+  const aiIconPattern = /\b(Sparkles|Bot|Wand|Wand2|Brain|BrainCircuit)\b/;
+  const aiMentionPattern = /\b(artificial intelligence|ai-powered|ai assistant|powered by ai|gemini|chatgpt)\b/i;
+
+  const checkUiDir = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        checkUiDir(fullPath);
+      } else if (/\.(ts|tsx)$/.test(entry.name)) {
+        const content = fs.readFileSync(fullPath, 'utf8');
+        assert.equal(aiIconPattern.test(content), false, `AI icon found in ${fullPath}`);
+        assert.equal(aiMentionPattern.test(content), false, `AI mention found in ${fullPath}`);
+      }
+    }
+  };
+  uiDirs.forEach(checkUiDir);
+  assert.equal(aiIconPattern.test(appTsx), false, 'AI icon found in src/App.tsx');
+  assert.equal(aiMentionPattern.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')), false);
+});
+
 
 

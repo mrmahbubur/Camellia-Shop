@@ -13,7 +13,7 @@ import {
   Compass,
   SlidersHorizontal,
   Check,
-  Sparkles
+  Droplets
 } from 'lucide-react';
 import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
@@ -169,7 +169,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'bs-some-by-mi-miracle-serum',
       'illin-miyako-coffee-maker-cm327'
     ],
-    icon: Sparkles
+    icon: Droplets
   }
 ];
 
@@ -448,11 +448,11 @@ export const CustomerThemesSection: React.FC = () => {
       id="customer-themes"
       className="py-12 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 scroll-mt-14 sm:scroll-mt-16 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] space-y-12 sm:space-y-14">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] space-y-12 sm:space-y-14">
         {/* PART 0: INTERACTIVE BUYING GUIDE & TRANSPARENT RECOMMENDATIONS */}
         <div
           id="buying-guide"
-          className="scroll-mt-20 bg-slate-50/80 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 space-y-6"
+          className="scroll-mt-20 bg-slate-50/80 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-7 space-y-6"
         >
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="max-w-2xl">
@@ -462,7 +462,7 @@ export const CustomerThemesSection: React.FC = () => {
                 <span aria-hidden="true">·</span>
                 <span>{regionProfile.label}</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+              <h2 className="text-[clamp(1.25rem,2.4vw,1.625rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
                 Match Partner Listings to Your Goal &amp; Budget
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
@@ -470,14 +470,14 @@ export const CustomerThemesSection: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-end">
+            <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-end w-full lg:w-auto">
               <select
                 value={buyingBudgetUsd === null ? '' : String(buyingBudgetUsd)}
                 onChange={(e) =>
                   setBuyingBudgetUsd(e.target.value ? Number(e.target.value) : null)
                 }
                 aria-label="Filter recommendations by approximate budget"
-                className="min-h-[40px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                className="min-h-[44px] flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
               >
                 {BUDGET_OPTIONS.map((opt) => (
                   <option key={opt.label} value={opt.value === null ? '' : String(opt.value)}>
@@ -492,7 +492,7 @@ export const CustomerThemesSection: React.FC = () => {
                   setBuyingPreferredStore(e.target.value as PartnerStoreOrigin | 'all')
                 }
                 aria-label="Preferred partner store for buying guide"
-                className="min-h-[40px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                className="min-h-[44px] flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
               >
                 {PREFERRED_STORES.map((st) => (
                   <option key={st.value} value={st.value}>
@@ -513,7 +513,7 @@ export const CustomerThemesSection: React.FC = () => {
                   type="button"
                   onClick={() => setBuyingNeed(needKey)}
                   aria-pressed={active}
-                  className={`px-3.5 min-h-[38px] py-1.5 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`px-3.5 min-h-[44px] py-2 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     active
                       ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 font-bold shadow-xs'
                       : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'
@@ -526,7 +526,7 @@ export const CustomerThemesSection: React.FC = () => {
           </div>
 
           {/* Recommendations Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {recommendations.map((rec) => {
               const product = rec.item;
               const buyUrl = getAffiliateBuyUrl(product);
@@ -536,18 +536,19 @@ export const CustomerThemesSection: React.FC = () => {
               return (
                 <article
                   key={`rec-${product.id}`}
-                  className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between gap-3.5 hover:shadow-md transition-shadow"
+                  className="responsive-card h-full bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between gap-3.5"
                 >
                   <div className="flex items-start gap-3.5">
                     <button
                       type="button"
                       onClick={() => setModalProduct(product)}
-                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-lg overflow-hidden bg-white p-1.5 sm:p-2 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative flex items-center justify-center"
+                      aria-label={`Inspect ${product.title}`}
+                      className="w-24 sm:w-28 aspect-[4/3] rounded-lg overflow-hidden bg-white p-1.5 sm:p-2 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative flex items-center justify-center"
                     >
                       <ResilientImage
                         src={product.mainImage}
                         alt={product.title}
-                        className="max-w-full max-h-full w-auto h-auto object-contain"
+                        className="responsive-card-media max-w-full max-h-full w-auto h-auto object-contain"
                         referrerPolicy="no-referrer"
                       />
                     </button>
@@ -589,11 +590,11 @@ export const CustomerThemesSection: React.FC = () => {
                     <a
                       href={buyUrl}
                       target="_blank"
-                      rel="sponsored noopener noreferrer"
+                      rel="nofollow sponsored noopener noreferrer"
                       onClick={() =>
                         recordAffiliateClick(product.id, product.originStore, product.category)
                       }
-                      className={`flex-1 min-h-[38px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
+                      className={`flex-1 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
                         product.originStore
                       )}`}
                     >
@@ -609,7 +610,7 @@ export const CustomerThemesSection: React.FC = () => {
                       type="button"
                       onClick={() => setModalProduct(product)}
                       aria-label={`Inspect ${product.title}`}
-                      className="min-h-[38px] min-w-[38px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                      className="min-h-[44px] min-w-[44px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
@@ -618,7 +619,7 @@ export const CustomerThemesSection: React.FC = () => {
                       type="button"
                       onClick={() => handleSaveToCart(product)}
                       aria-label={`Save ${product.title}`}
-                      className={`min-h-[38px] min-w-[38px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                      className={`min-h-[44px] min-w-[44px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
                         savedIds.has(product.id)
                           ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                           : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
@@ -647,7 +648,7 @@ export const CustomerThemesSection: React.FC = () => {
                 <span aria-hidden="true">·</span>
                 <span>{regionProfile.label}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+              <h2 className="text-[clamp(1.375rem,3vw,1.875rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
                 {activeTheme.headline}
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
@@ -655,8 +656,8 @@ export const CustomerThemesSection: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-end">
-              <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+            <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-end w-full lg:w-auto">
+              <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 flex-1 sm:flex-initial">
                 <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <select
                   value={visitorRegion}
@@ -665,7 +666,7 @@ export const CustomerThemesSection: React.FC = () => {
                     setVisitorRegion(e.target.value as VisitorRegionCode);
                   }}
                   aria-label="Choose shopping region"
-                  className="min-h-[40px] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
+                  className="min-h-[44px] w-full sm:w-auto bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-1 focus:ring-slate-900 dark:focus:ring-amber-400 focus:outline-hidden cursor-pointer"
                 >
                   {REGION_ORDER.map((code) => (
                     <option key={code} value={code}>
@@ -678,7 +679,7 @@ export const CustomerThemesSection: React.FC = () => {
               <button
                 type="button"
                 onClick={() => jumpToFilteredStore(activeTheme.targetStore, activeTheme.targetCategory)}
-                className="px-4 min-h-[40px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors inline-flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+                className="px-4 min-h-[44px] py-2.5 bg-slate-900 dark:bg-amber-400 hover:bg-slate-800 dark:hover:bg-amber-300 text-white dark:text-slate-950 font-bold text-xs rounded-xl transition-colors inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <span>Filter {activeTheme.targetCategory}</span>
                 <ArrowRight className="w-3.5 h-3.5 shrink-0" />
@@ -704,7 +705,7 @@ export const CustomerThemesSection: React.FC = () => {
                     setHasPickedTheme(true);
                     setActiveThemeId(theme.id);
                   }}
-                  className={`px-3.5 min-h-[40px] py-2 rounded-xl text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`px-3.5 min-h-[44px] py-2 rounded-xl text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
                     active
                       ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 font-bold shadow-xs'
                       : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'
@@ -731,8 +732,8 @@ export const CustomerThemesSection: React.FC = () => {
             </span>
           </div>
 
-          {/* 3-Column Customer Theme Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Responsive Customer Theme Product Grid */}
+          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
             {themeProducts.map((product) => {
               const buyUrl = getAffiliateBuyUrl(product);
               const isAlibaba = product.originStore === 'Alibaba';
@@ -742,21 +743,23 @@ export const CustomerThemesSection: React.FC = () => {
               return (
                 <article
                   key={product.id}
-                  className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden"
+                  className="responsive-card h-full bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between overflow-hidden"
                 >
-                  <div
+                  <button
+                    type="button"
                     onClick={() => setModalProduct(product)}
-                    className="relative w-full h-52 sm:h-56 md:h-60 bg-white p-2 sm:p-2.5 overflow-hidden cursor-pointer flex items-center justify-center border-b border-slate-100 dark:border-slate-800"
+                    aria-label={`View details for ${product.title}`}
+                    className="relative w-full aspect-[4/3] bg-white p-2 sm:p-3 overflow-hidden cursor-pointer flex items-center justify-center border-b border-slate-100 dark:border-slate-800"
                   >
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
-                      className="max-w-full max-h-full w-auto h-auto object-contain"
+                      className="responsive-card-media max-w-full max-h-full w-auto h-auto object-contain"
                       referrerPolicy="no-referrer"
                     />
-                  </div>
+                  </button>
 
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+                  <div className="p-4 flex-1 flex flex-col justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 truncate">
                         <span className={`font-bold ${getStoreColorText(product.originStore)}`}>
@@ -768,7 +771,7 @@ export const CustomerThemesSection: React.FC = () => {
 
                       <h3
                         onClick={() => setModalProduct(product)}
-                        className="text-base font-semibold text-slate-900 dark:text-white leading-snug line-clamp-2 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors mb-1.5"
+                        className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white leading-snug line-clamp-2 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors mb-1.5"
                       >
                         {product.title}
                       </h3>
@@ -782,7 +785,7 @@ export const CustomerThemesSection: React.FC = () => {
                       <div className="flex items-baseline justify-between gap-2">
                         {hasPrice ? (
                           <div className="flex items-baseline gap-2 min-w-0">
-                            <span className="text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
+                            <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                               {formatPrice(product.price, product.nativePrice, product.nativeCurrency)}
                             </span>
                             <span className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -804,11 +807,11 @@ export const CustomerThemesSection: React.FC = () => {
                         <a
                           href={buyUrl}
                           target="_blank"
-                          rel="sponsored noopener noreferrer"
+                          rel="nofollow sponsored noopener noreferrer"
                           onClick={() =>
                             recordAffiliateClick(product.id, product.originStore, product.category)
                           }
-                          className={`flex-1 min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
+                          className={`flex-1 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
                             product.originStore
                           )}`}
                         >
@@ -827,7 +830,7 @@ export const CustomerThemesSection: React.FC = () => {
                           onClick={() => setModalProduct(product)}
                           title="Inspect specifications"
                           aria-label={`Inspect ${product.title}`}
-                          className="min-h-[40px] min-w-[40px] p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                          className="min-h-[44px] min-w-[44px] p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -837,7 +840,7 @@ export const CustomerThemesSection: React.FC = () => {
                           onClick={() => handleSaveToCart(product)}
                           title={savedIds.has(product.id) ? 'Saved in list' : 'Save to list'}
                           aria-label={`Save ${product.title}`}
-                          className={`min-h-[40px] min-w-[40px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
+                          className={`min-h-[44px] min-w-[44px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
                             savedIds.has(product.id)
                               ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                               : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
@@ -865,9 +868,9 @@ export const CustomerThemesSection: React.FC = () => {
                   key={sp.id}
                   href={sp.url}
                   target="_blank"
-                  rel="sponsored noopener noreferrer"
+                  rel="nofollow sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick(`theme-sponsor-${sp.id}`)}
-                  className="group bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:shadow-md transition-all duration-200"
+                  className="responsive-card group bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4"
                 >
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -882,7 +885,7 @@ export const CustomerThemesSection: React.FC = () => {
                       {sp.subtitle}
                     </p>
                   </div>
-                  <span className="px-3 min-h-[36px] py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:bg-amber-400 group-hover:border-amber-400 text-slate-900 dark:text-slate-100 group-hover:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-colors">
+                  <span className="px-3 min-h-[44px] py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:bg-amber-400 group-hover:border-amber-400 text-slate-900 dark:text-slate-100 group-hover:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-colors">
                     <span>{sp.ctaLabel}</span>
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </span>
@@ -900,7 +903,7 @@ export const CustomerThemesSection: React.FC = () => {
                 <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>Partner Storefront Directory · {regionProfile.label} Order</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+              <h3 className="text-[clamp(1.25rem,2.4vw,1.5rem)] font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
                 All Partner Sites Categorized by Product Lines
               </h3>
             </div>
@@ -909,7 +912,7 @@ export const CustomerThemesSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 lg:grid-cols-3 gap-5">
             {regionProfile.storePriority.map((storeName) => {
               if (storeName === 'Amazon') {
                 return (
@@ -938,7 +941,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -954,9 +957,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={amazonStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-amazon-store', 'Amazon')}
-                        className="flex-1 min-h-[38px] px-3 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="flex-1 min-h-[44px] px-3 py-2 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Amazon Store</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -964,9 +967,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={amazonShortUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-amazon-deals', 'Amazon')}
-                        className="min-h-[38px] px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-lg inline-flex items-center justify-center gap-1 transition-colors whitespace-nowrap"
+                        className="min-h-[44px] px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs rounded-lg inline-flex items-center justify-center gap-1 transition-colors whitespace-nowrap"
                       >
                         <span>Shortlink</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1003,7 +1006,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1019,9 +1022,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={shopzStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-shopz-store', 'Shopz BD')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Shopz.com.bd</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1058,7 +1061,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1069,15 +1072,15 @@ export const CustomerThemesSection: React.FC = () => {
                         ))}
                         <li className="px-2.5 py-2 space-y-2">
                           <span className="block text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Featured Releva BD Items:
+                            Quick Releva BD Product Links ({affiliateDirectory.relevaTotal} total in catalog):
                           </span>
                           <div className="flex flex-wrap gap-1.5">
-                            {[129, 130, 131, 133, 135].map((pid) => (
+                            {[129, 130, 131, 133, 134, 135, 106, 107, 108, 128].map((pid) => (
                               <a
                                 key={pid}
                                 href={buildRelevaProductUrl(pid)}
                                 target="_blank"
-                                rel="sponsored noopener noreferrer"
+                                rel="nofollow sponsored noopener noreferrer"
                                 onClick={() => recordAffiliateClick(`dir-releva-${pid}`, 'Releva BD')}
                                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-teal-950/60 border border-slate-200 dark:border-slate-700 hover:border-teal-400 text-[11px] font-mono font-semibold text-slate-800 dark:text-slate-200 transition-colors"
                               >
@@ -1094,9 +1097,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={relevaStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-releva-store', 'Releva BD')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Releva BD</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1133,7 +1136,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1149,9 +1152,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={alibabaStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-alibaba-store', 'Alibaba')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Open Alibaba Portal</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1188,7 +1191,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1207,9 +1210,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={banglashoppersStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-banglashoppers-store', 'BanglaShoppers')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit BanglaShoppers</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1246,7 +1249,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1265,9 +1268,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={illinStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-illin-store', 'Illin BD')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Illin BD</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1304,7 +1307,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1323,9 +1326,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={startechStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-startech-store', 'Star Tech')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Star Tech BD</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1362,7 +1365,7 @@ export const CustomerThemesSection: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                             >
                               <span className="truncate">{cat.label}</span>
                               <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1381,9 +1384,9 @@ export const CustomerThemesSection: React.FC = () => {
                       <a
                         href={sohojStoreUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={() => recordAffiliateClick('dir-sohoj-store', 'Sohoj Affiliates')}
-                        className="w-full min-h-[38px] px-3 py-2 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                        className="w-full min-h-[44px] px-3 py-2 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Open Sohoj Affiliates</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1419,7 +1422,7 @@ export const CustomerThemesSection: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                            className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                           >
                             <span className="truncate">{cat.label}</span>
                             <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1438,9 +1441,9 @@ export const CustomerThemesSection: React.FC = () => {
                     <a
                       href={exonhostStoreUrl}
                       target="_blank"
-                      rel="sponsored noopener noreferrer"
+                      rel="nofollow sponsored noopener noreferrer"
                       onClick={() => recordAffiliateClick('dir-exonhost-store', 'ExonHost')}
-                      className="w-full min-h-[38px] px-3 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      className="w-full min-h-[44px] px-3 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                     >
                       <span>Open ExonHost Portal</span>
                       <ExternalLink className="w-3 h-3 shrink-0" />
@@ -1473,7 +1476,7 @@ export const CustomerThemesSection: React.FC = () => {
                       <button
                         type="button"
                         onClick={jumpToSponsors}
-                        className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                        className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
                       >
                         <span className="truncate">{grp.label}</span>
                         <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -1489,7 +1492,7 @@ export const CustomerThemesSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={jumpToSponsors}
-                  className="w-full min-h-[38px] px-3 py-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+                  className="w-full min-h-[44px] px-3 py-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <span>Browse All Sponsors</span>
                   <ArrowRight className="w-3 h-3 shrink-0" />

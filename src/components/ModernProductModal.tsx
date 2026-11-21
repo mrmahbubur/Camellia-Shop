@@ -26,6 +26,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   useEffect(() => {
     setActiveImageIndex(0);
@@ -116,7 +117,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
           type="button"
           onClick={onClose}
           aria-label="Close product view"
-          className="sticky sm:absolute top-3 right-3 sm:top-4 sm:right-4 float-right sm:float-none z-20 min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white/95 dark:bg-slate-800/95 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors shadow-sm cursor-pointer m-2 sm:m-0"
+          className="sticky sm:absolute top-3 right-3 sm:top-4 sm:right-4 float-right sm:float-none z-20 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white/95 dark:bg-slate-800/95 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors shadow-sm cursor-pointer m-2 sm:m-0"
         >
           <X className="w-5 h-5" />
         </button>
@@ -139,8 +140,21 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
               <div
                 onClick={() => setIsZoomed((prev) => !prev)}
+                onTouchStart={(e) => setTouchStartX(e.changedTouches[0]?.clientX ?? null)}
+                onTouchEnd={(e) => {
+                  if (touchStartX === null || product.galleryImages.length <= 1) return;
+                  const delta = (e.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
+                  if (Math.abs(delta) > 40) {
+                    setActiveImageIndex((prev) =>
+                      delta < 0
+                        ? (prev + 1) % product.galleryImages.length
+                        : (prev - 1 + product.galleryImages.length) % product.galleryImages.length
+                    );
+                  }
+                  setTouchStartX(null);
+                }}
                 title={isZoomed ? 'Click to reset zoom' : 'Click to inspect closer'}
-                className={`relative w-full h-56 sm:h-72 lg:h-80 xl:h-96 max-h-[44dvh] sm:max-h-[50dvh] lg:max-h-none rounded-xl bg-white p-2 sm:p-3 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center ${
+                className={`relative w-full aspect-[4/3] max-h-[46dvh] sm:max-h-[50dvh] lg:max-h-none rounded-xl bg-white p-2 sm:p-3 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-4 flex items-center justify-center ${
                   isZoomed ? 'overflow-auto cursor-zoom-out' : 'overflow-hidden cursor-zoom-in'
                 }`}
               >
@@ -167,7 +181,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                     setIsZoomed((prev) => !prev);
                   }}
                   aria-label={isZoomed ? 'Zoom out product image' : 'Zoom in product image'}
-                  className="absolute bottom-2.5 right-2.5 min-h-[36px] min-w-[36px] p-2 rounded-lg bg-slate-900/85 hover:bg-slate-900 text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                  className="absolute bottom-2.5 right-2.5 min-h-[44px] min-w-[44px] px-2.5 py-2 rounded-lg bg-slate-900/85 hover:bg-slate-900 text-white shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1 text-[11px] font-semibold"
                 >
                   {isZoomed ? <ZoomOut className="w-3.5 h-3.5" /> : <ZoomIn className="w-3.5 h-3.5" />}
                   <span className="hidden sm:inline">{isZoomed ? 'Reset' : 'Zoom'}</span>
@@ -249,7 +263,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('highlights')}
-                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 min-h-[44px] py-2 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'highlights'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -260,7 +274,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('specs')}
-                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 min-h-[44px] py-2 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'specs'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -271,7 +285,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('guarantee')}
-                  className={`px-3 min-h-[36px] py-1.5 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 min-h-[44px] py-2 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'guarantee'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -322,7 +336,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <a
                   href={buyUrl}
                   target="_blank"
-                  rel="sponsored noopener noreferrer"
+                  rel="nofollow sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick(product.id, product.originStore, product.category)}
                   className={`flex-1 min-h-[46px] py-3 px-4 font-extrabold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
                     isExonHost
@@ -446,7 +460,7 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   key={sp.id}
                   href={sp.url}
                   target="_blank"
-                  rel="sponsored noopener noreferrer"
+                  rel="nofollow sponsored noopener noreferrer"
                   onClick={() => recordAffiliateClick(sp.id)}
                   className="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                 >

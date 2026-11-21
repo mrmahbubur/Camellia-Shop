@@ -62,16 +62,16 @@ export const AmazonShowcaseSection: React.FC = () => {
       id="amazon-products"
       className="py-12 sm:py-16 bg-slate-100/70 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-8">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-amber-600 dark:text-amber-400 font-bold">Amazon Picks</span>
               <span aria-hidden="true">·</span>
               <span>{AMAZON_PRODUCTS.length} Featured Products</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
+            <h2 className="text-[clamp(1.375rem,2.4vw,1.875rem)] font-bold tracking-tight text-slate-900 dark:text-white [text-wrap:balance]">
               Featured Tech &amp; Workspace Gear on Amazon
             </h2>
           </div>
@@ -79,9 +79,9 @@ export const AmazonShowcaseSection: React.FC = () => {
           <a
             href={amazonStoreUrl}
             target="_blank"
-            rel="sponsored noopener noreferrer"
+            rel="nofollow sponsored noopener noreferrer"
             onClick={() => recordAffiliateClick('amazon-header-store', 'Amazon')}
-            className="px-4 min-h-[40px] py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap self-start md:self-auto"
+            className="px-4 min-h-[44px] py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap self-start md:self-auto"
           >
             <span>Explore Amazon Storefront</span>
             <ExternalLink className="w-3.5 h-3.5 shrink-0" />
@@ -89,13 +89,13 @@ export const AmazonShowcaseSection: React.FC = () => {
         </div>
 
         {/* Category Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-8 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-6 sm:mb-8 scrollbar-none">
           {categories.map((c) => (
             <button
               key={c}
               type="button"
               onClick={() => setSelectedCategory(c)}
-              className={`px-3 min-h-[38px] py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer shrink-0 ${
+              className={`px-3.5 min-h-[44px] py-2 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer shrink-0 ${
                 selectedCategory === c
                   ? 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 shadow-xs font-bold'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700'
@@ -107,57 +107,48 @@ export const AmazonShowcaseSection: React.FC = () => {
         </div>
 
         {/* Amazon Product Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-8">
+        <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
           {filteredProducts.map((product) => {
             const fullProduct = resolveModalProduct(product);
             const isSaved = savedIds.has(product.id);
 
             return (
-              <div
+              <article
                 key={product.id}
                 onClick={() => setModalProduct(fullProduct)}
-                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
+                className="h-full responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between overflow-hidden cursor-pointer"
               >
                 {/* Product Visual */}
-                <div className="relative w-full h-52 sm:h-56 md:h-60 bg-white p-2 sm:p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                <div className="relative w-full aspect-[4/3] bg-white p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                   <ResilientImage
                     src={product.image}
                     alt={product.title}
-                    className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-103 transition-transform duration-300"
+                    className="max-w-full max-h-full w-auto h-auto object-contain responsive-card-media"
                     referrerPolicy="no-referrer"
                   />
-
-                  <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow-xs uppercase tracking-wider">
-                    {product.badge || 'Amazon'}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setModalProduct(fullProduct);
-                    }}
-                    aria-label={`Inspect ${product.title} specs`}
-                    className="absolute bottom-2.5 right-2.5 p-2 bg-white/95 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-lg shadow-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[11px] font-semibold cursor-pointer border border-slate-200/80 dark:border-slate-700"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Specs</span>
-                  </button>
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-slate-500 mb-1">
-                      <span className="uppercase tracking-wider truncate">{product.category}</span>
-                      <span className="font-mono shrink-0">ASIN: {product.asin}</span>
+                <div className="p-4 flex-1 flex flex-col justify-between gap-3 min-w-0">
+                  <div className="min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+                      <span className="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-wider truncate">
+                        {product.badge || 'Amazon'}
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 shrink-0">
+                        ASIN: {product.asin}
+                      </span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    <div className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate mb-1">
+                      {product.category}
+                    </div>
+
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2.5 leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                       {product.title}
                     </h3>
 
-                    <ul className="space-y-1 mb-4 text-[11px] text-slate-600 dark:text-slate-400">
+                    <ul className="space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
                       {product.features.slice(0, 2).map((f, i) => (
                         <li key={i} className="flex items-start gap-1.5">
                           <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
@@ -183,21 +174,34 @@ export const AmazonShowcaseSection: React.FC = () => {
                       <span className="truncate">{product.deliveryInfo}</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <a
                         href={product.affiliateUrl}
                         target="_blank"
-                        rel="sponsored noopener noreferrer"
+                        rel="nofollow sponsored noopener noreferrer"
                         onClick={(e) => {
                           e.stopPropagation();
                           recordAffiliateClick(product.id, 'Amazon', product.category);
                         }}
-                        className="flex-1 min-h-[40px] py-2.5 px-3 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+                        className="flex-1 min-w-0 min-h-[44px] py-2 px-2.5 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                       >
                         <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                        <span>View on Amazon</span>
+                        <span className="truncate">View on Amazon</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setModalProduct(fullProduct);
+                        }}
+                        aria-label={`Inspect ${product.title} specs`}
+                        title={`Inspect ${product.title} specs`}
+                        className="min-h-[44px] min-w-[44px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg transition-colors flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
 
                       <button
                         type="button"
@@ -226,7 +230,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                         }}
                         title={isSaved ? 'Saved in list (click to add another)' : 'Save to List'}
                         aria-label={`Save ${product.title} to List`}
-                        className={`min-h-[40px] min-w-[40px] p-2.5 rounded-lg transition-colors cursor-pointer shrink-0 flex items-center justify-center ${
+                        className={`min-h-[44px] min-w-[44px] p-2 rounded-lg transition-colors cursor-pointer shrink-0 flex items-center justify-center ${
                           isSaved
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                             : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
@@ -237,7 +241,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
@@ -250,9 +254,9 @@ export const AmazonShowcaseSection: React.FC = () => {
                 key={sp.id}
                 href={sp.url}
                 target="_blank"
-                rel="sponsored noopener noreferrer"
+                rel="nofollow sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sp.id)}
-                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:shadow-md transition-all duration-200"
+                className="responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 flex items-center justify-between gap-4 transition-all duration-200"
               >
                 <div className="min-w-0 space-y-1">
                   <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -267,7 +271,7 @@ export const AmazonShowcaseSection: React.FC = () => {
                     {sp.subtitle}
                   </p>
                 </div>
-                <span className="px-3 min-h-[36px] py-1.5 bg-slate-100 dark:bg-slate-800 group-hover:bg-amber-400 text-slate-900 dark:text-slate-100 group-hover:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-colors">
+                <span className="px-3 min-h-[44px] py-2 bg-slate-100 dark:bg-slate-800 group-hover:bg-amber-400 text-slate-900 dark:text-slate-100 group-hover:text-slate-950 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-colors">
                   <span>{sp.ctaLabel}</span>
                   <ExternalLink className="w-3 h-3 shrink-0" />
                 </span>
@@ -289,9 +293,9 @@ export const AmazonShowcaseSection: React.FC = () => {
             <a
               href={amazonStoreUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('amazon-ribbon-store', 'Amazon')}
-              className="text-amber-800 dark:text-amber-300 font-extrabold hover:underline flex items-center gap-1 bg-amber-50 dark:bg-amber-500/15 px-2.5 py-1.5 rounded-md border border-amber-200 dark:border-amber-500/30"
+              className="text-amber-800 dark:text-amber-300 font-extrabold hover:underline inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-500/15 px-3 min-h-[44px] py-2 rounded-md border border-amber-200 dark:border-amber-500/30"
             >
               <span>Explore Amazon Storefront</span>
               <ExternalLink className="w-3 h-3" />
@@ -300,9 +304,9 @@ export const AmazonShowcaseSection: React.FC = () => {
             <a
               href={amazonShortUrl}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick('amazon-ribbon-shortlink', 'Amazon')}
-              className="text-slate-700 dark:text-slate-200 font-semibold hover:underline inline-flex items-center gap-1"
+              className="text-slate-700 dark:text-slate-200 font-semibold hover:underline inline-flex items-center gap-1 min-h-[44px] px-1"
             >
               <span>Direct Amazon Deals</span>
               <ExternalLink className="w-3 h-3" />

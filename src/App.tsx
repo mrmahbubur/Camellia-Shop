@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProductsProvider } from './context/ProductsContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { TopBar } from './components/TopBar';
@@ -15,7 +15,7 @@ import { SponsorsSection } from './components/SponsorsSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { ThemeProvider } from './context/ThemeContext';
-import { Check, X } from 'lucide-react';
+import { ArrowUp, Check, X } from 'lucide-react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -41,7 +41,7 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, Er
             <p className="text-sm text-slate-600 dark:text-slate-400">{this.state.errorMessage}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold rounded-lg cursor-pointer"
+              className="min-h-[44px] px-4 py-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold rounded-lg cursor-pointer"
             >
               Reload Page
             </button>
@@ -55,6 +55,16 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, Er
 
 const MainLayout: React.FC = () => {
   const { activeNotification, dismissNotification } = useCart();
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowBackToTop(window.scrollY > 480);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleNavigate = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -68,11 +78,11 @@ const MainLayout: React.FC = () => {
       <TopBar onNavigate={handleNavigate} />
 
       <main className="flex-1 min-w-0">
-        <Hero onExploreStore={() => handleNavigate('store')} />
+        <StoreSection />
 
         <CustomerThemesSection />
 
-        <StoreSection />
+        <Hero onExploreStore={() => handleNavigate('store')} />
 
         <AmazonShowcaseSection />
 
@@ -83,6 +93,20 @@ const MainLayout: React.FC = () => {
 
       <CartDrawer />
 
+      {/* Floating Back-to-Top button positioned cleanly clear of other controls & safe areas */}
+      {showBackToTop && !activeNotification && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Back to top"
+          title="Back to top"
+          className="fixed bottom-[max(1rem,calc(env(safe-area-inset-bottom)+0.5rem))] right-[max(1rem,env(safe-area-inset-right))] z-30 min-h-[44px] min-w-[44px] px-3 py-2 rounded-full bg-slate-900/90 dark:bg-amber-400/95 text-white dark:text-slate-950 shadow-lg border border-slate-700 dark:border-amber-300 backdrop-blur-xs flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer transition-transform active:scale-95"
+        >
+          <ArrowUp className="w-4 h-4 shrink-0" />
+          <span className="hidden md:inline">Top</span>
+        </button>
+      )}
+
       {activeNotification && (
         <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50 bg-slate-900 dark:bg-slate-800 text-white text-xs px-4 py-3 rounded-xl shadow-xl border border-slate-700 dark:border-slate-600 flex items-center justify-between gap-3 animate-fade-in">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -91,10 +115,10 @@ const MainLayout: React.FC = () => {
           </div>
           <button
             onClick={dismissNotification}
-            className="text-slate-400 hover:text-white transition-colors p-1.5 -mr-1 shrink-0 cursor-pointer"
+            className="text-slate-400 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center -mr-2 shrink-0 cursor-pointer"
             aria-label="Dismiss notification"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}

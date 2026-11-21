@@ -54,7 +54,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
   return (
     <footer className="bg-slate-900 dark:bg-slate-950 text-slate-400 text-xs border-t border-slate-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] py-10 sm:py-12 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] py-10 sm:py-12 pb-[max(4.5rem,calc(env(safe-area-inset-bottom)+3.5rem))]">
         {/* Concise 3-Step Affiliate Checkout Flow */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-8 mb-8 border-b border-slate-800/80">
           <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-4 space-y-1">
@@ -123,8 +123,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   type="button"
+                  onClick={() => handleCategoryNav('All Departments (Mega Store)')}
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
+                >
+                  All Store Listings
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => onNavigate('buying-guide')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Buying Guide &amp; Matchmaker
                 </button>
@@ -133,7 +142,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('customer-themes')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Collections &amp; Store Directory
                 </button>
@@ -141,17 +150,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   type="button"
-                  onClick={() => handleCategoryNav('All Departments (Mega Store)')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
-                >
-                  All Store Listings
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
                   onClick={() => handleCategoryNav('Shopz BD Tech Deals')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Shopz BD Tech Deals
                 </button>
@@ -160,7 +160,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => handleCategoryNav('Star Tech BD Gadgets')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Star Tech Smartwatches
                 </button>
@@ -169,7 +169,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => handleCategoryNav('BanglaShoppers Beauty')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   BanglaShoppers Skincare &amp; Beauty
                 </button>
@@ -178,7 +178,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => handleCategoryNav('Illin BD Home & Tech')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Illin BD Home &amp; Appliances
                 </button>
@@ -187,7 +187,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => handleCategoryNav('Sohoj Affiliate Network')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Sohoj Affiliates Partner Hub
                 </button>
@@ -196,7 +196,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => handleCategoryNav('Releva BD Picks')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Releva BD Picks
                 </button>
@@ -205,7 +205,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => handleCategoryNav('Cloud Hosting & Domains')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   ExonHost Hosting &amp; Domains
                 </button>
@@ -214,7 +214,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('amazon-products')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Amazon Featured Picks
                 </button>
@@ -223,7 +223,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('sponsors')}
-                  className="hover:text-white transition-colors cursor-pointer py-0.5"
+                  className="min-h-[44px] inline-flex items-center hover:text-white transition-colors cursor-pointer py-1.5"
                 >
                   Sponsored Partners
                 </button>
@@ -258,18 +258,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             © {new Date().getFullYear()} {storefrontCopy.siteName} · Owned by {owner.displayName}.
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <button
               type="button"
               onClick={() => onNavigate('store')}
-              className="hover:text-slate-300 transition-colors cursor-pointer py-1"
+              className="min-h-[44px] px-2 hover:text-slate-300 transition-colors cursor-pointer py-1.5 inline-flex items-center"
             >
               Shop Catalog
             </button>
             <button
               type="button"
               onClick={scrollToTop}
-              className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer py-1"
+              className="min-h-[44px] px-2 flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer py-1.5"
             >
               <span>Back to Top</span>
               <ArrowUp className="w-3.5 h-3.5" />
