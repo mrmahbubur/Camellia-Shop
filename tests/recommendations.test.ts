@@ -33,6 +33,10 @@ import {
   computeRecommendations,
   resolveApproxUsdPrice
 } from '../src/utils/recommendations.ts';
+import {
+  buildOnlineStoreSchema,
+  readSearchQueryFromLocation
+} from '../src/utils/seoSchema.ts';
 
 const ROOT = process.cwd();
 
@@ -518,6 +522,46 @@ test('Frontend renders StoreSection first with zero AI icons or AI mentions', ()
   uiDirs.forEach(checkUiDir);
   assert.equal(aiIconPattern.test(appTsx), false, 'AI icon found in src/App.tsx');
   assert.equal(aiMentionPattern.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')), false);
+});
+
+test('index.html and seoSchema implement OnlineStore schema and SearchAction integration', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  assert.ok(html.includes('property="og:site_name" content="Camellia Shop"'));
+  assert.ok(html.includes('name="twitter:title"'));
+  assert.ok(html.includes('name="twitter:description"'));
+
+  const schemaMatch = html.match(
+    /<script[^>]+id="camellia-onlinestore-schema"[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/i
+  );
+  assert.ok(schemaMatch, 'Expected OnlineStore JSON-LD script in index.html');
+  const parsed = JSON.parse(schemaMatch[1]);
+  assert.equal(parsed['@context'], 'https://schema.org');
+  assert.equal(parsed['@type'], 'OnlineStore');
+  assert.equal(parsed.name, 'Camellia Shop');
+  assert.equal(parsed.potentialAction?.['@type'], 'SearchAction');
+  assert.equal(parsed.potentialAction?.target?.['@type'], 'EntryPoint');
+  assert.equal(parsed.potentialAction?.target?.urlTemplate, '?q={search_term_string}');
+  assert.equal(parsed.potentialAction?.['query-input'], 'required name=search_term_string');
+
+  const runtimeSchema = buildOnlineStoreSchema({
+    baseUrl: 'https://camelliashop.example.com/',
+    name: 'Camellia Shop'
+  });
+  assert.equal(runtimeSchema['@id'], 'https://camelliashop.example.com/#onlinestore');
+  assert.equal(runtimeSchema.url, 'https://camelliashop.example.com/');
+  assert.deepEqual(runtimeSchema.potentialAction, {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://camelliashop.example.com/?q={search_term_string}'
+    },
+    'query-input': 'required name=search_term_string'
+  });
+
+  assert.equal(readSearchQueryFromLocation('?q=poedagar+watch'), 'poedagar watch');
+  assert.equal(readSearchQueryFromLocation('?search=laptop%20stand'), 'laptop stand');
+  assert.equal(readSearchQueryFromLocation('?s=nvme'), 'nvme');
+  assert.equal(readSearchQueryFromLocation(''), '');
 });
 
 

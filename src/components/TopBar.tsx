@@ -246,6 +246,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
           {/* Header Search Box with Suggestions (Tablet & Desktop) */}
           <div ref={searchWrapperRef} className="hidden sm:block relative flex-1 max-w-xs lg:max-w-sm min-w-[170px]">
             <form
+              role="search"
               onSubmit={(e) => {
                 e.preventDefault();
                 commitSearch(searchQuery);
@@ -255,6 +256,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
               <Search className="w-3.5 h-3.5 absolute left-3 text-slate-400 pointer-events-none" />
               <input
                 type="search"
+                name="q"
                 value={searchQuery}
                 onFocus={() => setIsSuggestOpen(true)}
                 onChange={(e) => {
@@ -433,6 +435,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             className="sm:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2.5 relative"
           >
             <form
+              role="search"
               onSubmit={(e) => {
                 e.preventDefault();
                 commitSearch(searchQuery);
@@ -443,6 +446,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   type="search"
+                  name="q"
                   autoFocus
                   value={searchQuery}
                   onFocus={() => setIsSuggestOpen(true)}

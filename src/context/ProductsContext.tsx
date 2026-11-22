@@ -39,6 +39,11 @@ import {
   type RecommendedItem
 } from '../utils/recommendations';
 import { isStaticHostedWithoutApi, resolveApiUrl } from '../utils/apiClient';
+import {
+  applyDynamicSeoMetadata,
+  readSearchQueryFromLocation,
+  syncUrlSearchParam
+} from '../utils/seoSchema';
 import { useCart } from './CartContext';
 
 export interface StorefrontCopyConfig {
@@ -154,7 +159,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { setCurrency, exchangeRates, showNotification } = useCart();
   const [selectedCategory, setSelectedCategoryState] = useState<string>('All Departments (Mega Store)');
   const [selectedStoreFilter, setSelectedStoreFilterState] = useState<StoreFilterOption>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>(() =>
+    typeof window !== 'undefined' ? readSearchQueryFromLocation(window.location.search) : ''
+  );
   const [regionDetectionSource, setRegionDetectionSource] = useState<string>('browser');
   const [visitorRegion, setVisitorRegionState] = useState<VisitorRegionCode>(() => {
     try {
@@ -581,6 +588,23 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return () => clearTimeout(timer);
     }
   }, [highlightedProductId]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      setSearchQuery(readSearchQueryFromLocation(window.location.search));
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  useEffect(() => {
+    syncUrlSearchParam(searchQuery);
+    applyDynamicSeoMetadata({
+      siteName: storefrontData?.siteName || 'Camellia Shop',
+      description: storefrontData?.storeSubtitle,
+      searchQuery
+    });
+  }, [searchQuery, storefrontData?.siteName, storefrontData?.storeSubtitle]);
 
   const applyPartnerTracking = (
     rawUrl: string,

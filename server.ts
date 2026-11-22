@@ -995,6 +995,21 @@ async function startServer() {
         if (!html.includes('370191ce-4227-4e0f-b2b1-7234b5a333b2')) {
           html = html.replace('</head>', `    ${mitgoTag2}\n  </head>`);
         }
+        const appUrlRaw = (process.env.APP_URL || '').trim();
+        if (appUrlRaw && /^https?:\/\//i.test(appUrlRaw)) {
+          const canonicalBase = `${appUrlRaw.replace(/\/+$/, '')}/`;
+          const escaped = canonicalBase.replace(/"/g, '&quot;');
+          if (!html.includes('rel="canonical"')) {
+            html = html.replace(
+              '</head>',
+              `    <link rel="canonical" href="${escaped}" />\n    <meta property="og:url" content="${escaped}" />\n  </head>`
+            );
+          }
+          html = html.replace(
+            '"urlTemplate": "?q={search_term_string}"',
+            `"urlTemplate": "${canonicalBase}?q={search_term_string}"`
+          );
+        }
         res.type('html').send(html);
       } catch {
         res.sendFile(path.join(distDir, 'index.html'));

@@ -758,6 +758,7 @@ export const StoreSection: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-stretch gap-3 text-xs">
             <div ref={searchBoxWrapperRef} className="relative flex-1 min-w-0">
               <form
+                role="search"
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleCommitSearch(searchQuery);
@@ -769,6 +770,7 @@ export const StoreSection: React.FC = () => {
                   <input
                     id="catalog-search-input"
                     type="search"
+                    name="q"
                     placeholder="Search all products, brands, specs, ASINs, categories, or partner stores..."
                     value={searchQuery}
                     onFocus={() => setIsSuggestOpen(true)}
