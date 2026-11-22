@@ -10,16 +10,33 @@
     <meta property="og:title" content="Camellia Shop | Workspace Tech, Hardware &amp; Partner Catalog" />
     <meta property="og:description" content="Explore curated workspace electronics, computer hardware, audio gear, cloud hosting, and partner store deals at Camellia Shop." />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Camellia Shop" />
     <meta name="twitter:card" content="summary_large_image" />
-    <script type="application/ld+json">
+    <meta name="twitter:title" content="Camellia Shop | Workspace Tech, Hardware &amp; Partner Catalog" />
+    <meta name="twitter:description" content="Explore curated workspace electronics, computer hardware, audio gear, cloud hosting, and partner store deals at Camellia Shop." />
+    <script id="camellia-onlinestore-schema" type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "OnlineStore",
         "name": "Camellia Shop",
-        "description": "Curated workspace electronics, smartwatches, hardware, skincare, home appliances, cloud hosting, and partner store catalog.",
+        "description": "Explore curated workspace electronics, smartwatches, hardware, authentic skincare, home appliances, cloud hosting, and partner store deals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.",
+        "currenciesAccepted": "USD, BDT, EUR, GBP, INR, AED, SGD, AUD",
+        "areaServed": ["BD", "US", "GB", "EU", "IN", "AE", "SG", "AU"],
+        "knowsAbout": [
+          "Workspace Electronics",
+          "Computer Hardware",
+          "Smartwatches",
+          "Audio Gear",
+          "Skincare",
+          "Home Appliances",
+          "Cloud Hosting"
+        ],
         "potentialAction": {
           "@type": "SearchAction",
-          "target": "?q={search_term_string}",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "?q={search_term_string}"
+          },
           "query-input": "required name=search_term_string"
         }
       }
