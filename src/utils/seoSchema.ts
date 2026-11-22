@@ -352,6 +352,9 @@ export function injectSeoMetadataIntoHtml(
   updated = upsertHeadMeta(updated, 'name', 'twitter:description', metaDescription);
   updated = upsertHeadMeta(updated, 'property', 'og:url', baseUrl);
   updated = upsertHeadMeta(updated, 'property', 'og:image', absoluteImageUrl);
+  if (absoluteImageUrl.startsWith('https://')) {
+    updated = upsertHeadMeta(updated, 'property', 'og:image:secure_url', absoluteImageUrl);
+  }
   updated = upsertHeadMeta(updated, 'name', 'twitter:image', absoluteImageUrl);
 
   const schemaJson = JSON.stringify(
