@@ -481,11 +481,11 @@ export const StoreSection: React.FC = () => {
     >
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
         {/* Storefront Catalog Top Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5">
-                <Package className="w-3.5 h-3.5" />
+        <div className="grid grid-cols-1 xl:grid-cols-12 xl:items-end gap-4 xl:gap-8 mb-5">
+          <div className="xl:col-span-7 min-w-0 w-full">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              <span className="text-amber-600 dark:text-amber-400 font-bold inline-flex items-center gap-1.5">
+                <Package className="w-3.5 h-3.5 shrink-0" />
                 <span>Product Catalog &amp; Categories</span>
               </span>
               <span aria-hidden="true">·</span>
@@ -497,15 +497,15 @@ export const StoreSection: React.FC = () => {
                 {regionProfile.label}
               </span>
             </div>
-            <h1 className="text-[clamp(1.375rem,2.6vw,2rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance] leading-tight">
+            <h1 className="text-[clamp(1.3125rem,1.02rem+1.45vw,2.125rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance] leading-[1.16] break-words">
               {storefrontCopy.storeTitle}
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5 max-w-3xl">
+            <p className="text-[clamp(1rem,0.95rem+0.2vw,1.125rem)] text-slate-600 dark:text-slate-400 mt-2 max-w-[68ch] leading-relaxed [text-wrap:pretty]">
               {storefrontCopy.storeSubtitle}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1 sm:pb-0 scrollbar-none shrink-0 max-w-full">
+          <div className="xl:col-span-5 flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap xl:justify-end pb-1 sm:pb-0 scrollbar-none w-full min-w-0">
             <a
               href={amazonStoreUrl}
               target="_blank"

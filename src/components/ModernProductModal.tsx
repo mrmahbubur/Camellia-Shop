@@ -126,13 +126,20 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
           {/* Left Column: Image Showcase */}
           <div className="lg:col-span-5 bg-slate-50 dark:bg-slate-950/50 p-4 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800">
             <div>
-              <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                  {product.brand}
-                </span>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
+                    {product.brand}
+                  </span>
+                  {product.badge && (
+                    <span className="bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
+                      {product.badge}
+                    </span>
+                  )}
+                </div>
 
                 {product.asin && (
-                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
                     ASIN: {product.asin}
                   </span>
                 )}
@@ -167,12 +174,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   }`}
                   referrerPolicy="no-referrer"
                 />
-
-                {product.badge && (
-                  <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-                    {product.badge}
-                  </span>
-                )}
 
                 <button
                   type="button"

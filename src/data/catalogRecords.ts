@@ -1,5 +1,5 @@
 import type { PartnerStoreOrigin } from '../utils/regionProfile.ts';
-import startechBulkCatalogRaw from './startechBulkCatalog.json';
+import startechBulkCatalogRaw from './startechBulkCatalog.json' with { type: 'json' };
 
 export type ProductCategory =
   | 'All Departments (Mega Store)'
