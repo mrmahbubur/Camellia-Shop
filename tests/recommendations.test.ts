@@ -641,15 +641,38 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
   );
 
   const indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  assert.ok(indexHtml.includes('name="robots" content="index, follow, max-image-preview:large"'));
+  assert.ok(indexHtml.includes('property="og:locale" content="en_US"'));
+  assert.ok(indexHtml.includes('property="og:image"'));
+  assert.ok(indexHtml.includes('property="og:image:alt"'));
+  assert.ok(indexHtml.includes('name="twitter:image"'));
+  assert.ok(indexHtml.includes('name="twitter:image:alt"'));
+  assert.ok(
+    fs.existsSync(path.join(ROOT, 'public/images/camellia-og-showcase.jpg')),
+    'Expected camellia-og-showcase.jpg public asset to exist'
+  );
+
   const injected = injectSeoMetadataIntoHtml(indexHtml, 'https://custom.camellia.shop/');
   assert.ok(injected.includes('<link rel="canonical" href="https://custom.camellia.shop/" />'));
   assert.ok(injected.includes('<meta property="og:url" content="https://custom.camellia.shop/" />'));
+  assert.ok(
+    injected.includes(
+      '<meta property="og:image" content="https://custom.camellia.shop/images/camellia-og-showcase.jpg" />'
+    )
+  );
+  assert.ok(
+    injected.includes(
+      '<meta name="twitter:image" content="https://custom.camellia.shop/images/camellia-og-showcase.jpg" />'
+    )
+  );
   const schemaMatch = injected.match(
     /<script[^>]+id="camellia-onlinestore-schema"[^>]*>([\s\S]*?)<\/script>/i
   );
   assert.ok(schemaMatch);
   const parsed = JSON.parse(schemaMatch[1]);
   assert.equal(parsed.url, 'https://custom.camellia.shop/');
+  assert.equal(parsed.alternateName, 'Camellia Shop Partner Catalog');
+  assert.equal(parsed.image, 'https://custom.camellia.shop/images/camellia-og-showcase.jpg');
   assert.equal(parsed['@id'], 'https://custom.camellia.shop/#onlinestore');
   assert.equal(parsed.potentialAction.target.urlTemplate, 'https://custom.camellia.shop/?q={search_term_string}');
 });

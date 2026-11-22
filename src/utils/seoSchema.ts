@@ -1,7 +1,9 @@
 export const DEFAULT_SEO_TITLE = 'Camellia Shop | Workspace Tech, Hardware & Partner Catalog';
 
 export const DEFAULT_SEO_DESCRIPTION =
-  'Explore curated workspace electronics, smartwatches, hardware, authentic skincare, home appliances, cloud hosting, and partner store deals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.';
+  'Shop curated workspace tech, computer hardware, smartwatches, skincare, home gear, and cloud hosting across Amazon and trusted regional partner stores.';
+
+export const DEFAULT_OG_IMAGE_PATH = 'images/camellia-og-showcase.jpg';
 
 export interface OnlineStoreSchemaOptions {
   baseUrl?: string;
@@ -250,17 +252,29 @@ export function resolveRequestOrigin(
   return requestOrigin;
 }
 
+function resolveImageUrlForBase(baseUrl: string): string {
+  if (!baseUrl) return `./${DEFAULT_OG_IMAGE_PATH}`;
+  try {
+    return new URL(DEFAULT_OG_IMAGE_PATH, baseUrl).toString();
+  } catch {
+    return `${baseUrl.replace(/\/+$/, '')}/${DEFAULT_OG_IMAGE_PATH}`;
+  }
+}
+
 export function buildOnlineStoreSchema(options: OnlineStoreSchemaOptions = {}) {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
   const name = (options.name || 'Camellia Shop').trim() || 'Camellia Shop';
   const description = (options.description || DEFAULT_SEO_DESCRIPTION).trim() || DEFAULT_SEO_DESCRIPTION;
   const searchTemplate = baseUrl ? `${baseUrl}?q={search_term_string}` : '?q={search_term_string}';
+  const imageUrl = resolveImageUrlForBase(baseUrl);
 
   const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'OnlineStore',
     name,
+    alternateName: `${name} Partner Catalog`,
     description,
+    image: imageUrl,
     currenciesAccepted: 'USD, BDT, EUR, GBP, INR, AED, SGD, AUD',
     areaServed: ['BD', 'US', 'GB', 'EU', 'IN', 'AE', 'SG', 'AU'],
     knowsAbout: [
@@ -290,6 +304,28 @@ export function buildOnlineStoreSchema(options: OnlineStoreSchemaOptions = {}) {
   return schema;
 }
 
+function escapeHtmlAttr(val: string): string {
+  return val
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function upsertHeadMeta(
+  html: string,
+  attrKey: 'name' | 'property',
+  attrValue: string,
+  contentValue: string
+): string {
+  const tag = `<meta ${attrKey}="${attrValue}" content="${escapeHtmlAttr(contentValue)}" />`;
+  const pattern = new RegExp(`<meta\\s+${attrKey}=["']${attrValue}["'][^>]*>`, 'i');
+  if (pattern.test(html)) {
+    return html.replace(pattern, tag);
+  }
+  return html.replace('</head>', `    ${tag}\n  </head>`);
+}
+
 export function injectSeoMetadataIntoHtml(
   html: string,
   canonicalBaseUrl: string,
@@ -298,11 +334,8 @@ export function injectSeoMetadataIntoHtml(
   const baseUrl = normalizeBaseUrl(canonicalBaseUrl);
   if (!baseUrl) return html;
 
-  const escapedAttr = baseUrl
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  const escapedAttr = escapeHtmlAttr(baseUrl);
+  const absoluteImageUrl = resolveImageUrlForBase(baseUrl);
 
   let updated = html;
 
@@ -313,12 +346,9 @@ export function injectSeoMetadataIntoHtml(
     updated = updated.replace('</head>', `    ${canonicalTag}\n  </head>`);
   }
 
-  const ogUrlTag = `<meta property="og:url" content="${escapedAttr}" />`;
-  if (/<meta\s+property=["']og:url["'][^>]*>/i.test(updated)) {
-    updated = updated.replace(/<meta\s+property=["']og:url["'][^>]*>/i, ogUrlTag);
-  } else {
-    updated = updated.replace('</head>', `    ${ogUrlTag}\n  </head>`);
-  }
+  updated = upsertHeadMeta(updated, 'property', 'og:url', baseUrl);
+  updated = upsertHeadMeta(updated, 'property', 'og:image', absoluteImageUrl);
+  updated = upsertHeadMeta(updated, 'name', 'twitter:image', absoluteImageUrl);
 
   const schemaJson = JSON.stringify(
     buildOnlineStoreSchema({
@@ -381,6 +411,16 @@ export function syncUrlSearchParam(query: string): void {
   }
 }
 
+function upsertClientMeta(attrKey: 'name' | 'property', attrValue: string, content: string) {
+  let el = document.querySelector<HTMLMetaElement>(`meta[${attrKey}="${attrValue}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attrKey, attrValue);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+}
+
 export function applyDynamicSeoMetadata(options: {
   siteName?: string;
   description?: string;
@@ -392,8 +432,10 @@ export function applyDynamicSeoMetadata(options: {
   const siteName = (options.siteName || 'Camellia Shop').trim() || 'Camellia Shop';
   const description = (options.description || DEFAULT_SEO_DESCRIPTION).trim() || DEFAULT_SEO_DESCRIPTION;
   const activeSearch = (options.searchQuery || '').trim();
+  const nextTitle = activeSearch ? `Search: ${activeSearch} | ${siteName}` : DEFAULT_SEO_TITLE;
+  const absoluteImageUrl = resolveImageUrlForBase(baseUrl);
 
-  document.title = activeSearch ? `Search: ${activeSearch} | ${siteName}` : DEFAULT_SEO_TITLE;
+  document.title = nextTitle;
 
   let canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!canonicalLink) {
@@ -403,13 +445,13 @@ export function applyDynamicSeoMetadata(options: {
   }
   canonicalLink.setAttribute('href', baseUrl);
 
-  let ogUrlMeta = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
-  if (!ogUrlMeta) {
-    ogUrlMeta = document.createElement('meta');
-    ogUrlMeta.setAttribute('property', 'og:url');
-    document.head.appendChild(ogUrlMeta);
-  }
-  ogUrlMeta.setAttribute('content', baseUrl);
+  upsertClientMeta('property', 'og:url', baseUrl);
+  upsertClientMeta('property', 'og:title', nextTitle);
+  upsertClientMeta('property', 'og:description', description);
+  upsertClientMeta('property', 'og:image', absoluteImageUrl);
+  upsertClientMeta('name', 'twitter:title', nextTitle);
+  upsertClientMeta('name', 'twitter:description', description);
+  upsertClientMeta('name', 'twitter:image', absoluteImageUrl);
 
   const schemaJson = JSON.stringify(
     buildOnlineStoreSchema({
