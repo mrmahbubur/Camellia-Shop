@@ -3,7 +3,7 @@ import {
   buildAmazonAsinUrl
 } from './catalogRecords.ts';
 import { IMAGE_ASSET_MAP } from './unifiedProductsData.ts';
-import productImageManifest from './productImageManifest.json';
+import productImageManifest from './productImageManifest.json' with { type: 'json' };
 
 const PRODUCT_IMAGE_MANIFEST = productImageManifest as Record<string, string>;
 

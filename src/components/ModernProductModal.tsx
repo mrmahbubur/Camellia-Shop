@@ -99,6 +99,31 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const isStarTech = product.originStore === 'Star Tech';
   const isSohoj = product.originStore === 'Sohoj Affiliates';
   const isDarkCta = isAlibaba || isBanglaShoppers || isStarTech || isSohoj;
+  const hasDiscount =
+    hasKnownPrice &&
+    typeof product.originalPrice === 'number' &&
+    product.originalPrice > product.price &&
+    product.nativeCurrency !== 'BDT';
+  const discountPercent = hasDiscount
+    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
+    : 0;
+  const badgeClasses = isStarTech
+    ? 'bg-orange-600 text-white'
+    : isBanglaShoppers
+    ? 'bg-rose-500 text-white'
+    : isIllin
+    ? 'bg-cyan-400 text-slate-950'
+    : isSohoj
+    ? 'bg-violet-600 text-white'
+    : isShopz
+    ? 'bg-emerald-500 text-slate-950'
+    : isReleva
+    ? 'bg-teal-500 text-slate-950'
+    : isExonHost
+    ? 'bg-sky-500 text-slate-950'
+    : isAlibaba
+    ? 'bg-indigo-600 text-white'
+    : 'bg-amber-500 text-slate-950';
 
   return (
     <div
@@ -127,13 +152,18 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
           <div className="lg:col-span-5 bg-slate-50 dark:bg-slate-950/50 p-4 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
                     {product.brand}
                   </span>
-                  {product.badge && (
-                    <span className="bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
-                      {product.badge}
+                  <span
+                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shrink-0 ${badgeClasses}`}
+                  >
+                    {product.badge || product.originStore}
+                  </span>
+                  {discountPercent > 0 && (
+                    <span className="bg-rose-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
+                      Save {discountPercent}%
                     </span>
                   )}
                 </div>
@@ -230,9 +260,18 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                 <span className="font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-[11px]">
                   {product.csvCategory ? `${product.category} · ${product.csvCategory}` : product.category}
                 </span>
-                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                  Partner: {product.originStore}
-                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span
+                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider ${badgeClasses}`}
+                  >
+                    {product.originStore}
+                  </span>
+                  {product.primeEligible && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 uppercase tracking-wider">
+                      Fast Ship
+                    </span>
+                  )}
+                </div>
               </div>
 
               <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-3 [text-wrap:balance]">
@@ -241,11 +280,18 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
 
               <div className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700 mb-4 space-y-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
-                    {hasKnownPrice
-                      ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
-                      : `Check live price on ${product.originStore}`}
-                  </span>
+                  <div className="flex flex-wrap items-baseline gap-2 min-w-0">
+                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums tracking-tight">
+                      {hasKnownPrice
+                        ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
+                        : `Check live price on ${product.originStore}`}
+                    </span>
+                    {hasDiscount && (
+                      <span className="text-sm font-mono text-slate-400 line-through tabular-nums">
+                        {formatPrice(product.originalPrice!)}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                     {hasKnownPrice ? 'Listed Price' : 'Live Partner Pricing'}
                   </span>

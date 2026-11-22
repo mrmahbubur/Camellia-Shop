@@ -9,7 +9,7 @@ import screenbarLightImg from '../assets/images/amazon_screenbar_light_179227621
 import heroWorkspaceImg from '../assets/images/mrs_hero_workspace_1792262853659.jpg';
 import cloudServerImg from '../assets/images/product_cloud_server_1794916703257.jpg';
 import shopzCsvRaw from '../../public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv?raw';
-import productImageManifest from './productImageManifest.json';
+import productImageManifest from './productImageManifest.json' with { type: 'json' };
 
 import {
   CURATED_CATALOG_RECORDS,
