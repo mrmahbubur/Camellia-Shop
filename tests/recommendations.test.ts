@@ -35,7 +35,11 @@ import {
 } from '../src/utils/recommendations.ts';
 import {
   buildOnlineStoreSchema,
-  readSearchQueryFromLocation
+  injectSeoMetadataIntoHtml,
+  parseForwardedHeader,
+  readSearchQueryFromLocation,
+  resolveRequestOrigin,
+  sanitizeHeaderHost
 } from '../src/utils/seoSchema.ts';
 
 const ROOT = process.cwd();
@@ -562,6 +566,92 @@ test('index.html and seoSchema implement OnlineStore schema and SearchAction int
   assert.equal(readSearchQueryFromLocation('?search=laptop%20stand'), 'laptop stand');
   assert.equal(readSearchQueryFromLocation('?s=nvme'), 'nvme');
   assert.equal(readSearchQueryFromLocation(''), '');
+});
+
+test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects injection, and injects valid SSR SEO', () => {
+  assert.deepEqual(
+    parseForwardedHeader('for=192.0.2.60;proto=https;host="Shop.Example.com:8443", for=10.0.0.1'),
+    { proto: 'https', host: 'Shop.Example.com:8443' }
+  );
+
+  assert.equal(sanitizeHeaderHost('evil.com/attack'), null);
+  assert.equal(sanitizeHeaderHost('user@evil.com'), null);
+  assert.equal(sanitizeHeaderHost('bad.host:99999'), null);
+  assert.deepEqual(sanitizeHeaderHost('Store.Example.COM.:443'), {
+    host: 'store.example.com:443',
+    hostname: 'store.example.com',
+    port: '443'
+  });
+
+  // RFC 7239 Forwarded with custom port
+  assert.equal(
+    resolveRequestOrigin({
+      forwarded: 'for=1.2.3.4;proto=https;host="custom.camellia.shop:8443"'
+    }),
+    'https://custom.camellia.shop:8443/'
+  );
+
+  // Strips default HTTPS :443 and prefers valid public request host over stale APP_URL
+  assert.equal(
+    resolveRequestOrigin(
+      {
+        'x-forwarded-proto': 'https, http',
+        'x-forwarded-host': 'ais-pre-shared.asia-east1.run.app:443',
+        host: 'internal-container:8080'
+      },
+      { appUrl: 'https://ais-dev-stale.run.app' }
+    ),
+    'https://ais-pre-shared.asia-east1.run.app/'
+  );
+
+  // Loopback healthcheck/local dev uses APP_URL when configured
+  assert.equal(
+    resolveRequestOrigin(
+      { host: '127.0.0.1:3000' },
+      { appUrl: 'https://ais-dev-demo.asia-east1.run.app' }
+    ),
+    'https://ais-dev-demo.asia-east1.run.app/'
+  );
+
+  // Malicious host falls back safely to APP_URL (or empty string if absent)
+  assert.equal(
+    resolveRequestOrigin(
+      { host: 'attacker.com/phish' },
+      { appUrl: 'https://safe.example.com' }
+    ),
+    'https://safe.example.com/'
+  );
+  assert.equal(resolveRequestOrigin({ host: 'attacker.com/phish' }), '');
+
+  // X-Forwarded-Ssl & X-Forwarded-Port + cf-visitor
+  assert.equal(
+    resolveRequestOrigin({
+      'x-forwarded-ssl': 'on',
+      'x-forwarded-port': '8443',
+      host: 'proxy.camellia.shop'
+    }),
+    'https://proxy.camellia.shop:8443/'
+  );
+  assert.equal(
+    resolveRequestOrigin({
+      'cf-visitor': '{"scheme":"https"}',
+      host: 'cdn.camellia.shop:443'
+    }),
+    'https://cdn.camellia.shop/'
+  );
+
+  const indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const injected = injectSeoMetadataIntoHtml(indexHtml, 'https://custom.camellia.shop/');
+  assert.ok(injected.includes('<link rel="canonical" href="https://custom.camellia.shop/" />'));
+  assert.ok(injected.includes('<meta property="og:url" content="https://custom.camellia.shop/" />'));
+  const schemaMatch = injected.match(
+    /<script[^>]+id="camellia-onlinestore-schema"[^>]*>([\s\S]*?)<\/script>/i
+  );
+  assert.ok(schemaMatch);
+  const parsed = JSON.parse(schemaMatch[1]);
+  assert.equal(parsed.url, 'https://custom.camellia.shop/');
+  assert.equal(parsed['@id'], 'https://custom.camellia.shop/#onlinestore');
+  assert.equal(parsed.potentialAction.target.urlTemplate, 'https://custom.camellia.shop/?q={search_term_string}');
 });
 
 

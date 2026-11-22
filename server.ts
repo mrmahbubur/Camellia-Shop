@@ -29,6 +29,10 @@ import {
   type BuyingNeed,
   type InteractionSignals
 } from './src/utils/recommendations.ts';
+import {
+  injectSeoMetadataIntoHtml,
+  resolveRequestOrigin
+} from './src/utils/seoSchema.ts';
 
 dotenv.config();
 
@@ -995,33 +999,13 @@ async function startServer() {
         if (!html.includes('370191ce-4227-4e0f-b2b1-7234b5a333b2')) {
           html = html.replace('</head>', `    ${mitgoTag2}\n  </head>`);
         }
-        const forwardedProto = String(_req.headers['x-forwarded-proto'] || _req.protocol || 'https')
-          .split(',')[0]
-          .trim()
-          .toLowerCase();
-        const proto = forwardedProto === 'http' ? 'http' : 'https';
-        const rawHost = String(_req.headers['x-forwarded-host'] || _req.get('host') || '')
-          .split(',')[0]
-          .trim();
-        const validHost = /^[a-zA-Z0-9.-]+(:\d{1,5})?$/.test(rawHost) ? rawHost : '';
-        const appUrlRaw = (process.env.APP_URL || '').trim() || (validHost ? `${proto}://${validHost}` : '');
-        if (appUrlRaw && /^https?:\/\//i.test(appUrlRaw)) {
-          const canonicalBase = `${appUrlRaw.replace(/\/+$/, '')}/`;
-          const escaped = canonicalBase.replace(/"/g, '&quot;');
-          if (!html.includes('rel="canonical"')) {
-            html = html.replace(
-              '</head>',
-              `    <link rel="canonical" href="${escaped}" />\n    <meta property="og:url" content="${escaped}" />\n  </head>`
-            );
-          }
-          html = html.replace(
-            '"name": "Camellia Shop",',
-            `"name": "Camellia Shop",\n        "url": ${JSON.stringify(canonicalBase)},`
-          );
-          html = html.replace(
-            '"urlTemplate": "?q={search_term_string}"',
-            `"urlTemplate": ${JSON.stringify(`${canonicalBase}?q={search_term_string}`)}`
-          );
+        const canonicalOrigin = resolveRequestOrigin(_req.headers, {
+          encrypted: Boolean((_req.socket as { encrypted?: boolean } | undefined)?.encrypted),
+          expressProtocol: _req.protocol,
+          appUrl: process.env.APP_URL
+        });
+        if (canonicalOrigin) {
+          html = injectSeoMetadataIntoHtml(html, canonicalOrigin);
         }
         res.type('html').send(html);
       } catch {

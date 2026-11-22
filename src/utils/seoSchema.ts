@@ -9,10 +9,245 @@ export interface OnlineStoreSchemaOptions {
   description?: string;
 }
 
+export interface RequestHeaderMap {
+  [key: string]: string | string[] | undefined;
+}
+
+export interface ResolveOriginOptions {
+  encrypted?: boolean;
+  expressProtocol?: string;
+  appUrl?: string;
+}
+
 function normalizeBaseUrl(raw?: string): string {
   const trimmed = (raw || '').trim();
   if (!trimmed) return '';
   return trimmed.replace(/#.*$/, '').replace(/\?.*$/, '');
+}
+
+function firstHeaderValue(raw?: string | string[]): string {
+  if (Array.isArray(raw)) {
+    return firstHeaderValue(raw[0]);
+  }
+  if (typeof raw !== 'string') return '';
+  const commaIndex = raw.indexOf(',');
+  const segment = commaIndex === -1 ? raw : raw.slice(0, commaIndex);
+  return segment.trim();
+}
+
+export function parseForwardedHeader(rawHeader?: string | string[]): {
+  proto?: string;
+  host?: string;
+} {
+  const firstHop = firstHeaderValue(rawHeader);
+  if (!firstHop) return {};
+
+  const result: { proto?: string; host?: string } = {};
+  const parts = firstHop.split(';');
+  for (const part of parts) {
+    const eqIndex = part.indexOf('=');
+    if (eqIndex <= 0) continue;
+    const key = part.slice(0, eqIndex).trim().toLowerCase();
+    let value = part.slice(eqIndex + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1).trim();
+    }
+    if (key === 'proto' && !result.proto) result.proto = value;
+    if (key === 'host' && !result.host) result.host = value;
+  }
+  return result;
+}
+
+function isValidPort(portStr: string): boolean {
+  if (!/^\d{1,5}$/.test(portStr)) return false;
+  const n = Number(portStr);
+  return Number.isInteger(n) && n >= 1 && n <= 65535;
+}
+
+const DNS_HOSTNAME_RE =
+  /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+const IPV6_BRACKET_RE = /^\[([0-9a-fA-F:]+)\](?::(\d{1,5}))?$/;
+
+export function sanitizeHeaderHost(raw?: string | string[]): {
+  host: string;
+  hostname: string;
+  port: string;
+} | null {
+  let candidate = firstHeaderValue(raw);
+  if (!candidate || candidate.length > 253) return null;
+
+  if (
+    (candidate.startsWith('"') && candidate.endsWith('"')) ||
+    (candidate.startsWith("'") && candidate.endsWith("'"))
+  ) {
+    candidate = candidate.slice(1, -1).trim();
+  }
+  if (!candidate || /[\s@/\\?#\u0000-\u001f]/.test(candidate)) return null;
+
+  const ipv6Match = candidate.match(IPV6_BRACKET_RE);
+  if (ipv6Match) {
+    const inner = ipv6Match[1];
+    const port = ipv6Match[2] || '';
+    if (!inner.includes(':')) return null;
+    if (port && !isValidPort(port)) return null;
+    const normalizedHostname = `[${inner.toLowerCase()}]`;
+    return {
+      host: port ? `${normalizedHostname}:${port}` : normalizedHostname,
+      hostname: normalizedHostname,
+      port
+    };
+  }
+
+  const colonCount = (candidate.match(/:/g) || []).length;
+  if (colonCount > 1) return null;
+
+  let hostname = candidate;
+  let port = '';
+  if (colonCount === 1) {
+    const idx = candidate.lastIndexOf(':');
+    hostname = candidate.slice(0, idx);
+    port = candidate.slice(idx + 1);
+    if (!port || !isValidPort(port)) return null;
+  }
+
+  hostname = hostname.replace(/\.+$/, '').toLowerCase();
+  if (!hostname || hostname.length > 253 || !DNS_HOSTNAME_RE.test(hostname)) {
+    return null;
+  }
+
+  return {
+    host: port ? `${hostname}:${port}` : hostname,
+    hostname,
+    port
+  };
+}
+
+export function isLoopbackHostname(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  return (
+    lower === 'localhost' ||
+    lower.endsWith('.localhost') ||
+    lower === '127.0.0.1' ||
+    lower === '0.0.0.0' ||
+    lower === '[::1]' ||
+    lower === '::1'
+  );
+}
+
+function getHeaderCaseInsensitive(headers: RequestHeaderMap, name: string): string | string[] | undefined {
+  const target = name.toLowerCase();
+  if (headers[target] !== undefined) return headers[target];
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === target) {
+      return headers[key];
+    }
+  }
+  return undefined;
+}
+
+function parseOriginFromAppUrl(rawAppUrl?: string): string {
+  const trimmed = (rawAppUrl || '').trim();
+  if (!trimmed || !/^https?:\/\//i.test(trimmed)) return '';
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+    const pathname = parsed.pathname && parsed.pathname !== '/' ? parsed.pathname.replace(/\/+$/, '/') : '/';
+    return `${parsed.origin}${pathname}`;
+  } catch {
+    return '';
+  }
+}
+
+export function resolveRequestOrigin(
+  headers: RequestHeaderMap,
+  options: ResolveOriginOptions = {}
+): string {
+  const forwarded = parseForwardedHeader(getHeaderCaseInsensitive(headers, 'forwarded'));
+  const hostInfo =
+    sanitizeHeaderHost(forwarded.host) ||
+    sanitizeHeaderHost(getHeaderCaseInsensitive(headers, 'x-forwarded-host')) ||
+    sanitizeHeaderHost(getHeaderCaseInsensitive(headers, 'host'));
+
+  const envOrigin = parseOriginFromAppUrl(options.appUrl);
+
+  if (!hostInfo) {
+    return envOrigin;
+  }
+
+  let protoCandidate = '';
+  const protoSources = [
+    forwarded.proto,
+    firstHeaderValue(getHeaderCaseInsensitive(headers, 'x-forwarded-proto')),
+    firstHeaderValue(getHeaderCaseInsensitive(headers, 'x-forwarded-scheme'))
+  ];
+
+  for (const src of protoSources) {
+    const lower = (src || '').trim().toLowerCase();
+    if (lower === 'http' || lower === 'https') {
+      protoCandidate = lower;
+      break;
+    }
+  }
+
+  if (!protoCandidate) {
+    const cfVisitor = firstHeaderValue(getHeaderCaseInsensitive(headers, 'cf-visitor'));
+    if (cfVisitor && cfVisitor.startsWith('{')) {
+      try {
+        const parsedVisitor = JSON.parse(cfVisitor) as { scheme?: unknown };
+        const scheme = typeof parsedVisitor.scheme === 'string' ? parsedVisitor.scheme.toLowerCase() : '';
+        if (scheme === 'http' || scheme === 'https') {
+          protoCandidate = scheme;
+        }
+      } catch {
+        // Ignore malformed cf-visitor JSON
+      }
+    }
+  }
+
+  if (!protoCandidate) {
+    const xfSsl = firstHeaderValue(getHeaderCaseInsensitive(headers, 'x-forwarded-ssl')).toLowerCase();
+    if (xfSsl === 'on' || xfSsl === '1' || xfSsl === 'true') {
+      protoCandidate = 'https';
+    }
+  }
+
+  const loopback = isLoopbackHostname(hostInfo.hostname);
+
+  if (!protoCandidate) {
+    if (options.encrypted) {
+      protoCandidate = 'https';
+    } else if (options.expressProtocol === 'http' || options.expressProtocol === 'https') {
+      protoCandidate = options.expressProtocol;
+    } else {
+      protoCandidate = loopback ? 'http' : 'https';
+    }
+  }
+
+  const xfPortRaw = firstHeaderValue(getHeaderCaseInsensitive(headers, 'x-forwarded-port'));
+  const effectivePort = hostInfo.port || (isValidPort(xfPortRaw) ? xfPortRaw : '');
+
+  const isDefaultPort =
+    !effectivePort ||
+    (protoCandidate === 'http' && effectivePort === '80') ||
+    (protoCandidate === 'https' && effectivePort === '443');
+
+  const normalizedAuthority = isDefaultPort
+    ? hostInfo.hostname
+    : `${hostInfo.hostname}:${effectivePort}`;
+
+  const requestOrigin = `${protoCandidate}://${normalizedAuthority}/`;
+
+  // When requests come over local loopback (e.g., proxy healthchecks or local dev),
+  // prefer explicitly configured APP_URL if available; for public domains/proxies,
+  // honor the validated incoming host & protocol headers.
+  if (loopback && envOrigin) {
+    return envOrigin;
+  }
+
+  return requestOrigin;
 }
 
 export function buildOnlineStoreSchema(options: OnlineStoreSchemaOptions = {}) {
@@ -53,6 +288,62 @@ export function buildOnlineStoreSchema(options: OnlineStoreSchemaOptions = {}) {
   }
 
   return schema;
+}
+
+export function injectSeoMetadataIntoHtml(
+  html: string,
+  canonicalBaseUrl: string,
+  options: Omit<OnlineStoreSchemaOptions, 'baseUrl'> = {}
+): string {
+  const baseUrl = normalizeBaseUrl(canonicalBaseUrl);
+  if (!baseUrl) return html;
+
+  const escapedAttr = baseUrl
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  let updated = html;
+
+  const canonicalTag = `<link rel="canonical" href="${escapedAttr}" />`;
+  if (/<link\s+rel=["']canonical["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<link\s+rel=["']canonical["'][^>]*>/i, canonicalTag);
+  } else {
+    updated = updated.replace('</head>', `    ${canonicalTag}\n  </head>`);
+  }
+
+  const ogUrlTag = `<meta property="og:url" content="${escapedAttr}" />`;
+  if (/<meta\s+property=["']og:url["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<meta\s+property=["']og:url["'][^>]*>/i, ogUrlTag);
+  } else {
+    updated = updated.replace('</head>', `    ${ogUrlTag}\n  </head>`);
+  }
+
+  const schemaJson = JSON.stringify(
+    buildOnlineStoreSchema({
+      baseUrl,
+      name: options.name,
+      description: options.description
+    }),
+    null,
+    2
+  )
+    .split('\n')
+    .map((line, index) => (index === 0 ? line : `      ${line}`))
+    .join('\n');
+
+  const schemaScriptPattern =
+    /<script[^>]+id=["']camellia-onlinestore-schema["'][^>]*>[\s\S]*?<\/script>/i;
+  const schemaScript = `<script id="camellia-onlinestore-schema" type="application/ld+json">\n      ${schemaJson}\n    </script>`;
+
+  if (schemaScriptPattern.test(updated)) {
+    updated = updated.replace(schemaScriptPattern, schemaScript);
+  } else {
+    updated = updated.replace('</head>', `    ${schemaScript}\n  </head>`);
+  }
+
+  return updated;
 }
 
 export function readSearchQueryFromLocation(search: string): string {
