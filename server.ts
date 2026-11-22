@@ -30,6 +30,8 @@ import {
   type InteractionSignals
 } from './src/utils/recommendations.ts';
 import {
+  buildRobotsTxt,
+  buildSitemapXml,
   injectSeoMetadataIntoHtml,
   resolveRequestOrigin
 } from './src/utils/seoSchema.ts';
@@ -974,6 +976,24 @@ async function startServer() {
       const msg = err instanceof Error ? err.message : 'Unable to apply storefront update';
       res.status(500).json({ error: msg });
     }
+  });
+
+  app.get('/robots.txt', (req, res) => {
+    const canonicalOrigin = resolveRequestOrigin(req.headers, {
+      encrypted: Boolean((req.socket as { encrypted?: boolean } | undefined)?.encrypted),
+      expressProtocol: req.protocol,
+      appUrl: process.env.APP_URL
+    });
+    res.type('text/plain').send(buildRobotsTxt(canonicalOrigin));
+  });
+
+  app.get('/sitemap.xml', (req, res) => {
+    const canonicalOrigin = resolveRequestOrigin(req.headers, {
+      encrypted: Boolean((req.socket as { encrypted?: boolean } | undefined)?.encrypted),
+      expressProtocol: req.protocol,
+      appUrl: process.env.APP_URL
+    });
+    res.type('application/xml').send(buildSitemapXml(canonicalOrigin));
   });
 
   if (!IS_PROD) {

@@ -347,6 +347,7 @@ export function injectSeoMetadataIntoHtml(
     updated = updated.replace('</head>', `    ${canonicalTag}\n  </head>`);
   }
 
+  updated = upsertHeadMeta(updated, 'name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1');
   updated = upsertHeadMeta(updated, 'name', 'description', metaDescription);
   updated = upsertHeadMeta(updated, 'property', 'og:description', metaDescription);
   updated = upsertHeadMeta(updated, 'name', 'twitter:description', metaDescription);
@@ -355,6 +356,15 @@ export function injectSeoMetadataIntoHtml(
   if (absoluteImageUrl.startsWith('https://')) {
     updated = upsertHeadMeta(updated, 'property', 'og:image:secure_url', absoluteImageUrl);
   }
+  updated = upsertHeadMeta(updated, 'property', 'og:image:type', 'image/jpeg');
+  updated = upsertHeadMeta(updated, 'property', 'og:image:width', '1376');
+  updated = upsertHeadMeta(updated, 'property', 'og:image:height', '768');
+  updated = upsertHeadMeta(
+    updated,
+    'property',
+    'og:image:alt',
+    'Camellia Shop curated workspace electronics, hardware, and partner store catalog'
+  );
   updated = upsertHeadMeta(updated, 'name', 'twitter:image', absoluteImageUrl);
 
   const schemaJson = JSON.stringify(
@@ -381,6 +391,35 @@ export function injectSeoMetadataIntoHtml(
   }
 
   return updated;
+}
+
+export function buildRobotsTxt(canonicalBaseUrl?: string): string {
+  const baseUrl = normalizeBaseUrl(canonicalBaseUrl);
+  const lines = ['User-agent: *', 'Allow: /', 'Disallow: /api/'];
+  if (baseUrl) {
+    try {
+      const sitemapUrl = new URL('sitemap.xml', baseUrl).toString();
+      lines.push(`Sitemap: ${sitemapUrl}`);
+    } catch {
+      // Omit invalid sitemap URL
+    }
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+export function buildSitemapXml(canonicalBaseUrl: string): string {
+  const baseUrl = normalizeBaseUrl(canonicalBaseUrl);
+  const loc = escapeHtmlAttr(baseUrl || '/');
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '  <url>',
+    `    <loc>${loc}</loc>`,
+    '    <changefreq>daily</changefreq>',
+    '    <priority>1.0</priority>',
+    '  </url>',
+    '</urlset>'
+  ].join('\n');
 }
 
 export function readSearchQueryFromLocation(search: string): string {

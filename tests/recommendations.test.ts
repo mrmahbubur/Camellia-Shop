@@ -36,6 +36,8 @@ import {
 import {
   DEFAULT_SEO_DESCRIPTION,
   buildOnlineStoreSchema,
+  buildRobotsTxt,
+  buildSitemapXml,
   injectSeoMetadataIntoHtml,
   parseForwardedHeader,
   readSearchQueryFromLocation,
@@ -703,12 +705,21 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
   assert.ok(bareInjected.includes(`<meta name="description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
   assert.ok(bareInjected.includes(`<meta property="og:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
   assert.ok(bareInjected.includes(`<meta name="twitter:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  assert.ok(bareInjected.includes('<meta property="og:image:type" content="image/jpeg" />'));
+  assert.ok(bareInjected.includes('<meta property="og:image:width" content="1376" />'));
+  assert.ok(bareInjected.includes('<meta property="og:image:height" content="768" />'));
+  assert.ok(bareInjected.includes('<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />'));
   const bareSchemaMatch = bareInjected.match(
     /<script[^>]+id="camellia-onlinestore-schema"[^>]*>([\s\S]*?)<\/script>/i
   );
   assert.ok(bareSchemaMatch);
   const bareParsed = JSON.parse(bareSchemaMatch[1]);
   assert.equal(bareParsed.description, DEFAULT_SEO_DESCRIPTION);
+
+  const robotsOutput = buildRobotsTxt('https://custom.camellia.shop/');
+  assert.ok(robotsOutput.includes('Allow: /') && robotsOutput.includes('Sitemap: https://custom.camellia.shop/sitemap.xml'));
+  const sitemapOutput = buildSitemapXml('https://custom.camellia.shop/');
+  assert.ok(sitemapOutput.includes('<loc>https://custom.camellia.shop/</loc>'));
 });
 
 
