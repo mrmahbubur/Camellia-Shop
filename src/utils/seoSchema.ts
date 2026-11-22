@@ -319,7 +319,7 @@ function upsertHeadMeta(
   contentValue: string
 ): string {
   const tag = `<meta ${attrKey}="${attrValue}" content="${escapeHtmlAttr(contentValue)}" />`;
-  const pattern = new RegExp(`<meta\\s+${attrKey}=["']${attrValue}["'][^>]*>`, 'i');
+  const pattern = new RegExp(`<meta\\b[^>]*\\b${attrKey}=["']${attrValue}["'][^>]*>`, 'i');
   if (pattern.test(html)) {
     return html.replace(pattern, tag);
   }
@@ -336,16 +336,20 @@ export function injectSeoMetadataIntoHtml(
 
   const escapedAttr = escapeHtmlAttr(baseUrl);
   const absoluteImageUrl = resolveImageUrlForBase(baseUrl);
+  const metaDescription = (options.description || DEFAULT_SEO_DESCRIPTION).trim() || DEFAULT_SEO_DESCRIPTION;
 
   let updated = html;
 
   const canonicalTag = `<link rel="canonical" href="${escapedAttr}" />`;
-  if (/<link\s+rel=["']canonical["'][^>]*>/i.test(updated)) {
-    updated = updated.replace(/<link\s+rel=["']canonical["'][^>]*>/i, canonicalTag);
+  if (/<link\b[^>]*\brel=["']canonical["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/i, canonicalTag);
   } else {
     updated = updated.replace('</head>', `    ${canonicalTag}\n  </head>`);
   }
 
+  updated = upsertHeadMeta(updated, 'name', 'description', metaDescription);
+  updated = upsertHeadMeta(updated, 'property', 'og:description', metaDescription);
+  updated = upsertHeadMeta(updated, 'name', 'twitter:description', metaDescription);
   updated = upsertHeadMeta(updated, 'property', 'og:url', baseUrl);
   updated = upsertHeadMeta(updated, 'property', 'og:image', absoluteImageUrl);
   updated = upsertHeadMeta(updated, 'name', 'twitter:image', absoluteImageUrl);
@@ -354,7 +358,7 @@ export function injectSeoMetadataIntoHtml(
     buildOnlineStoreSchema({
       baseUrl,
       name: options.name,
-      description: options.description
+      description: metaDescription
     }),
     null,
     2
@@ -445,6 +449,7 @@ export function applyDynamicSeoMetadata(options: {
   }
   canonicalLink.setAttribute('href', baseUrl);
 
+  upsertClientMeta('name', 'description', description);
   upsertClientMeta('property', 'og:url', baseUrl);
   upsertClientMeta('property', 'og:title', nextTitle);
   upsertClientMeta('property', 'og:description', description);

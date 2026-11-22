@@ -684,6 +684,20 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
   assert.equal(parsed.image, 'https://custom.camellia.shop/images/camellia-og-showcase.jpg');
   assert.equal(parsed['@id'], 'https://custom.camellia.shop/#onlinestore');
   assert.equal(parsed.potentialAction.target.urlTemplate, 'https://custom.camellia.shop/?q={search_term_string}');
+
+  const bareInjected = injectSeoMetadataIntoHtml(
+    '<!doctype html><html><head><title>Camellia Shop</title></head><body></body></html>',
+    'https://bare.camellia.shop/'
+  );
+  assert.ok(bareInjected.includes(`<meta name="description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  assert.ok(bareInjected.includes(`<meta property="og:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  assert.ok(bareInjected.includes(`<meta name="twitter:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  const bareSchemaMatch = bareInjected.match(
+    /<script[^>]+id="camellia-onlinestore-schema"[^>]*>([\s\S]*?)<\/script>/i
+  );
+  assert.ok(bareSchemaMatch);
+  const bareParsed = JSON.parse(bareSchemaMatch[1]);
+  assert.equal(bareParsed.description, DEFAULT_SEO_DESCRIPTION);
 });
 
 
