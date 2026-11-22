@@ -34,6 +34,7 @@ import {
   resolveApproxUsdPrice
 } from '../src/utils/recommendations.ts';
 import {
+  DEFAULT_SEO_DESCRIPTION,
   buildOnlineStoreSchema,
   injectSeoMetadataIntoHtml,
   parseForwardedHeader,
@@ -648,6 +649,13 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
   assert.ok(indexHtml.includes('name="twitter:image"'));
   assert.ok(indexHtml.includes('name="twitter:image:alt"'));
   assert.ok(
+    DEFAULT_SEO_DESCRIPTION.length >= 120 && DEFAULT_SEO_DESCRIPTION.length <= 160,
+    `Expected SERP-friendly description (120-160 chars), got ${DEFAULT_SEO_DESCRIPTION.length}`
+  );
+  assert.ok(indexHtml.includes(`<meta name="description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  assert.ok(indexHtml.includes(`<meta property="og:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  assert.ok(indexHtml.includes(`<meta name="twitter:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
+  assert.ok(
     fs.existsSync(path.join(ROOT, 'public/images/camellia-og-showcase.jpg')),
     'Expected camellia-og-showcase.jpg public asset to exist'
   );
@@ -671,6 +679,7 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
   assert.ok(schemaMatch);
   const parsed = JSON.parse(schemaMatch[1]);
   assert.equal(parsed.url, 'https://custom.camellia.shop/');
+  assert.equal(parsed.description, DEFAULT_SEO_DESCRIPTION);
   assert.equal(parsed.alternateName, 'Camellia Shop Partner Catalog');
   assert.equal(parsed.image, 'https://custom.camellia.shop/images/camellia-og-showcase.jpg');
   assert.equal(parsed['@id'], 'https://custom.camellia.shop/#onlinestore');
