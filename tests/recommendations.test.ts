@@ -54,7 +54,7 @@ test('.gitignore ignores /data/ at root without hiding src/data', () => {
   assert.ok(!lines.includes('data/'), 'Unanchored data/ rule must not exist in .gitignore');
 });
 
-test('index.html contains impact and both mitgo verification meta tags in <head>', () => {
+test('index.html contains impact and current mitgo verification meta tags in <head>', () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   const headMatch = html.match(/<head>([\s\S]*?)<\/head>/i);
   assert.ok(headMatch, 'Missing <head> block in index.html');
@@ -64,13 +64,14 @@ test('index.html contains impact and both mitgo verification meta tags in <head>
     head.includes('name="impact-site-verification" value="0dfcb5cd-491e-444d-bf9a-fefe6da62228"'),
     'Missing impact-site-verification meta tag'
   );
-  assert.ok(
-    head.includes('name="mitgo-verification" content="892bc51b-d387-45a2-baab-fa37e8d8e069"'),
-    'Missing original mitgo-verification meta tag (892bc51b-...)'
+  assert.equal(
+    html.includes('892bc51b-d387-45a2-baab-fa37e8d8e069'),
+    false,
+    'Old mitgo-verification meta tag (892bc51b-...) must be removed'
   );
   assert.ok(
     head.includes('name="mitgo-verification" content="370191ce-4227-4e0f-b2b1-7234b5a333b2"'),
-    'Missing new mitgo-verification meta tag (370191ce-...)'
+    'Missing mitgo-verification meta tag (370191ce-4227-4e0f-b2b1-7234b5a333b2)'
   );
 });
 

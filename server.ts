@@ -1005,19 +1005,17 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distDir = path.join(ROOT_DIR, 'dist');
-    const mitgoTag1 =
-      '<meta name="mitgo-verification" content="892bc51b-d387-45a2-baab-fa37e8d8e069" />';
-    const mitgoTag2 =
+    const mitgoTag =
       '<meta name="mitgo-verification" content="370191ce-4227-4e0f-b2b1-7234b5a333b2" />';
+    const oldMitgoPattern =
+      /\s*<meta\b[^>]*name=["']mitgo-verification["'][^>]*892bc51b-d387-45a2-baab-fa37e8d8e069[^>]*>\s*/gi;
 
     const sendVerifiedIndex = async (_req: Request, res: Response) => {
       try {
         let html = await fs.readFile(path.join(distDir, 'index.html'), 'utf-8');
-        if (!html.includes('892bc51b-d387-45a2-baab-fa37e8d8e069')) {
-          html = html.replace('</head>', `    ${mitgoTag1}\n  </head>`);
-        }
+        html = html.replace(oldMitgoPattern, '\n');
         if (!html.includes('370191ce-4227-4e0f-b2b1-7234b5a333b2')) {
-          html = html.replace('</head>', `    ${mitgoTag2}\n  </head>`);
+          html = html.replace('</head>', `    ${mitgoTag}\n  </head>`);
         }
         const canonicalOrigin = resolveRequestOrigin(_req.headers, {
           encrypted: Boolean((_req.socket as { encrypted?: boolean } | undefined)?.encrypted),
