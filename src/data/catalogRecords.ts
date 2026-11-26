@@ -15,7 +15,8 @@ export type ProductCategory =
   | 'Illin BD Home & Tech'
   | 'Star Tech BD Gadgets'
   | 'Sohoj Affiliate Network'
-  | 'Cloud Hosting & Domains';
+  | 'Cloud Hosting & Domains'
+  | 'AliExpress Global Picks';
 
 export type ImageKey =
   | 'mouse'
@@ -70,6 +71,11 @@ export const ILLIN_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
 export const STARTECH_TRACKING_PARAM = '6ad935b5df200';
 export const STARTECH_AFFILIATE_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING_PARAM}`;
 export const SOHOJ_AFFILIATE_URL = 'https://www.illin.com.bd/40989';
+export const ALIEXPRESS_JEWELRY_URL = 'https://s.click.aliexpress.com/e/_c4oqIjxj';
+export const ALIEXPRESS_BEAUTY_URL = 'https://s.click.aliexpress.com/e/_c4W9fhKh';
+export const ALIEXPRESS_TOYS_URL = 'https://s.click.aliexpress.com/e/_c3Nx9xUl';
+export const ALIEXPRESS_WOMENS_CLOTHING_URL = 'https://s.click.aliexpress.com/e/_c3JF9Ep7';
+export const ALIEXPRESS_AFFILIATE_URL = ALIEXPRESS_JEWELRY_URL;
 export const RELEVA_HOME_URL = 'https://releva.com.bd/';
 export const RELEVA_TRACKING_PARAM = 'J64O1CC92FJNsi3ogTGcx7H9139T4GCUmIqKFO6igVEE9EOWpPe6bYY053BwALrR';
 
@@ -1879,6 +1885,183 @@ export const CURATED_CATALOG_RECORDS: CatalogRecord[] = [
     ],
     originStore: 'Sohoj Affiliates',
     tags: ['sohoj', 'affiliate', 'mobile', 'dashboard', 'bangladesh', 'partner']
+  },
+
+  // --- 4 ALIEXPRESS AFFILIATE CATEGORY SHOWCASE LINKS ---
+  {
+    id: 'aliexpress-jewelry-accessories',
+    title: 'AliExpress Jewelry, Watches & Fashion Accessories',
+    brand: 'AliExpress',
+    category: 'AliExpress Global Picks',
+    department: 'AliExpress Global Picks',
+    csvCategory: 'Jewelry & Accessories',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'USD',
+    priceStatus: 'live-at-partner',
+    badge: 'AliExpress',
+    primeEligible: false,
+    deliveryEstimate: 'Global shipping & Buyer Protection on AliExpress',
+    affiliateUrl: ALIEXPRESS_JEWELRY_URL,
+    urlKind: 'category',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'heroWorkspace',
+    imageIsIllustrative: false,
+    description:
+      'Browse layered necklaces, gemstone stud earrings, rings, minimalist wristwatches, sunglasses, and gift-ready jewelry sets curated on AliExpress.',
+    highlights: [
+      'Direct AliExpress Portals category link for Jewelry & Accessories',
+      'Covers fine jewelry, stainless steel watches, bracelets, rings & travel jewelry boxes',
+      'Live regional pricing, buyer photo reviews & Choice shipping terms shown on AliExpress'
+    ],
+    specs: [
+      { label: 'Category', value: 'Jewelry & Accessories' },
+      { label: 'Department', value: 'AliExpress Category Showcase' },
+      { label: 'Price', value: 'Live price on AliExpress' },
+      { label: 'Retailer', value: 'AliExpress' }
+    ],
+    originStore: 'AliExpress',
+    tags: [
+      'aliexpress',
+      'jewelry',
+      'accessories',
+      'necklace',
+      'earrings',
+      'rings',
+      'bracelet',
+      'watches'
+    ]
+  },
+  {
+    id: 'aliexpress-beauty-health',
+    title: 'AliExpress Beauty, Skincare Tools & Personal Care',
+    brand: 'AliExpress',
+    category: 'AliExpress Global Picks',
+    department: 'AliExpress Global Picks',
+    csvCategory: 'Beauty & Health',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'USD',
+    priceStatus: 'live-at-partner',
+    badge: 'AliExpress',
+    primeEligible: false,
+    deliveryEstimate: 'Global shipping & Buyer Protection on AliExpress',
+    affiliateUrl: ALIEXPRESS_BEAUTY_URL,
+    urlKind: 'category',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'heroWorkspace',
+    imageIsIllustrative: false,
+    description:
+      'Shop skincare serums, jade facial rollers, hair styling tools, makeup brushes, manicures, and daily wellness devices from AliExpress Beauty & Health.',
+    highlights: [
+      'Direct AliExpress Portals category link for Beauty & Health',
+      'Includes facial care tools, hairdryers, makeup organizers, grooming kits & fragrances',
+      'Live regional pricing, customer ratings & shipping speeds displayed on AliExpress'
+    ],
+    specs: [
+      { label: 'Category', value: 'Beauty & Health' },
+      { label: 'Department', value: 'AliExpress Category Showcase' },
+      { label: 'Price', value: 'Live price on AliExpress' },
+      { label: 'Retailer', value: 'AliExpress' }
+    ],
+    originStore: 'AliExpress',
+    tags: [
+      'aliexpress',
+      'beauty',
+      'health',
+      'skincare',
+      'serum',
+      'jade roller',
+      'makeup',
+      'grooming'
+    ]
+  },
+  {
+    id: 'aliexpress-toys-games',
+    title: 'AliExpress Toys, STEM Building Sets & Collectibles',
+    brand: 'AliExpress',
+    category: 'AliExpress Global Picks',
+    department: 'AliExpress Global Picks',
+    csvCategory: 'Toys & Games',
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'USD',
+    priceStatus: 'live-at-partner',
+    badge: 'AliExpress',
+    primeEligible: false,
+    deliveryEstimate: 'Global shipping & Buyer Protection on AliExpress',
+    affiliateUrl: ALIEXPRESS_TOYS_URL,
+    urlKind: 'category',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'heroWorkspace',
+    imageIsIllustrative: false,
+    description:
+      'Discover wooden STEM mechanical puzzles, interlocking building brick sets, retro handheld consoles, RC vehicles, and designer collectible figures on AliExpress.',
+    highlights: [
+      'Direct AliExpress Portals category link for Toys & Games',
+      'Features STEM building kits, puzzles, handheld gaming devices, RC toys & action figures',
+      'Verify age ratings, live bundles & shipping timelines directly on AliExpress'
+    ],
+    specs: [
+      { label: 'Category', value: 'Toys & Games' },
+      { label: 'Department', value: 'AliExpress Category Showcase' },
+      { label: 'Price', value: 'Live price on AliExpress' },
+      { label: 'Retailer', value: 'AliExpress' }
+    ],
+    originStore: 'AliExpress',
+    tags: [
+      'aliexpress',
+      'toys',
+      'games',
+      'stem',
+      'puzzles',
+      'handheld console',
+      'collectibles',
+      'bricks'
+    ]
+  },
+  {
+    id: 'aliexpress-womens-clothing',
+    title: "AliExpress Women's Clothing, Outerwear & Knitwear",
+    brand: 'AliExpress',
+    category: 'AliExpress Global Picks',
+    department: 'AliExpress Global Picks',
+    csvCategory: "Women's Clothing",
+    sourceType: 'linked-shop',
+    price: 0,
+    nativeCurrency: 'USD',
+    priceStatus: 'live-at-partner',
+    badge: 'AliExpress',
+    primeEligible: false,
+    deliveryEstimate: 'Global shipping & Buyer Protection on AliExpress',
+    affiliateUrl: ALIEXPRESS_WOMENS_CLOTHING_URL,
+    urlKind: 'category',
+    imageKey: 'growthBundle',
+    secondaryImageKey: 'heroWorkspace',
+    imageIsIllustrative: false,
+    description:
+      "Explore trench coats, ribbed knit sweaters, everyday dresses, blouses, athleisure, and wardrobe essentials curated via AliExpress Women's Clothing.",
+    highlights: [
+      "Direct AliExpress Portals category link for Women's Clothing",
+      'Includes seasonal outerwear, knitwear, blouses, dresses, skirts & loungewear',
+      'Check exact size charts, buyer fit reviews & live Choice shipping on AliExpress'
+    ],
+    specs: [
+      { label: 'Category', value: "Women's Clothing" },
+      { label: 'Department', value: 'AliExpress Category Showcase' },
+      { label: 'Price', value: 'Live price on AliExpress' },
+      { label: 'Retailer', value: 'AliExpress' }
+    ],
+    originStore: 'AliExpress',
+    tags: [
+      'aliexpress',
+      'womens clothing',
+      'women apparel',
+      'fashion',
+      'outerwear',
+      'knitwear',
+      'dresses'
+    ]
   },
   ...(startechBulkCatalogRaw as CatalogRecord[])
 ];

@@ -66,13 +66,13 @@ export interface StorefrontConfig {
 export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates & ExonHost',
+    'Camellia Shop · Curated Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates & ExonHost',
   heroTitle: 'Curated Workspace Tech, Smartwatches, Skincare, Appliances & Partner Stores.',
   heroSubtitle:
-    'Explore workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, cloud hosting, and partner offers across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
+    'Explore workspace electronics, COLMI smartwatches, skincare, home essentials, fashion, jewelry, toys, cloud hosting, and partner offers across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Home & Hosting',
   storeSubtitle:
-    'Browse electronics, smartwatches, skincare, home essentials, and hosting portals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost. Every order completes directly on the partner store.',
+    'Browse electronics, smartwatches, skincare, fashion, jewelry, toys, home essentials, and hosting portals across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost. Every order completes directly on the partner store.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -110,10 +110,12 @@ function sanitizePartnerUrl(
   const SOHOJ_URL = 'https://www.illin.com.bd/40989';
   const STARTECH_TRACKING = '6ad935b5df200';
   const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
+  const ALIEXPRESS_URL = 'https://s.click.aliexpress.com/e/_c4oqIjxj';
 
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
+    if (originStore === 'AliExpress') return ALIEXPRESS_URL;
     if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
     if (originStore === 'Illin BD') return ILLIN_URL;
     if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
@@ -130,6 +132,13 @@ function sanitizePartnerUrl(
     return AMAZON_NODE_URL;
   }
 
+  if (
+    originStore === 'AliExpress' ||
+    trimmed.includes('s.click.aliexpress.com') ||
+    trimmed.includes('aliexpress.com')
+  ) {
+    return trimmed.includes('s.click.aliexpress.com/') ? trimmed : ALIEXPRESS_URL;
+  }
   if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
     if (trimmed.includes('tracking=')) return trimmed;
     const sep = trimmed.includes('?') ? '&' : '?';
@@ -190,7 +199,8 @@ const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
   'BanglaShoppers Beauty',
   'Illin BD Home & Tech',
   'Sohoj Affiliate Network',
-  'Cloud Hosting & Domains'
+  'Cloud Hosting & Domains',
+  'AliExpress Global Picks'
 ]);
 
 function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): StorefrontConfig {
@@ -535,6 +545,8 @@ export async function executeBackendSiteControl(
       const originStore: PartnerStoreOrigin =
         rawProd.originStore === 'Shopz BD'
           ? 'Shopz BD'
+          : rawProd.originStore === 'AliExpress'
+          ? 'AliExpress'
           : rawProd.originStore === 'Star Tech'
           ? 'Star Tech'
           : rawProd.originStore === 'Releva BD'
@@ -552,6 +564,8 @@ export async function executeBackendSiteControl(
         ? (rawProd.category as CustomStoreProduct['category'])
         : originStore === 'ExonHost'
         ? 'Cloud Hosting & Domains'
+        : originStore === 'AliExpress'
+        ? 'AliExpress Global Picks'
         : originStore === 'Shopz BD'
         ? 'Shopz BD Tech Deals'
         : originStore === 'Star Tech'

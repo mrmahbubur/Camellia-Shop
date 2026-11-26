@@ -52,6 +52,7 @@ import { ModernProductModal } from './ModernProductModal';
 import { ProductCompareDock } from './ProductCompareDock';
 import { SearchSuggestionsDropdown } from './SearchSuggestionsDropdown';
 import { ResilientImage } from './ResilientImage';
+import { AliExpressEventBanner } from './AliExpressEventBanner';
 
 export const StoreSection: React.FC = () => {
   const { formatPrice, addToCart, toUsdAmount, cart } = useCart();
@@ -76,6 +77,7 @@ export const StoreSection: React.FC = () => {
     getRelevaSearchUrl,
     recordAffiliateClick,
     amazonStoreUrl,
+    aliexpressStoreUrl,
     shopzStoreUrl,
     relevaStoreUrl,
     exonhostStoreUrl,
@@ -159,6 +161,7 @@ export const StoreSection: React.FC = () => {
     const counts: Record<'all' | PartnerStoreOrigin, number> = {
       all: products.length,
       Amazon: 0,
+      AliExpress: 0,
       'Shopz BD': 0,
       'Releva BD': 0,
       ExonHost: 0,
@@ -421,6 +424,8 @@ export const StoreSection: React.FC = () => {
   const livePartnerSearchHref =
     targetPlatform === 'ExonHost'
       ? exonhostStoreUrl
+      : targetPlatform === 'AliExpress'
+      ? aliexpressStoreUrl
       : targetPlatform === 'BanglaShoppers'
       ? banglashoppersStoreUrl
       : targetPlatform === 'Illin BD'
@@ -437,6 +442,7 @@ export const StoreSection: React.FC = () => {
 
   const getStoreBadgeClasses = (store: PartnerStoreOrigin) => {
     if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
+    if (store === 'AliExpress') return 'bg-red-600 text-white';
     if (store === 'Shopz BD') return 'bg-emerald-600 text-white';
     if (store === 'Releva BD') return 'bg-teal-500 text-slate-950';
     if (store === 'BanglaShoppers') return 'bg-rose-500 text-white';
@@ -448,6 +454,7 @@ export const StoreSection: React.FC = () => {
 
   const getStoreCtaClasses = (store: PartnerStoreOrigin) => {
     if (store === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
+    if (store === 'AliExpress') return 'bg-red-600 hover:bg-red-500 text-white';
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
     if (store === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
@@ -509,6 +516,18 @@ export const StoreSection: React.FC = () => {
               <Package className="w-3.5 h-3.5 text-slate-950" />
               <span>Amazon</span>
               <ExternalLink className="w-3 h-3 text-slate-900" />
+            </a>
+
+            <a
+              href={aliexpressStoreUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener noreferrer"
+              onClick={() => recordAffiliateClick('store-header-aliexpress', 'AliExpress')}
+              className="flex items-center gap-1.5 text-xs text-white bg-red-600 hover:bg-red-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <ShoppingBag className="w-3.5 h-3.5 text-white" />
+              <span>AliExpress</span>
+              <ExternalLink className="w-3 h-3 text-white" />
             </a>
 
             <a
@@ -613,6 +632,7 @@ export const StoreSection: React.FC = () => {
                 const isSohojTab = c === 'Sohoj Affiliate Network';
                 const isRelevaTab = c === 'Releva BD Picks';
                 const isCloudTab = c === 'Cloud Hosting & Domains';
+                const isAliExpressTab = c === 'AliExpress Global Picks';
                 const isMegaStoreTab = c === 'All Departments (Mega Store)';
 
                 return (
@@ -637,6 +657,8 @@ export const StoreSection: React.FC = () => {
                           ? 'bg-teal-500 text-slate-950 shadow-xs font-extrabold'
                           : isCloudTab
                           ? 'bg-sky-500 text-slate-950 shadow-xs font-extrabold'
+                          : isAliExpressTab
+                          ? 'bg-red-600 text-white shadow-xs font-extrabold'
                           : 'bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 shadow-xs'
                         : isShopzTab
                         ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-950 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 font-bold'
@@ -652,10 +674,13 @@ export const StoreSection: React.FC = () => {
                         ? 'bg-teal-50 dark:bg-teal-500/15 text-teal-950 dark:text-teal-300 border border-teal-200/80 dark:border-teal-500/30 hover:bg-teal-100 dark:hover:bg-teal-500/25 font-bold'
                         : isCloudTab
                         ? 'bg-sky-50 dark:bg-sky-500/15 text-sky-950 dark:text-sky-300 border border-sky-200/80 dark:border-sky-500/30 hover:bg-sky-100 dark:hover:bg-sky-500/25 font-bold'
+                        : isAliExpressTab
+                        ? 'bg-red-50 dark:bg-red-500/15 text-red-950 dark:text-red-300 border border-red-200/80 dark:border-red-500/30 hover:bg-red-100 dark:hover:bg-red-500/25 font-bold'
                         : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     {isMegaStoreTab && <Compass className="w-3.5 h-3.5 opacity-75" />}
+                    {isAliExpressTab && <ShoppingBag className="w-3.5 h-3.5" />}
                     {isBanglaShoppersTab && <Droplets className="w-3.5 h-3.5" />}
                     {isStarTechTab && <Watch className="w-3.5 h-3.5" />}
                     {(isShopzTab || isRelevaTab || isIllinTab || isSohojTab) && (
@@ -881,6 +906,7 @@ export const StoreSection: React.FC = () => {
                   [
                     { key: 'all', label: 'All Stores', activeClass: 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white' },
                     { key: 'Amazon', label: 'Amazon', activeClass: 'bg-amber-400 text-slate-950' },
+                    { key: 'AliExpress', label: 'AliExpress', activeClass: 'bg-red-600 text-white' },
                     { key: 'Shopz BD', label: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
                     { key: 'Star Tech', label: 'Star Tech', activeClass: 'bg-orange-600 text-white' },
                     { key: 'BanglaShoppers', label: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
@@ -1079,6 +1105,7 @@ export const StoreSection: React.FC = () => {
                     {(
                       [
                         { name: 'Amazon', activeClass: 'bg-amber-500 text-slate-950' },
+                        { name: 'AliExpress', activeClass: 'bg-red-600 text-white' },
                         { name: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
                         { name: 'Star Tech', activeClass: 'bg-orange-600 text-white' },
                         { name: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
@@ -1620,9 +1647,13 @@ export const StoreSection: React.FC = () => {
           <div className="flex items-start sm:items-center gap-2 min-w-0">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
             <span>
-              <strong>Affiliate Disclosure:</strong> As an Amazon Associate and affiliate partner with Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, and Sohoj Affiliates, {storefrontCopy.siteName} earns from qualifying purchases at no extra cost to you.
+              <strong>Affiliate Disclosure:</strong> As an Amazon Associate and affiliate partner with AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, and Sohoj Affiliates, {storefrontCopy.siteName} earns from qualifying purchases at no extra cost to you.
             </span>
           </div>
+        </div>
+
+        <div className="mb-8">
+          <AliExpressEventBanner variant="responsive-strip" />
         </div>
 
         {sponsors.length > 0 && (

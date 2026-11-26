@@ -89,10 +89,10 @@ export const BUYING_NEED_META: Record<
     keywords: ['everyday', 'calculator', 'trimmer', 'releva', 'shopz', 'startech', 'bangladesh', 'cooler', 'coffee', 'toaster', 'bedsheet', 'illin']
   },
   beauty: {
-    label: 'Skincare, Care & Home Essentials',
-    description: 'Skincare & personal care from BanglaShoppers & Illin BD plus home & kitchen essentials.',
+    label: 'Skincare, Jewelry & Apparel',
+    description: 'Skincare, jewelry, apparel, and personal care from BanglaShoppers, Illin BD, and AliExpress.',
     targetCategories: ['BanglaShoppers Beauty', 'Illin BD Home & Tech'],
-    keywords: ['skincare', 'serum', 'toner', 'sunscreen', 'cream', 'soap', 'toothpaste', 'oil', 'bedsheet', 'banglashoppers', 'coffee', 'appliance', 'illin']
+    keywords: ['skincare', 'serum', 'toner', 'sunscreen', 'cream', 'soap', 'toothpaste', 'oil', 'bedsheet', 'banglashoppers', 'coffee', 'appliance', 'illin', 'jewelry', 'beauty', 'clothing', 'apparel']
   },
   hosting: {
     label: 'Web Hosting & Domains',
@@ -101,10 +101,10 @@ export const BUYING_NEED_META: Record<
     keywords: ['hosting', 'domain', 'cloud', 'wordpress', 'vps', 'exonhost']
   },
   sourcing: {
-    label: 'Affiliate & Reseller Networks',
-    description: 'Affiliate and reseller onboarding portals via Sohoj Affiliates alongside ExonHost partner plans.',
-    targetCategories: ['Sohoj Affiliate Network', 'Cloud Hosting & Domains'],
-    keywords: ['sourcing', 'wholesale', 'sohoj', 'affiliate', 'reseller', 'exonhost']
+    label: 'Global Picks & Affiliate Hubs',
+    description: 'AliExpress category showcases alongside Sohoj Affiliates and ExonHost partner portals.',
+    targetCategories: ['AliExpress Global Picks', 'Sohoj Affiliate Network', 'Cloud Hosting & Domains'],
+    keywords: ['sourcing', 'wholesale', 'sohoj', 'affiliate', 'reseller', 'exonhost', 'aliexpress', 'jewelry', 'toys', 'clothing', 'beauty']
   }
 };
 

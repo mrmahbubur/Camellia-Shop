@@ -26,10 +26,14 @@ interface HeroProps {
 
 const SPOTLIGHT_PRODUCT_IDS = [
   'amz-mx-master-3s',
+  'aliexpress-jewelry-accessories',
   'startech-msi-cyborg-15-black-edition-a13uc-core-i5-laptop',
+  'aliexpress-beauty-health',
   'startech-dji-mini-5-pro-fly-more-combo-plus',
   'startech-anker-solix-c1000-gen-2-portable-power-station',
+  'aliexpress-toys-games',
   'startech-colmi-p71',
+  'aliexpress-womens-clothing',
   'illin-poedagar-men-watch-1563',
   'illin-royal-purple-bedsheet',
   'startech-acer-aspire-3',
@@ -50,6 +54,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     setSelectedStoreFilter,
     amazonStoreUrl,
     amazonShortUrl,
+    aliexpressStoreUrl,
     shopzStoreUrl,
     relevaStoreUrl,
     exonhostStoreUrl,
@@ -101,6 +106,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
   const storeCounts = useMemo(() => {
     const counts: Record<PartnerStoreOrigin, number> = {
       Amazon: 0,
+      AliExpress: 0,
       'Shopz BD': 0,
       'Releva BD': 0,
       ExonHost: 0,
@@ -175,6 +181,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
 
   const getStoreAccent = (store: PartnerStoreOrigin) => {
     if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
+    if (store === 'AliExpress') return 'bg-red-600 text-white';
     if (store === 'Shopz BD') return 'bg-emerald-500 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-400 text-slate-950';
     if (store === 'BanglaShoppers') return 'bg-rose-500 text-white';
@@ -185,6 +192,21 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
   };
 
   const partnerButtons = regionProfile.storePriority.map((store) => {
+    if (store === 'AliExpress') {
+      return (
+        <a
+          key="aliexpress"
+          href={aliexpressStoreUrl}
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+          onClick={() => recordAffiliateClick('hero-aliexpress-store', 'AliExpress')}
+          className="min-h-[44px] px-3 py-2 text-xs font-bold text-red-800 dark:text-red-300 border border-red-300 dark:border-red-500/40 hover:border-red-400 bg-red-50 dark:bg-red-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <span>AliExpress</span>
+          <ExternalLink className="w-3 h-3 text-red-600 dark:text-red-400" />
+        </a>
+      );
+    }
     if (store === 'Star Tech') {
       return (
         <a
@@ -639,6 +661,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           {(
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
+              { store: 'AliExpress' as const, label: 'AliExpress', count: storeCounts.AliExpress, sub: 'Jewelry, beauty, toys & fashion' },
               { store: 'Shopz BD' as const, label: 'Shopz BD', count: storeCounts['Shopz BD'], sub: 'Tech, watches, mics' },
               { store: 'Star Tech' as const, label: 'Star Tech', count: storeCounts['Star Tech'], sub: 'PCs, audio, drones & power' },
               { store: 'BanglaShoppers' as const, label: 'BanglaShoppers', count: storeCounts.BanglaShoppers, sub: 'Skincare & beauty' },
@@ -672,7 +695,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           <button
             type="button"
             onClick={handleJumpToSponsors}
-            className="responsive-card min-h-[44px] min-[481px]:col-span-2 md:col-span-1 text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group"
+            className="responsive-card min-h-[44px] text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group"
           >
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-xl font-extrabold font-mono tabular-nums text-amber-600 dark:text-amber-400">

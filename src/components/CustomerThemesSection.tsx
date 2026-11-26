@@ -15,7 +15,15 @@ import {
   Check,
   Droplets
 } from 'lucide-react';
-import { EcomProduct, ProductCategory, buildRelevaProductUrl } from '../data/unifiedProductsData';
+import {
+  EcomProduct,
+  ProductCategory,
+  buildRelevaProductUrl,
+  ALIEXPRESS_JEWELRY_URL,
+  ALIEXPRESS_BEAUTY_URL,
+  ALIEXPRESS_TOYS_URL,
+  ALIEXPRESS_WOMENS_CLOTHING_URL
+} from '../data/unifiedProductsData';
 import { getContextualSponsors } from '../data/sponsorsData';
 import { StoreFilterOption, useProducts } from '../context/ProductsContext';
 import { useCart } from '../context/CartContext';
@@ -29,6 +37,7 @@ import {
 import { BUYING_NEED_META, type BuyingNeed } from '../utils/recommendations';
 import { ModernProductModal } from './ModernProductModal';
 import { ResilientImage } from './ResilientImage';
+import { ALIEXPRESS_EVENT_SQUARE_URL } from '../utils/eventPromotionsCsv';
 
 interface CustomerThemeProfile {
   id: string;
@@ -170,6 +179,27 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'illin-miyako-coffee-maker-cm327'
     ],
     icon: Droplets
+  },
+  {
+    id: 'global-finds',
+    label: 'Global Finds',
+    headline: "AliExpress Jewelry, Beauty, Toys & Women's Apparel Picks",
+    summary:
+      "Curated global category showcases across Jewelry & Accessories, Beauty & Health, Toys & Games, and Women's Clothing directly on AliExpress.",
+    idealFor: 'Style, Gift Shoppers & Global Marketplace Deals',
+    partnerStores: 'AliExpress · Amazon',
+    targetStore: 'AliExpress',
+    targetCategory: 'AliExpress Global Picks',
+    sponsorContextKey: 'AliExpress Global Picks',
+    productIds: [
+      'aliexpress-jewelry-accessories',
+      'aliexpress-beauty-health',
+      'aliexpress-toys-games',
+      'aliexpress-womens-clothing',
+      'amz-anker-magsafe-3in1',
+      'amz-sony-wh1000xm5'
+    ],
+    icon: ShoppingBag
   }
 ];
 
@@ -193,6 +223,7 @@ const BUDGET_OPTIONS: Array<{ value: number | null; label: string }> = [
 const PREFERRED_STORES: Array<{ value: PartnerStoreOrigin | 'all'; label: string }> = [
   { value: 'all', label: 'Regional priority (All)' },
   { value: 'Amazon', label: 'Amazon' },
+  { value: 'AliExpress', label: 'AliExpress' },
   { value: 'Shopz BD', label: 'Shopz BD' },
   { value: 'Star Tech', label: 'Star Tech' },
   { value: 'BanglaShoppers', label: 'BanglaShoppers' },
@@ -221,6 +252,7 @@ export const CustomerThemesSection: React.FC = () => {
     getAffiliateBuyUrl,
     amazonShortUrl,
     amazonStoreUrl,
+    aliexpressStoreUrl,
     shopzStoreUrl,
     relevaStoreUrl,
     exonhostStoreUrl,
@@ -335,6 +367,11 @@ export const CustomerThemesSection: React.FC = () => {
     ];
     const sohojCategories = rawSohoj.filter((c) => c.count > 0);
 
+    const rawAliExpress: AffiliateCategoryLink[] = [
+      { label: 'AliExpress Global Category Picks', count: countFor('AliExpress', 'AliExpress Global Picks'), store: 'AliExpress', category: 'AliExpress Global Picks' }
+    ];
+    const aliexpressCategories = rawAliExpress.filter((c) => c.count > 0);
+
     const sponsorGroups = [
       { label: 'Hardware & Power Partners', count: sponsors.filter((s) => s.group === 'Hardware & Power').length },
       { label: 'Workspace & Audio Partners', count: sponsors.filter((s) => s.group === 'Workspace & Audio').length },
@@ -343,6 +380,7 @@ export const CustomerThemesSection: React.FC = () => {
 
     return {
       amazonTotal: products.filter((p) => p.originStore === 'Amazon').length,
+      aliexpressTotal: products.filter((p) => p.originStore === 'AliExpress').length,
       shopzTotal: products.filter((p) => p.originStore === 'Shopz BD').length,
       relevaTotal: products.filter((p) => p.originStore === 'Releva BD').length,
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
@@ -352,6 +390,7 @@ export const CustomerThemesSection: React.FC = () => {
       sohojTotal: products.filter((p) => p.originStore === 'Sohoj Affiliates').length,
       sponsorsTotal: sponsors.length,
       amazonCategories,
+      aliexpressCategories,
       shopzCategories,
       relevaCategories,
       exonhostCategories,
@@ -409,6 +448,7 @@ export const CustomerThemesSection: React.FC = () => {
 
   const getStoreColorText = (store: PartnerStoreOrigin) => {
     if (store === 'ExonHost') return 'text-sky-600 dark:text-sky-400';
+    if (store === 'AliExpress') return 'text-red-600 dark:text-red-400';
     if (store === 'Shopz BD') return 'text-emerald-600 dark:text-emerald-400';
     if (store === 'Releva BD') return 'text-teal-600 dark:text-teal-400';
     if (store === 'BanglaShoppers') return 'text-rose-600 dark:text-rose-400';
@@ -420,6 +460,7 @@ export const CustomerThemesSection: React.FC = () => {
 
   const getStoreButtonClass = (store: PartnerStoreOrigin) => {
     if (store === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
+    if (store === 'AliExpress') return 'bg-red-600 hover:bg-red-500 text-white';
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
     if (store === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
@@ -1317,6 +1358,87 @@ export const CustomerThemesSection: React.FC = () => {
                         className="w-full min-h-[44px] px-3 py-2 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Open Sohoj Affiliates</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (storeName === 'AliExpress') {
+                return (
+                  <div
+                    key="dir-aliexpress"
+                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            AliExpress
+                          </h4>
+                          <p className="text-[11px] text-red-600 dark:text-red-400 font-medium">
+                            Jewelry, Beauty, Toys &amp; Apparel
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                          {affiliateDirectory.aliexpressTotal} categories
+                        </span>
+                      </div>
+
+                      <ul className="space-y-1.5">
+                        {affiliateDirectory.aliexpressCategories.map((cat) => (
+                          <li key={cat.label}>
+                            <button
+                              type="button"
+                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
+                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+                                {cat.count}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        <li className="px-2.5 py-2 space-y-2">
+                          <span className="block text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Direct AliExpress Category Links:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { id: 'jewelry', label: 'Jewelry & Watches', url: ALIEXPRESS_JEWELRY_URL },
+                              { id: 'beauty', label: 'Beauty & Health', url: ALIEXPRESS_BEAUTY_URL },
+                              { id: 'toys', label: 'Toys & Games', url: ALIEXPRESS_TOYS_URL },
+                              { id: 'clothing', label: "Women's Clothing", url: ALIEXPRESS_WOMENS_CLOTHING_URL },
+                              { id: 'event-promo', label: 'Seasonal Event Promo', url: ALIEXPRESS_EVENT_SQUARE_URL }
+                            ].map((entry) => (
+                              <a
+                                key={entry.id}
+                                href={entry.url}
+                                target="_blank"
+                                rel="nofollow sponsored noopener noreferrer"
+                                onClick={() => recordAffiliateClick(`dir-aliexpress-${entry.id}`, 'AliExpress')}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/60 border border-slate-200 dark:border-slate-700 hover:border-red-400 text-[11px] font-semibold text-slate-800 dark:text-slate-200 transition-colors"
+                              >
+                                <span>{entry.label}</span>
+                                <ExternalLink className="w-2.5 h-2.5 text-red-600 dark:text-red-400" />
+                              </a>
+                            ))}
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                      <a
+                        href={aliexpressStoreUrl}
+                        target="_blank"
+                        rel="nofollow sponsored noopener noreferrer"
+                        onClick={() => recordAffiliateClick('dir-aliexpress-store', 'AliExpress')}
+                        className="w-full min-h-[44px] px-3 py-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                      >
+                        <span>Visit AliExpress Deals</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>

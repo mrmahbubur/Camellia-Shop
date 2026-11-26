@@ -432,5 +432,9 @@
   "releva-bd-127": "./images/products/gen-releva-skincare-set.jpg",
   "releva-bd-92": "./images/products/gen-releva-chrono-watch.jpg",
   "releva-bd-128": "./images/products/gen-releva-led-lamp.jpg",
-  "releva-bd-116": "./images/products/gen-releva-commuter-backpack.jpg"
+  "releva-bd-116": "./images/products/gen-releva-commuter-backpack.jpg",
+  "aliexpress-jewelry-accessories": "./images/products/aliexpress-jewelry-accessories.jpg",
+  "aliexpress-beauty-health": "./images/products/aliexpress-beauty-health.jpg",
+  "aliexpress-toys-games": "./images/products/aliexpress-toys-games.jpg",
+  "aliexpress-womens-clothing": "./images/products/aliexpress-womens-clothing.jpg"
 }

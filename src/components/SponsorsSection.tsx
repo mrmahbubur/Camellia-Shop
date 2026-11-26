@@ -3,6 +3,7 @@ import { ArrowUpRight, ExternalLink, Megaphone } from 'lucide-react';
 import { SponsorGroup } from '../data/sponsorsData';
 import { useProducts } from '../context/ProductsContext';
 import { ResilientImage } from './ResilientImage';
+import { AliExpressEventBanner } from './AliExpressEventBanner';
 
 type FilterTab = 'All' | SponsorGroup;
 
@@ -84,6 +85,11 @@ export const SponsorsSection: React.FC = () => {
             })}
           </div>
         </div>
+
+        {/* AliExpress Official Multi-Format Event Promotion */}
+        {(activeGroup === 'All' || activeGroup === 'Deals & Bundles') && (
+          <AliExpressEventBanner variant="showcase" />
+        )}
 
         {/* Featured Sponsor Spotlights */}
         {featuredSponsors.length > 0 && (

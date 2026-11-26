@@ -286,6 +286,8 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                           className={`inline-flex items-center justify-center gap-1.5 px-3 min-h-[44px] py-2 font-bold rounded-lg text-xs shadow-xs whitespace-nowrap ${
                             p.originStore === 'ExonHost'
                               ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                              : p.originStore === 'AliExpress'
+                              ? 'bg-red-600 hover:bg-red-500 text-white'
                               : p.originStore === 'Shopz BD'
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                               : p.originStore === 'BanglaShoppers'

@@ -614,6 +614,7 @@ function isValidNeed(value: unknown): value is BuyingNeed {
 
 const VALID_STORES = new Set<PartnerStoreOrigin>([
   'Amazon',
+  'AliExpress',
   'Shopz BD',
   'Star Tech',
   'Releva BD',

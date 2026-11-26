@@ -91,13 +91,14 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   };
 
   const isShopz = product.originStore === 'Shopz BD';
+  const isAliExpress = product.originStore === 'AliExpress';
   const isReleva = product.originStore === 'Releva BD';
   const isExonHost = product.originStore === 'ExonHost';
   const isBanglaShoppers = product.originStore === 'BanglaShoppers';
   const isIllin = product.originStore === 'Illin BD';
   const isStarTech = product.originStore === 'Star Tech';
   const isSohoj = product.originStore === 'Sohoj Affiliates';
-  const isDarkCta = isBanglaShoppers || isStarTech || isSohoj;
+  const isDarkCta = isBanglaShoppers || isStarTech || isSohoj || isAliExpress;
   const hasDiscount =
     hasKnownPrice &&
     typeof product.originalPrice === 'number' &&
@@ -108,6 +109,8 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
     : 0;
   const badgeClasses = isStarTech
     ? 'bg-orange-600 text-white'
+    : isAliExpress
+    ? 'bg-red-600 text-white'
     : isBanglaShoppers
     ? 'bg-rose-500 text-white'
     : isIllin
@@ -385,6 +388,8 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                   className={`flex-1 min-h-[46px] py-3 px-4 font-extrabold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg whitespace-nowrap ${
                     isExonHost
                       ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                      : isAliExpress
+                      ? 'bg-red-600 hover:bg-red-500 text-white'
                       : isShopz
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                       : isBanglaShoppers

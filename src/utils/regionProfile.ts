@@ -12,6 +12,7 @@ export type VisitorRegionCode =
 
 export type PartnerStoreOrigin =
   | 'Amazon'
+  | 'AliExpress'
   | 'Shopz BD'
   | 'Releva BD'
   | 'Star Tech'
@@ -46,6 +47,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Illin BD',
       'Sohoj Affiliates',
       'ExonHost',
+      'AliExpress',
       'Amazon'
     ],
     preferredThemeId: 'student-home',
@@ -61,6 +63,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'USD',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -82,6 +85,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'GBP',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -103,6 +107,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'EUR',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -124,6 +129,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'INR',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -145,6 +151,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'USD',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -166,6 +173,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'USD',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -187,6 +195,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'USD',
     storePriority: [
       'Amazon',
+      'AliExpress',
       'ExonHost',
       'Shopz BD',
       'Star Tech',

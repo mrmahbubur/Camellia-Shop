@@ -42,11 +42,13 @@ export const STORE_CATEGORIES: ProductCategory[] = [
   'Illin BD Home & Tech',
   'Releva BD Picks',
   'Cloud Hosting & Domains',
-  'Sohoj Affiliate Network'
+  'Sohoj Affiliate Network',
+  'AliExpress Global Picks'
 ];
 
 export const PARTNER_STORE_LIST: PartnerStoreOrigin[] = [
   'Amazon',
+  'AliExpress',
   'Shopz BD',
   'Star Tech',
   'BanglaShoppers',

@@ -21,6 +21,10 @@ import {
   STARTECH_AFFILIATE_URL,
   STARTECH_TRACKING_PARAM,
   SOHOJ_AFFILIATE_URL,
+  ALIEXPRESS_JEWELRY_URL,
+  ALIEXPRESS_BEAUTY_URL,
+  ALIEXPRESS_TOYS_URL,
+  ALIEXPRESS_WOMENS_CLOTHING_URL,
   parseShopzCsvRecords
 } from '../src/data/catalogRecords.ts';
 import {
@@ -43,6 +47,7 @@ import {
   resolveRequestOrigin,
   sanitizeHeaderHost
 } from '../src/utils/seoSchema.ts';
+import { parseEventPromotionCsv } from '../src/utils/eventPromotionsCsv.ts';
 
 const ROOT = process.cwd();
 
@@ -291,6 +296,33 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.equal(sohojRecords.length, 2);
   assert.equal(SOHOJ_AFFILIATE_URL, 'https://www.illin.com.bd/40989');
   assert.ok(sohojRecords.every((r) => r.affiliateUrl === SOHOJ_AFFILIATE_URL));
+
+  const aliexpressRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'AliExpress');
+  assert.equal(aliexpressRecords.length, 4);
+  const expectedAliExpressUrls = [
+    ALIEXPRESS_JEWELRY_URL,
+    ALIEXPRESS_BEAUTY_URL,
+    ALIEXPRESS_TOYS_URL,
+    ALIEXPRESS_WOMENS_CLOTHING_URL
+  ];
+  assert.deepEqual(expectedAliExpressUrls, [
+    'https://s.click.aliexpress.com/e/_c4oqIjxj',
+    'https://s.click.aliexpress.com/e/_c4W9fhKh',
+    'https://s.click.aliexpress.com/e/_c3Nx9xUl',
+    'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+  ]);
+  for (const aliUrl of expectedAliExpressUrls) {
+    assert.ok(
+      aliexpressRecords.some((r) => r.affiliateUrl === aliUrl),
+      `Missing AliExpress affiliate URL: ${aliUrl}`
+    );
+  }
+  assert.ok(
+    aliexpressRecords.every(
+      (r) => r.price === 0 && r.priceStatus === 'live-at-partner' && r.urlKind === 'category'
+    ),
+    'Expected honest live-at-partner category showcase metadata on AliExpress entries'
+  );
 });
 
 test('parseShopzCsvRecords imports all 60 CSV rows and skips any fabrilife rows', () => {
@@ -318,6 +350,7 @@ test('Region profiles cover all 8 regions and rank partner stores deterministica
   for (const code of REGION_ORDER) {
     assert.ok(REGION_PROFILES[code], `Missing profile for ${code}`);
     assert.ok(REGION_PROFILES[code].storePriority.includes('Releva BD'));
+    assert.ok(REGION_PROFILES[code].storePriority.includes('AliExpress'));
   }
   assert.ok(getStorePriorityRank('Shopz BD', 'BD') < getStorePriorityRank('Amazon', 'BD'));
   assert.ok(getStorePriorityRank('Amazon', 'US') < getStorePriorityRank('Shopz BD', 'US'));
@@ -453,7 +486,7 @@ test('productImageManifest maps 100% of catalog product images on disk (>1.2KB e
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 434, `Expected at least 434 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 438, `Expected at least 438 mapped images, got ${entries.length}`);
 
   const csvPath = path.join(ROOT, 'public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv');
   const csvProducts = parseShopzCsvRecords(fs.readFileSync(csvPath, 'utf8'));
@@ -731,6 +764,38 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
   const sitemapOutput = buildSitemapXml('https://custom.camellia.shop/');
   assert.ok(sitemapOutput.includes('<loc>https://custom.camellia.shop/</loc>'));
 });
+
+test('parseEventPromotionCsv loads all 7 banner sizes and s.click.aliexpress.com links from event_promotion_830ab32c.csv', () => {
+  const csvPath = path.join(ROOT, 'public/assets/aistudio/event_promotion_830ab32c.csv');
+  const csvText = fs.readFileSync(csvPath, 'utf8');
+  const promos = parseEventPromotionCsv(csvText);
+
+  const expectedSizes = ['190*240', '725*90', '300*250', '160*600', '120*600', '500*500', '320*480'];
+  assert.equal(promos.length, expectedSizes.length);
+  assert.deepEqual(
+    promos.map((p) => p.size),
+    expectedSizes
+  );
+
+  for (const promo of promos) {
+    assert.equal(
+      promo.link,
+      `https://s.click.aliexpress.com/e/_c3vfU2sh?bz=${promo.size}`,
+      `Unexpected event link for size ${promo.size}`
+    );
+    assert.ok(
+      promo.picture.startsWith('https://ae-pic-a1.aliexpress-media.com/kf/'),
+      `Expected aliexpress-media CDN image for size ${promo.size}`
+    );
+    assert.ok(promo.width > 0 && promo.height > 0);
+  }
+
+  // Ensures Admitad or blocked URLs inside promo CSV are rejected
+  const polluted = `${csvText}\n300*250,en,bad,https://rzekl.com/g/bad,<a>,https://ae-pic-a1.aliexpress-media.com/kf/Sab4a71959b6346c5b08b6fee0d16abe82.png\n999*90,en,bad,https://alitems.com/g/bad,<a>,https://ae-pic-a1.aliexpress-media.com/kf/Sab4a71959b6346c5b08b6fee0d16abe82.png`;
+  const filtered = parseEventPromotionCsv(polluted);
+  assert.equal(filtered.length, expectedSizes.length);
+});
+
 
 
 

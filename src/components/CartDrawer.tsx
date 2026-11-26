@@ -112,7 +112,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Direct Purchase Notice */}
         <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
-          All checkout completes on Amazon, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.
+          All checkout completes on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.
         </div>
 
         {/* Saved Items List */}
@@ -139,6 +139,7 @@ export const CartDrawer: React.FC = () => {
           ) : (
             cart.map((item) => {
               const partnerUrl = resolvePartnerUrl(item.product.id, item.product.affiliateUrl);
+              const isAliExpress = item.product.originStore === 'AliExpress';
               const isShopz = item.product.originStore === 'Shopz BD';
               const isReleva = item.product.originStore === 'Releva BD';
               const isExonHost = item.product.originStore === 'ExonHost';
@@ -238,6 +239,8 @@ export const CartDrawer: React.FC = () => {
                       className={`w-full min-h-[44px] px-3 py-2 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors ${
                         isExonHost
                           ? 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                          : isAliExpress
+                          ? 'bg-red-600 hover:bg-red-500 text-white'
                           : isShopz
                           ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                           : isBanglaShoppers

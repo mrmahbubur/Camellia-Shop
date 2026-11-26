@@ -14,6 +14,7 @@ import {
   SOHOJ_AFFILIATE_URL,
   STARTECH_AFFILIATE_URL,
   STARTECH_TRACKING_PARAM,
+  ALIEXPRESS_AFFILIATE_URL,
   RELEVA_HOME_URL,
   normalizeRelevaAffiliateUrl
 } from '../data/unifiedProductsData';
@@ -68,10 +69,10 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
     'Camellia Shop · Curated Tech, Watches, Skincare, Appliances & Partner Stores',
   heroTitle: 'Curated Workspace Tech, Watches, Skincare & Partner Stores.',
   heroSubtitle:
-    'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, and cloud hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
+    'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, fashion, jewelry, toys, and cloud hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare & Home Essentials',
   storeSubtitle:
-    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, home appliances, and hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.'
+    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, fashion, jewelry, toys, home appliances, and hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -140,6 +141,7 @@ interface ProductsContextType {
   getRelevaSearchUrl: (query: string) => string;
   amazonShortUrl: string;
   amazonStoreUrl: string;
+  aliexpressStoreUrl: string;
   shopzStoreUrl: string;
   relevaStoreUrl: string;
   exonhostStoreUrl: string;
@@ -621,6 +623,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       lowerTrimmed.includes('wextap.com')
     ) {
       if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
+      if (originStore === 'AliExpress') return ALIEXPRESS_AFFILIATE_URL;
       if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_AFFILIATE_URL;
       if (originStore === 'Illin BD') return ILLIN_AFFILIATE_URL;
       if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
@@ -635,6 +638,13 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return AMAZON_STORE_URL;
     }
 
+    if (
+      originStore === 'AliExpress' ||
+      trimmed.includes('s.click.aliexpress.com') ||
+      trimmed.includes('aliexpress.com')
+    ) {
+      return trimmed.includes('s.click.aliexpress.com/') ? trimmed : ALIEXPRESS_AFFILIATE_URL;
+    }
     if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
       if (trimmed.includes('tracking=')) return trimmed;
       const sep = trimmed.includes('?') ? '&' : '?';
@@ -760,6 +770,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getRelevaSearchUrl,
         amazonShortUrl: AMAZON_LINK_SHORT,
         amazonStoreUrl: AMAZON_STORE_URL,
+        aliexpressStoreUrl: ALIEXPRESS_AFFILIATE_URL,
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,
         exonhostStoreUrl: EXONHOST_AFFILIATE_URL,
