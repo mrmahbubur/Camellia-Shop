@@ -298,8 +298,6 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                               ? 'bg-violet-600 hover:bg-violet-500 text-white'
                               : p.originStore === 'Releva BD'
                               ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
-                              : p.originStore === 'Alibaba'
-                              ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                               : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                           }`}
                         >

@@ -18,8 +18,7 @@ export type PartnerStoreOrigin =
   | 'BanglaShoppers'
   | 'Illin BD'
   | 'Sohoj Affiliates'
-  | 'ExonHost'
-  | 'Alibaba';
+  | 'ExonHost';
 
 export interface RegionProfile {
   code: VisitorRegionCode;
@@ -47,14 +46,13 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Illin BD',
       'Sohoj Affiliates',
       'ExonHost',
-      'Alibaba',
       'Amazon'
     ],
     preferredThemeId: 'student-home',
     prioritySummary: 'Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD & Sohoj Affiliates Prioritized for Bangladesh',
     deliverySummary: 'Local Bangladesh partners first; global delivery varies by merchant',
     availabilityNote:
-      'Shopz BD, Star Tech, Releva BD, BanglaShoppers, and Illin BD fulfill locally within Bangladesh; international shipping from Amazon or Alibaba depends on item eligibility and customs at partner checkout.'
+      'Shopz BD, Star Tech, Releva BD, BanglaShoppers, and Illin BD fulfill locally within Bangladesh; international shipping from Amazon depends on item eligibility and customs at partner checkout.'
   },
   US: {
     code: 'US',
@@ -64,7 +62,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     storePriority: [
       'Amazon',
       'ExonHost',
-      'Alibaba',
       'Shopz BD',
       'Star Tech',
       'Releva BD',
@@ -73,7 +70,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Sohoj Affiliates'
     ],
     preferredThemeId: 'remote-desk',
-    prioritySummary: 'Amazon US, ExonHost & Alibaba Prioritized',
+    prioritySummary: 'Amazon US & ExonHost Prioritized',
     deliverySummary: 'Direct partner checkout; live US shipping verified on retailer site',
     availabilityNote:
       'Amazon US listings target US delivery addresses; Bangladesh retailers (Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD) primarily deliver inside Bangladesh.'
@@ -86,7 +83,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     storePriority: [
       'Amazon',
       'ExonHost',
-      'Alibaba',
       'Shopz BD',
       'Star Tech',
       'Releva BD',
@@ -108,7 +104,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     storePriority: [
       'Amazon',
       'ExonHost',
-      'Alibaba',
       'Shopz BD',
       'Star Tech',
       'Releva BD',
@@ -130,7 +125,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     storePriority: [
       'Amazon',
       'ExonHost',
-      'Alibaba',
       'Shopz BD',
       'Star Tech',
       'Releva BD',
@@ -150,7 +144,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     shortLabel: 'APAC · USD',
     defaultCurrency: 'USD',
     storePriority: [
-      'Alibaba',
       'Amazon',
       'ExonHost',
       'Shopz BD',
@@ -161,7 +154,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Sohoj Affiliates'
     ],
     preferredThemeId: 'mobile-commuter',
-    prioritySummary: 'Alibaba, Amazon & ExonHost APAC Nodes Prioritized',
+    prioritySummary: 'Amazon & ExonHost APAC Nodes Prioritized',
     deliverySummary: 'Regional dispatch & currency converted at partner checkout',
     availabilityNote:
       'Partner stores set regional delivery coverage and shipping fees individually; local Bangladesh stores do not typically ship internationally.'
@@ -173,7 +166,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'USD',
     storePriority: [
       'Amazon',
-      'Alibaba',
       'ExonHost',
       'Shopz BD',
       'Star Tech',
@@ -183,7 +175,7 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
       'Sohoj Affiliates'
     ],
     preferredThemeId: 'mobile-commuter',
-    prioritySummary: 'Amazon & Alibaba Global Partners Prioritized',
+    prioritySummary: 'Amazon & ExonHost Global Partners Prioritized',
     deliverySummary: 'Destination shipping & customs terms confirmed at partner checkout',
     availabilityNote:
       'Cross-border delivery eligibility varies by country and product; verify shipping before ordering on the partner site.'
@@ -195,7 +187,6 @@ export const REGION_PROFILES: Record<VisitorRegionCode, RegionProfile> = {
     defaultCurrency: 'USD',
     storePriority: [
       'Amazon',
-      'Alibaba',
       'ExonHost',
       'Shopz BD',
       'Star Tech',

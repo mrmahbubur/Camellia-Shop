@@ -41,8 +41,7 @@ const SPOTLIGHT_PRODUCT_IDS = [
   'sohoj-affiliate-program',
   'startech-colmi-p81',
   'releva-bd-130',
-  'exonhost-turbo-nvme',
-  'alibaba-smart-qi2-charging-pad-pro'
+  'exonhost-turbo-nvme'
 ];
 
 export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
@@ -54,7 +53,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     shopzStoreUrl,
     relevaStoreUrl,
     exonhostStoreUrl,
-    alibabaStoreUrl,
     banglashoppersStoreUrl,
     illinStoreUrl,
     startechStoreUrl,
@@ -105,7 +103,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
       Amazon: 0,
       'Shopz BD': 0,
       'Releva BD': 0,
-      Alibaba: 0,
       ExonHost: 0,
       BanglaShoppers: 0,
       'Illin BD': 0,
@@ -180,7 +177,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
     if (store === 'ExonHost') return 'bg-sky-500 text-slate-950';
     if (store === 'Shopz BD') return 'bg-emerald-500 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-400 text-slate-950';
-    if (store === 'Alibaba') return 'bg-indigo-600 text-white';
     if (store === 'BanglaShoppers') return 'bg-rose-500 text-white';
     if (store === 'Illin BD') return 'bg-cyan-400 text-slate-950';
     if (store === 'Star Tech') return 'bg-orange-600 text-white';
@@ -291,21 +287,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         >
           <span>ExonHost</span>
           <ExternalLink className="w-3 h-3 text-sky-600 dark:text-sky-400" />
-        </a>
-      );
-    }
-    if (store === 'Alibaba') {
-      return (
-        <a
-          key="alibaba"
-          href={alibabaStoreUrl}
-          target="_blank"
-          rel="nofollow sponsored noopener noreferrer"
-          onClick={() => recordAffiliateClick('hero-alibaba-store', 'Alibaba')}
-          className="min-h-[44px] px-3 py-2 text-xs font-bold text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap"
-        >
-          <span>Alibaba</span>
-          <ExternalLink className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
         </a>
       );
     }
@@ -663,7 +644,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               { store: 'BanglaShoppers' as const, label: 'BanglaShoppers', count: storeCounts.BanglaShoppers, sub: 'Skincare & beauty' },
               { store: 'Illin BD' as const, label: 'Illin BD', count: storeCounts['Illin BD'], sub: 'Home, care & kitchen' },
               { store: 'Releva BD' as const, label: 'Releva BD', count: storeCounts['Releva BD'], sub: 'Featured picks' },
-              { store: 'Alibaba' as const, label: 'Alibaba', count: storeCounts.Alibaba, sub: 'Direct sourcing' },
               { store: 'ExonHost' as const, label: 'ExonHost', count: storeCounts.ExonHost, sub: 'NVMe, WP & VPS' },
               { store: 'Sohoj Affiliates' as const, label: 'Sohoj', count: storeCounts['Sohoj Affiliates'], sub: 'BD affiliate hub' }
             ] as const

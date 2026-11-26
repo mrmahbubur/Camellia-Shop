@@ -15,7 +15,6 @@ import {
   AMAZON_STORE_URL,
   AMAZON_LINK_SHORT,
   SHOPZ_REF_BASE,
-  ALIBABA_AFFILIATE_URL,
   EXONHOST_AFFILIATE_URL,
   BANGLASHOPPERS_AFFILIATE_URL,
   ILLIN_AFFILIATE_URL,
@@ -196,16 +195,16 @@ test('CURATED_CATALOG_RECORDS includes requested affiliate links and zero fabril
   assert.equal(
     CURATED_CATALOG_RECORDS.some((r) => r.affiliateUrl.includes('1e8d114494cb5002cfdd16525dc3e8')),
     false,
-    'Removed affiliate link must not exist in curated catalog'
+    'Removed AliExpress Admitad link must not exist in curated catalog'
   );
-
-  const alibabaRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'Alibaba');
-  assert.equal(alibabaRecords.length, 4);
-  assert.ok(alibabaRecords.every((r) => r.affiliateUrl === ALIBABA_AFFILIATE_URL));
-  assert.ok(
-    alibabaRecords.every((r) =>
-      r.specs.some((s) => s.value === 'Alibaba Verified Suppliers')
-    )
+  assert.equal(
+    CURATED_CATALOG_RECORDS.some((r) =>
+      /(rzekl\.com|admitad\.com|alitems\.com|wextap\.com|pm1aev55clcb5002cfdd219aa26f6f)/i.test(
+        r.affiliateUrl
+      )
+    ),
+    false,
+    'Admitad affiliate links must not exist in curated catalog'
   );
 
   const exonHostRecords = CURATED_CATALOG_RECORDS.filter((r) => r.originStore === 'ExonHost');
@@ -404,6 +403,8 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
 
   const scanDirs = [path.join(ROOT, 'src'), path.join(ROOT, 'server')];
   const fabrilifeUrlPattern = /https?:\/\/[^"'\s]*fabrilife\.com/i;
+  const admitadUrlPattern =
+    /https?:\/\/[^"'\s]*(rzekl\.com|admitad\.com|alitems\.com|wextap\.com)/i;
   const checkCleanCode = (dir: string) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const fullPath = path.join(dir, entry.name);
@@ -417,9 +418,19 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
           `Unexpected fabrilife.com URL in ${fullPath}`
         );
         assert.equal(
+          admitadUrlPattern.test(content),
+          false,
+          `Unexpected Admitad affiliate URL in ${fullPath}`
+        );
+        assert.equal(
           content.includes('1e8d114494cb5002cfdd16525dc3e8'),
           false,
           `Removed affiliate link token found in ${fullPath}`
+        );
+        assert.equal(
+          content.includes('pm1aev55clcb5002cfdd219aa26f6f'),
+          false,
+          `Removed Admitad link token found in ${fullPath}`
         );
       }
     }
@@ -427,14 +438,12 @@ test('All 10 uplcm.com sponsored URLs, store portals, and zero fabrilife links e
   for (const dir of scanDirs) {
     checkCleanCode(dir);
   }
-  assert.equal(
-    fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8').includes('1e8d114494cb5002cfdd16525dc3e8'),
-    false
-  );
-  assert.equal(
-    fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('1e8d114494cb5002cfdd16525dc3e8'),
-    false
-  );
+  const serverContent = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
+  const indexContent = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  assert.equal(serverContent.includes('1e8d114494cb5002cfdd16525dc3e8'), false);
+  assert.equal(admitadUrlPattern.test(serverContent), false);
+  assert.equal(indexContent.includes('1e8d114494cb5002cfdd16525dc3e8'), false);
+  assert.equal(admitadUrlPattern.test(indexContent), false);
 });
 
 test('productImageManifest maps 100% of catalog product images on disk (>1.2KB each)', () => {
@@ -444,7 +453,7 @@ test('productImageManifest maps 100% of catalog product images on disk (>1.2KB e
   );
   const manifest = JSON.parse(manifestRaw) as Record<string, string>;
   const entries = Object.entries(manifest);
-  assert.ok(entries.length >= 438, `Expected at least 438 mapped images, got ${entries.length}`);
+  assert.ok(entries.length >= 434, `Expected at least 434 mapped images, got ${entries.length}`);
 
   const csvPath = path.join(ROOT, 'public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv');
   const csvProducts = parseShopzCsvRecords(fs.readFileSync(csvPath, 'utf8'));

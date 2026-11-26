@@ -9,7 +9,6 @@ import {
   AMAZON_STORE_URL,
   SHOPZ_REF_BASE,
   EXONHOST_AFFILIATE_URL,
-  ALIBABA_AFFILIATE_URL,
   BANGLASHOPPERS_AFFILIATE_URL,
   ILLIN_AFFILIATE_URL,
   SOHOJ_AFFILIATE_URL,
@@ -69,10 +68,10 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
     'Camellia Shop · Curated Tech, Watches, Skincare, Appliances & Partner Stores',
   heroTitle: 'Curated Workspace Tech, Watches, Skincare & Partner Stores.',
   heroSubtitle:
-    'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, and cloud hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
+    'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, and cloud hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare & Home Essentials',
   storeSubtitle:
-    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, home appliances, and hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.'
+    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, home appliances, and hosting across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -144,7 +143,6 @@ interface ProductsContextType {
   shopzStoreUrl: string;
   relevaStoreUrl: string;
   exonhostStoreUrl: string;
-  alibabaStoreUrl: string;
   banglashoppersStoreUrl: string;
   illinStoreUrl: string;
   sohojStoreUrl: string;
@@ -613,9 +611,16 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     urlKind?: 'product' | 'portal' | 'category'
   ): string => {
     const trimmed = rawUrl.trim();
-    if (!trimmed || trimmed.toLowerCase().includes('fabrilife.com')) {
+    const lowerTrimmed = trimmed.toLowerCase();
+    if (
+      !trimmed ||
+      lowerTrimmed.includes('fabrilife.com') ||
+      lowerTrimmed.includes('rzekl.com') ||
+      lowerTrimmed.includes('admitad.com') ||
+      lowerTrimmed.includes('alitems.com') ||
+      lowerTrimmed.includes('wextap.com')
+    ) {
       if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
-      if (originStore === 'Alibaba') return ALIBABA_AFFILIATE_URL;
       if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_AFFILIATE_URL;
       if (originStore === 'Illin BD') return ILLIN_AFFILIATE_URL;
       if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
@@ -644,9 +649,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
       if (trimmed.includes('sohojaffiliates.com')) return SOHOJ_AFFILIATE_URL;
       return trimmed.includes('/40989') ? trimmed : SOHOJ_AFFILIATE_URL;
-    }
-    if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
-      return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_AFFILIATE_URL;
     }
     if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
       return normalizeRelevaAffiliateUrl(trimmed, urlKind);
@@ -761,7 +763,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,
         exonhostStoreUrl: EXONHOST_AFFILIATE_URL,
-        alibabaStoreUrl: ALIBABA_AFFILIATE_URL,
         banglashoppersStoreUrl: BANGLASHOPPERS_AFFILIATE_URL,
         illinStoreUrl: ILLIN_AFFILIATE_URL,
         sohojStoreUrl: SOHOJ_AFFILIATE_URL,

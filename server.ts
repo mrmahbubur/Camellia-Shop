@@ -620,8 +620,7 @@ const VALID_STORES = new Set<PartnerStoreOrigin>([
   'BanglaShoppers',
   'Illin BD',
   'Sohoj Affiliates',
-  'ExonHost',
-  'Alibaba'
+  'ExonHost'
 ]);
 
 async function startServer() {

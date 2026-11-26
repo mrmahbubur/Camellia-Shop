@@ -93,12 +93,11 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
   const isShopz = product.originStore === 'Shopz BD';
   const isReleva = product.originStore === 'Releva BD';
   const isExonHost = product.originStore === 'ExonHost';
-  const isAlibaba = product.originStore === 'Alibaba';
   const isBanglaShoppers = product.originStore === 'BanglaShoppers';
   const isIllin = product.originStore === 'Illin BD';
   const isStarTech = product.originStore === 'Star Tech';
   const isSohoj = product.originStore === 'Sohoj Affiliates';
-  const isDarkCta = isAlibaba || isBanglaShoppers || isStarTech || isSohoj;
+  const isDarkCta = isBanglaShoppers || isStarTech || isSohoj;
   const hasDiscount =
     hasKnownPrice &&
     typeof product.originalPrice === 'number' &&
@@ -121,8 +120,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
     ? 'bg-teal-500 text-slate-950'
     : isExonHost
     ? 'bg-sky-500 text-slate-950'
-    : isAlibaba
-    ? 'bg-indigo-600 text-white'
     : 'bg-amber-500 text-slate-950';
 
   return (
@@ -400,8 +397,6 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                       ? 'bg-violet-600 hover:bg-violet-500 text-white'
                       : isReleva
                       ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
-                      : isAlibaba
-                      ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
                       : 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950'
                   }`}
                 >

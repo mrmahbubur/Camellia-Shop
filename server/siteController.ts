@@ -66,13 +66,13 @@ export interface StorefrontConfig {
 export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba & ExonHost',
+    'Camellia Shop · Curated Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates & ExonHost',
   heroTitle: 'Curated Workspace Tech, Smartwatches, Skincare, Appliances & Partner Stores.',
   heroSubtitle:
-    'Explore workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, cloud hosting, and partner offers across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost.',
+    'Explore workspace electronics, COLMI smartwatches, skincare, home essentials, appliances, cloud hosting, and partner offers across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Home & Hosting',
   storeSubtitle:
-    'Browse electronics, smartwatches, skincare, home essentials, and hosting portals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, Alibaba, and ExonHost. Every order completes directly on the partner store.',
+    'Browse electronics, smartwatches, skincare, home essentials, and hosting portals across Amazon, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost. Every order completes directly on the partner store.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -85,7 +85,11 @@ const BLOCKED_AD_DOMAINS = [
   'adsterra',
   'quge5',
   'blogspot.com',
-  'fabrilife.com'
+  'fabrilife.com',
+  'rzekl.com',
+  'admitad.com',
+  'alitems.com',
+  'wextap.com'
 ];
 
 function isBlockedUrl(url: string): boolean {
@@ -101,7 +105,6 @@ function sanitizePartnerUrl(
   const AMAZON_NODE_URL =
     'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
   const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
-  const ALIBABA_URL = 'https://rzekl.com/g/pm1aev55clcb5002cfdd219aa26f6f/';
   const BANGLASHOPPERS_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
   const ILLIN_URL = 'https://www.illin.com.bd/40989';
   const SOHOJ_URL = 'https://www.illin.com.bd/40989';
@@ -111,7 +114,6 @@ function sanitizePartnerUrl(
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
-    if (originStore === 'Alibaba') return ALIBABA_URL;
     if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
     if (originStore === 'Illin BD') return ILLIN_URL;
     if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
@@ -142,9 +144,6 @@ function sanitizePartnerUrl(
   if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
     if (trimmed.includes('sohojaffiliates.com')) return SOHOJ_URL;
     return trimmed.includes('/40989') ? trimmed : SOHOJ_URL;
-  }
-  if (originStore === 'Alibaba' || trimmed.includes('pm1aev55clcb5002cfdd219aa26f6f')) {
-    return trimmed.includes('rzekl.com/') ? trimmed : ALIBABA_URL;
   }
   if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
     return normalizeRelevaAffiliateUrl(trimmed);
@@ -548,8 +547,6 @@ export async function executeBackendSiteControl(
           ? 'Sohoj Affiliates'
           : rawProd.originStore === 'ExonHost'
           ? 'ExonHost'
-          : rawProd.originStore === 'Alibaba'
-          ? 'Alibaba'
           : 'Amazon';
       const category = VALID_CATEGORIES.has(rawProd.category as CustomStoreProduct['category'])
         ? (rawProd.category as CustomStoreProduct['category'])

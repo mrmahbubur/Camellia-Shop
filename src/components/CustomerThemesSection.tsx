@@ -52,17 +52,17 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Built for remote engineers, analysts, and home office setups looking for tactile mice, task lighting, USB-C docking, and display mounting.',
     idealFor: 'Software Engineers, Analysts & Home Offices',
-    partnerStores: 'Amazon · Alibaba · Shopz BD',
+    partnerStores: 'Amazon · Shopz BD · Star Tech',
     targetStore: 'all',
     targetCategory: 'Office & Workspace',
     sponsorContextKey: 'Office & Workspace',
     productIds: [
       'amz-mx-master-3s',
       'amz-huanuo-monitor-arm',
-      'alibaba-ergonomic-monitor-arm-bulk',
       'amz-benq-screenbar',
       'amz-caldigit-ts4-dock',
-      'csv-wiwu-s600-laptop-stand'
+      'csv-wiwu-s600-laptop-stand',
+      'amz-logitech-desk-mat'
     ],
     icon: Laptop
   },
@@ -73,17 +73,17 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Tailored for video creators, podcasters, and mobile streamers combining USB/XLR microphones, RGB fill lights, tripods, and 2TB portable SSDs.',
     idealFor: 'Podcasters, YouTubers & Mobile Photographers',
-    partnerStores: 'Amazon · Alibaba · Shopz BD',
+    partnerStores: 'Amazon · Shopz BD · Star Tech',
     targetStore: 'all',
     targetCategory: 'Audio & Headphones',
     sponsorContextKey: 'Audio & Studio',
     productIds: [
       'amz-shure-mv7-mic',
       'amz-sony-wh1000xm5',
-      'alibaba-studio-creator-desk-bundle',
       'amz-samsung-t7-shield-2tb',
       'csv-ulanzi-a100-wireless-lavalier-microphone',
-      'csv-ulanzi-vl120-rgb-mini-led-video-light-2500k'
+      'csv-ulanzi-vl120-rgb-mini-led-video-light-2500k',
+      'csv-qcy-ht05-melobuds-anc-true-wireless-earbuds'
     ],
     icon: Headphones
   },
@@ -94,7 +94,7 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     summary:
       'Designed for daily commuters and travelers who want multi-device Qi2 charging, high-capacity power banks, wireless earbuds, and everyday watches.',
     idealFor: 'Travelers, Commuters & Daily Carry',
-    partnerStores: 'Amazon · Star Tech · Shopz BD · Alibaba',
+    partnerStores: 'Amazon · Star Tech · Shopz BD',
     targetStore: 'all',
     targetCategory: 'Wearables & Smartwatches',
     sponsorContextKey: 'Smart Home & Power',
@@ -134,9 +134,9 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
     label: 'Web Builder & Brand',
     headline: 'Web Hosting, Domain Portals & Studio Desk Hardware',
     summary:
-      'For independent founders and developers launching web storefronts—pairing ExonHost hosting portals with desk hardware and accessory sourcing links.',
+      'For independent founders and developers launching web storefronts—pairing ExonHost hosting portals with desk hardware and accessory links.',
     idealFor: 'Founders, Web Developers & Agencies',
-    partnerStores: 'ExonHost · Alibaba · Amazon',
+    partnerStores: 'ExonHost · Amazon · Sohoj Affiliates',
     targetStore: 'ExonHost',
     targetCategory: 'Cloud Hosting & Domains',
     sponsorContextKey: 'Cloud Hosting & Domains',
@@ -144,9 +144,9 @@ const CUSTOMER_THEMES: CustomerThemeProfile[] = [
       'exonhost-turbo-nvme',
       'exonhost-managed-wp',
       'exonhost-domain-bundle',
-      'alibaba-usb-c-dock-factory-lot',
       'amz-caldigit-ts4-dock',
-      'amz-mx-master-3s'
+      'amz-mx-master-3s',
+      'sohoj-affiliate-program'
     ],
     icon: Globe
   },
@@ -198,7 +198,6 @@ const PREFERRED_STORES: Array<{ value: PartnerStoreOrigin | 'all'; label: string
   { value: 'BanglaShoppers', label: 'BanglaShoppers' },
   { value: 'Illin BD', label: 'Illin BD' },
   { value: 'Releva BD', label: 'Releva BD' },
-  { value: 'Alibaba', label: 'Alibaba' },
   { value: 'ExonHost', label: 'ExonHost' },
   { value: 'Sohoj Affiliates', label: 'Sohoj Affiliates' }
 ];
@@ -225,7 +224,6 @@ export const CustomerThemesSection: React.FC = () => {
     shopzStoreUrl,
     relevaStoreUrl,
     exonhostStoreUrl,
-    alibabaStoreUrl,
     banglashoppersStoreUrl,
     illinStoreUrl,
     startechStoreUrl,
@@ -307,14 +305,6 @@ export const CustomerThemesSection: React.FC = () => {
     ];
     const relevaCategories = rawReleva.filter((c) => c.count > 0);
 
-    const rawAlibaba: AffiliateCategoryLink[] = [
-      { label: 'Monitor Arms & Desk Mounts', count: countFor('Alibaba', 'Office & Workspace'), store: 'Alibaba', category: 'Office & Workspace' },
-      { label: 'USB-C Hubs & Peripherals', count: countFor('Alibaba', 'Computers & Accessories'), store: 'Alibaba', category: 'Computers & Accessories' },
-      { label: 'Studio Lighting & Audio', count: countFor('Alibaba', 'Audio & Headphones'), store: 'Alibaba', category: 'Audio & Headphones' },
-      { label: 'Wireless Chargers & Power', count: countFor('Alibaba', 'Smart Home & Power'), store: 'Alibaba', category: 'Smart Home & Power' }
-    ];
-    const alibabaCategories = rawAlibaba.filter((c) => c.count > 0);
-
     const rawExonhost: AffiliateCategoryLink[] = [
       { label: 'Hosting, WordPress & Domains', count: countFor('ExonHost', 'Cloud Hosting & Domains'), store: 'ExonHost', category: 'Cloud Hosting & Domains' }
     ];
@@ -355,7 +345,6 @@ export const CustomerThemesSection: React.FC = () => {
       amazonTotal: products.filter((p) => p.originStore === 'Amazon').length,
       shopzTotal: products.filter((p) => p.originStore === 'Shopz BD').length,
       relevaTotal: products.filter((p) => p.originStore === 'Releva BD').length,
-      alibabaTotal: products.filter((p) => p.originStore === 'Alibaba').length,
       exonhostTotal: products.filter((p) => p.originStore === 'ExonHost').length,
       banglaShoppersTotal: products.filter((p) => p.originStore === 'BanglaShoppers').length,
       illinTotal: products.filter((p) => p.originStore === 'Illin BD').length,
@@ -365,7 +354,6 @@ export const CustomerThemesSection: React.FC = () => {
       amazonCategories,
       shopzCategories,
       relevaCategories,
-      alibabaCategories,
       exonhostCategories,
       banglaShoppersCategories,
       illinCategories,
@@ -423,7 +411,6 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'ExonHost') return 'text-sky-600 dark:text-sky-400';
     if (store === 'Shopz BD') return 'text-emerald-600 dark:text-emerald-400';
     if (store === 'Releva BD') return 'text-teal-600 dark:text-teal-400';
-    if (store === 'Alibaba') return 'text-indigo-600 dark:text-indigo-400';
     if (store === 'BanglaShoppers') return 'text-rose-600 dark:text-rose-400';
     if (store === 'Illin BD') return 'text-cyan-700 dark:text-cyan-400';
     if (store === 'Star Tech') return 'text-orange-600 dark:text-orange-400';
@@ -435,7 +422,6 @@ export const CustomerThemesSection: React.FC = () => {
     if (store === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
     if (store === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
     if (store === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
-    if (store === 'Alibaba') return 'bg-indigo-600 hover:bg-indigo-500 text-white';
     if (store === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
     if (store === 'Illin BD') return 'bg-cyan-400 hover:bg-cyan-300 text-slate-950';
     if (store === 'Star Tech') return 'bg-orange-600 hover:bg-orange-500 text-white';
@@ -736,7 +722,6 @@ export const CustomerThemesSection: React.FC = () => {
           <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
             {themeProducts.map((product) => {
               const buyUrl = getAffiliateBuyUrl(product);
-              const isAlibaba = product.originStore === 'Alibaba';
               const hasPrice =
                 product.nativePrice !== undefined ? product.nativePrice > 0 : product.price > 0;
 
@@ -816,9 +801,7 @@ export const CustomerThemesSection: React.FC = () => {
                           )}`}
                         >
                           <span>
-                            {isAlibaba
-                              ? 'Open Alibaba'
-                              : product.urlKind === 'portal'
+                            {product.urlKind === 'portal'
                               ? `Open ${product.originStore}`
                               : `View on ${product.originStore}`}
                           </span>
@@ -1102,61 +1085,6 @@ export const CustomerThemesSection: React.FC = () => {
                         className="w-full min-h-[44px] px-3 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
                       >
                         <span>Visit Releva BD</span>
-                        <ExternalLink className="w-3 h-3 shrink-0" />
-                      </a>
-                    </div>
-                  </div>
-                );
-              }
-
-              if (storeName === 'Alibaba') {
-                return (
-                  <div
-                    key="dir-alibaba"
-                    className="bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between gap-4"
-                  >
-                    <div>
-                      <div className="flex items-baseline justify-between gap-2 pb-3 mb-3 border-b border-slate-200/80 dark:border-slate-800">
-                        <div>
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                            Alibaba.com Offer Portal
-                          </h4>
-                          <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
-                            Sourcing &amp; Offer Portal
-                          </p>
-                        </div>
-                        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                          {affiliateDirectory.alibabaTotal} portals
-                        </span>
-                      </div>
-
-                      <ul className="space-y-1.5">
-                        {affiliateDirectory.alibabaCategories.map((cat) => (
-                          <li key={cat.label}>
-                            <button
-                              type="button"
-                              onClick={() => jumpToFilteredStore(cat.store, cat.category)}
-                              className="w-full flex items-center justify-between gap-2 px-2.5 min-h-[44px] py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-left"
-                            >
-                              <span className="truncate">{cat.label}</span>
-                              <span className="font-mono tabular-nums text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
-                                {cat.count}
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
-                      <a
-                        href={alibabaStoreUrl}
-                        target="_blank"
-                        rel="nofollow sponsored noopener noreferrer"
-                        onClick={() => recordAffiliateClick('dir-alibaba-store', 'Alibaba')}
-                        className="w-full min-h-[44px] px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
-                      >
-                        <span>Open Alibaba Portal</span>
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                     </div>

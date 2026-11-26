@@ -101,10 +101,10 @@ export const BUYING_NEED_META: Record<
     keywords: ['hosting', 'domain', 'cloud', 'wordpress', 'vps', 'exonhost']
   },
   sourcing: {
-    label: 'Sourcing & Affiliate Networks',
-    description: 'Wholesale portals via Alibaba plus affiliate/reseller onboarding via Sohoj Affiliates.',
-    targetCategories: ['Office & Workspace', 'Computers & Accessories', 'Smart Home & Power', 'Sohoj Affiliate Network'],
-    keywords: ['sourcing', 'wholesale', 'alibaba', 'sohoj', 'affiliate', 'reseller']
+    label: 'Affiliate & Reseller Networks',
+    description: 'Affiliate and reseller onboarding portals via Sohoj Affiliates alongside ExonHost partner plans.',
+    targetCategories: ['Sohoj Affiliate Network', 'Cloud Hosting & Domains'],
+    keywords: ['sourcing', 'wholesale', 'sohoj', 'affiliate', 'reseller', 'exonhost']
   }
 };
 
@@ -188,7 +188,7 @@ export function computeRecommendations<T extends RecommendationCandidate>(option
 
       if (
         buyingGuide.need === 'sourcing' &&
-        (item.originStore === 'Alibaba' || item.originStore === 'Sohoj Affiliates')
+        item.originStore === 'Sohoj Affiliates'
       ) {
         score += 35;
         reasons.push(`Direct partner portal on ${item.originStore}`);

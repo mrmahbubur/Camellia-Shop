@@ -52,7 +52,6 @@ export const PARTNER_STORE_LIST: PartnerStoreOrigin[] = [
   'BanglaShoppers',
   'Illin BD',
   'Releva BD',
-  'Alibaba',
   'ExonHost',
   'Sohoj Affiliates'
 ];

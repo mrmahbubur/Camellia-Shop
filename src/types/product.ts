@@ -6,8 +6,7 @@ export type PartnerStoreName =
   | 'BanglaShoppers'
   | 'Illin BD'
   | 'Sohoj Affiliates'
-  | 'ExonHost'
-  | 'Alibaba';
+  | 'ExonHost';
 
 export interface Product {
   id: string;
