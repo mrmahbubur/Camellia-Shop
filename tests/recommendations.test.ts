@@ -38,8 +38,11 @@ import {
   sanitizeAmazonAffiliateUrl
 } from '../src/utils/affiliateConfig.ts';
 import {
+  buildTenantHeaders,
+  normalizeTenantId,
   resolveActiveTenantId,
-  resolveTenantApiUrl
+  resolveTenantApiUrl,
+  resolveTenantFetchInit
 } from '../src/utils/apiClient.ts';
 import { sanitizeStorefrontConfig } from '../server/siteController.ts';
 import {
@@ -1066,6 +1069,21 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
     resolveTenantApiUrl('/api/catalog?store=Amazon', 'qa_tenant'),
     '/api/catalog?store=Amazon&tenant=qa_tenant'
   );
+  assert.equal(normalizeTenantId('QA-Store_01'), 'qa-store_01');
+  assert.equal(normalizeTenantId('../bad'), 'default');
+  assert.deepEqual(buildTenantHeaders('default'), {});
+  assert.deepEqual(buildTenantHeaders('qa_tenant', { 'Content-Type': 'application/json' }), {
+    'Content-Type': 'application/json',
+    'x-tenant-id': 'qa_tenant'
+  });
+  const fetchInit = resolveTenantFetchInit('qa_tenant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  assert.deepEqual(fetchInit.headers, {
+    'Content-Type': 'application/json',
+    'x-tenant-id': 'qa_tenant'
+  });
 
   const bannerTsx = fs.readFileSync(path.join(ROOT, 'src/components/AliExpressEventBanner.tsx'), 'utf8');
   assert.ok(
@@ -1077,17 +1095,20 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   assert.ok(
     serverTs.includes('resolveTenantId') &&
       serverTs.includes("req.headers['x-tenant-id']") &&
+      serverTs.includes('X-Storefront-Id,X-Tenant-Id') &&
+      serverTs.includes('Origin, X-Tenant-Id, X-Storefront-Id') &&
       serverTs.includes('getTenantStorefront') &&
       serverTs.includes('tenants?: Record<string, StorefrontConfig>'),
-    'Expected multi-tenant storefront storage and resolution helpers in server.ts'
+    'Expected multi-tenant storefront storage, CORS tenant headers, and resolution helpers in server.ts'
   );
 
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
   assert.ok(
     productsCtx.includes('storefrontData?.tenantId || clientTenantId') &&
       productsCtx.includes("resolveTenantApiUrl('/api/storefront', clientTenantId)") &&
-      productsCtx.includes("resolveTenantApiUrl('/api/promotions', clientTenantId)"),
-    'Expected ProductsContext.tsx to track dynamic clientTenantId and sync with server tenantId'
+      productsCtx.includes("resolveTenantApiUrl('/api/promotions', clientTenantId)") &&
+      productsCtx.includes('resolveTenantFetchInit(clientTenantId'),
+    'Expected ProductsContext.tsx to track dynamic clientTenantId, send x-tenant-id headers, and sync with server tenantId'
   );
 });
 

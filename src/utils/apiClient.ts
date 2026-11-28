@@ -22,6 +22,17 @@ export function isStaticHostedWithoutApi(): boolean {
   return window.location.hostname.endsWith('github.io');
 }
 
+const TENANT_ID_PATTERN = /^[a-z0-9_-]{2,40}$/;
+
+export function normalizeTenantId(candidate?: string | null): string {
+  if (typeof candidate !== 'string') return 'default';
+  const clean = candidate.trim().toLowerCase();
+  if (!clean || clean === 'default' || !TENANT_ID_PATTERN.test(clean)) {
+    return 'default';
+  }
+  return clean;
+}
+
 export function resolveActiveTenantId(search?: string): string {
   try {
     const rawSearch =
@@ -32,11 +43,8 @@ export function resolveActiveTenantId(search?: string): string {
         : '';
     if (!rawSearch) return 'default';
     const params = new URLSearchParams(rawSearch.startsWith('?') ? rawSearch : `?${rawSearch}`);
-    const candidate = (params.get('tenant') ?? params.get('storefrontId') ?? '').trim().toLowerCase();
-    if (!candidate || candidate === 'default' || !/^[a-z0-9_-]{2,40}$/.test(candidate)) {
-      return 'default';
-    }
-    return candidate;
+    const candidate = params.get('tenant') ?? params.get('storefrontId');
+    return normalizeTenantId(candidate);
   } catch {
     return 'default';
   }
@@ -50,10 +58,40 @@ export function resolveApiUrl(path: string): string {
 
 export function resolveTenantApiUrl(path: string, tenantId?: string): string {
   const resolvedUrl = resolveApiUrl(path);
-  const activeTenant = tenantId ? tenantId.trim().toLowerCase() : resolveActiveTenantId();
-  if (!activeTenant || activeTenant === 'default' || !/^[a-z0-9_-]{2,40}$/.test(activeTenant)) {
+  const activeTenant = tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
+  if (activeTenant === 'default') {
     return resolvedUrl;
   }
   const sep = resolvedUrl.includes('?') ? '&' : '?';
   return `${resolvedUrl}${sep}tenant=${encodeURIComponent(activeTenant)}`;
+}
+
+export function buildTenantHeaders(
+  tenantId?: string,
+  extraHeaders?: Record<string, string>
+): Record<string, string> {
+  const headers: Record<string, string> = { ...(extraHeaders || {}) };
+  const activeTenant = tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
+  if (activeTenant !== 'default') {
+    headers['x-tenant-id'] = activeTenant;
+  }
+  return headers;
+}
+
+export function resolveTenantFetchInit(tenantId?: string, init: RequestInit = {}): RequestInit {
+  const existing =
+    init.headers && !(init.headers instanceof Headers) && !Array.isArray(init.headers)
+      ? (init.headers as Record<string, string>)
+      : {};
+  const headers = buildTenantHeaders(tenantId, existing);
+  if (init.headers instanceof Headers) {
+    init.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+  } else if (Array.isArray(init.headers)) {
+    for (const [key, value] of init.headers) {
+      headers[key] = value;
+    }
+  }
+  return Object.keys(headers).length > 0 ? { ...init, headers } : { ...init };
 }

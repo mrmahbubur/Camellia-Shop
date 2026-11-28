@@ -716,6 +716,7 @@ async function startServer() {
   app.use((req, res, next) => {
     const allowed = process.env.ALLOWED_ORIGINS?.trim();
     const origin = req.headers.origin;
+    res.setHeader('Vary', 'Origin, X-Tenant-Id, X-Storefront-Id');
     if (origin) {
       if (!allowed || allowed === '*') {
         res.setHeader('Access-Control-Allow-Origin', origin);
@@ -725,8 +726,7 @@ async function startServer() {
           res.setHeader('Access-Control-Allow-Origin', origin);
         }
       }
-      res.setHeader('Vary', 'Origin');
-      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
       res.setHeader(
         'Access-Control-Allow-Headers',
         'Content-Type,Authorization,X-Storefront-Id,X-Tenant-Id'

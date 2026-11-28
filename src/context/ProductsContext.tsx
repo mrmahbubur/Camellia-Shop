@@ -48,7 +48,8 @@ import {
   isStaticHostedWithoutApi,
   resolveActiveTenantId,
   resolveApiUrl,
-  resolveTenantApiUrl
+  resolveTenantApiUrl,
+  resolveTenantFetchInit
 } from '../utils/apiClient';
 import {
   DEFAULT_SEO_DESCRIPTION,
@@ -318,22 +319,25 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       if (!isStaticHostedWithoutApi()) {
         const sessionId = getOrCreateAnonymousSessionId();
-        fetch(resolveApiUrl('/api/events'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId,
-            eventType: params.eventType,
-            category: params.category,
-            store: params.store,
-            productId: params.productId
+        fetch(
+          resolveTenantApiUrl('/api/events', clientTenantId),
+          resolveTenantFetchInit(clientTenantId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId,
+              eventType: params.eventType,
+              category: params.category,
+              store: params.store,
+              productId: params.productId
+            })
           })
-        }).catch(() => {
+        ).catch(() => {
           // Non-blocking anonymous telemetry
         });
       }
     },
-    [personalizationEnabled]
+    [personalizationEnabled, clientTenantId]
   );
 
   const setPersonalizationEnabled = (enabled: boolean) => {
@@ -446,7 +450,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     if (!isStaticHostedWithoutApi()) {
-      fetch(resolveTenantApiUrl('/api/promotions', clientTenantId))
+      fetch(
+        resolveTenantApiUrl('/api/promotions', clientTenantId),
+        resolveTenantFetchInit(clientTenantId)
+      )
         .then((res) => (res.ok ? res.json() : null))
         .then((data: { items?: EventPromoCreative[] } | null) => {
           if (!cancelled && Array.isArray(data?.items) && data.items.length > 0) {
@@ -532,7 +539,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     if (isStaticHostedWithoutApi()) return;
     let cancelled = false;
-    fetch(resolveTenantApiUrl('/api/storefront', clientTenantId))
+    fetch(
+      resolveTenantApiUrl('/api/storefront', clientTenantId),
+      resolveTenantFetchInit(clientTenantId)
+    )
       .then((res) => (res.ok ? res.json() : null))
       .then((data: StorefrontResponse | null) => {
         if (!cancelled && data && typeof data === 'object') {
@@ -678,11 +688,14 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     if (isStaticHostedWithoutApi()) return;
 
-    fetch(resolveApiUrl('/api/clicks'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetId: productId || 'outbound' })
-    }).catch(() => {
+    fetch(
+      resolveTenantApiUrl('/api/clicks', clientTenantId),
+      resolveTenantFetchInit(clientTenantId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetId: productId || 'outbound' })
+      })
+    ).catch(() => {
       // Non-blocking
     });
   };
