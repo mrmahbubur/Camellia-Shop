@@ -1078,7 +1078,7 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   });
   const fetchInit = resolveTenantFetchInit('qa_tenant', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': 'stale' }
   });
   assert.deepEqual(fetchInit.headers, {
     'Content-Type': 'application/json',
@@ -1094,12 +1094,13 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
   assert.ok(
     serverTs.includes('resolveTenantId') &&
+      serverTs.includes('normalizeTenantId') &&
       serverTs.includes("req.headers['x-tenant-id']") &&
       serverTs.includes('X-Storefront-Id,X-Tenant-Id') &&
       serverTs.includes('Origin, X-Tenant-Id, X-Storefront-Id') &&
       serverTs.includes('getTenantStorefront') &&
       serverTs.includes('tenants?: Record<string, StorefrontConfig>'),
-    'Expected multi-tenant storefront storage, CORS tenant headers, and resolution helpers in server.ts'
+    'Expected multi-tenant storefront storage, shared tenant validation, CORS tenant headers, and resolution helpers in server.ts'
   );
 
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');

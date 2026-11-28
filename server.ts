@@ -52,6 +52,7 @@ import {
   injectSeoMetadataIntoHtml,
   resolveRequestOrigin
 } from './src/utils/seoSchema.ts';
+import { normalizeTenantId } from './src/utils/apiClient.ts';
 
 dotenv.config();
 
@@ -159,8 +160,8 @@ function sanitizeTenants(raw: unknown): Record<string, StorefrontConfig> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const out: Record<string, StorefrontConfig> = {};
   for (const [tenantKey, value] of Object.entries(raw as Record<string, unknown>).slice(0, 50)) {
-    const cleanTenant = tenantKey.trim().toLowerCase();
-    if (!/^[a-z0-9_-]{2,40}$/.test(cleanTenant) || cleanTenant === 'default') continue;
+    const cleanTenant = normalizeTenantId(tenantKey);
+    if (cleanTenant === 'default') continue;
     if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
     out[cleanTenant] = sanitizeStorefrontConfig(value as Partial<StorefrontConfig>);
   }
@@ -169,14 +170,12 @@ function sanitizeTenants(raw: unknown): Record<string, StorefrontConfig> {
 
 function resolveTenantId(req: Request): string {
   const raw =
-    (typeof req.query.tenant === 'string' && req.query.tenant) ||
-    (typeof req.query.storefrontId === 'string' && req.query.storefrontId) ||
-    (typeof req.headers['x-storefront-id'] === 'string' && req.headers['x-storefront-id']) ||
-    (typeof req.headers['x-tenant-id'] === 'string' && req.headers['x-tenant-id']) ||
+    (typeof req.query.tenant === 'string' && req.query.tenant.trim()) ||
+    (typeof req.query.storefrontId === 'string' && req.query.storefrontId.trim()) ||
+    (typeof req.headers['x-storefront-id'] === 'string' && req.headers['x-storefront-id'].trim()) ||
+    (typeof req.headers['x-tenant-id'] === 'string' && req.headers['x-tenant-id'].trim()) ||
     'default';
-  const clean = raw.trim().toLowerCase();
-  if (!clean || clean === 'default' || !/^[a-z0-9_-]{2,40}$/.test(clean)) return 'default';
-  return clean;
+  return normalizeTenantId(raw);
 }
 
 function getTenantStorefront(db: StoreDb, tenantId: string): StorefrontConfig {
@@ -718,19 +717,18 @@ async function startServer() {
     const origin = req.headers.origin;
     res.setHeader('Vary', 'Origin, X-Tenant-Id, X-Storefront-Id');
     if (origin) {
-      if (!allowed || allowed === '*') {
+      const allowList = allowed && allowed !== '*' ? allowed.split(',').map((s) => s.trim()) : null;
+      const originAllowed = !allowList || allowList.includes(origin);
+      if (originAllowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
-      } else {
-        const allowList = allowed.split(',').map((s) => s.trim());
-        if (allowList.includes(origin)) {
-          res.setHeader('Access-Control-Allow-Origin', origin);
-        }
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+        res.setHeader(
+          'Access-Control-Allow-Headers',
+          'Content-Type,Authorization,X-Storefront-Id,X-Tenant-Id'
+        );
+        res.setHeader('Access-Control-Expose-Headers', 'X-Tenant-Id');
+        res.setHeader('Access-Control-Max-Age', '600');
       }
-      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type,Authorization,X-Storefront-Id,X-Tenant-Id'
-      );
     }
     if (req.method === 'OPTIONS') {
       res.status(204).end();
@@ -1140,8 +1138,8 @@ async function startServer() {
       return;
     }
 
-    const rawTenant = typeof body.tenantId === 'string' ? body.tenantId.trim().toLowerCase() : '';
-    const tenantId = /^[a-z0-9_-]{2,40}$/.test(rawTenant) ? rawTenant : resolveTenantId(req);
+    const bodyTenant = typeof body.tenantId === 'string' ? normalizeTenantId(body.tenantId) : 'default';
+    const tenantId = bodyTenant !== 'default' ? bodyTenant : resolveTenantId(req);
 
     const updated = await withDbLock(async (db) => {
       const base = getTenantStorefront(db, tenantId);
@@ -1188,8 +1186,8 @@ async function startServer() {
       instruction?: unknown;
       command?: unknown;
     };
-    const rawTenant = typeof body?.tenantId === 'string' ? body.tenantId.trim().toLowerCase() : '';
-    const tenantId = /^[a-z0-9_-]{2,40}$/.test(rawTenant) ? rawTenant : resolveTenantId(req);
+    const bodyTenant = typeof body?.tenantId === 'string' ? normalizeTenantId(body.tenantId) : 'default';
+    const tenantId = bodyTenant !== 'default' ? bodyTenant : resolveTenantId(req);
     const instruction =
       typeof body?.instruction === 'string'
         ? body.instruction

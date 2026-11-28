@@ -68,30 +68,41 @@ export function resolveTenantApiUrl(path: string, tenantId?: string): string {
 
 export function buildTenantHeaders(
   tenantId?: string,
-  extraHeaders?: Record<string, string>
+  extraHeaders?: HeadersInit
 ): Record<string, string> {
-  const headers: Record<string, string> = { ...(extraHeaders || {}) };
+  const headers: Record<string, string> = {};
+  const setCaseInsensitive = (key: string, value: string) => {
+    const lower = key.toLowerCase();
+    for (const existingKey of Object.keys(headers)) {
+      if (existingKey.toLowerCase() === lower && existingKey !== key) {
+        delete headers[existingKey];
+      }
+    }
+    headers[key] = value;
+  };
+
+  if (extraHeaders instanceof Headers) {
+    extraHeaders.forEach((value, key) => setCaseInsensitive(key, value));
+  } else if (Array.isArray(extraHeaders)) {
+    for (const [key, value] of extraHeaders) {
+      setCaseInsensitive(key, value);
+    }
+  } else if (extraHeaders && typeof extraHeaders === 'object') {
+    for (const [key, value] of Object.entries(extraHeaders)) {
+      if (typeof value === 'string') {
+        setCaseInsensitive(key, value);
+      }
+    }
+  }
+
   const activeTenant = tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
   if (activeTenant !== 'default') {
-    headers['x-tenant-id'] = activeTenant;
+    setCaseInsensitive('x-tenant-id', activeTenant);
   }
   return headers;
 }
 
 export function resolveTenantFetchInit(tenantId?: string, init: RequestInit = {}): RequestInit {
-  const existing =
-    init.headers && !(init.headers instanceof Headers) && !Array.isArray(init.headers)
-      ? (init.headers as Record<string, string>)
-      : {};
-  const headers = buildTenantHeaders(tenantId, existing);
-  if (init.headers instanceof Headers) {
-    init.headers.forEach((value, key) => {
-      headers[key] = value;
-    });
-  } else if (Array.isArray(init.headers)) {
-    for (const [key, value] of init.headers) {
-      headers[key] = value;
-    }
-  }
+  const headers = buildTenantHeaders(tenantId, init.headers);
   return Object.keys(headers).length > 0 ? { ...init, headers } : { ...init };
 }
