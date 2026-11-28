@@ -172,6 +172,7 @@ function resolveTenantId(req: Request): string {
     (typeof req.query.tenant === 'string' && req.query.tenant) ||
     (typeof req.query.storefrontId === 'string' && req.query.storefrontId) ||
     (typeof req.headers['x-storefront-id'] === 'string' && req.headers['x-storefront-id']) ||
+    (typeof req.headers['x-tenant-id'] === 'string' && req.headers['x-tenant-id']) ||
     'default';
   const clean = raw.trim().toLowerCase();
   if (!clean || clean === 'default' || !/^[a-z0-9_-]{2,40}$/.test(clean)) return 'default';
@@ -726,7 +727,10 @@ async function startServer() {
       }
       res.setHeader('Vary', 'Origin');
       res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type,Authorization,X-Storefront-Id,X-Tenant-Id'
+      );
     }
     if (req.method === 'OPTIONS') {
       res.status(204).end();
@@ -883,6 +887,7 @@ async function startServer() {
     });
 
     res.json({
+      tenantId,
       count: filtered.length,
       totalCount: records.length,
       priceDisclaimer:
@@ -935,6 +940,9 @@ async function startServer() {
         : '';
 
     const db = await ensureDb();
+    const tenantId = resolveTenantId(req);
+    const storefront = getTenantStorefront(db, tenantId);
+    const resolvedAffiliate = resolveStorefrontAffiliateConfig(storefront.affiliateConfig);
     const interactions: InteractionSignals =
       sessionId && db.profiles[sessionId]
         ? db.profiles[sessionId]
@@ -957,6 +965,7 @@ async function startServer() {
     });
 
     res.json({
+      tenantId,
       region,
       regionProfile: REGION_PROFILES[region],
       buyingGuide: {
@@ -974,7 +983,14 @@ async function startServer() {
         nativePrice: r.item.nativePrice,
         nativeCurrency: r.item.nativeCurrency,
         priceStatus: r.item.priceStatus,
-        affiliateUrl: r.item.affiliateUrl,
+        affiliateUrl: resolvePartnerProductUrl({
+          rawUrl: r.item.affiliateUrl,
+          originStore: r.item.originStore,
+          asin: r.item.asin,
+          productId: r.item.id,
+          urlKind: r.item.urlKind,
+          affiliateConfig: resolvedAffiliate
+        }),
         score: r.score,
         reasons: r.reasons,
         whyRecommended: r.whyRecommended

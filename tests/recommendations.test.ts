@@ -1076,9 +1076,18 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
   assert.ok(
     serverTs.includes('resolveTenantId') &&
+      serverTs.includes("req.headers['x-tenant-id']") &&
       serverTs.includes('getTenantStorefront') &&
       serverTs.includes('tenants?: Record<string, StorefrontConfig>'),
     'Expected multi-tenant storefront storage and resolution helpers in server.ts'
+  );
+
+  const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
+  assert.ok(
+    productsCtx.includes('storefrontData?.tenantId || clientTenantId') &&
+      productsCtx.includes("resolveTenantApiUrl('/api/storefront', clientTenantId)") &&
+      productsCtx.includes("resolveTenantApiUrl('/api/promotions', clientTenantId)"),
+    'Expected ProductsContext.tsx to track dynamic clientTenantId and sync with server tenantId'
   );
 });
 

@@ -70,6 +70,7 @@ export interface StorefrontCopyConfig {
 }
 
 interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
+  tenantId?: string;
   hiddenProductIds?: string[];
   featuredProductIds?: string[];
   priceOverrides?: Record<string, { price?: number; originalPrice?: number; badge?: string }>;
@@ -224,6 +225,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return detectBrowserRegionFallback();
   });
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
+  const [clientTenantId, setClientTenantId] = useState<string>(() => resolveActiveTenantId());
   const [storefrontData, setStorefrontData] = useState<StorefrontResponse | null>(null);
   const [csvProducts, setCsvProducts] = useState<EcomProduct[]>([]);
   const [eventPromos, setEventPromos] = useState<EventPromoCreative[]>(DEFAULT_ALIEXPRESS_EVENT_PROMOS);
@@ -444,7 +446,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     if (!isStaticHostedWithoutApi()) {
-      fetch(resolveTenantApiUrl('/api/promotions'))
+      fetch(resolveTenantApiUrl('/api/promotions', clientTenantId))
         .then((res) => (res.ok ? res.json() : null))
         .then((data: { items?: EventPromoCreative[] } | null) => {
           if (!cancelled && Array.isArray(data?.items) && data.items.length > 0) {
@@ -463,7 +465,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [clientTenantId]);
 
   useEffect(() => {
     const hasManualRegion = (() => {
@@ -525,17 +527,25 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       });
 
-    fetch(resolveTenantApiUrl('/api/storefront'))
+  }, []);
+
+  useEffect(() => {
+    if (isStaticHostedWithoutApi()) return;
+    let cancelled = false;
+    fetch(resolveTenantApiUrl('/api/storefront', clientTenantId))
       .then((res) => (res.ok ? res.json() : null))
       .then((data: StorefrontResponse | null) => {
-        if (data && typeof data === 'object') {
+        if (!cancelled && data && typeof data === 'object') {
           setStorefrontData(data);
         }
       })
       .catch(() => {
         // Keep static defaults
       });
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [clientTenantId]);
 
   const storefrontCopy = useMemo<StorefrontCopyConfig>(
     () => ({
@@ -689,6 +699,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const onPopState = () => {
       setSearchQuery(readSearchQueryFromLocation(window.location.search));
+      setClientTenantId(resolveActiveTenantId(window.location.search));
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -730,7 +741,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  const activeTenantId = useMemo(() => resolveActiveTenantId(), []);
+  const activeTenantId = storefrontData?.tenantId || clientTenantId;
 
   const getAmazonSearchAffiliateUrl = (query: string): string => {
     return buildAmazonSearchUrl(query, resolvedAffiliateConfig.amazon);
