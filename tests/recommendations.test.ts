@@ -527,6 +527,7 @@ test('productImageManifest maps 100% of catalog product images on disk (>1.2KB e
 
 import {
   buildSearchSuggestions,
+  mixProductsAcrossCategories,
   scoreProductSearchMatch
 } from '../src/utils/catalogSearch.ts';
 
@@ -1211,5 +1212,29 @@ test('Product grids enforce 2-col mobile, 3-col tablet (640-1024px), 4-5 col des
       `Found legacy 1-column mobile breakpoint in ${relPath}`
     );
   }
+});
+
+test('mixProductsAcrossCategories mixes products evenly across all catalog categories for All Departments', () => {
+  const csvPath = path.join(ROOT, 'public/assets/aistudio/my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv');
+  const csvRecords = parseShopzCsvRecords(fs.readFileSync(csvPath, 'utf8'));
+  const fullCatalog = [...CURATED_CATALOG_RECORDS, ...csvRecords];
+  const allCategories = new Set(fullCatalog.map((item) => item.category));
+
+  const mixed = mixProductsAcrossCategories(fullCatalog);
+  assert.equal(mixed.length, fullCatalog.length);
+
+  // Every distinct category should appear within the very first page of 48 items
+  const firstPageCategories = new Set(mixed.slice(0, 48).map((item) => item.category));
+  assert.equal(firstPageCategories.size, allCategories.size);
+
+  // Consecutive items across the first cycle must span distinct categories
+  const firstCycleCategories = new Set(mixed.slice(0, allCategories.size).map((item) => item.category));
+  assert.equal(firstCycleCategories.size, allCategories.size);
+
+  const storeSectionTsx = fs.readFileSync(path.join(ROOT, 'src/components/StoreSection.tsx'), 'utf8');
+  assert.ok(
+    storeSectionTsx.includes('mixProductsAcrossCategories'),
+    'Expected StoreSection.tsx to use mixProductsAcrossCategories for All Departments (Mega Store)'
+  );
 });
 

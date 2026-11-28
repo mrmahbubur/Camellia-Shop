@@ -43,6 +43,7 @@ import {
   CatalogSortBy,
   scoreProductSearchMatch,
   buildSearchSuggestions,
+  mixProductsAcrossCategories,
   loadRecentSearches,
   saveRecentSearch,
   removeRecentSearch,
@@ -157,27 +158,6 @@ export const StoreSection: React.FC = () => {
     return counts;
   }, [products, categories]);
 
-  const storeCounts = useMemo(() => {
-    const counts: Record<'all' | PartnerStoreOrigin, number> = {
-      all: products.length,
-      Amazon: 0,
-      AliExpress: 0,
-      'Shopz BD': 0,
-      'Releva BD': 0,
-      ExonHost: 0,
-      BanglaShoppers: 0,
-      'Illin BD': 0,
-      'Star Tech': 0,
-      'Sohoj Affiliates': 0
-    };
-    for (const item of products) {
-      if (item.originStore in counts) {
-        counts[item.originStore] += 1;
-      }
-    }
-    return counts;
-  }, [products]);
-
   const availableBrands = useMemo(() => {
     const map = new Map<string, number>();
     for (const item of products) {
@@ -259,7 +239,23 @@ export const StoreSection: React.FC = () => {
         entry !== null
       );
 
-    scored.sort((a, b) => {
+    const useMixedAllCategories =
+      selectedCategory === 'All Departments (Mega Store)' &&
+      ((sortBy === 'relevance' && cleanQuery.length === 0) || sortBy === 'featured');
+
+    const ordered = useMixedAllCategories
+      ? (() => {
+          const entryById = new Map(scored.map((entry) => [entry.item.id, entry]));
+          return mixProductsAcrossCategories(scored.map((entry) => entry.item))
+            .map((item) => entryById.get(item.id))
+            .filter(
+              (entry): entry is { item: EcomProduct; score: number; normalizedUsd: number } =>
+                entry !== undefined
+            );
+        })()
+      : scored;
+
+    ordered.sort((a, b) => {
       if (a.item.id === highlightedProductId) return -1;
       if (b.item.id === highlightedProductId) return 1;
 
@@ -292,7 +288,7 @@ export const StoreSection: React.FC = () => {
       return 0;
     });
 
-    return scored.map((entry) => entry.item);
+    return ordered.map((entry) => entry.item);
   }, [
     products,
     selectedCategory,
@@ -480,137 +476,112 @@ export const StoreSection: React.FC = () => {
       className="pt-6 sm:pt-8 pb-12 sm:pb-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 scroll-mt-14 sm:scroll-mt-16 transition-colors"
     >
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
-        {/* Storefront Catalog Top Header */}
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="min-w-0 w-full max-w-4xl">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              <span className="text-amber-600 dark:text-amber-400 font-bold inline-flex items-center gap-1.5">
-                <Package className="w-3.5 h-3.5 shrink-0" />
-                <span>Product Catalog &amp; Categories</span>
-              </span>
-              <span aria-hidden="true">·</span>
-              <span className="font-mono tabular-nums text-slate-700 dark:text-slate-200">
-                {products.length} Products
-              </span>
-              <span aria-hidden="true">·</span>
-              <span className="text-emerald-700 dark:text-emerald-400">
-                {regionProfile.label}
-              </span>
-            </div>
-            <h1 className="text-[clamp(1.3125rem,1.05rem+1.5vw,2.25rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance] leading-[1.15] break-words">
-              {storefrontCopy.storeTitle}
-            </h1>
-            <p className="text-[clamp(1rem,0.95rem+0.2vw,1.125rem)] text-slate-600 dark:text-slate-400 mt-2 max-w-[70ch] leading-relaxed [text-wrap:pretty]">
-              {storefrontCopy.storeSubtitle}
-            </p>
-          </div>
+        {/* Quick Partner Store Links Under Head Bar */}
+        <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1 sm:pb-0 scrollbar-none w-full min-w-0 pt-0.5 mb-6">
+          <a
+            href={amazonStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-amazon', 'Amazon')}
+            className="flex items-center gap-1.5 text-xs text-amber-950 bg-amber-400 hover:bg-amber-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <Package className="w-3.5 h-3.5 text-slate-950" />
+            <span>Amazon</span>
+            <ExternalLink className="w-3 h-3 text-slate-900" />
+          </a>
 
-          <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1 sm:pb-0 scrollbar-none w-full min-w-0 pt-0.5">
-            <a
-              href={amazonStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-amazon', 'Amazon')}
-              className="flex items-center gap-1.5 text-xs text-amber-950 bg-amber-400 hover:bg-amber-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Package className="w-3.5 h-3.5 text-slate-950" />
-              <span>Amazon</span>
-              <ExternalLink className="w-3 h-3 text-slate-900" />
-            </a>
+          <a
+            href={aliexpressStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-aliexpress', 'AliExpress')}
+            className="flex items-center gap-1.5 text-xs text-white bg-red-600 hover:bg-red-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <ShoppingBag className="w-3.5 h-3.5 text-white" />
+            <span>AliExpress</span>
+            <ExternalLink className="w-3 h-3 text-white" />
+          </a>
 
-            <a
-              href={aliexpressStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-aliexpress', 'AliExpress')}
-              className="flex items-center gap-1.5 text-xs text-white bg-red-600 hover:bg-red-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <ShoppingBag className="w-3.5 h-3.5 text-white" />
-              <span>AliExpress</span>
-              <ExternalLink className="w-3 h-3 text-white" />
-            </a>
+          <a
+            href={shopzStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-shopz', 'Shopz BD')}
+            className="flex items-center gap-1.5 text-xs text-emerald-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <Building2 className="w-3.5 h-3.5 text-emerald-950" />
+            <span>Shopz BD</span>
+            <ExternalLink className="w-3 h-3 text-emerald-950" />
+          </a>
 
-            <a
-              href={shopzStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-shopz', 'Shopz BD')}
-              className="flex items-center gap-1.5 text-xs text-emerald-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Building2 className="w-3.5 h-3.5 text-emerald-950" />
-              <span>Shopz BD</span>
-              <ExternalLink className="w-3 h-3 text-emerald-950" />
-            </a>
+          <a
+            href={relevaStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-releva', 'Releva BD')}
+            className="flex items-center gap-1.5 text-xs text-slate-950 bg-teal-400 hover:bg-teal-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <span>Releva BD</span>
+            <ExternalLink className="w-3 h-3 text-slate-950" />
+          </a>
 
-            <a
-              href={relevaStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-releva', 'Releva BD')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-teal-400 hover:bg-teal-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <span>Releva BD</span>
-              <ExternalLink className="w-3 h-3 text-slate-950" />
-            </a>
+          <a
+            href={exonhostStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-exonhost', 'ExonHost')}
+            className="flex items-center gap-1.5 text-xs text-slate-950 bg-sky-400 hover:bg-sky-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <Cloud className="w-3.5 h-3.5 text-slate-950" />
+            <span>ExonHost</span>
+            <ExternalLink className="w-3 h-3 text-slate-950" />
+          </a>
 
-            <a
-              href={exonhostStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-exonhost', 'ExonHost')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-sky-400 hover:bg-sky-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Cloud className="w-3.5 h-3.5 text-slate-950" />
-              <span>ExonHost</span>
-              <ExternalLink className="w-3 h-3 text-slate-950" />
-            </a>
+          <a
+            href={banglashoppersStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-banglashoppers', 'BanglaShoppers')}
+            className="flex items-center gap-1.5 text-xs text-white bg-rose-500 hover:bg-rose-400 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <Droplets className="w-3.5 h-3.5 text-white" />
+            <span>BanglaShoppers</span>
+            <ExternalLink className="w-3 h-3 text-white" />
+          </a>
 
-            <a
-              href={banglashoppersStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-banglashoppers', 'BanglaShoppers')}
-              className="flex items-center gap-1.5 text-xs text-white bg-rose-500 hover:bg-rose-400 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Droplets className="w-3.5 h-3.5 text-white" />
-              <span>BanglaShoppers</span>
-              <ExternalLink className="w-3 h-3 text-white" />
-            </a>
+          <a
+            href={illinStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-illin', 'Illin BD')}
+            className="flex items-center gap-1.5 text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <span>Illin BD</span>
+            <ExternalLink className="w-3 h-3 text-slate-950" />
+          </a>
 
-            <a
-              href={illinStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-illin', 'Illin BD')}
-              className="flex items-center gap-1.5 text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <span>Illin BD</span>
-              <ExternalLink className="w-3 h-3 text-slate-950" />
-            </a>
+          <a
+            href={startechStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-startech', 'Star Tech')}
+            className="flex items-center gap-1.5 text-xs text-white bg-orange-600 hover:bg-orange-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <Watch className="w-3.5 h-3.5 text-white" />
+            <span>Star Tech</span>
+            <ExternalLink className="w-3 h-3 text-white" />
+          </a>
 
-            <a
-              href={startechStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-startech', 'Star Tech')}
-              className="flex items-center gap-1.5 text-xs text-white bg-orange-600 hover:bg-orange-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Watch className="w-3.5 h-3.5 text-white" />
-              <span>Star Tech</span>
-              <ExternalLink className="w-3 h-3 text-white" />
-            </a>
-
-            <a
-              href={sohojStoreUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              onClick={() => recordAffiliateClick('store-header-sohoj', 'Sohoj Affiliates')}
-              className="flex items-center gap-1.5 text-xs text-white bg-violet-600 hover:bg-violet-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <span>Sohoj Affiliates</span>
-              <ExternalLink className="w-3 h-3 text-white" />
-            </a>
-          </div>
+          <a
+            href={sohojStoreUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={() => recordAffiliateClick('store-header-sohoj', 'Sohoj Affiliates')}
+            className="flex items-center gap-1.5 text-xs text-white bg-violet-600 hover:bg-violet-500 font-extrabold px-3 min-h-[44px] py-2 rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <span>Sohoj Affiliates</span>
+            <ExternalLink className="w-3 h-3 text-white" />
+          </a>
         </div>
 
         {/* CATEGORIES & COMPLETE SEARCH SYSTEM WORKBENCH */}
@@ -900,40 +871,6 @@ export const StoreSection: React.FC = () => {
           {/* 3. All Advanced Search Options Panel (Collapsible on all screens) */}
           {showAdvancedSearch && (
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3 text-xs">
-              {/* Store Filter Tabs */}
-              <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl">
-                {(
-                  [
-                    { key: 'all', label: 'All Stores', activeClass: 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white' },
-                    { key: 'Amazon', label: 'Amazon', activeClass: 'bg-amber-400 text-slate-950' },
-                    { key: 'AliExpress', label: 'AliExpress', activeClass: 'bg-red-600 text-white' },
-                    { key: 'Shopz BD', label: 'Shopz BD', activeClass: 'bg-emerald-500 text-slate-950' },
-                    { key: 'Star Tech', label: 'Star Tech', activeClass: 'bg-orange-600 text-white' },
-                    { key: 'BanglaShoppers', label: 'BanglaShoppers', activeClass: 'bg-rose-500 text-white' },
-                    { key: 'Illin BD', label: 'Illin BD', activeClass: 'bg-cyan-400 text-slate-950' },
-                    { key: 'Releva BD', label: 'Releva BD', activeClass: 'bg-teal-400 text-slate-950' },
-                    { key: 'ExonHost', label: 'ExonHost', activeClass: 'bg-sky-500 text-slate-950' },
-                    { key: 'Sohoj Affiliates', label: 'Sohoj Affiliates', activeClass: 'bg-violet-600 text-white' }
-                  ] as const
-                ).map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setStoreFilter(tab.key)}
-                    className={`px-3 min-h-[44px] py-1.5 rounded-lg font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1 ${
-                      storeFilter === tab.key
-                        ? `${tab.activeClass} shadow-2xs`
-                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <span>{tab.label}</span>
-                    <span className="font-mono text-[10px] opacity-75">
-                      ({storeCounts[tab.key]})
-                    </span>
-                  </button>
-                ))}
-              </div>
-
               {/* Granular Options Grid: Category Dropdown, Brand, Price Status, Min/Max Price, Region, Sort, Page Size */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2.5">
                 {/* Category Select */}
@@ -1665,6 +1602,32 @@ export const StoreSection: React.FC = () => {
 
         <div className="mb-8">
           <AliExpressEventBanner variant="responsive-strip" />
+        </div>
+
+        {/* Storefront Catalog Intro Header (Bottom, before Featured Partner Spotlights) */}
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="min-w-0 w-full max-w-4xl">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              <span className="text-amber-600 dark:text-amber-400 font-bold inline-flex items-center gap-1.5">
+                <Package className="w-3.5 h-3.5 shrink-0" />
+                <span>Product Catalog &amp; Categories</span>
+              </span>
+              <span aria-hidden="true">·</span>
+              <span className="font-mono tabular-nums text-slate-700 dark:text-slate-200">
+                {products.length} Products
+              </span>
+              <span aria-hidden="true">·</span>
+              <span className="text-emerald-700 dark:text-emerald-400">
+                {regionProfile.label}
+              </span>
+            </div>
+            <h1 className="text-[clamp(1.3125rem,1.05rem+1.5vw,2.25rem)] font-extrabold tracking-tight text-slate-900 dark:text-white [text-wrap:balance] leading-[1.15] break-words">
+              {storefrontCopy.storeTitle}
+            </h1>
+            <p className="text-[clamp(1rem,0.95rem+0.2vw,1.125rem)] text-slate-600 dark:text-slate-400 mt-2 max-w-[70ch] leading-relaxed [text-wrap:pretty]">
+              {storefrontCopy.storeSubtitle}
+            </p>
+          </div>
         </div>
 
         {sponsors.length > 0 && (

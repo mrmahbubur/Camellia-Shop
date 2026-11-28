@@ -346,3 +346,55 @@ export function buildSearchSuggestions<T extends SearchableProduct>({
     totalMatchingProducts: scored.length
   };
 }
+
+function interleaveBuckets<T>(buckets: T[][]): T[] {
+  const result: T[] = [];
+  let maxLen = 0;
+  for (const bucket of buckets) {
+    if (bucket.length > maxLen) {
+      maxLen = bucket.length;
+    }
+  }
+  for (let i = 0; i < maxLen; i++) {
+    for (const bucket of buckets) {
+      if (i < bucket.length) {
+        result.push(bucket[i]);
+      }
+    }
+  }
+  return result;
+}
+
+export function mixProductsAcrossCategories<
+  T extends { category: string; department?: string; originStore?: string }
+>(items: T[]): T[] {
+  if (items.length <= 1) return items.slice();
+
+  const categoryBuckets = new Map<string, T[]>();
+  for (const item of items) {
+    const key = (item.category || item.department || 'General').trim();
+    const bucket = categoryBuckets.get(key);
+    if (bucket) {
+      bucket.push(item);
+    } else {
+      categoryBuckets.set(key, [item]);
+    }
+  }
+
+  const storeMixedCategoryBuckets = Array.from(categoryBuckets.values()).map((catItems) => {
+    const storeBuckets = new Map<string, T[]>();
+    for (const item of catItems) {
+      const storeKey = (item.originStore || 'Partner').trim();
+      const bucket = storeBuckets.get(storeKey);
+      if (bucket) {
+        bucket.push(item);
+      } else {
+        storeBuckets.set(storeKey, [item]);
+      }
+    }
+    return interleaveBuckets(Array.from(storeBuckets.values()));
+  });
+
+  return interleaveBuckets(storeMixedCategoryBuckets);
+}
+

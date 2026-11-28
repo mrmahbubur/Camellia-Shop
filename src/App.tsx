@@ -11,6 +11,7 @@ import { Hero } from './components/Hero';
 import { CustomerThemesSection } from './components/CustomerThemesSection';
 import { StoreSection } from './components/StoreSection';
 import { AmazonShowcaseSection } from './components/AmazonShowcaseSection';
+import { StoreFilterBar } from './components/StoreFilterBar';
 import { SponsorsSection } from './components/SponsorsSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
@@ -85,6 +86,8 @@ const MainLayout: React.FC = () => {
         <Hero onExploreStore={() => handleNavigate('store')} />
 
         <AmazonShowcaseSection />
+
+        <StoreFilterBar />
 
         <SponsorsSection />
       </main>
