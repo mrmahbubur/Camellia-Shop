@@ -59,11 +59,88 @@ export function resolveApiUrl(path: string): string {
 export function resolveTenantApiUrl(path: string, tenantId?: string): string {
   const resolvedUrl = resolveApiUrl(path);
   const activeTenant = tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
-  if (activeTenant === 'default') {
-    return resolvedUrl;
+  const isAbsolute = /^https?:\/\//i.test(resolvedUrl);
+
+  try {
+    const url = new URL(resolvedUrl, 'http://localhost');
+    url.searchParams.delete('storefrontId');
+    if (activeTenant === 'default') {
+      url.searchParams.delete('tenant');
+    } else {
+      url.searchParams.set('tenant', activeTenant);
+    }
+    return isAbsolute ? url.toString() : `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    if (activeTenant === 'default') return resolvedUrl;
+    const sep = resolvedUrl.includes('?') ? '&' : '?';
+    return `${resolvedUrl}${sep}tenant=${encodeURIComponent(activeTenant)}`;
   }
-  const sep = resolvedUrl.includes('?') ? '&' : '?';
-  return `${resolvedUrl}${sep}tenant=${encodeURIComponent(activeTenant)}`;
+}
+
+export type TenantHeaderMap = Record<string, string | string[] | undefined>;
+export type TenantQueryMap = Record<string, unknown>;
+
+function readSingleTenantValue(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+export function readHeaderCaseInsensitive(headers: TenantHeaderMap | undefined, name: string): string {
+  if (!headers || typeof headers !== 'object') return '';
+  const target = name.toLowerCase();
+  for (const [key, raw] of Object.entries(headers)) {
+    if (key.toLowerCase() === target) {
+      if (typeof raw === 'string') return raw.trim();
+      if (Array.isArray(raw) && raw.length === 1 && typeof raw[0] === 'string') {
+        return raw[0].trim();
+      }
+      return '';
+    }
+  }
+  return '';
+}
+
+export function resolveRequestTenantId(sources: {
+  bodyTenantId?: unknown;
+  query?: TenantQueryMap;
+  headers?: TenantHeaderMap;
+}): string {
+  const rawBody = readSingleTenantValue(sources.bodyTenantId);
+  if (rawBody) {
+    return normalizeTenantId(rawBody);
+  }
+  const rawQuery =
+    readSingleTenantValue(sources.query?.tenant) ||
+    readSingleTenantValue(sources.query?.storefrontId);
+  if (rawQuery) {
+    return normalizeTenantId(rawQuery);
+  }
+  const rawHeader =
+    readHeaderCaseInsensitive(sources.headers, 'x-storefront-id') ||
+    readHeaderCaseInsensitive(sources.headers, 'x-tenant-id');
+  return normalizeTenantId(rawHeader);
+}
+
+function deleteHeaderCaseInsensitive(headers: Record<string, string>, targetName: string): void {
+  const lower = targetName.toLowerCase();
+  for (const existingKey of Object.keys(headers)) {
+    if (existingKey.toLowerCase() === lower) {
+      delete headers[existingKey];
+    }
+  }
+}
+
+function setHeaderCaseInsensitive(
+  headers: Record<string, string>,
+  key: string,
+  value: string
+): void {
+  const lower = key.toLowerCase();
+  for (const existingKey of Object.keys(headers)) {
+    if (existingKey.toLowerCase() === lower && existingKey !== key) {
+      delete headers[existingKey];
+    }
+  }
+  headers[key] = value;
 }
 
 export function buildTenantHeaders(
@@ -71,33 +148,28 @@ export function buildTenantHeaders(
   extraHeaders?: HeadersInit
 ): Record<string, string> {
   const headers: Record<string, string> = {};
-  const setCaseInsensitive = (key: string, value: string) => {
-    const lower = key.toLowerCase();
-    for (const existingKey of Object.keys(headers)) {
-      if (existingKey.toLowerCase() === lower && existingKey !== key) {
-        delete headers[existingKey];
-      }
-    }
-    headers[key] = value;
-  };
 
   if (extraHeaders instanceof Headers) {
-    extraHeaders.forEach((value, key) => setCaseInsensitive(key, value));
+    extraHeaders.forEach((value, key) => setHeaderCaseInsensitive(headers, key, value));
   } else if (Array.isArray(extraHeaders)) {
     for (const [key, value] of extraHeaders) {
-      setCaseInsensitive(key, value);
+      setHeaderCaseInsensitive(headers, key, value);
     }
   } else if (extraHeaders && typeof extraHeaders === 'object') {
     for (const [key, value] of Object.entries(extraHeaders)) {
       if (typeof value === 'string') {
-        setCaseInsensitive(key, value);
+        setHeaderCaseInsensitive(headers, key, value);
       }
     }
   }
 
   const activeTenant = tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
-  if (activeTenant !== 'default') {
-    setCaseInsensitive('x-tenant-id', activeTenant);
+  if (activeTenant === 'default') {
+    if (tenantId !== undefined) {
+      deleteHeaderCaseInsensitive(headers, 'x-tenant-id');
+    }
+  } else {
+    setHeaderCaseInsensitive(headers, 'x-tenant-id', activeTenant);
   }
   return headers;
 }

@@ -41,6 +41,7 @@ import {
   buildTenantHeaders,
   normalizeTenantId,
   resolveActiveTenantId,
+  resolveRequestTenantId,
   resolveTenantApiUrl,
   resolveTenantFetchInit
 } from '../src/utils/apiClient.ts';
@@ -1069,9 +1070,20 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
     resolveTenantApiUrl('/api/catalog?store=Amazon', 'qa_tenant'),
     '/api/catalog?store=Amazon&tenant=qa_tenant'
   );
+  assert.equal(
+    resolveTenantApiUrl('/api/catalog?store=Amazon&tenant=stale', 'qa_tenant'),
+    '/api/catalog?store=Amazon&tenant=qa_tenant'
+  );
+  assert.equal(
+    resolveTenantApiUrl('/api/catalog?store=Amazon&tenant=stale', 'default'),
+    '/api/catalog?store=Amazon'
+  );
   assert.equal(normalizeTenantId('QA-Store_01'), 'qa-store_01');
   assert.equal(normalizeTenantId('../bad'), 'default');
   assert.deepEqual(buildTenantHeaders('default'), {});
+  assert.deepEqual(buildTenantHeaders('default', { 'X-Tenant-Id': 'stale', Accept: 'application/json' }), {
+    Accept: 'application/json'
+  });
   assert.deepEqual(buildTenantHeaders('qa_tenant', { 'Content-Type': 'application/json' }), {
     'Content-Type': 'application/json',
     'x-tenant-id': 'qa_tenant'
@@ -1084,6 +1096,26 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
     'Content-Type': 'application/json',
     'x-tenant-id': 'qa_tenant'
   });
+  assert.equal(
+    resolveRequestTenantId({
+      headers: { 'X-Tenant-Id': '  Header_Shop  ' }
+    }),
+    'header_shop'
+  );
+  assert.equal(
+    resolveRequestTenantId({
+      query: { tenant: 'Query_Shop' },
+      headers: { 'X-Tenant-Id': 'Header_Shop' }
+    }),
+    'query_shop'
+  );
+  assert.equal(
+    resolveRequestTenantId({
+      bodyTenantId: '../invalid',
+      query: { tenant: 'Query_Shop' }
+    }),
+    'default'
+  );
 
   const bannerTsx = fs.readFileSync(path.join(ROOT, 'src/components/AliExpressEventBanner.tsx'), 'utf8');
   assert.ok(
@@ -1095,12 +1127,12 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   assert.ok(
     serverTs.includes('resolveTenantId') &&
       serverTs.includes('normalizeTenantId') &&
-      serverTs.includes("req.headers['x-tenant-id']") &&
+      serverTs.includes('resolveRequestTenantId') &&
       serverTs.includes('X-Storefront-Id,X-Tenant-Id') &&
       serverTs.includes('Origin, X-Tenant-Id, X-Storefront-Id') &&
       serverTs.includes('getTenantStorefront') &&
       serverTs.includes('tenants?: Record<string, StorefrontConfig>'),
-    'Expected multi-tenant storefront storage, shared tenant validation, CORS tenant headers, and resolution helpers in server.ts'
+    'Expected multi-tenant storefront storage, centralized tenant validation, CORS tenant headers, and resolution helpers in server.ts'
   );
 
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');

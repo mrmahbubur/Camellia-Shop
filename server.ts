@@ -52,7 +52,7 @@ import {
   injectSeoMetadataIntoHtml,
   resolveRequestOrigin
 } from './src/utils/seoSchema.ts';
-import { normalizeTenantId } from './src/utils/apiClient.ts';
+import { normalizeTenantId, resolveRequestTenantId } from './src/utils/apiClient.ts';
 
 dotenv.config();
 
@@ -169,13 +169,10 @@ function sanitizeTenants(raw: unknown): Record<string, StorefrontConfig> {
 }
 
 function resolveTenantId(req: Request): string {
-  const raw =
-    (typeof req.query.tenant === 'string' && req.query.tenant.trim()) ||
-    (typeof req.query.storefrontId === 'string' && req.query.storefrontId.trim()) ||
-    (typeof req.headers['x-storefront-id'] === 'string' && req.headers['x-storefront-id'].trim()) ||
-    (typeof req.headers['x-tenant-id'] === 'string' && req.headers['x-tenant-id'].trim()) ||
-    'default';
-  return normalizeTenantId(raw);
+  return resolveRequestTenantId({
+    query: req.query as Record<string, unknown>,
+    headers: req.headers
+  });
 }
 
 function getTenantStorefront(db: StoreDb, tenantId: string): StorefrontConfig {
@@ -1138,8 +1135,11 @@ async function startServer() {
       return;
     }
 
-    const bodyTenant = typeof body.tenantId === 'string' ? normalizeTenantId(body.tenantId) : 'default';
-    const tenantId = bodyTenant !== 'default' ? bodyTenant : resolveTenantId(req);
+    const tenantId = resolveRequestTenantId({
+      bodyTenantId: body.tenantId,
+      query: req.query as Record<string, unknown>,
+      headers: req.headers
+    });
 
     const updated = await withDbLock(async (db) => {
       const base = getTenantStorefront(db, tenantId);
@@ -1186,8 +1186,11 @@ async function startServer() {
       instruction?: unknown;
       command?: unknown;
     };
-    const bodyTenant = typeof body?.tenantId === 'string' ? normalizeTenantId(body.tenantId) : 'default';
-    const tenantId = bodyTenant !== 'default' ? bodyTenant : resolveTenantId(req);
+    const tenantId = resolveRequestTenantId({
+      bodyTenantId: body?.tenantId,
+      query: req.query as Record<string, unknown>,
+      headers: req.headers
+    });
     const instruction =
       typeof body?.instruction === 'string'
         ? body.instruction

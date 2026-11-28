@@ -368,8 +368,11 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const sessionId = localStorage.getItem('mrs_anon_session') || '';
         if (sessionId) {
           await fetch(
-            resolveApiUrl(`/api/profile?sessionId=${encodeURIComponent(sessionId)}`),
-            { method: 'DELETE' }
+            resolveTenantApiUrl(
+              `/api/profile?sessionId=${encodeURIComponent(sessionId)}`,
+              clientTenantId
+            ),
+            resolveTenantFetchInit(clientTenantId, { method: 'DELETE' })
           );
         }
       } catch {
