@@ -11,19 +11,23 @@ import {
   sanitizeStorefrontConfig,
   executeBackendSiteControl
 } from './server/siteController.ts';
+import { resolveAliExpressAffiliateConfig } from './server/affiliateConfig.ts';
 import {
+  AMAZON_ASSOCIATE_TAG,
+  AMAZON_LINK_SHORT,
+  AMAZON_STORE_URL,
+  BANGLASHOPPERS_AFFILIATE_URL,
   CURATED_CATALOG_RECORDS,
-  ALIEXPRESS_AFFILIATE_URL,
-  ALIEXPRESS_JEWELRY_URL,
-  ALIEXPRESS_BEAUTY_URL,
-  ALIEXPRESS_TOYS_URL,
-  ALIEXPRESS_WOMENS_CLOTHING_URL,
+  EXONHOST_AFFILIATE_URL,
+  ILLIN_AFFILIATE_URL,
+  RELEVA_HOME_URL,
+  SHOPZ_REF_BASE,
+  SOHOJ_AFFILIATE_URL,
+  STARTECH_AFFILIATE_URL,
   parseShopzCsvRecords,
   type CatalogRecord
 } from './src/data/catalogRecords.ts';
 import {
-  ALIEXPRESS_EVENT_PRIMARY_URL,
-  ALIEXPRESS_EVENT_SQUARE_URL,
   DEFAULT_ALIEXPRESS_EVENT_PROMOS,
   parseEventPromotionCsv,
   type EventPromoCreative
@@ -695,11 +699,13 @@ async function startServer() {
       getFullCatalogRecords(),
       getEventPromotions()
     ]);
+    const aliexpressConfig = resolveAliExpressAffiliateConfig();
     res.json({
       status: 'ok',
       service: 'camellia-shop',
       catalogCount: catalog.length,
       promotionsCount: promos.length,
+      aliexpressConfigured: aliexpressConfig.enabled,
       storesSupported: Array.from(VALID_STORES),
       regionsSupported: REGION_ORDER,
       persistence: {
@@ -727,22 +733,43 @@ async function startServer() {
     res.json(profile);
   });
 
+  app.get('/api/affiliate/config', async (_req, res) => {
+    const [promos] = await Promise.all([getEventPromotions()]);
+    const aliexpress = resolveAliExpressAffiliateConfig();
+    res.json({
+      aliexpress,
+      promotionsCount: promos.length,
+      partnerStores: {
+        aliexpress,
+        amazon: {
+          associateTag: AMAZON_ASSOCIATE_TAG,
+          storeUrl: AMAZON_STORE_URL,
+          shortUrl: AMAZON_LINK_SHORT
+        },
+        shopzBd: { portalUrl: SHOPZ_REF_BASE },
+        starTech: { portalUrl: STARTECH_AFFILIATE_URL },
+        relevaBd: { portalUrl: RELEVA_HOME_URL },
+        banglaShoppers: { portalUrl: BANGLASHOPPERS_AFFILIATE_URL },
+        illinBd: { portalUrl: ILLIN_AFFILIATE_URL },
+        sohojAffiliates: { portalUrl: SOHOJ_AFFILIATE_URL },
+        exonHost: { portalUrl: EXONHOST_AFFILIATE_URL }
+      }
+    });
+  });
+
   app.get('/api/storefront', async (_req, res) => {
     const db = await ensureDb();
+    const aliexpress = resolveAliExpressAffiliateConfig();
     res.json({
       ...db.storefront,
       partnerStores: {
         aliexpress: {
-          name: 'AliExpress',
-          portalUrl: ALIEXPRESS_AFFILIATE_URL,
-          eventUrl: ALIEXPRESS_EVENT_PRIMARY_URL,
-          squareEventUrl: ALIEXPRESS_EVENT_SQUARE_URL,
-          categories: {
-            jewelry: ALIEXPRESS_JEWELRY_URL,
-            beauty: ALIEXPRESS_BEAUTY_URL,
-            toys: ALIEXPRESS_TOYS_URL,
-            womensClothing: ALIEXPRESS_WOMENS_CLOTHING_URL
-          }
+          name: aliexpress.partner,
+          enabled: aliexpress.enabled,
+          portalUrl: aliexpress.portalUrl,
+          eventUrl: aliexpress.eventUrl,
+          squareEventUrl: aliexpress.squareEventUrl,
+          categories: aliexpress.categories
         }
       }
     });
@@ -750,10 +777,11 @@ async function startServer() {
 
   app.get('/api/promotions', async (_req, res) => {
     const promos = await getEventPromotions();
+    const aliexpress = resolveAliExpressAffiliateConfig();
     res.json({
-      partner: 'AliExpress',
-      primaryEventUrl: ALIEXPRESS_EVENT_PRIMARY_URL,
-      squareEventUrl: ALIEXPRESS_EVENT_SQUARE_URL,
+      partner: aliexpress.partner,
+      primaryEventUrl: aliexpress.eventUrl,
+      squareEventUrl: aliexpress.squareEventUrl,
       count: promos.length,
       items: promos
     });
@@ -761,7 +789,23 @@ async function startServer() {
 
   app.get('/api/catalog', async (req, res) => {
     const ratesData = await getLiveUsdRates();
-    const records = await getFullCatalogRecords(ratesData.rates.BDT);
+    const aliexpress = resolveAliExpressAffiliateConfig();
+    const records = (await getFullCatalogRecords(ratesData.rates.BDT)).map((item) => {
+      if (item.originStore !== 'AliExpress') return item;
+      if (item.id === 'aliexpress-jewelry-accessories') {
+        return { ...item, affiliateUrl: aliexpress.categories.jewelry };
+      }
+      if (item.id === 'aliexpress-beauty-health') {
+        return { ...item, affiliateUrl: aliexpress.categories.beauty };
+      }
+      if (item.id === 'aliexpress-toys-games') {
+        return { ...item, affiliateUrl: aliexpress.categories.toys };
+      }
+      if (item.id === 'aliexpress-womens-clothing') {
+        return { ...item, affiliateUrl: aliexpress.categories.womensClothing };
+      }
+      return item;
+    });
     const store = typeof req.query.store === 'string' ? req.query.store.trim() : '';
     const category = typeof req.query.category === 'string' ? req.query.category.trim() : '';
     const q = typeof req.query.q === 'string' ? req.query.q.trim().toLowerCase() : '';

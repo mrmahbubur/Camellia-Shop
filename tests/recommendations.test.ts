@@ -28,6 +28,10 @@ import {
   parseShopzCsvRecords
 } from '../src/data/catalogRecords.ts';
 import {
+  resolveAliExpressAffiliateConfig,
+  sanitizeAliExpressAffiliateUrl
+} from '../server/affiliateConfig.ts';
+import {
   REGION_ORDER,
   REGION_PROFILES,
   getStorePriorityRank
@@ -701,6 +705,11 @@ test('resolveRequestOrigin handles Forwarded/X-Forwarded-* headers, rejects inje
     DEFAULT_SEO_DESCRIPTION.length >= 120 && DEFAULT_SEO_DESCRIPTION.length <= 160,
     `Expected SERP-friendly description (120-160 chars), got ${DEFAULT_SEO_DESCRIPTION.length}`
   );
+  assert.ok(
+    DEFAULT_SEO_DESCRIPTION.toLowerCase().includes('fashion') &&
+      DEFAULT_SEO_DESCRIPTION.toLowerCase().includes('jewelry'),
+    'Expected DEFAULT_SEO_DESCRIPTION to include fashion and jewelry'
+  );
   assert.ok(indexHtml.includes(`<meta name="description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
   assert.ok(indexHtml.includes(`<meta property="og:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
   assert.ok(indexHtml.includes(`<meta name="twitter:description" content="${DEFAULT_SEO_DESCRIPTION}" />`));
@@ -868,6 +877,57 @@ test('AliExpress is integrated across backend endpoints, storefront announcement
     'Expected storefrontCopy.checkoutNotice and AliExpress nav in Footer.tsx'
   );
 });
+
+test('Backend AliExpress affiliate configuration validates overrides, rejects blocked URLs, and exposes /api/affiliate/config', () => {
+  const defaults = resolveAliExpressAffiliateConfig({});
+  assert.equal(defaults.partner, 'AliExpress');
+  assert.equal(defaults.enabled, true);
+  assert.equal(defaults.categories.jewelry, ALIEXPRESS_JEWELRY_URL);
+  assert.equal(defaults.categories.beauty, ALIEXPRESS_BEAUTY_URL);
+  assert.equal(defaults.categories.toys, ALIEXPRESS_TOYS_URL);
+  assert.equal(defaults.categories.womensClothing, ALIEXPRESS_WOMENS_CLOTHING_URL);
+
+  // Accepts valid AliExpress override while rejecting Admitad/Fabrilife or untrusted domains
+  const configured = resolveAliExpressAffiliateConfig({
+    ALIEXPRESS_PORTAL_URL: 'https://s.click.aliexpress.com/e/_c4oqIjxj',
+    ALIEXPRESS_JEWELRY_URL: 'https://rzekl.com/g/bad-admitad-link',
+    ALIEXPRESS_BEAUTY_URL: 'https://alitems.com/g/bad-link',
+    ALIEXPRESS_TOYS_URL: 'https://fabrilife.com/bad',
+    ALIEXPRESS_WOMENS_CLOTHING_URL: 'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+  });
+  assert.equal(configured.categories.jewelry, ALIEXPRESS_JEWELRY_URL);
+  assert.equal(configured.categories.beauty, ALIEXPRESS_BEAUTY_URL);
+  assert.equal(configured.categories.toys, ALIEXPRESS_TOYS_URL);
+  assert.equal(configured.categories.womensClothing, ALIEXPRESS_WOMENS_CLOTHING_URL);
+  assert.equal(
+    sanitizeAliExpressAffiliateUrl('https://rzekl.com/g/bad', 'beauty'),
+    ALIEXPRESS_BEAUTY_URL
+  );
+  assert.equal(
+    sanitizeAliExpressAffiliateUrl('https://s.click.aliexpress.com/e/_c3Nx9xUl', 'jewelry'),
+    'https://s.click.aliexpress.com/e/_c3Nx9xUl'
+  );
+
+  const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
+  assert.ok(
+    serverTs.includes("app.get('/api/affiliate/config'") &&
+      serverTs.includes('resolveAliExpressAffiliateConfig'),
+    'Expected /api/affiliate/config and resolveAliExpressAffiliateConfig in server.ts'
+  );
+  const siteControllerTs = fs.readFileSync(path.join(ROOT, 'server/siteController.ts'), 'utf8');
+  assert.ok(
+    siteControllerTs.includes('seoDescription') &&
+      siteControllerTs.includes('sanitizeAliExpressAffiliateUrl'),
+    'Expected seoDescription and sanitizeAliExpressAffiliateUrl in server/siteController.ts'
+  );
+  const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
+  assert.ok(
+    productsCtx.includes('storefrontCopy.seoDescription') &&
+      productsCtx.includes('partnerStores?.aliexpress?.portalUrl'),
+    'Expected ProductsContext.tsx to sync seoDescription and backend AliExpress config'
+  );
+});
+
 
 
 

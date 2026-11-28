@@ -4,6 +4,12 @@ import {
   normalizeRelevaAffiliateUrl,
   type ProductCategory
 } from '../src/data/catalogRecords.ts';
+import { DEFAULT_SEO_DESCRIPTION } from '../src/utils/seoSchema.ts';
+import {
+  isBlockedAffiliateUrl,
+  resolveAliExpressAffiliateConfig,
+  sanitizeAliExpressAffiliateUrl
+} from './affiliateConfig.ts';
 
 export interface ProductSpec {
   label: string;
@@ -56,6 +62,7 @@ export interface StorefrontConfig {
   storeTitle: string;
   storeSubtitle: string;
   checkoutNotice: string;
+  seoDescription: string;
   hiddenProductIds: string[];
   featuredProductIds: string[];
   priceOverrides: Record<string, PriceOverride>;
@@ -76,6 +83,7 @@ export const DEFAULT_STOREFRONT: StorefrontConfig = {
     'Browse electronics, smartwatches, skincare, fashion, jewelry, toys, home essentials, and hosting portals across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost. Every order completes directly on the partner store.',
   checkoutNotice:
     'All checkout, live pricing, shipping coverage, buyer protection, and returns complete directly on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.',
+  seoDescription: DEFAULT_SEO_DESCRIPTION,
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -83,21 +91,8 @@ export const DEFAULT_STOREFRONT: StorefrontConfig = {
   updatedAt: new Date().toISOString()
 };
 
-const BLOCKED_AD_DOMAINS = [
-  'profitableratecpmnetwork',
-  'adsterra',
-  'quge5',
-  'blogspot.com',
-  'fabrilife.com',
-  'rzekl.com',
-  'admitad.com',
-  'alitems.com',
-  'wextap.com'
-];
-
 function isBlockedUrl(url: string): boolean {
-  const lower = url.toLowerCase();
-  return BLOCKED_AD_DOMAINS.some((d) => lower.includes(d));
+  return isBlockedAffiliateUrl(url);
 }
 
 function sanitizePartnerUrl(
@@ -113,12 +108,12 @@ function sanitizePartnerUrl(
   const SOHOJ_URL = 'https://www.illin.com.bd/40989';
   const STARTECH_TRACKING = '6ad935b5df200';
   const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
-  const ALIEXPRESS_URL = 'https://s.click.aliexpress.com/e/_c4oqIjxj';
+  const aliexpressConfig = resolveAliExpressAffiliateConfig();
 
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
-    if (originStore === 'AliExpress') return ALIEXPRESS_URL;
+    if (originStore === 'AliExpress') return aliexpressConfig.portalUrl;
     if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
     if (originStore === 'Illin BD') return ILLIN_URL;
     if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
@@ -140,7 +135,7 @@ function sanitizePartnerUrl(
     trimmed.includes('s.click.aliexpress.com') ||
     trimmed.includes('aliexpress.com')
   ) {
-    return trimmed.includes('s.click.aliexpress.com/') ? trimmed : ALIEXPRESS_URL;
+    return sanitizeAliExpressAffiliateUrl(trimmed);
   }
   if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
     if (trimmed.includes('tracking=')) return trimmed;
@@ -211,6 +206,15 @@ function ensureAliExpressIncluded(value: unknown, fallback: string): string {
   return clean.toLowerCase().includes('aliexpress') ? clean : fallback;
 }
 
+function ensureSeoDescriptionCoverage(value: unknown, fallback: string): string {
+  const clean = typeof value === 'string' && value.trim() ? value.trim() : fallback;
+  const lower = clean.toLowerCase();
+  if (lower.includes('fashion') && lower.includes('jewelry') && lower.includes('aliexpress')) {
+    return clean;
+  }
+  return fallback;
+}
+
 function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): StorefrontConfig {
   const src = raw && typeof raw === 'object' ? raw : {};
   return {
@@ -241,6 +245,10 @@ function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): Storefront
     checkoutNotice: ensureAliExpressIncluded(
       src.checkoutNotice,
       DEFAULT_STOREFRONT.checkoutNotice
+    ),
+    seoDescription: ensureSeoDescriptionCoverage(
+      src.seoDescription,
+      DEFAULT_STOREFRONT.seoDescription
     ),
     hiddenProductIds: Array.isArray(src.hiddenProductIds)
       ? Array.from(
@@ -299,6 +307,7 @@ interface ControlPatch {
   storeTitle?: string;
   storeSubtitle?: string;
   checkoutNotice?: string;
+  seoDescription?: string;
   hideProductIds?: string[];
   unhideProductIds?: string[];
   featuredProductIds?: string[];
@@ -378,6 +387,7 @@ async function callGeminiWithRetry(
               storeTitle: { type: Type.STRING },
               storeSubtitle: { type: Type.STRING },
               checkoutNotice: { type: Type.STRING },
+              seoDescription: { type: Type.STRING },
               hideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               unhideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               featuredProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
@@ -502,6 +512,12 @@ export async function executeBackendSiteControl(
   }
   if (typeof patch.checkoutNotice === 'string' && patch.checkoutNotice.trim()) {
     next.checkoutNotice = patch.checkoutNotice.trim();
+  }
+  if (typeof patch.seoDescription === 'string' && patch.seoDescription.trim()) {
+    next.seoDescription = ensureSeoDescriptionCoverage(
+      patch.seoDescription,
+      DEFAULT_STOREFRONT.seoDescription
+    );
   }
 
   if (Array.isArray(patch.hideProductIds)) {

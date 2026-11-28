@@ -47,6 +47,7 @@ import {
 } from '../utils/recommendations';
 import { isStaticHostedWithoutApi, resolveApiUrl } from '../utils/apiClient';
 import {
+  DEFAULT_SEO_DESCRIPTION,
   applyDynamicSeoMetadata,
   readSearchQueryFromLocation,
   syncUrlSearchParam
@@ -61,6 +62,7 @@ export interface StorefrontCopyConfig {
   storeTitle: string;
   storeSubtitle: string;
   checkoutNotice: string;
+  seoDescription: string;
 }
 
 interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
@@ -69,6 +71,15 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
   priceOverrides?: Record<string, { price?: number; originalPrice?: number; badge?: string }>;
   customProducts?: EcomProduct[];
   sponsors?: Array<Omit<SponsorPlacement, 'image'> & { image?: string }>;
+  partnerStores?: {
+    aliexpress?: {
+      name?: string;
+      enabled?: boolean;
+      portalUrl?: string;
+      eventUrl?: string;
+      squareEventUrl?: string;
+    };
+  };
 }
 
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
@@ -82,7 +93,8 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   storeSubtitle:
     'Explore electronics, Bluetooth calling smartwatches, authentic skincare, fashion, jewelry, toys, home appliances, and hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   checkoutNotice:
-    'All checkout, live pricing, shipping coverage, buyer protection, and returns complete directly on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.'
+    'All checkout, live pricing, shipping coverage, buyer protection, and returns complete directly on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.',
+  seoDescription: DEFAULT_SEO_DESCRIPTION
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -506,7 +518,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       heroSubtitle: storefrontData?.heroSubtitle || DEFAULT_STOREFRONT_COPY.heroSubtitle,
       storeTitle: storefrontData?.storeTitle || DEFAULT_STOREFRONT_COPY.storeTitle,
       storeSubtitle: storefrontData?.storeSubtitle || DEFAULT_STOREFRONT_COPY.storeSubtitle,
-      checkoutNotice: storefrontData?.checkoutNotice || DEFAULT_STOREFRONT_COPY.checkoutNotice
+      checkoutNotice: storefrontData?.checkoutNotice || DEFAULT_STOREFRONT_COPY.checkoutNotice,
+      seoDescription: storefrontData?.seoDescription || DEFAULT_STOREFRONT_COPY.seoDescription
     }),
     [storefrontData]
   );
@@ -658,10 +671,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     syncUrlSearchParam(searchQuery);
     applyDynamicSeoMetadata({
       siteName: storefrontData?.siteName || 'Camellia Shop',
-      description: storefrontData?.storeSubtitle,
+      description: storefrontCopy.seoDescription,
       searchQuery
     });
-  }, [searchQuery, storefrontData?.siteName, storefrontData?.storeSubtitle]);
+  }, [searchQuery, storefrontData?.siteName, storefrontCopy.seoDescription]);
 
   const applyPartnerTracking = (
     rawUrl: string,
@@ -827,8 +840,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getRelevaSearchUrl,
         amazonShortUrl: AMAZON_LINK_SHORT,
         amazonStoreUrl: AMAZON_STORE_URL,
-        aliexpressStoreUrl: ALIEXPRESS_AFFILIATE_URL,
-        aliexpressEventUrl: ALIEXPRESS_EVENT_PRIMARY_URL,
+        aliexpressStoreUrl:
+          storefrontData?.partnerStores?.aliexpress?.portalUrl || ALIEXPRESS_AFFILIATE_URL,
+        aliexpressEventUrl:
+          storefrontData?.partnerStores?.aliexpress?.eventUrl || ALIEXPRESS_EVENT_PRIMARY_URL,
         eventPromos,
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,

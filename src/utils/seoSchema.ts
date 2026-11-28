@@ -360,13 +360,11 @@ export function injectSeoMetadataIntoHtml(
   updated = upsertHeadMeta(updated, 'property', 'og:image:type', 'image/jpeg');
   updated = upsertHeadMeta(updated, 'property', 'og:image:width', '1376');
   updated = upsertHeadMeta(updated, 'property', 'og:image:height', '768');
-  updated = upsertHeadMeta(
-    updated,
-    'property',
-    'og:image:alt',
-    'Camellia Shop curated workspace electronics, hardware, and partner store catalog'
-  );
+  const imageAlt =
+    'Camellia Shop curated electronics, smartwatches, skincare, fashion, jewelry, and partner store catalog';
+  updated = upsertHeadMeta(updated, 'property', 'og:image:alt', imageAlt);
   updated = upsertHeadMeta(updated, 'name', 'twitter:image', absoluteImageUrl);
+  updated = upsertHeadMeta(updated, 'name', 'twitter:image:alt', imageAlt);
 
   const schemaJson = JSON.stringify(
     buildOnlineStoreSchema({
