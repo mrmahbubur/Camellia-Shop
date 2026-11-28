@@ -17,8 +17,20 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
   onClear
 }) => {
   const { formatPrice } = useCart();
-  const { getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
+  const { getAffiliateBuyUrl, recordAffiliateClick, storefrontCopy } = useProducts();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const getStoreCtaClasses = (originStore: EcomProduct['originStore']) => {
+    if (originStore === 'ExonHost') return 'bg-sky-500 hover:bg-sky-400 text-slate-950';
+    if (originStore === 'AliExpress') return 'bg-red-600 hover:bg-red-500 text-white';
+    if (originStore === 'Shopz BD') return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950';
+    if (originStore === 'BanglaShoppers') return 'bg-rose-500 hover:bg-rose-400 text-white';
+    if (originStore === 'Illin BD') return 'bg-cyan-400 hover:bg-cyan-300 text-slate-950';
+    if (originStore === 'Star Tech') return 'bg-orange-600 hover:bg-orange-500 text-white';
+    if (originStore === 'Sohoj Affiliates') return 'bg-violet-600 hover:bg-violet-500 text-white';
+    if (originStore === 'Releva BD') return 'bg-teal-500 hover:bg-teal-400 text-slate-950';
+    return 'bg-[#FF9900] hover:bg-[#e88b00] text-slate-950';
+  };
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -170,7 +182,9 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
                       target="_blank"
                       rel="nofollow sponsored noopener noreferrer"
                       onClick={() => recordAffiliateClick(p.id, p.originStore, p.category)}
-                      className="w-full min-h-[44px] inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-xl text-xs"
+                      className={`w-full min-h-[44px] inline-flex items-center justify-center gap-1.5 px-4 py-2.5 font-extrabold rounded-xl text-xs transition-colors ${getStoreCtaClasses(
+                        p.originStore
+                      )}`}
                     >
                       <span>{`View Deal on ${p.originStore}`}</span>
                       <ExternalLink className="w-3.5 h-3.5 shrink-0" />
@@ -313,11 +327,14 @@ export const ProductCompareDock: React.FC<ProductCompareDockProps> = ({
               </table>
             </div>
 
-            <div className="mt-6 flex justify-end pb-[env(safe-area-inset-bottom)]">
+            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-[env(safe-area-inset-bottom)]">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">
+                {storefrontCopy.checkoutNotice}
+              </p>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 min-h-[44px] py-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 rounded-xl text-xs font-semibold hover:bg-slate-800 dark:hover:bg-amber-300 cursor-pointer"
+                className="px-5 min-h-[44px] py-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-slate-950 rounded-xl text-xs font-semibold hover:bg-slate-800 dark:hover:bg-amber-300 cursor-pointer shrink-0 self-end sm:self-auto"
               >
                 Close Comparison
               </button>

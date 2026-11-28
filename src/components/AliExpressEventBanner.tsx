@@ -1,12 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, ExternalLink, ShoppingBag, Tag } from 'lucide-react';
-import {
-  DEFAULT_ALIEXPRESS_EVENT_PROMOS,
-  EVENT_PROMOTION_CSV_FETCH_PATHS,
-  type EventPromoCreative,
-  getPromoCreativeBySize,
-  parseEventPromotionCsv
-} from '../utils/eventPromotionsCsv';
+import { getPromoCreativeBySize, type EventPromoCreative } from '../utils/eventPromotionsCsv';
 import { useProducts } from '../context/ProductsContext';
 
 interface AliExpressEventBannerProps {
@@ -16,37 +10,9 @@ interface AliExpressEventBannerProps {
 export const AliExpressEventBanner: React.FC<AliExpressEventBannerProps> = ({
   variant = 'responsive-strip'
 }) => {
-  const { recordAffiliateClick } = useProducts();
-  const [promos, setPromos] = useState<EventPromoCreative[]>(DEFAULT_ALIEXPRESS_EVENT_PROMOS);
+  const { eventPromos: promos, recordAffiliateClick } = useProducts();
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [showAllPlacements, setShowAllPlacements] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadEventPromos = async () => {
-      for (const candidatePath of EVENT_PROMOTION_CSV_FETCH_PATHS) {
-        try {
-          const res = await fetch(candidatePath);
-          if (!res.ok) continue;
-          const text = await res.text();
-          if (!text || !text.toLowerCase().includes('s.click.aliexpress.com')) continue;
-          const parsed = parseEventPromotionCsv(text);
-          if (!cancelled && parsed.length > 0) {
-            setPromos(parsed);
-            return;
-          }
-        } catch {
-          // Try next local path
-        }
-      }
-    };
-
-    loadEventPromos();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const leaderboard = useMemo(() => getPromoCreativeBySize(promos, '725*90'), [promos]);
   const rectangle = useMemo(() => getPromoCreativeBySize(promos, '300*250'), [promos]);

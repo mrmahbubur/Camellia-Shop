@@ -796,6 +796,80 @@ test('parseEventPromotionCsv loads all 7 banner sizes and s.click.aliexpress.com
   assert.equal(filtered.length, expectedSizes.length);
 });
 
+test('AliExpress is integrated across backend endpoints, storefront announcement, and checkout notices', () => {
+  const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
+  assert.ok(serverTs.includes("app.get('/api/promotions'"), 'Expected /api/promotions endpoint in server.ts');
+  assert.ok(serverTs.includes('EVENT_PROMOS_CSV_FILE'), 'Expected server.ts to load event_promotion_830ab32c.csv');
+  assert.ok(serverTs.includes('storesSupported: Array.from(VALID_STORES)'), 'Expected storesSupported in /api/health');
+  assert.ok(serverTs.includes("'AliExpress'"), 'Expected AliExpress in server.ts VALID_STORES');
+
+  const siteControllerTs = fs.readFileSync(path.join(ROOT, 'server/siteController.ts'), 'utf8');
+  assert.ok(siteControllerTs.includes('checkoutNotice'), 'Expected checkoutNotice in server/siteController.ts');
+  assert.ok(
+    siteControllerTs.includes('ensureAliExpressIncluded'),
+    'Expected ensureAliExpressIncluded safeguard in normalizeStorefront'
+  );
+
+  const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
+  const announcementMatch = productsCtx.match(/announcementText:\s*'([^']+)'/);
+  assert.ok(
+    announcementMatch && announcementMatch[1].includes('AliExpress'),
+    'Expected DEFAULT_STOREFRONT_COPY.announcementText to include AliExpress'
+  );
+  assert.ok(
+    productsCtx.includes('aliexpressEventUrl') && productsCtx.includes("'/api/promotions'"),
+    'Expected ProductsContext to expose aliexpressEventUrl and fetch /api/promotions'
+  );
+
+  const topBarTsx = fs.readFileSync(path.join(ROOT, 'src/components/TopBar.tsx'), 'utf8');
+  assert.ok(
+    topBarTsx.includes('AliExpress Deals') && topBarTsx.includes('AliExpress Global Picks'),
+    'Expected AliExpress announcement link and mobile drawer filter in TopBar.tsx'
+  );
+
+  const cartDrawerTsx = fs.readFileSync(path.join(ROOT, 'src/components/CartDrawer.tsx'), 'utf8');
+  assert.ok(
+    cartDrawerTsx.includes('storefrontCopy.checkoutNotice') &&
+      cartDrawerTsx.includes('Open AliExpress Event &amp; Checkout'),
+    'Expected checkoutNotice and AliExpress checkout CTA in CartDrawer.tsx'
+  );
+
+  const modalTsx = fs.readFileSync(path.join(ROOT, 'src/components/ModernProductModal.tsx'), 'utf8');
+  assert.ok(
+    modalTsx.includes('AliExpress buyer protection'),
+    'Expected AliExpress-specific checkout notice in ModernProductModal.tsx'
+  );
+
+  const compareDockTsx = fs.readFileSync(path.join(ROOT, 'src/components/ProductCompareDock.tsx'), 'utf8');
+  assert.ok(
+    compareDockTsx.includes('storefrontCopy.checkoutNotice') &&
+      compareDockTsx.includes("originStore === 'AliExpress'"),
+    'Expected checkoutNotice and AliExpress CTA styling in ProductCompareDock.tsx'
+  );
+
+  const suggestTsx = fs.readFileSync(
+    path.join(ROOT, 'src/components/SearchSuggestionsDropdown.tsx'),
+    'utf8'
+  );
+  assert.ok(
+    suggestTsx.includes('suggest-search-aliexpress') && suggestTsx.includes('aliexpressStoreUrl'),
+    'Expected AliExpress link in SearchSuggestionsDropdown.tsx'
+  );
+
+  const storeSectionTsx = fs.readFileSync(path.join(ROOT, 'src/components/StoreSection.tsx'), 'utf8');
+  assert.ok(
+    storeSectionTsx.includes('storefrontCopy.checkoutNotice'),
+    'Expected storefrontCopy.checkoutNotice in StoreSection.tsx disclosure banner'
+  );
+
+  const footerTsx = fs.readFileSync(path.join(ROOT, 'src/components/Footer.tsx'), 'utf8');
+  assert.ok(
+    footerTsx.includes('storefrontCopy.checkoutNotice') && footerTsx.includes('AliExpress Global Picks'),
+    'Expected storefrontCopy.checkoutNotice and AliExpress nav in Footer.tsx'
+  );
+});
+
+
 
 
 

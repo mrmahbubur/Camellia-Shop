@@ -55,6 +55,7 @@ export interface StorefrontConfig {
   heroSubtitle: string;
   storeTitle: string;
   storeSubtitle: string;
+  checkoutNotice: string;
   hiddenProductIds: string[];
   featuredProductIds: string[];
   priceOverrides: Record<string, PriceOverride>;
@@ -73,6 +74,8 @@ export const DEFAULT_STOREFRONT: StorefrontConfig = {
   storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Home & Hosting',
   storeSubtitle:
     'Browse electronics, smartwatches, skincare, fashion, jewelry, toys, home essentials, and hosting portals across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost. Every order completes directly on the partner store.',
+  checkoutNotice:
+    'All checkout, live pricing, shipping coverage, buyer protection, and returns complete directly on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.',
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -203,6 +206,11 @@ const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
   'AliExpress Global Picks'
 ]);
 
+function ensureAliExpressIncluded(value: unknown, fallback: string): string {
+  const clean = typeof value === 'string' && value.trim() ? value.trim() : fallback;
+  return clean.toLowerCase().includes('aliexpress') ? clean : fallback;
+}
+
 function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): StorefrontConfig {
   const src = raw && typeof raw === 'object' ? raw : {};
   return {
@@ -210,26 +218,30 @@ function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): Storefront
       typeof src.siteName === 'string' && src.siteName.trim()
         ? src.siteName.trim()
         : DEFAULT_STOREFRONT.siteName,
-    announcementText:
-      typeof src.announcementText === 'string' && src.announcementText.trim()
-        ? src.announcementText.trim()
-        : DEFAULT_STOREFRONT.announcementText,
+    announcementText: ensureAliExpressIncluded(
+      src.announcementText,
+      DEFAULT_STOREFRONT.announcementText
+    ),
     heroTitle:
       typeof src.heroTitle === 'string' && src.heroTitle.trim()
         ? src.heroTitle.trim()
         : DEFAULT_STOREFRONT.heroTitle,
-    heroSubtitle:
-      typeof src.heroSubtitle === 'string' && src.heroSubtitle.trim()
-        ? src.heroSubtitle.trim()
-        : DEFAULT_STOREFRONT.heroSubtitle,
+    heroSubtitle: ensureAliExpressIncluded(
+      src.heroSubtitle,
+      DEFAULT_STOREFRONT.heroSubtitle
+    ),
     storeTitle:
       typeof src.storeTitle === 'string' && src.storeTitle.trim()
         ? src.storeTitle.trim()
         : DEFAULT_STOREFRONT.storeTitle,
-    storeSubtitle:
-      typeof src.storeSubtitle === 'string' && src.storeSubtitle.trim()
-        ? src.storeSubtitle.trim()
-        : DEFAULT_STOREFRONT.storeSubtitle,
+    storeSubtitle: ensureAliExpressIncluded(
+      src.storeSubtitle,
+      DEFAULT_STOREFRONT.storeSubtitle
+    ),
+    checkoutNotice: ensureAliExpressIncluded(
+      src.checkoutNotice,
+      DEFAULT_STOREFRONT.checkoutNotice
+    ),
     hiddenProductIds: Array.isArray(src.hiddenProductIds)
       ? Array.from(
           new Set(
@@ -286,6 +298,7 @@ interface ControlPatch {
   heroSubtitle?: string;
   storeTitle?: string;
   storeSubtitle?: string;
+  checkoutNotice?: string;
   hideProductIds?: string[];
   unhideProductIds?: string[];
   featuredProductIds?: string[];
@@ -364,6 +377,7 @@ async function callGeminiWithRetry(
               heroSubtitle: { type: Type.STRING },
               storeTitle: { type: Type.STRING },
               storeSubtitle: { type: Type.STRING },
+              checkoutNotice: { type: Type.STRING },
               hideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               unhideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               featuredProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
@@ -485,6 +499,9 @@ export async function executeBackendSiteControl(
   }
   if (typeof patch.storeSubtitle === 'string' && patch.storeSubtitle.trim()) {
     next.storeSubtitle = patch.storeSubtitle.trim();
+  }
+  if (typeof patch.checkoutNotice === 'string' && patch.checkoutNotice.trim()) {
+    next.checkoutNotice = patch.checkoutNotice.trim();
   }
 
   if (Array.isArray(patch.hideProductIds)) {

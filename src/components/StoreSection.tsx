@@ -1642,14 +1642,17 @@ export const StoreSection: React.FC = () => {
           </div>
         )}
 
-        {/* Clear Near-Catalog Affiliate Disclosure */}
-        <div className="mb-8 p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        {/* Clear Near-Catalog Affiliate Disclosure & Checkout Notice */}
+        <div className="mb-8 p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex flex-col gap-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           <div className="flex items-start sm:items-center gap-2 min-w-0">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
             <span>
               <strong>Affiliate Disclosure:</strong> As an Amazon Associate and affiliate partner with AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, and Sohoj Affiliates, {storefrontCopy.siteName} earns from qualifying purchases at no extra cost to you.
             </span>
           </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 sm:pl-6">
+            {storefrontCopy.checkoutNotice}
+          </p>
         </div>
 
         <div className="mb-8">

@@ -48,6 +48,7 @@ export const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps>
 }) => {
   const { formatPrice } = useCart();
   const {
+    aliexpressStoreUrl,
     getAmazonSearchAffiliateUrl,
     getShopzSearchAffiliateUrl,
     getRelevaSearchUrl,
@@ -355,6 +356,16 @@ export const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps>
                 className="px-3 min-h-[44px] py-2 rounded-lg bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold text-xs inline-flex items-center gap-1 whitespace-nowrap"
               >
                 <span>Amazon</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href={aliexpressStoreUrl}
+                target="_blank"
+                rel="nofollow sponsored noopener noreferrer"
+                onMouseDown={() => recordAffiliateClick('suggest-search-aliexpress', 'AliExpress')}
+                className="px-3 min-h-[44px] py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs inline-flex items-center gap-1 whitespace-nowrap"
+              >
+                <span>AliExpress</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
               <a

@@ -371,7 +371,9 @@ export const ModernProductModal: React.FC<ModernProductModalProps> = ({
                     <span>Direct {product.originStore} Checkout</span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                    Camellia Shop is a curated affiliate storefront. All checkout, payment, live pricing, stock availability, shipping speed, returns, and customer support occur directly on {product.originStore}.
+                    {isAliExpress
+                      ? 'Camellia Shop is a curated affiliate storefront. All live promotional pricing, currency conversion, international shipping estimates, AliExpress buyer protection, returns, and order checkout complete directly on AliExpress.'
+                      : `Camellia Shop is a curated affiliate storefront. All checkout, payment, live pricing, stock availability, shipping speed, returns, and customer support occur directly on ${product.originStore}.`}
                   </p>
                 </div>
               )}

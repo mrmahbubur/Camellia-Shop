@@ -25,6 +25,13 @@ import {
   UPLOADED_AFFILIATE_CSV_FETCH_PATHS
 } from '../utils/affiliateCsv';
 import {
+  ALIEXPRESS_EVENT_PRIMARY_URL,
+  DEFAULT_ALIEXPRESS_EVENT_PROMOS,
+  EVENT_PROMOTION_CSV_FETCH_PATHS,
+  parseEventPromotionCsv,
+  type EventPromoCreative
+} from '../utils/eventPromotionsCsv';
+import {
   REGION_PROFILES,
   RegionProfile,
   VisitorRegionCode,
@@ -53,6 +60,7 @@ export interface StorefrontCopyConfig {
   heroSubtitle: string;
   storeTitle: string;
   storeSubtitle: string;
+  checkoutNotice: string;
 }
 
 interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
@@ -66,13 +74,15 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
 const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
   announcementText:
-    'Camellia Shop · Curated Tech, Watches, Skincare, Appliances & Partner Stores',
+    'Camellia Shop · Curated Tech, Watches, Skincare, Jewelry, Fashion & Partner Stores incl. Amazon & AliExpress',
   heroTitle: 'Curated Workspace Tech, Watches, Skincare & Partner Stores.',
   heroSubtitle:
     'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, fashion, jewelry, toys, and cloud hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare & Home Essentials',
   storeSubtitle:
-    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, fashion, jewelry, toys, home appliances, and hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.'
+    'Explore electronics, Bluetooth calling smartwatches, authentic skincare, fashion, jewelry, toys, home appliances, and hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
+  checkoutNotice:
+    'All checkout, live pricing, shipping coverage, buyer protection, and returns complete directly on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.'
 };
 
 export type StoreFilterOption = 'all' | PartnerStoreOrigin;
@@ -142,6 +152,8 @@ interface ProductsContextType {
   amazonShortUrl: string;
   amazonStoreUrl: string;
   aliexpressStoreUrl: string;
+  aliexpressEventUrl: string;
+  eventPromos: EventPromoCreative[];
   shopzStoreUrl: string;
   relevaStoreUrl: string;
   exonhostStoreUrl: string;
@@ -175,6 +187,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
   const [storefrontData, setStorefrontData] = useState<StorefrontResponse | null>(null);
   const [csvProducts, setCsvProducts] = useState<EcomProduct[]>([]);
+  const [eventPromos, setEventPromos] = useState<EventPromoCreative[]>(DEFAULT_ALIEXPRESS_EVENT_PROMOS);
 
   // Buying Guide state
   const [buyingNeed, setBuyingNeedState] = useState<BuyingNeed>('balanced');
@@ -371,6 +384,49 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadEventPromosCsv = async () => {
+      for (const candidatePath of EVENT_PROMOTION_CSV_FETCH_PATHS) {
+        try {
+          const res = await fetch(candidatePath);
+          if (!res.ok) continue;
+          const text = await res.text();
+          if (!text || !text.toLowerCase().includes('s.click.aliexpress.com')) continue;
+          const parsed = parseEventPromotionCsv(text);
+          if (!cancelled && parsed.length > 0) {
+            setEventPromos(parsed);
+            return;
+          }
+        } catch {
+          // Try next local path
+        }
+      }
+    };
+
+    if (!isStaticHostedWithoutApi()) {
+      fetch(resolveApiUrl('/api/promotions'))
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: { items?: EventPromoCreative[] } | null) => {
+          if (!cancelled && Array.isArray(data?.items) && data.items.length > 0) {
+            setEventPromos(data.items);
+          } else {
+            void loadEventPromosCsv();
+          }
+        })
+        .catch(() => {
+          void loadEventPromosCsv();
+        });
+    } else {
+      void loadEventPromosCsv();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     const hasManualRegion = (() => {
       try {
         const saved = localStorage.getItem('mrs_region') as VisitorRegionCode | null;
@@ -449,7 +505,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       heroTitle: storefrontData?.heroTitle || DEFAULT_STOREFRONT_COPY.heroTitle,
       heroSubtitle: storefrontData?.heroSubtitle || DEFAULT_STOREFRONT_COPY.heroSubtitle,
       storeTitle: storefrontData?.storeTitle || DEFAULT_STOREFRONT_COPY.storeTitle,
-      storeSubtitle: storefrontData?.storeSubtitle || DEFAULT_STOREFRONT_COPY.storeSubtitle
+      storeSubtitle: storefrontData?.storeSubtitle || DEFAULT_STOREFRONT_COPY.storeSubtitle,
+      checkoutNotice: storefrontData?.checkoutNotice || DEFAULT_STOREFRONT_COPY.checkoutNotice
     }),
     [storefrontData]
   );
@@ -771,6 +828,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         amazonShortUrl: AMAZON_LINK_SHORT,
         amazonStoreUrl: AMAZON_STORE_URL,
         aliexpressStoreUrl: ALIEXPRESS_AFFILIATE_URL,
+        aliexpressEventUrl: ALIEXPRESS_EVENT_PRIMARY_URL,
+        eventPromos,
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,
         exonhostStoreUrl: EXONHOST_AFFILIATE_URL,

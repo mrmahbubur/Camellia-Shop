@@ -249,7 +249,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 As an Amazon Associate, {storefrontCopy.siteName} earns from qualifying purchases. We also partner with AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, Sohoj Affiliates, and featured sponsors.
               </p>
               <p className="text-slate-400 leading-relaxed text-[11px]">
-                All live prices, stock status, shipping coverage, and returns are set directly by each partner store at checkout.
+                {storefrontCopy.checkoutNotice}
               </p>
             <div className="pt-1 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
               <span className="flex items-center gap-1 text-emerald-400">

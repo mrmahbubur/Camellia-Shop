@@ -41,6 +41,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
     setSelectedStoreFilter,
     setHighlightedProductId,
     amazonStoreUrl,
+    aliexpressEventUrl,
+    recordAffiliateClick,
     storefrontCopy
   } = useProducts();
   const { themeMode, resolvedTheme, systemTheme, setThemeMode, cycleThemeMode } = useTheme();
@@ -153,6 +155,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
     handleNavClick('store');
   };
 
+  const handleAliExpressClick = () => {
+    setSelectedStoreFilter('AliExpress');
+    setSelectedCategory('AliExpress Global Picks');
+    handleNavClick('store');
+  };
+
   const themeLabel =
     themeMode === 'system'
       ? `Theme: Auto (${systemTheme})`
@@ -169,11 +177,23 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span className="truncate">{storefrontCopy.announcementText}</span>
           </div>
-          <div className="hidden sm:flex items-center gap-4 shrink-0 text-slate-400">
+          <div className="hidden sm:flex items-center gap-3 shrink-0 text-slate-400">
+            <a
+              href={aliexpressEventUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener noreferrer"
+              onClick={() => recordAffiliateClick('topbar-aliexpress-event', 'AliExpress')}
+              className="text-red-300 hover:text-white transition-colors font-semibold whitespace-nowrap inline-flex items-center gap-1 min-h-[32px]"
+            >
+              <span>AliExpress Deals</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+            <span aria-hidden="true" className="text-slate-700">|</span>
             <a
               href={amazonStoreUrl}
               target="_blank"
               rel="nofollow sponsored noopener noreferrer"
+              onClick={() => recordAffiliateClick('topbar-amazon-store', 'Amazon')}
               className="text-amber-300 hover:text-white transition-colors font-semibold whitespace-nowrap inline-flex items-center gap-1 min-h-[32px]"
             >
               <span>Amazon Storefront</span>
@@ -553,6 +573,20 @@ export const TopBar: React.FC<TopBarProps> = ({ onNavigate }) => {
                 </div>
                 <span className="text-xs bg-amber-200 dark:bg-amber-500/30 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded font-mono shrink-0">
                   Direct
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleAliExpressClick}
+                className="text-left px-3 min-h-[44px] py-2 rounded-lg bg-red-50 dark:bg-red-500/15 text-red-950 dark:text-red-200 font-bold border border-red-200 dark:border-red-500/30 flex items-center justify-between gap-2 cursor-pointer"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShoppingBag className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+                  <span>AliExpress Global Picks</span>
+                </div>
+                <span className="text-xs bg-red-200 dark:bg-red-500/30 text-red-900 dark:text-red-200 px-2 py-0.5 rounded font-mono shrink-0">
+                  Event
                 </span>
               </button>
 

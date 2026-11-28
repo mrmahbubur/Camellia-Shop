@@ -1,7 +1,7 @@
 export const DEFAULT_SEO_TITLE = 'Camellia Shop | Workspace Tech, Hardware & Partner Catalog';
 
 export const DEFAULT_SEO_DESCRIPTION =
-  'Shop curated workspace tech, computer hardware, smartwatches, skincare, home gear, and cloud hosting across Amazon and trusted regional partner stores.';
+  'Shop curated tech, smartwatches, skincare, fashion, jewelry, and hosting across Amazon, AliExpress, and trusted partner stores.';
 
 export const DEFAULT_OG_IMAGE_PATH = 'images/camellia-og-showcase.jpg';
 
@@ -283,7 +283,8 @@ export function buildOnlineStoreSchema(options: OnlineStoreSchemaOptions = {}) {
       'Smartwatches',
       'Audio Gear',
       'Skincare',
-      'Home Appliances',
+      'Jewelry & Fashion',
+      'Toys & Home Appliances',
       'Cloud Hosting'
     ],
     potentialAction: {

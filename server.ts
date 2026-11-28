@@ -13,9 +13,21 @@ import {
 } from './server/siteController.ts';
 import {
   CURATED_CATALOG_RECORDS,
+  ALIEXPRESS_AFFILIATE_URL,
+  ALIEXPRESS_JEWELRY_URL,
+  ALIEXPRESS_BEAUTY_URL,
+  ALIEXPRESS_TOYS_URL,
+  ALIEXPRESS_WOMENS_CLOTHING_URL,
   parseShopzCsvRecords,
   type CatalogRecord
 } from './src/data/catalogRecords.ts';
+import {
+  ALIEXPRESS_EVENT_PRIMARY_URL,
+  ALIEXPRESS_EVENT_SQUARE_URL,
+  DEFAULT_ALIEXPRESS_EVENT_PROMOS,
+  parseEventPromotionCsv,
+  type EventPromoCreative
+} from './src/utils/eventPromotionsCsv.ts';
 import {
   REGION_ORDER,
   REGION_PROFILES,
@@ -49,6 +61,13 @@ const SHOPZ_CSV_FILE = path.join(
   'assets',
   'aistudio',
   'my-affiliate-links-mahbubur-rahman-shahin_937a8a27.csv'
+);
+const EVENT_PROMOS_CSV_FILE = path.join(
+  ROOT_DIR,
+  'public',
+  'assets',
+  'aistudio',
+  'event_promotion_830ab32c.csv'
 );
 
 interface AnonymousProfileRecord extends InteractionSignals {
@@ -378,6 +397,7 @@ async function getLiveOwnerCredit(): Promise<OwnerCredit> {
 }
 
 let cachedCsvRecords: CatalogRecord[] | null = null;
+let cachedEventPromos: EventPromoCreative[] | null = null;
 
 async function getFullCatalogRecords(bdtRate = 121.5): Promise<CatalogRecord[]> {
   if (!cachedCsvRecords) {
@@ -394,6 +414,19 @@ async function getFullCatalogRecords(bdtRate = 121.5): Promise<CatalogRecord[]> 
     (r) => !existingUrls.has(r.affiliateUrl.toLowerCase())
   );
   return [...CURATED_CATALOG_RECORDS, ...dedupedCsv];
+}
+
+async function getEventPromotions(): Promise<EventPromoCreative[]> {
+  if (!cachedEventPromos) {
+    try {
+      const csvText = await fs.readFile(EVENT_PROMOS_CSV_FILE, 'utf-8');
+      const parsed = parseEventPromotionCsv(csvText);
+      cachedEventPromos = parsed.length > 0 ? parsed : DEFAULT_ALIEXPRESS_EVENT_PROMOS;
+    } catch {
+      cachedEventPromos = DEFAULT_ALIEXPRESS_EVENT_PROMOS;
+    }
+  }
+  return cachedEventPromos;
 }
 
 const EU_COUNTRIES = new Set([
@@ -658,11 +691,16 @@ async function startServer() {
   app.use(express.json({ limit: '256kb' }));
 
   app.get('/api/health', async (_req, res) => {
-    const catalog = await getFullCatalogRecords();
+    const [catalog, promos] = await Promise.all([
+      getFullCatalogRecords(),
+      getEventPromotions()
+    ]);
     res.json({
       status: 'ok',
       service: 'camellia-shop',
       catalogCount: catalog.length,
+      promotionsCount: promos.length,
+      storesSupported: Array.from(VALID_STORES),
       regionsSupported: REGION_ORDER,
       persistence: {
         mode: 'local-json-ephemeral',
@@ -691,7 +729,34 @@ async function startServer() {
 
   app.get('/api/storefront', async (_req, res) => {
     const db = await ensureDb();
-    res.json(db.storefront);
+    res.json({
+      ...db.storefront,
+      partnerStores: {
+        aliexpress: {
+          name: 'AliExpress',
+          portalUrl: ALIEXPRESS_AFFILIATE_URL,
+          eventUrl: ALIEXPRESS_EVENT_PRIMARY_URL,
+          squareEventUrl: ALIEXPRESS_EVENT_SQUARE_URL,
+          categories: {
+            jewelry: ALIEXPRESS_JEWELRY_URL,
+            beauty: ALIEXPRESS_BEAUTY_URL,
+            toys: ALIEXPRESS_TOYS_URL,
+            womensClothing: ALIEXPRESS_WOMENS_CLOTHING_URL
+          }
+        }
+      }
+    });
+  });
+
+  app.get('/api/promotions', async (_req, res) => {
+    const promos = await getEventPromotions();
+    res.json({
+      partner: 'AliExpress',
+      primaryEventUrl: ALIEXPRESS_EVENT_PRIMARY_URL,
+      squareEventUrl: ALIEXPRESS_EVENT_SQUARE_URL,
+      count: promos.length,
+      items: promos
+    });
   });
 
   app.get('/api/catalog', async (req, res) => {

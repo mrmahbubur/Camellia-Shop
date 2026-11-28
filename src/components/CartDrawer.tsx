@@ -19,7 +19,15 @@ export const CartDrawer: React.FC = () => {
     ratesDisclaimer,
     formatPrice
   } = useCart();
-  const { sponsors, products, affiliateTag, getAffiliateBuyUrl, recordAffiliateClick } = useProducts();
+  const {
+    sponsors,
+    products,
+    affiliateTag,
+    aliexpressEventUrl,
+    storefrontCopy,
+    getAffiliateBuyUrl,
+    recordAffiliateClick
+  } = useProducts();
   const [copiedLinks, setCopiedLinks] = React.useState(false);
 
   useEffect(() => {
@@ -58,6 +66,11 @@ export const CartDrawer: React.FC = () => {
     });
     return `https://www.amazon.com/gp/aws/cart/add.html?${params.toString()}`;
   })();
+
+  const aliexpressSavedCount = cart.reduce(
+    (sum, item) => sum + (item.product.originStore === 'AliExpress' ? item.quantity : 0),
+    0
+  );
 
   const handleCopyAllLinks = () => {
     const lines = cart.map((item, idx) => {
@@ -111,8 +124,8 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         {/* Direct Purchase Notice */}
-        <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
-          All checkout completes on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.
+        <div className="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+          {storefrontCopy.checkoutNotice}
         </div>
 
         {/* Saved Items List */}
@@ -297,11 +310,24 @@ export const CartDrawer: React.FC = () => {
               </div>
             )}
 
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
               {unpricedSavedItemsCount > 0
-                ? `${unpricedSavedItemsCount} saved item(s) use live partner pricing. ${ratesDisclaimer}`
+                ? `${unpricedSavedItemsCount} saved item(s) use live partner pricing (Amazon, AliExpress, or regional partners). ${ratesDisclaimer}`
                 : ratesDisclaimer}
             </p>
+
+            {aliexpressSavedCount > 0 && (
+              <a
+                href={aliexpressEventUrl}
+                target="_blank"
+                rel="nofollow sponsored noopener noreferrer"
+                onClick={() => recordAffiliateClick('aliexpress-cart-checkout', 'AliExpress')}
+                className="w-full min-h-[44px] px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-xs whitespace-nowrap"
+              >
+                <span>Open AliExpress Event &amp; Checkout ({aliexpressSavedCount})</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+              </a>
+            )}
 
             {amazonCartCheckoutUrl && (
               <a
