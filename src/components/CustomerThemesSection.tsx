@@ -553,7 +553,7 @@ export const CustomerThemesSection: React.FC = () => {
           </div>
 
           {/* Recommendations Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 min-[1440px]:grid-cols-6 gap-2.5 sm:gap-4 lg:gap-5 xl:gap-6 items-stretch">
             {recommendations.map((rec) => {
               const product = rec.item;
               const buyUrl = getAffiliateBuyUrl(product);
@@ -762,7 +762,7 @@ export const CustomerThemesSection: React.FC = () => {
           </div>
 
           {/* Responsive Customer Theme Product Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 min-[1440px]:grid-cols-6 gap-2.5 sm:gap-4 lg:gap-5 xl:gap-6 items-stretch mb-8">
             {themeProducts.map((product) => {
               const buyUrl = getAffiliateBuyUrl(product);
               const hasPrice =

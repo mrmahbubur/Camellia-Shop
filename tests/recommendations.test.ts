@@ -1186,9 +1186,9 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   );
 });
 
-test('Product grids enforce 2-col mobile, 3-col tablet (640-1024px), 4-5 col desktop (>1024px), and equal-height cards', () => {
+test('Product grids enforce 2-col mobile, 3-col tablet, 5-col laptop (1024-1439px), 6-col large desktop (1440px+), and equal-height cards', () => {
   const gridClassPattern =
-    'grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch';
+    'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 min-[1440px]:grid-cols-6 gap-2.5 sm:gap-4 lg:gap-5 xl:gap-6 items-stretch';
   const filesWithProductGrids = [
     'src/components/StoreSection.tsx',
     'src/components/AmazonShowcaseSection.tsx',

@@ -107,7 +107,7 @@ export const AmazonShowcaseSection: React.FC = () => {
         </div>
 
         {/* Amazon Product Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 min-[1440px]:grid-cols-6 gap-2.5 sm:gap-4 lg:gap-5 xl:gap-6 items-stretch mb-8">
           {filteredProducts.map((product) => {
             const fullProduct = resolveModalProduct(product);
             const isSaved = savedIds.has(product.id);
