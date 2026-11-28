@@ -29,10 +29,11 @@ import {
 } from '../src/data/catalogRecords.ts';
 import {
   resolveAliExpressAffiliateConfig,
+  resolvePartnerProductUrl,
   resolveStorefrontAffiliateConfig,
   sanitizeAliExpressAffiliateUrl,
   sanitizeAmazonAffiliateUrl
-} from '../server/affiliateConfig.ts';
+} from '../src/utils/affiliateConfig.ts';
 import { sanitizeStorefrontConfig } from '../server/siteController.ts';
 import {
   REGION_ORDER,
@@ -965,10 +966,14 @@ test('Backend affiliate configuration is driven by StorefrontConfig for AliExpre
   const combinedResolved = resolveStorefrontAffiliateConfig({
     aliexpress: {
       enabled: false,
-      portalUrl: 'https://s.click.aliexpress.com/e/_c4W9fhKh'
+      portalUrl: 'https://s.click.aliexpress.com/e/_c4W9fhKh',
+      categories: {
+        jewelry: 'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+      }
     },
     amazon: {
-      associateTag: 'storefront-20'
+      associateTag: 'storefront-20',
+      linkId: 'tenantlink123456'
     }
   });
   assert.equal(combinedResolved.aliexpress.enabled, false);
@@ -977,6 +982,24 @@ test('Backend affiliate configuration is driven by StorefrontConfig for AliExpre
     'https://s.click.aliexpress.com/e/_c4W9fhKh'
   );
   assert.equal(combinedResolved.amazon.associateTag, 'storefront-20');
+  assert.equal(
+    resolvePartnerProductUrl({
+      rawUrl: ALIEXPRESS_JEWELRY_URL,
+      originStore: 'AliExpress',
+      productId: 'aliexpress-jewelry-accessories',
+      affiliateConfig: combinedResolved
+    }),
+    'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+  );
+  assert.equal(
+    resolvePartnerProductUrl({
+      rawUrl: 'https://www.amazon.com/dp/B0BSHF7WHW',
+      originStore: 'Amazon',
+      asin: 'B0BSHF7WHW',
+      affiliateConfig: combinedResolved
+    }),
+    'https://www.amazon.com/dp/B0BSHF7WHW?tag=storefront-20&linkCode=ll2&linkId=tenantlink123456'
+  );
 
   const envExample = fs.readFileSync(path.join(ROOT, '.env.example'), 'utf8');
   assert.ok(!envExample.includes('ALIEXPRESS_'), 'Expected .env.example not to contain global ALIEXPRESS_* env vars');
@@ -984,24 +1007,24 @@ test('Backend affiliate configuration is driven by StorefrontConfig for AliExpre
   const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
   assert.ok(
     serverTs.includes("app.get('/api/affiliate/config'") &&
+      serverTs.includes("app.put('/api/internal/affiliate-config'") &&
       serverTs.includes('resolveStorefrontAffiliateConfig') &&
-      serverTs.includes('sanitizeAmazonAffiliateUrl'),
-    'Expected /api/affiliate/config, resolveStorefrontAffiliateConfig, and sanitizeAmazonAffiliateUrl in server.ts'
+      serverTs.includes('resolvePartnerProductUrl'),
+    'Expected multi-tenant DB routes and centralized affiliate resolution in server.ts'
   );
   const siteControllerTs = fs.readFileSync(path.join(ROOT, 'server/siteController.ts'), 'utf8');
   assert.ok(
     siteControllerTs.includes('seoDescription') &&
       siteControllerTs.includes('affiliateConfig') &&
-      siteControllerTs.includes('sanitizeAliExpressAffiliateUrl') &&
-      siteControllerTs.includes('sanitizeAmazonAffiliateUrl'),
-    'Expected seoDescription, affiliateConfig, and AliExpress/Amazon sanitizers in server/siteController.ts'
+      siteControllerTs.includes('resolvePartnerProductUrl'),
+    'Expected seoDescription, affiliateConfig, and resolvePartnerProductUrl in server/siteController.ts'
   );
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
   assert.ok(
     productsCtx.includes('storefrontCopy.seoDescription') &&
-      productsCtx.includes('affiliateConfig?.aliexpress?.portalUrl') &&
-      productsCtx.includes('affiliateConfig?.amazon?.associateTag'),
-    'Expected ProductsContext.tsx to sync seoDescription and dynamic AliExpress/Amazon affiliateConfig'
+      productsCtx.includes('resolvePartnerProductUrl') &&
+      productsCtx.includes('affiliateConfig?.amazon'),
+    'Expected ProductsContext.tsx to use centralized resolvePartnerProductUrl and DB-driven affiliateConfig'
   );
 });
 

@@ -12,8 +12,9 @@ import {
   executeBackendSiteControl
 } from './server/siteController.ts';
 import {
+  resolvePartnerProductUrl,
   resolveStorefrontAffiliateConfig,
-  sanitizeAmazonAffiliateUrl
+  type StorefrontAffiliateOverride
 } from './server/affiliateConfig.ts';
 import {
   BANGLASHOPPERS_AFFILIATE_URL,
@@ -82,12 +83,14 @@ interface StoreDb {
   clicks: Record<string, number>;
   profiles: Record<string, AnonymousProfileRecord>;
   storefront: StorefrontConfig;
+  tenants?: Record<string, StorefrontConfig>;
 }
 
 const DEFAULT_DB: StoreDb = {
   clicks: {},
   profiles: {},
-  storefront: DEFAULT_STOREFRONT
+  storefront: DEFAULT_STOREFRONT,
+  tenants: {}
 };
 
 const MAX_STORED_PROFILES = 200;
@@ -97,7 +100,8 @@ let activeDbFile: string | null = null;
 let memoryDb: StoreDb = {
   clicks: {},
   profiles: {},
-  storefront: DEFAULT_STOREFRONT
+  storefront: DEFAULT_STOREFRONT,
+  tenants: {}
 };
 let dbWriteQueue: Promise<void> = Promise.resolve();
 
@@ -151,6 +155,36 @@ async function resolveWritableDbFile(): Promise<string | null> {
   return null;
 }
 
+function sanitizeTenants(raw: unknown): Record<string, StorefrontConfig> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out: Record<string, StorefrontConfig> = {};
+  for (const [tenantKey, value] of Object.entries(raw as Record<string, unknown>).slice(0, 50)) {
+    const cleanTenant = tenantKey.trim().toLowerCase();
+    if (!/^[a-z0-9_-]{2,40}$/.test(cleanTenant) || cleanTenant === 'default') continue;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+    out[cleanTenant] = sanitizeStorefrontConfig(value as Partial<StorefrontConfig>);
+  }
+  return out;
+}
+
+function resolveTenantId(req: Request): string {
+  const raw =
+    (typeof req.query.tenant === 'string' && req.query.tenant) ||
+    (typeof req.query.storefrontId === 'string' && req.query.storefrontId) ||
+    (typeof req.headers['x-storefront-id'] === 'string' && req.headers['x-storefront-id']) ||
+    'default';
+  const clean = raw.trim().toLowerCase();
+  if (!clean || clean === 'default' || !/^[a-z0-9_-]{2,40}$/.test(clean)) return 'default';
+  return clean;
+}
+
+function getTenantStorefront(db: StoreDb, tenantId: string): StorefrontConfig {
+  if (tenantId !== 'default' && db.tenants?.[tenantId]) {
+    return db.tenants[tenantId];
+  }
+  return db.storefront;
+}
+
 async function ensureDb(): Promise<StoreDb> {
   const dbFile = await resolveWritableDbFile();
   if (!dbFile) return memoryDb;
@@ -158,11 +192,21 @@ async function ensureDb(): Promise<StoreDb> {
   try {
     const raw = await fs.readFile(dbFile, 'utf-8');
     const parsed = JSON.parse(raw) as Partial<StoreDb>;
+    const normalizedStorefront = sanitizeStorefrontConfig(parsed.storefront);
     const loaded: StoreDb = {
       clicks: sanitizeCounterMap(parsed.clicks),
       profiles: sanitizeProfiles(parsed.profiles),
-      storefront: sanitizeStorefrontConfig(parsed.storefront)
+      storefront: normalizedStorefront,
+      tenants: sanitizeTenants(parsed.tenants)
     };
+    const needsUpgrade =
+      !parsed.storefront ||
+      !parsed.storefront.affiliateConfig ||
+      !parsed.storefront.seoDescription ||
+      !parsed.storefront.checkoutNotice;
+    if (needsUpgrade) {
+      await fs.writeFile(dbFile, JSON.stringify(loaded, null, 2), 'utf-8').catch(() => {});
+    }
     memoryDb = loaded;
     return loaded;
   } catch {
@@ -734,10 +778,13 @@ async function startServer() {
     res.json(profile);
   });
 
-  app.get('/api/affiliate/config', async (_req, res) => {
+  app.get('/api/affiliate/config', async (req, res) => {
     const [db, promos] = await Promise.all([ensureDb(), getEventPromotions()]);
-    const resolved = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
+    const tenantId = resolveTenantId(req);
+    const storefront = getTenantStorefront(db, tenantId);
+    const resolved = resolveStorefrontAffiliateConfig(storefront.affiliateConfig);
     res.json({
+      tenantId,
       aliexpress: resolved.aliexpress,
       promotionsCount: promos.length,
       partnerStores: {
@@ -754,11 +801,14 @@ async function startServer() {
     });
   });
 
-  app.get('/api/storefront', async (_req, res) => {
+  app.get('/api/storefront', async (req, res) => {
     const db = await ensureDb();
-    const resolved = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
+    const tenantId = resolveTenantId(req);
+    const storefront = getTenantStorefront(db, tenantId);
+    const resolved = resolveStorefrontAffiliateConfig(storefront.affiliateConfig);
     res.json({
-      ...db.storefront,
+      ...storefront,
+      tenantId,
       affiliateConfig: resolved,
       partnerStores: {
         aliexpress: {
@@ -773,10 +823,13 @@ async function startServer() {
     });
   });
 
-  app.get('/api/promotions', async (_req, res) => {
+  app.get('/api/promotions', async (req, res) => {
     const [db, promos] = await Promise.all([ensureDb(), getEventPromotions()]);
-    const aliexpress = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig).aliexpress;
+    const tenantId = resolveTenantId(req);
+    const storefront = getTenantStorefront(db, tenantId);
+    const aliexpress = resolveStorefrontAffiliateConfig(storefront.affiliateConfig).aliexpress;
     res.json({
+      tenantId,
       partner: aliexpress.partner,
       enabled: aliexpress.enabled,
       primaryEventUrl: aliexpress.eventUrl,
@@ -788,35 +841,24 @@ async function startServer() {
 
   app.get('/api/catalog', async (req, res) => {
     const [db, ratesData] = await Promise.all([ensureDb(), getLiveUsdRates()]);
-    const resolvedAffiliate = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
-    const aliexpress = resolvedAffiliate.aliexpress;
+    const tenantId = resolveTenantId(req);
+    const storefront = getTenantStorefront(db, tenantId);
+    const resolvedAffiliate = resolveStorefrontAffiliateConfig(storefront.affiliateConfig);
     const records = (await getFullCatalogRecords(ratesData.rates.BDT)).map((item) => {
-      if (item.originStore === 'AliExpress') {
-        if (item.id === 'aliexpress-jewelry-accessories') {
-          return { ...item, affiliateUrl: aliexpress.categories.jewelry };
-        }
-        if (item.id === 'aliexpress-beauty-health') {
-          return { ...item, affiliateUrl: aliexpress.categories.beauty };
-        }
-        if (item.id === 'aliexpress-toys-games') {
-          return { ...item, affiliateUrl: aliexpress.categories.toys };
-        }
-        if (item.id === 'aliexpress-womens-clothing') {
-          return { ...item, affiliateUrl: aliexpress.categories.womensClothing };
-        }
+      if (item.originStore !== 'AliExpress' && item.originStore !== 'Amazon') {
         return item;
       }
-      if (item.originStore === 'Amazon') {
-        return {
-          ...item,
-          affiliateUrl: sanitizeAmazonAffiliateUrl(
-            item.affiliateUrl,
-            item.asin,
-            resolvedAffiliate.amazon
-          )
-        };
-      }
-      return item;
+      return {
+        ...item,
+        affiliateUrl: resolvePartnerProductUrl({
+          rawUrl: item.affiliateUrl,
+          originStore: item.originStore,
+          asin: item.asin,
+          productId: item.id,
+          urlKind: item.urlKind,
+          affiliateConfig: resolvedAffiliate
+        })
+      };
     });
     const store = typeof req.query.store === 'string' ? req.query.store.trim() : '';
     const category = typeof req.query.category === 'string' ? req.query.category.trim() : '';
@@ -1064,6 +1106,57 @@ async function startServer() {
       return { db, result: db.clicks[key] };
     });
     res.json({ count });
+  });
+
+  app.put('/api/internal/affiliate-config', async (req, res) => {
+    if (!isAuthorizedInternalRequest(req)) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+
+    const body = req.body as {
+      tenantId?: unknown;
+      affiliateConfig?: StorefrontAffiliateOverride;
+    };
+    if (!body || typeof body !== 'object' || !body.affiliateConfig || typeof body.affiliateConfig !== 'object') {
+      res.status(400).json({ error: 'affiliateConfig object is required' });
+      return;
+    }
+
+    const rawTenant = typeof body.tenantId === 'string' ? body.tenantId.trim().toLowerCase() : 'default';
+    const tenantId = /^[a-z0-9_-]{2,40}$/.test(rawTenant) ? rawTenant : 'default';
+
+    const updated = await withDbLock(async (db) => {
+      const base = getTenantStorefront(db, tenantId);
+      const nextStorefront = sanitizeStorefrontConfig({
+        ...base,
+        affiliateConfig: resolveStorefrontAffiliateConfig({
+          aliexpress: {
+            ...base.affiliateConfig.aliexpress,
+            ...(body.affiliateConfig?.aliexpress || {}),
+            categories: {
+              ...base.affiliateConfig.aliexpress.categories,
+              ...(body.affiliateConfig?.aliexpress?.categories || {})
+            }
+          },
+          amazon: {
+            ...base.affiliateConfig.amazon,
+            ...(body.affiliateConfig?.amazon || {})
+          }
+        }),
+        updatedAt: new Date().toISOString()
+      });
+
+      if (tenantId === 'default') {
+        db.storefront = nextStorefront;
+      } else {
+        db.tenants = { ...(db.tenants || {}), [tenantId]: nextStorefront };
+      }
+
+      return { db, result: nextStorefront.affiliateConfig };
+    });
+
+    res.json({ tenantId, affiliateConfig: updated });
   });
 
   // Internal server-only site control endpoint (authenticated, never exposed in UI)

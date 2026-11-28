@@ -3,21 +3,19 @@ import {
   EcomProduct,
   ProductCategory,
   UNIFIED_PRODUCTS,
-  AMAZON_ASSOCIATE_TAG,
-  AMAZON_LINK_ID,
-  AMAZON_LINK_SHORT,
-  AMAZON_STORE_URL,
   SHOPZ_REF_BASE,
   EXONHOST_AFFILIATE_URL,
   BANGLASHOPPERS_AFFILIATE_URL,
   ILLIN_AFFILIATE_URL,
   SOHOJ_AFFILIATE_URL,
   STARTECH_AFFILIATE_URL,
-  STARTECH_TRACKING_PARAM,
-  ALIEXPRESS_AFFILIATE_URL,
-  RELEVA_HOME_URL,
-  normalizeRelevaAffiliateUrl
+  RELEVA_HOME_URL
 } from '../data/unifiedProductsData';
+import {
+  buildAmazonSearchUrl,
+  resolvePartnerProductUrl,
+  resolveStorefrontAffiliateConfig
+} from '../utils/affiliateConfig';
 import { DEFAULT_SPONSORS, SponsorPlacement } from '../data/sponsorsData';
 import {
   parseAffiliateCsv,
@@ -25,7 +23,6 @@ import {
   UPLOADED_AFFILIATE_CSV_FETCH_PATHS
 } from '../utils/affiliateCsv';
 import {
-  ALIEXPRESS_EVENT_PRIMARY_URL,
   DEFAULT_ALIEXPRESS_EVENT_PROMOS,
   EVENT_PROMOTION_CSV_FETCH_PATHS,
   parseEventPromotionCsv,
@@ -697,131 +694,35 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   }, [searchQuery, storefrontData?.siteName, storefrontCopy.seoDescription]);
 
-  const activeAmazonTag = storefrontData?.affiliateConfig?.amazon?.associateTag || AMAZON_ASSOCIATE_TAG;
-  const activeAmazonLinkId = storefrontData?.affiliateConfig?.amazon?.linkId || AMAZON_LINK_ID;
-  const activeAmazonStoreUrl = storefrontData?.affiliateConfig?.amazon?.storeUrl || AMAZON_STORE_URL;
-  const activeAmazonShortUrl = storefrontData?.affiliateConfig?.amazon?.shortUrl || AMAZON_LINK_SHORT;
-  const activeAliExpressPortalUrl =
-    storefrontData?.affiliateConfig?.aliexpress?.portalUrl ||
-    storefrontData?.partnerStores?.aliexpress?.portalUrl ||
-    ALIEXPRESS_AFFILIATE_URL;
-  const activeAliExpressEventUrl =
-    storefrontData?.affiliateConfig?.aliexpress?.eventUrl ||
-    storefrontData?.partnerStores?.aliexpress?.eventUrl ||
-    ALIEXPRESS_EVENT_PRIMARY_URL;
+  const resolvedAffiliateConfig = useMemo(
+    () =>
+      resolveStorefrontAffiliateConfig({
+        aliexpress:
+          storefrontData?.affiliateConfig?.aliexpress || storefrontData?.partnerStores?.aliexpress,
+        amazon: storefrontData?.affiliateConfig?.amazon
+      }),
+    [storefrontData]
+  );
 
-  const applyPartnerTracking = (
-    rawUrl: string,
-    originStore: PartnerStoreOrigin,
-    asin?: string,
-    urlKind?: 'product' | 'portal' | 'category'
-  ): string => {
-    const trimmed = rawUrl.trim();
-    const lowerTrimmed = trimmed.toLowerCase();
-    if (
-      !trimmed ||
-      lowerTrimmed.includes('fabrilife.com') ||
-      lowerTrimmed.includes('rzekl.com') ||
-      lowerTrimmed.includes('admitad.com') ||
-      lowerTrimmed.includes('alitems.com') ||
-      lowerTrimmed.includes('wextap.com')
-    ) {
-      if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
-      if (originStore === 'AliExpress') return activeAliExpressPortalUrl;
-      if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_AFFILIATE_URL;
-      if (originStore === 'Illin BD') return ILLIN_AFFILIATE_URL;
-      if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
-      if (originStore === 'Star Tech') return STARTECH_AFFILIATE_URL;
-      if (originStore === 'Releva BD') {
-        return normalizeRelevaAffiliateUrl('', urlKind);
-      }
-      if (originStore === 'Shopz BD') return SHOPZ_REF_BASE;
-      if (asin) {
-        return `https://www.amazon.com/dp/${asin}?tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
-      }
-      return activeAmazonStoreUrl;
-    }
-
-    if (
-      originStore === 'AliExpress' ||
-      trimmed.includes('s.click.aliexpress.com') ||
-      trimmed.includes('aliexpress.com')
-    ) {
-      return trimmed.includes('s.click.aliexpress.com/') ? trimmed : activeAliExpressPortalUrl;
-    }
-    if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
-      if (trimmed.includes('tracking=')) return trimmed;
-      const sep = trimmed.includes('?') ? '&' : '?';
-      return `${trimmed}${sep}tracking=${STARTECH_TRACKING_PARAM}`;
-    }
-    if (originStore === 'BanglaShoppers' || trimmed.includes('banglashoppers.com')) {
-      return trimmed.includes('/r/4ehxtB1p') ? trimmed : BANGLASHOPPERS_AFFILIATE_URL;
-    }
-    if (originStore === 'Illin BD' || trimmed.includes('illin.com.bd')) {
-      return trimmed.includes('/40989') ? trimmed : ILLIN_AFFILIATE_URL;
-    }
-    if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
-      if (trimmed.includes('sohojaffiliates.com')) return SOHOJ_AFFILIATE_URL;
-      return trimmed.includes('/40989') ? trimmed : SOHOJ_AFFILIATE_URL;
-    }
-    if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
-      return normalizeRelevaAffiliateUrl(trimmed, urlKind);
-    }
-    if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
-      return trimmed.includes('aff=') ? trimmed : EXONHOST_AFFILIATE_URL;
-    }
-    if (originStore === 'Shopz BD' || trimmed.includes('shopz.com.bd')) {
-      if (trimmed.includes('ref=')) return trimmed;
-      const sep = trimmed.includes('?') ? '&' : '?';
-      return `${trimmed}${sep}ref=mahbubur-rahman-shahin`;
-    }
-    if (trimmed.includes('link.amazon/B0io1BQfg') || trimmed.includes('amzn.to')) {
-      return trimmed;
-    }
-    if (trimmed.includes('link.amazon')) {
-      return activeAmazonShortUrl;
-    }
-    if (trimmed.includes('amazon.com')) {
-      try {
-        const url = new URL(trimmed);
-        url.searchParams.set('tag', activeAmazonTag);
-        url.searchParams.set('linkCode', 'll2');
-        url.searchParams.set('linkId', activeAmazonLinkId);
-        return url.toString();
-      } catch {
-        const sep = trimmed.includes('?') ? '&' : '?';
-        return `${trimmed}${sep}tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
-      }
-    }
-
-    return trimmed;
-  };
+  const activeAmazonTag = resolvedAffiliateConfig.amazon.associateTag;
+  const activeAmazonStoreUrl = resolvedAffiliateConfig.amazon.storeUrl;
+  const activeAmazonShortUrl = resolvedAffiliateConfig.amazon.shortUrl;
+  const activeAliExpressPortalUrl = resolvedAffiliateConfig.aliexpress.portalUrl;
+  const activeAliExpressEventUrl = resolvedAffiliateConfig.aliexpress.eventUrl;
 
   const getAffiliateBuyUrl = (product: EcomProduct): string => {
-    if (product.affiliateUrl) {
-      return applyPartnerTracking(
-        product.affiliateUrl,
-        product.originStore,
-        product.asin,
-        product.urlKind
-      );
-    }
-
-    if (product.asin) {
-      return `https://www.amazon.com/dp/${product.asin}?tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
-    }
-
-    if (product.originStore === 'Amazon') {
-      return activeAmazonStoreUrl;
-    }
-
-    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
+    return resolvePartnerProductUrl({
+      rawUrl: product.affiliateUrl || '',
+      originStore: product.originStore,
+      asin: product.asin,
+      productId: product.id,
+      urlKind: product.urlKind,
+      affiliateConfig: resolvedAffiliateConfig
+    });
   };
 
   const getAmazonSearchAffiliateUrl = (query: string): string => {
-    const clean = query.trim();
-    if (!clean) return activeAmazonStoreUrl;
-    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
+    return buildAmazonSearchUrl(query, resolvedAffiliateConfig.amazon);
   };
 
   const getShopzSearchAffiliateUrl = (query: string): string => {

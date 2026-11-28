@@ -1,15 +1,11 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import type { PartnerStoreOrigin } from '../src/utils/regionProfile.ts';
-import {
-  normalizeRelevaAffiliateUrl,
-  type ProductCategory
-} from '../src/data/catalogRecords.ts';
+import { type ProductCategory } from '../src/data/catalogRecords.ts';
 import { DEFAULT_SEO_DESCRIPTION } from '../src/utils/seoSchema.ts';
 import {
   isBlockedAffiliateUrl,
+  resolvePartnerProductUrl,
   resolveStorefrontAffiliateConfig,
-  sanitizeAliExpressAffiliateUrl,
-  sanitizeAmazonAffiliateUrl,
   type StorefrontAffiliateConfig,
   type StorefrontAffiliateOverride
 } from './affiliateConfig.ts';
@@ -104,69 +100,17 @@ function sanitizePartnerUrl(
   rawUrl: string,
   originStore: PartnerStoreOrigin,
   asin?: string,
-  affiliateConfig?: StorefrontAffiliateConfig
+  affiliateConfig?: StorefrontAffiliateConfig,
+  productId?: string
 ): string {
-  const BANGLASHOPPERS_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
-  const ILLIN_URL = 'https://www.illin.com.bd/40989';
-  const SOHOJ_URL = 'https://www.illin.com.bd/40989';
-  const STARTECH_TRACKING = '6ad935b5df200';
-  const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
-  const resolvedAffiliate = resolveStorefrontAffiliateConfig(affiliateConfig);
-
-  const trimmed = rawUrl.trim();
-  if (!trimmed || isBlockedUrl(trimmed)) {
-    if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
-    if (originStore === 'AliExpress') return resolvedAffiliate.aliexpress.portalUrl;
-    if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
-    if (originStore === 'Illin BD') return ILLIN_URL;
-    if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
-    if (originStore === 'Star Tech') return STARTECH_URL;
-    if (originStore === 'Releva BD') {
-      return normalizeRelevaAffiliateUrl('', 'product');
-    }
-    if (originStore === 'Shopz BD') {
-      return 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin';
-    }
-    return sanitizeAmazonAffiliateUrl('', asin, resolvedAffiliate.amazon);
-  }
-
-  if (
-    originStore === 'AliExpress' ||
-    trimmed.includes('s.click.aliexpress.com') ||
-    trimmed.includes('aliexpress.com')
-  ) {
-    return sanitizeAliExpressAffiliateUrl(trimmed, undefined, resolvedAffiliate.aliexpress);
-  }
-  if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
-    if (trimmed.includes('tracking=')) return trimmed;
-    const sep = trimmed.includes('?') ? '&' : '?';
-    return `${trimmed}${sep}tracking=${STARTECH_TRACKING}`;
-  }
-  if (originStore === 'BanglaShoppers' || trimmed.includes('banglashoppers.com')) {
-    return trimmed.includes('/r/4ehxtB1p') ? trimmed : BANGLASHOPPERS_URL;
-  }
-  if (originStore === 'Illin BD' || trimmed.includes('illin.com.bd')) {
-    return trimmed.includes('/40989') ? trimmed : ILLIN_URL;
-  }
-  if (originStore === 'Sohoj Affiliates' || trimmed.includes('sohojaffiliates.com')) {
-    if (trimmed.includes('sohojaffiliates.com')) return SOHOJ_URL;
-    return trimmed.includes('/40989') ? trimmed : SOHOJ_URL;
-  }
-  if (originStore === 'Releva BD' || trimmed.includes('releva.com.bd')) {
-    return normalizeRelevaAffiliateUrl(trimmed);
-  }
-  if (originStore === 'ExonHost' || trimmed.includes('exonhost.com')) {
-    return trimmed.includes('aff=') ? trimmed : 'https://my.exonhost.com/affiliate?aff=5993';
-  }
-  if (originStore === 'Shopz BD' || trimmed.includes('shopz.com.bd')) {
-    if (trimmed.includes('ref=')) return trimmed;
-    const sep = trimmed.includes('?') ? '&' : '?';
-    return `${trimmed}${sep}ref=mahbubur-rahman-shahin`;
-  }
-  if (originStore === 'Amazon' || trimmed.includes('amazon.') || trimmed.includes('amzn.to')) {
-    return sanitizeAmazonAffiliateUrl(trimmed, asin, resolvedAffiliate.amazon);
-  }
-  return trimmed;
+  return resolvePartnerProductUrl({
+    rawUrl,
+    originStore,
+    asin,
+    productId,
+    urlKind: 'product',
+    affiliateConfig
+  });
 }
 
 const VALID_CATEGORIES = new Set<CustomStoreProduct['category']>([
