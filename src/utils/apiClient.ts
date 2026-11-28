@@ -58,11 +58,21 @@ export function resolveApiUrl(path: string): string {
 
 export function resolveTenantApiUrl(path: string, tenantId?: string): string {
   const resolvedUrl = resolveApiUrl(path);
-  const activeTenant = tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
   const isAbsolute = /^https?:\/\//i.test(resolvedUrl);
 
   try {
     const url = new URL(resolvedUrl, 'http://localhost');
+    const embeddedTenant = normalizeTenantId(
+      url.searchParams.get('tenant') ?? url.searchParams.get('storefrontId')
+    );
+    const windowTenant = resolveActiveTenantId();
+    const activeTenant =
+      tenantId !== undefined
+        ? normalizeTenantId(tenantId)
+        : windowTenant !== 'default'
+        ? windowTenant
+        : embeddedTenant;
+
     url.searchParams.delete('storefrontId');
     if (activeTenant === 'default') {
       url.searchParams.delete('tenant');
@@ -71,6 +81,8 @@ export function resolveTenantApiUrl(path: string, tenantId?: string): string {
     }
     return isAbsolute ? url.toString() : `${url.pathname}${url.search}${url.hash}`;
   } catch {
+    const activeTenant =
+      tenantId !== undefined ? normalizeTenantId(tenantId) : resolveActiveTenantId();
     if (activeTenant === 'default') return resolvedUrl;
     const sep = resolvedUrl.includes('?') ? '&' : '?';
     return `${resolvedUrl}${sep}tenant=${encodeURIComponent(activeTenant)}`;
@@ -115,8 +127,8 @@ export function resolveRequestTenantId(sources: {
     return normalizeTenantId(rawQuery);
   }
   const rawHeader =
-    readHeaderCaseInsensitive(sources.headers, 'x-storefront-id') ||
-    readHeaderCaseInsensitive(sources.headers, 'x-tenant-id');
+    readHeaderCaseInsensitive(sources.headers, 'x-tenant-id') ||
+    readHeaderCaseInsensitive(sources.headers, 'x-storefront-id');
   return normalizeTenantId(rawHeader);
 }
 

@@ -1071,6 +1071,10 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
     '/api/catalog?store=Amazon&tenant=qa_tenant'
   );
   assert.equal(
+    resolveTenantApiUrl('/api/catalog?store=Amazon&storefrontId=Embedded_Shop'),
+    '/api/catalog?store=Amazon&tenant=embedded_shop'
+  );
+  assert.equal(
     resolveTenantApiUrl('/api/catalog?store=Amazon&tenant=stale', 'qa_tenant'),
     '/api/catalog?store=Amazon&tenant=qa_tenant'
   );
@@ -1098,9 +1102,15 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   });
   assert.equal(
     resolveRequestTenantId({
-      headers: { 'X-Tenant-Id': '  Header_Shop  ' }
+      headers: { 'X-Tenant-Id': '  Header_Shop  ', 'X-Storefront-Id': 'Legacy_Shop' }
     }),
     'header_shop'
+  );
+  assert.equal(
+    resolveRequestTenantId({
+      headers: { 'X-Storefront-Id': '  Legacy_Shop  ' }
+    }),
+    'legacy_shop'
   );
   assert.equal(
     resolveRequestTenantId({
