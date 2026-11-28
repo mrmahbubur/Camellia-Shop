@@ -44,7 +44,7 @@ export function resolveActiveTenantId(searchOrUrl?: string): string {
       typeof searchOrUrl === 'string'
         ? searchOrUrl.trim()
         : typeof window !== 'undefined'
-        ? window.location.search
+        ? window.location.href || window.location.search
         : '';
     if (!rawInput) return 'default';
 
@@ -128,6 +128,7 @@ export function readHeaderCaseInsensitive(headers: TenantHeaderMap | undefined, 
 
 export function resolveRequestTenantId(sources: {
   bodyTenantId?: unknown;
+  url?: string;
   query?: TenantQueryMap;
   headers?: TenantHeaderMap;
 }): string {
@@ -140,6 +141,12 @@ export function resolveRequestTenantId(sources: {
     readSingleTenantValue(sources.query?.storefrontId);
   if (rawQuery) {
     return normalizeTenantId(rawQuery);
+  }
+  if (typeof sources.url === 'string' && sources.url.trim()) {
+    const urlTenant = resolveActiveTenantId(sources.url);
+    if (urlTenant !== 'default') {
+      return urlTenant;
+    }
   }
   const rawHeader =
     readHeaderCaseInsensitive(sources.headers, 'x-tenant-id') ||

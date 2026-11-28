@@ -170,6 +170,7 @@ function sanitizeTenants(raw: unknown): Record<string, StorefrontConfig> {
 
 function resolveTenantId(req: Request): string {
   return resolveRequestTenantId({
+    url: req.originalUrl || req.url,
     query: req.query as Record<string, unknown>,
     headers: req.headers
   });
@@ -721,7 +722,7 @@ async function startServer() {
         res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
         res.setHeader(
           'Access-Control-Allow-Headers',
-          'Content-Type,Authorization,X-Storefront-Id,X-Tenant-Id'
+          'Content-Type,Authorization,X-Tenant-Id,X-Storefront-Id'
         );
         res.setHeader('Access-Control-Expose-Headers', 'X-Tenant-Id');
         res.setHeader('Access-Control-Max-Age', '600');
@@ -1137,6 +1138,7 @@ async function startServer() {
 
     const tenantId = resolveRequestTenantId({
       bodyTenantId: body.tenantId,
+      url: req.originalUrl || req.url,
       query: req.query as Record<string, unknown>,
       headers: req.headers
     });
@@ -1188,6 +1190,7 @@ async function startServer() {
     };
     const tenantId = resolveRequestTenantId({
       bodyTenantId: body?.tenantId,
+      url: req.originalUrl || req.url,
       query: req.query as Record<string, unknown>,
       headers: req.headers
     });

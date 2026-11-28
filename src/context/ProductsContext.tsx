@@ -713,12 +713,16 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [highlightedProductId]);
 
   useEffect(() => {
-    const onPopState = () => {
+    const syncFromLocation = () => {
       setSearchQuery(readSearchQueryFromLocation(window.location.search));
-      setClientTenantId(resolveActiveTenantId(window.location.search));
+      setClientTenantId(resolveActiveTenantId(window.location.href));
     };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
+    window.addEventListener('popstate', syncFromLocation);
+    window.addEventListener('hashchange', syncFromLocation);
+    return () => {
+      window.removeEventListener('popstate', syncFromLocation);
+      window.removeEventListener('hashchange', syncFromLocation);
+    };
   }, []);
 
   useEffect(() => {

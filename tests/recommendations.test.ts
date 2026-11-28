@@ -1065,6 +1065,7 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   assert.equal(resolveActiveTenantId('?tenant=&storefrontId=Fallback_Shop'), 'fallback_shop');
   assert.equal(resolveActiveTenantId('/store?storefrontId=Path_Shop'), 'path_shop');
   assert.equal(resolveActiveTenantId('https://camellia.shop/deals?storefrontId=Full_Url_Shop'), 'full_url_shop');
+  assert.equal(resolveActiveTenantId('https://camellia.shop/#/catalog?storefrontId=Hash_Shop'), 'hash_shop');
   assert.equal(resolveActiveTenantId('?tenant=../../evil'), 'default');
 
   assert.equal(resolveTenantApiUrl('/api/storefront', 'default'), '/api/storefront');
@@ -1134,6 +1135,13 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   );
   assert.equal(
     resolveRequestTenantId({
+      url: '/api/storefront?storefrontId=Url_Embedded',
+      headers: { 'X-Tenant-Id': 'Header_Shop' }
+    }),
+    'url_embedded'
+  );
+  assert.equal(
+    resolveRequestTenantId({
       query: { tenant: 'Query_Shop' },
       headers: { 'X-Tenant-Id': 'Header_Shop' }
     }),
@@ -1158,7 +1166,7 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
     serverTs.includes('resolveTenantId') &&
       serverTs.includes('normalizeTenantId') &&
       serverTs.includes('resolveRequestTenantId') &&
-      serverTs.includes('X-Storefront-Id,X-Tenant-Id') &&
+      serverTs.includes('X-Tenant-Id,X-Storefront-Id') &&
       serverTs.includes('Origin, X-Tenant-Id, X-Storefront-Id') &&
       serverTs.includes('getTenantStorefront') &&
       serverTs.includes('tenants?: Record<string, StorefrontConfig>'),
