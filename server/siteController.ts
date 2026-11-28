@@ -7,9 +7,9 @@ import {
 import { DEFAULT_SEO_DESCRIPTION } from '../src/utils/seoSchema.ts';
 import {
   isBlockedAffiliateUrl,
-  resolveAliExpressAffiliateConfig,
   resolveStorefrontAffiliateConfig,
   sanitizeAliExpressAffiliateUrl,
+  sanitizeAmazonAffiliateUrl,
   type StorefrontAffiliateConfig,
   type StorefrontAffiliateOverride
 } from './affiliateConfig.ts';
@@ -103,22 +103,20 @@ function isBlockedUrl(url: string): boolean {
 function sanitizePartnerUrl(
   rawUrl: string,
   originStore: PartnerStoreOrigin,
-  asin?: string
+  asin?: string,
+  affiliateConfig?: StorefrontAffiliateConfig
 ): string {
-  const AMAZON_NODE_URL =
-    'https://www.amazon.com/b?node=53629917011&linkCode=ll2&tag=mrxshahin06-20&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6&language=en_US&ref_=as_li_ss_tl';
-  const AMAZON_SHORT_URL = 'https://link.amazon/B0io1BQfg';
   const BANGLASHOPPERS_URL = 'https://www.banglashoppers.com/r/4ehxtB1p/';
   const ILLIN_URL = 'https://www.illin.com.bd/40989';
   const SOHOJ_URL = 'https://www.illin.com.bd/40989';
   const STARTECH_TRACKING = '6ad935b5df200';
   const STARTECH_URL = `https://www.startech.com.bd/?tracking=${STARTECH_TRACKING}`;
-  const aliexpressConfig = resolveAliExpressAffiliateConfig();
+  const resolvedAffiliate = resolveStorefrontAffiliateConfig(affiliateConfig);
 
   const trimmed = rawUrl.trim();
   if (!trimmed || isBlockedUrl(trimmed)) {
     if (originStore === 'ExonHost') return 'https://my.exonhost.com/affiliate?aff=5993';
-    if (originStore === 'AliExpress') return aliexpressConfig.portalUrl;
+    if (originStore === 'AliExpress') return resolvedAffiliate.aliexpress.portalUrl;
     if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_URL;
     if (originStore === 'Illin BD') return ILLIN_URL;
     if (originStore === 'Sohoj Affiliates') return SOHOJ_URL;
@@ -129,10 +127,7 @@ function sanitizePartnerUrl(
     if (originStore === 'Shopz BD') {
       return 'https://www.shopz.com.bd/?ref=mahbubur-rahman-shahin';
     }
-    if (asin && /^[A-Z0-9]{10}$/.test(asin.trim())) {
-      return `https://www.amazon.com/dp/${asin.trim()}?tag=mrxshahin06-20&linkCode=ll2&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6`;
-    }
-    return AMAZON_NODE_URL;
+    return sanitizeAmazonAffiliateUrl('', asin, resolvedAffiliate.amazon);
   }
 
   if (
@@ -140,7 +135,7 @@ function sanitizePartnerUrl(
     trimmed.includes('s.click.aliexpress.com') ||
     trimmed.includes('aliexpress.com')
   ) {
-    return sanitizeAliExpressAffiliateUrl(trimmed);
+    return sanitizeAliExpressAffiliateUrl(trimmed, undefined, resolvedAffiliate.aliexpress);
   }
   if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
     if (trimmed.includes('tracking=')) return trimmed;
@@ -168,23 +163,8 @@ function sanitizePartnerUrl(
     const sep = trimmed.includes('?') ? '&' : '?';
     return `${trimmed}${sep}ref=mahbubur-rahman-shahin`;
   }
-  if (trimmed.includes('link.amazon/B0io1BQfg') || trimmed.includes('amzn.to')) {
-    return trimmed;
-  }
-  if (trimmed.includes('link.amazon')) {
-    return AMAZON_SHORT_URL;
-  }
-  if (trimmed.includes('amazon.com')) {
-    try {
-      const u = new URL(trimmed);
-      u.searchParams.set('tag', 'mrxshahin06-20');
-      u.searchParams.set('linkCode', 'll2');
-      u.searchParams.set('linkId', 'f69ce6631cea5fb5a49ce7ba4d3968b6');
-      return u.toString();
-    } catch {
-      const sep = trimmed.includes('?') ? '&' : '?';
-      return `${trimmed}${sep}tag=mrxshahin06-20&linkCode=ll2&linkId=f69ce6631cea5fb5a49ce7ba4d3968b6`;
-    }
+  if (originStore === 'Amazon' || trimmed.includes('amazon.') || trimmed.includes('amzn.to')) {
+    return sanitizeAmazonAffiliateUrl(trimmed, asin, resolvedAffiliate.amazon);
   }
   return trimmed;
 }
@@ -703,7 +683,12 @@ export async function executeBackendSiteControl(
         deliveryEstimate: (
           rawProd.deliveryEstimate || `Check live shipping & terms on ${originStore}`
         ).trim(),
-        affiliateUrl: sanitizePartnerUrl(rawProd.affiliateUrl || '', originStore, rawProd.asin),
+        affiliateUrl: sanitizePartnerUrl(
+          rawProd.affiliateUrl || '',
+          originStore,
+          rawProd.asin,
+          next.affiliateConfig
+        ),
         mainImage: safeImage,
         galleryImages: safeImage ? [safeImage] : [],
         description: (rawProd.description || rawProd.title).trim(),

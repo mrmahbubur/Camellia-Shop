@@ -87,6 +87,7 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
     };
     amazon?: {
       associateTag?: string;
+      linkId?: string;
       storeUrl?: string;
       shortUrl?: string;
     };
@@ -696,6 +697,19 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   }, [searchQuery, storefrontData?.siteName, storefrontCopy.seoDescription]);
 
+  const activeAmazonTag = storefrontData?.affiliateConfig?.amazon?.associateTag || AMAZON_ASSOCIATE_TAG;
+  const activeAmazonLinkId = storefrontData?.affiliateConfig?.amazon?.linkId || AMAZON_LINK_ID;
+  const activeAmazonStoreUrl = storefrontData?.affiliateConfig?.amazon?.storeUrl || AMAZON_STORE_URL;
+  const activeAmazonShortUrl = storefrontData?.affiliateConfig?.amazon?.shortUrl || AMAZON_LINK_SHORT;
+  const activeAliExpressPortalUrl =
+    storefrontData?.affiliateConfig?.aliexpress?.portalUrl ||
+    storefrontData?.partnerStores?.aliexpress?.portalUrl ||
+    ALIEXPRESS_AFFILIATE_URL;
+  const activeAliExpressEventUrl =
+    storefrontData?.affiliateConfig?.aliexpress?.eventUrl ||
+    storefrontData?.partnerStores?.aliexpress?.eventUrl ||
+    ALIEXPRESS_EVENT_PRIMARY_URL;
+
   const applyPartnerTracking = (
     rawUrl: string,
     originStore: PartnerStoreOrigin,
@@ -713,7 +727,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       lowerTrimmed.includes('wextap.com')
     ) {
       if (originStore === 'ExonHost') return EXONHOST_AFFILIATE_URL;
-      if (originStore === 'AliExpress') return ALIEXPRESS_AFFILIATE_URL;
+      if (originStore === 'AliExpress') return activeAliExpressPortalUrl;
       if (originStore === 'BanglaShoppers') return BANGLASHOPPERS_AFFILIATE_URL;
       if (originStore === 'Illin BD') return ILLIN_AFFILIATE_URL;
       if (originStore === 'Sohoj Affiliates') return SOHOJ_AFFILIATE_URL;
@@ -723,9 +737,9 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       if (originStore === 'Shopz BD') return SHOPZ_REF_BASE;
       if (asin) {
-        return `https://www.amazon.com/dp/${asin}?tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
+        return `https://www.amazon.com/dp/${asin}?tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
       }
-      return AMAZON_STORE_URL;
+      return activeAmazonStoreUrl;
     }
 
     if (
@@ -733,7 +747,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       trimmed.includes('s.click.aliexpress.com') ||
       trimmed.includes('aliexpress.com')
     ) {
-      return trimmed.includes('s.click.aliexpress.com/') ? trimmed : ALIEXPRESS_AFFILIATE_URL;
+      return trimmed.includes('s.click.aliexpress.com/') ? trimmed : activeAliExpressPortalUrl;
     }
     if (originStore === 'Star Tech' || trimmed.includes('startech.com.bd')) {
       if (trimmed.includes('tracking=')) return trimmed;
@@ -765,18 +779,18 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return trimmed;
     }
     if (trimmed.includes('link.amazon')) {
-      return AMAZON_LINK_SHORT;
+      return activeAmazonShortUrl;
     }
     if (trimmed.includes('amazon.com')) {
       try {
         const url = new URL(trimmed);
-        url.searchParams.set('tag', AMAZON_ASSOCIATE_TAG);
+        url.searchParams.set('tag', activeAmazonTag);
         url.searchParams.set('linkCode', 'll2');
-        url.searchParams.set('linkId', AMAZON_LINK_ID);
+        url.searchParams.set('linkId', activeAmazonLinkId);
         return url.toString();
       } catch {
         const sep = trimmed.includes('?') ? '&' : '?';
-        return `${trimmed}${sep}tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
+        return `${trimmed}${sep}tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
       }
     }
 
@@ -794,20 +808,20 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     if (product.asin) {
-      return `https://www.amazon.com/dp/${product.asin}?tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
+      return `https://www.amazon.com/dp/${product.asin}?tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
     }
 
     if (product.originStore === 'Amazon') {
-      return AMAZON_STORE_URL;
+      return activeAmazonStoreUrl;
     }
 
-    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(product.title)}&tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
   };
 
   const getAmazonSearchAffiliateUrl = (query: string): string => {
     const clean = query.trim();
-    if (!clean) return AMAZON_STORE_URL;
-    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${AMAZON_ASSOCIATE_TAG}&linkCode=ll2&linkId=${AMAZON_LINK_ID}`;
+    if (!clean) return activeAmazonStoreUrl;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${activeAmazonTag}&linkCode=ll2&linkId=${activeAmazonLinkId}`;
   };
 
   const getShopzSearchAffiliateUrl = (query: string): string => {
@@ -858,16 +872,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getAmazonSearchAffiliateUrl,
         getShopzSearchAffiliateUrl,
         getRelevaSearchUrl,
-        amazonShortUrl: AMAZON_LINK_SHORT,
-        amazonStoreUrl: AMAZON_STORE_URL,
-        aliexpressStoreUrl:
-          storefrontData?.affiliateConfig?.aliexpress?.portalUrl ||
-          storefrontData?.partnerStores?.aliexpress?.portalUrl ||
-          ALIEXPRESS_AFFILIATE_URL,
-        aliexpressEventUrl:
-          storefrontData?.affiliateConfig?.aliexpress?.eventUrl ||
-          storefrontData?.partnerStores?.aliexpress?.eventUrl ||
-          ALIEXPRESS_EVENT_PRIMARY_URL,
+        amazonShortUrl: activeAmazonShortUrl,
+        amazonStoreUrl: activeAmazonStoreUrl,
+        aliexpressStoreUrl: activeAliExpressPortalUrl,
+        aliexpressEventUrl: activeAliExpressEventUrl,
         eventPromos,
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,
@@ -876,7 +884,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         illinStoreUrl: ILLIN_AFFILIATE_URL,
         sohojStoreUrl: SOHOJ_AFFILIATE_URL,
         startechStoreUrl: STARTECH_AFFILIATE_URL,
-        affiliateTag: AMAZON_ASSOCIATE_TAG,
+        affiliateTag: activeAmazonTag,
         recordAffiliateClick
       }}
     >

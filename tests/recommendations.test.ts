@@ -30,7 +30,8 @@ import {
 import {
   resolveAliExpressAffiliateConfig,
   resolveStorefrontAffiliateConfig,
-  sanitizeAliExpressAffiliateUrl
+  sanitizeAliExpressAffiliateUrl,
+  sanitizeAmazonAffiliateUrl
 } from '../server/affiliateConfig.ts';
 import { sanitizeStorefrontConfig } from '../server/siteController.ts';
 import {
@@ -880,8 +881,8 @@ test('AliExpress is integrated across backend endpoints, storefront announcement
   );
 });
 
-test('Backend AliExpress affiliate configuration validates overrides, rejects blocked URLs, and exposes /api/affiliate/config', () => {
-  const defaults = resolveAliExpressAffiliateConfig({});
+test('Backend affiliate configuration is driven by StorefrontConfig for AliExpress and Amazon without global env vars', () => {
+  const defaults = resolveAliExpressAffiliateConfig();
   assert.equal(defaults.partner, 'AliExpress');
   assert.equal(defaults.enabled, true);
   assert.equal(defaults.categories.jewelry, ALIEXPRESS_JEWELRY_URL);
@@ -889,19 +890,23 @@ test('Backend AliExpress affiliate configuration validates overrides, rejects bl
   assert.equal(defaults.categories.toys, ALIEXPRESS_TOYS_URL);
   assert.equal(defaults.categories.womensClothing, ALIEXPRESS_WOMENS_CLOTHING_URL);
 
-  // Accepts valid AliExpress override while rejecting Admitad/Fabrilife or untrusted domains
-  const configured = resolveAliExpressAffiliateConfig({
-    ALIEXPRESS_ENABLED: 'true',
-    ALIEXPRESS_PORTAL_URL: 'https://s.click.aliexpress.com/e/_c4oqIjxj',
-    ALIEXPRESS_JEWELRY_URL: 'https://rzekl.com/g/bad-admitad-link',
-    ALIEXPRESS_BEAUTY_URL: 'https://alitems.com/g/bad-link',
-    ALIEXPRESS_TOYS_URL: 'https://fabrilife.com/bad',
-    ALIEXPRESS_WOMENS_CLOTHING_URL: 'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+  // Per-store storefront overrides customize AliExpress and Amazon while rejecting Admitad/Fabrilife
+  const configuredAli = resolveAliExpressAffiliateConfig({
+    enabled: false,
+    portalUrl: 'https://s.click.aliexpress.com/e/_c3JF9Ep7',
+    categories: {
+      jewelry: 'https://rzekl.com/g/bad-admitad-link',
+      beauty: 'https://alitems.com/g/bad-link',
+      toys: 'https://fabrilife.com/bad',
+      womensClothing: 'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+    }
   });
-  assert.equal(configured.categories.jewelry, ALIEXPRESS_JEWELRY_URL);
-  assert.equal(configured.categories.beauty, ALIEXPRESS_BEAUTY_URL);
-  assert.equal(configured.categories.toys, ALIEXPRESS_TOYS_URL);
-  assert.equal(configured.categories.womensClothing, ALIEXPRESS_WOMENS_CLOTHING_URL);
+  assert.equal(configuredAli.enabled, false);
+  assert.equal(configuredAli.portalUrl, 'https://s.click.aliexpress.com/e/_c3JF9Ep7');
+  assert.equal(configuredAli.categories.jewelry, ALIEXPRESS_JEWELRY_URL);
+  assert.equal(configuredAli.categories.beauty, ALIEXPRESS_BEAUTY_URL);
+  assert.equal(configuredAli.categories.toys, ALIEXPRESS_TOYS_URL);
+  assert.equal(configuredAli.categories.womensClothing, ALIEXPRESS_WOMENS_CLOTHING_URL);
   assert.equal(
     sanitizeAliExpressAffiliateUrl('https://rzekl.com/g/bad', 'beauty'),
     ALIEXPRESS_BEAUTY_URL
@@ -911,7 +916,7 @@ test('Backend AliExpress affiliate configuration validates overrides, rejects bl
     'https://s.click.aliexpress.com/e/_c3Nx9xUl'
   );
 
-  // Dynamic storefront schema includes validated affiliateConfig
+  // Dynamic storefront schema includes validated AliExpress and Amazon affiliateConfig
   const storefrontResolved = sanitizeStorefrontConfig({
     seoDescription: 'Missing categories',
     affiliateConfig: {
@@ -930,10 +935,10 @@ test('Backend AliExpress affiliate configuration validates overrides, rejects bl
         }
       },
       amazon: {
-        associateTag: AMAZON_ASSOCIATE_TAG,
-        linkId: AMAZON_LINK_ID,
-        storeUrl: AMAZON_STORE_URL,
-        shortUrl: AMAZON_LINK_SHORT
+        associateTag: 'customstore-20',
+        linkId: 'customlinkid1234',
+        storeUrl: 'https://www.amazon.com/b?node=123456',
+        shortUrl: 'https://amzn.to/custom123'
       }
     }
   });
@@ -947,36 +952,56 @@ test('Backend AliExpress affiliate configuration validates overrides, rejects bl
     storefrontResolved.affiliateConfig.aliexpress.categories.jewelry,
     ALIEXPRESS_JEWELRY_URL
   );
-  assert.equal(storefrontResolved.affiliateConfig.amazon.associateTag, AMAZON_ASSOCIATE_TAG);
-
-  const combinedResolved = resolveStorefrontAffiliateConfig(
-    { aliexpress: { enabled: false } },
-    { ALIEXPRESS_PORTAL_URL: 'https://s.click.aliexpress.com/e/_c4W9fhKh' }
+  assert.equal(storefrontResolved.affiliateConfig.amazon.associateTag, 'customstore-20');
+  assert.equal(storefrontResolved.affiliateConfig.amazon.linkId, 'customlinkid1234');
+  assert.equal(
+    sanitizeAmazonAffiliateUrl('https://www.amazon.com/dp/B0BSHF7WHW', 'B0BSHF7WHW', {
+      associateTag: 'customstore-20',
+      linkId: 'customlinkid1234'
+    }),
+    'https://www.amazon.com/dp/B0BSHF7WHW?tag=customstore-20&linkCode=ll2&linkId=customlinkid1234'
   );
+
+  const combinedResolved = resolveStorefrontAffiliateConfig({
+    aliexpress: {
+      enabled: false,
+      portalUrl: 'https://s.click.aliexpress.com/e/_c4W9fhKh'
+    },
+    amazon: {
+      associateTag: 'storefront-20'
+    }
+  });
   assert.equal(combinedResolved.aliexpress.enabled, false);
   assert.equal(
     combinedResolved.aliexpress.portalUrl,
     'https://s.click.aliexpress.com/e/_c4W9fhKh'
   );
+  assert.equal(combinedResolved.amazon.associateTag, 'storefront-20');
+
+  const envExample = fs.readFileSync(path.join(ROOT, '.env.example'), 'utf8');
+  assert.ok(!envExample.includes('ALIEXPRESS_'), 'Expected .env.example not to contain global ALIEXPRESS_* env vars');
 
   const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
   assert.ok(
     serverTs.includes("app.get('/api/affiliate/config'") &&
-      serverTs.includes('resolveStorefrontAffiliateConfig'),
-    'Expected /api/affiliate/config and resolveStorefrontAffiliateConfig in server.ts'
+      serverTs.includes('resolveStorefrontAffiliateConfig') &&
+      serverTs.includes('sanitizeAmazonAffiliateUrl'),
+    'Expected /api/affiliate/config, resolveStorefrontAffiliateConfig, and sanitizeAmazonAffiliateUrl in server.ts'
   );
   const siteControllerTs = fs.readFileSync(path.join(ROOT, 'server/siteController.ts'), 'utf8');
   assert.ok(
     siteControllerTs.includes('seoDescription') &&
       siteControllerTs.includes('affiliateConfig') &&
-      siteControllerTs.includes('sanitizeAliExpressAffiliateUrl'),
-    'Expected seoDescription, affiliateConfig, and sanitizeAliExpressAffiliateUrl in server/siteController.ts'
+      siteControllerTs.includes('sanitizeAliExpressAffiliateUrl') &&
+      siteControllerTs.includes('sanitizeAmazonAffiliateUrl'),
+    'Expected seoDescription, affiliateConfig, and AliExpress/Amazon sanitizers in server/siteController.ts'
   );
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
   assert.ok(
     productsCtx.includes('storefrontCopy.seoDescription') &&
-      productsCtx.includes('affiliateConfig?.aliexpress?.portalUrl'),
-    'Expected ProductsContext.tsx to sync seoDescription and dynamic affiliateConfig'
+      productsCtx.includes('affiliateConfig?.aliexpress?.portalUrl') &&
+      productsCtx.includes('affiliateConfig?.amazon?.associateTag'),
+    'Expected ProductsContext.tsx to sync seoDescription and dynamic AliExpress/Amazon affiliateConfig'
   );
 });
 

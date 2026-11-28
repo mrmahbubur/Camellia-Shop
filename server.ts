@@ -11,7 +11,10 @@ import {
   sanitizeStorefrontConfig,
   executeBackendSiteControl
 } from './server/siteController.ts';
-import { resolveStorefrontAffiliateConfig } from './server/affiliateConfig.ts';
+import {
+  resolveStorefrontAffiliateConfig,
+  sanitizeAmazonAffiliateUrl
+} from './server/affiliateConfig.ts';
 import {
   BANGLASHOPPERS_AFFILIATE_URL,
   CURATED_CATALOG_RECORDS,
@@ -775,6 +778,7 @@ async function startServer() {
     const aliexpress = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig).aliexpress;
     res.json({
       partner: aliexpress.partner,
+      enabled: aliexpress.enabled,
       primaryEventUrl: aliexpress.eventUrl,
       squareEventUrl: aliexpress.squareEventUrl,
       count: promos.length,
@@ -784,20 +788,33 @@ async function startServer() {
 
   app.get('/api/catalog', async (req, res) => {
     const [db, ratesData] = await Promise.all([ensureDb(), getLiveUsdRates()]);
-    const aliexpress = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig).aliexpress;
+    const resolvedAffiliate = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
+    const aliexpress = resolvedAffiliate.aliexpress;
     const records = (await getFullCatalogRecords(ratesData.rates.BDT)).map((item) => {
-      if (item.originStore !== 'AliExpress') return item;
-      if (item.id === 'aliexpress-jewelry-accessories') {
-        return { ...item, affiliateUrl: aliexpress.categories.jewelry };
+      if (item.originStore === 'AliExpress') {
+        if (item.id === 'aliexpress-jewelry-accessories') {
+          return { ...item, affiliateUrl: aliexpress.categories.jewelry };
+        }
+        if (item.id === 'aliexpress-beauty-health') {
+          return { ...item, affiliateUrl: aliexpress.categories.beauty };
+        }
+        if (item.id === 'aliexpress-toys-games') {
+          return { ...item, affiliateUrl: aliexpress.categories.toys };
+        }
+        if (item.id === 'aliexpress-womens-clothing') {
+          return { ...item, affiliateUrl: aliexpress.categories.womensClothing };
+        }
+        return item;
       }
-      if (item.id === 'aliexpress-beauty-health') {
-        return { ...item, affiliateUrl: aliexpress.categories.beauty };
-      }
-      if (item.id === 'aliexpress-toys-games') {
-        return { ...item, affiliateUrl: aliexpress.categories.toys };
-      }
-      if (item.id === 'aliexpress-womens-clothing') {
-        return { ...item, affiliateUrl: aliexpress.categories.womensClothing };
+      if (item.originStore === 'Amazon') {
+        return {
+          ...item,
+          affiliateUrl: sanitizeAmazonAffiliateUrl(
+            item.affiliateUrl,
+            item.asin,
+            resolvedAffiliate.amazon
+          )
+        };
       }
       return item;
     });
