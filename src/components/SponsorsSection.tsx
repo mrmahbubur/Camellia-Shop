@@ -143,7 +143,7 @@ export const SponsorsSection: React.FC = () => {
 
         {/* Partner Directory Cards */}
         {directorySponsors.length > 0 && (
-          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch">
             {directorySponsors.map((sponsor) => (
               <a
                 key={sponsor.id}
@@ -151,9 +151,9 @@ export const SponsorsSection: React.FC = () => {
                 target="_blank"
                 rel="nofollow sponsored noopener noreferrer"
                 onClick={() => recordAffiliateClick(sponsor.id)}
-                className="h-full responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col justify-between transition-all duration-200"
+                className="h-full min-w-0 responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col justify-between transition-all duration-200"
               >
-                <div className="w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                <div className="w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden relative shrink-0">
                   <ResilientImage
                     src={sponsor.image}
                     alt={sponsor.title}
@@ -162,26 +162,26 @@ export const SponsorsSection: React.FC = () => {
                   />
                 </div>
 
-                <div className="p-4 flex-1 flex flex-col justify-between gap-4">
-                  <div className="space-y-2 min-w-0">
-                    <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <span className="text-amber-700 dark:text-amber-400">Sponsored</span>
+                <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between gap-2 sm:gap-4 min-w-0">
+                  <div className="space-y-1 sm:space-y-2 min-w-0">
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 min-w-0">
+                      <span className="text-amber-700 dark:text-amber-400 shrink-0">Sponsored</span>
                       <span aria-hidden="true">·</span>
                       <span className="truncate flex-1">{sponsor.category}</span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug line-clamp-2 min-h-[2.125rem] sm:min-h-[2.5rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                       {sponsor.title}
                     </h3>
 
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
+                    <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug sm:leading-relaxed line-clamp-2 min-h-[1.875rem] sm:min-h-[2.4rem]">
                       {sponsor.subtitle}
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 min-h-[44px] flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                  <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 min-h-[36px] sm:min-h-[44px] flex items-center justify-between gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors min-w-0">
                     <span className="truncate">{sponsor.ctaLabel}</span>
-                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                    <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   </div>
                 </div>
               </a>

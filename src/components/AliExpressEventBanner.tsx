@@ -297,7 +297,7 @@ export const AliExpressEventBanner: React.FC<AliExpressEventBannerProps> = ({
 
       {/* Expandable Full Gallery of All 7 CSV Banner Formats */}
       {showAllPlacements && (
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 gap-2.5 sm:gap-4 min-[1025px]:gap-5 items-stretch">
           {secondaryPlacements.map((item) => (
             <a
               key={`all-${item.size}`}
@@ -305,9 +305,9 @@ export const AliExpressEventBanner: React.FC<AliExpressEventBannerProps> = ({
               target="_blank"
               rel="nofollow sponsored noopener noreferrer"
               onClick={() => recordAffiliateClick(`aliexpress-event-all-${item.size}`, 'AliExpress')}
-              className="group bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-red-400 p-3 flex flex-col justify-between gap-2.5 transition-colors"
+              className="h-full min-w-0 group bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-red-400 p-2.5 sm:p-3 flex flex-col justify-between gap-2 sm:gap-2.5 transition-colors"
             >
-              <div className="flex items-center justify-between gap-2 text-[11px]">
+              <div className="flex items-center justify-between gap-1.5 text-[10px] sm:text-[11px] min-w-0">
                 <span className="font-bold text-slate-800 dark:text-slate-200 truncate">
                   {item.formatLabel}
                 </span>

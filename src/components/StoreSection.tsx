@@ -1311,7 +1311,7 @@ export const StoreSection: React.FC = () => {
             </div>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch mb-8">
             {visibleProducts.map((product) => {
               const isCompared = comparedProducts.some((p) => p.id === product.id);
               const affiliateUrl = getAffiliateBuyUrl(product);
@@ -1328,14 +1328,14 @@ export const StoreSection: React.FC = () => {
                   id={`product-${product.id}`}
                   key={product.id}
                   onClick={() => setActiveQuickViewProduct(product)}
-                  className={`h-full responsive-card group bg-white dark:bg-slate-900 rounded-2xl border flex flex-col justify-between overflow-hidden cursor-pointer relative ${
+                  className={`h-full min-w-0 responsive-card group bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border flex flex-col justify-between overflow-hidden cursor-pointer relative ${
                     isHighlighted
                       ? 'ring-2 ring-amber-500 shadow-xl border-amber-400'
                       : 'border-slate-200/90 dark:border-slate-800'
                   }`}
                 >
                   {/* Visual Stage (Clean unblocked aspect-ratio container) */}
-                  <div className="relative w-full aspect-[4/3] bg-white p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                  <div className="relative w-full aspect-[4/3] bg-white p-2 sm:p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800 shrink-0">
                     <ResilientImage
                       src={product.mainImage}
                       alt={product.title}
@@ -1345,65 +1345,71 @@ export const StoreSection: React.FC = () => {
                   </div>
 
                   {/* Body Metadata & Details */}
-                  <div className="p-4 flex-1 flex flex-col justify-between gap-3 min-w-0">
+                  <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between gap-2 sm:gap-3 min-w-0">
                     <div className="min-w-0">
                       {/* Non-overlapping Badge & Origin Metadata Bar */}
-                      <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+                      <div className="flex items-center justify-between gap-1 sm:gap-2 mb-1 sm:mb-2 min-w-0">
                         <span
-                          className={`font-extrabold text-[10px] px-2 py-0.5 rounded uppercase tracking-wider truncate max-w-[60%] ${getStoreBadgeClasses(
+                          className={`font-extrabold text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded uppercase tracking-wider truncate max-w-[65%] ${getStoreBadgeClasses(
                             product.originStore
                           )}`}
                         >
                           {product.badge || product.originStore}
                         </span>
-                        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate">
+                        <span className="text-[10px] sm:text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate min-w-0">
                           {product.brand}
                         </span>
                       </div>
 
-                      <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 truncate mb-1">
+                      <div className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 truncate mb-0.5 sm:mb-1">
                         {product.csvCategory || product.category}
                       </div>
 
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1.5 leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 leading-snug line-clamp-2 min-h-[2.125rem] sm:min-h-[2.6rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {product.title}
                       </h3>
 
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-snug sm:leading-relaxed min-h-[1.875rem] sm:min-h-[2.4rem]">
                         {product.description}
                       </p>
                     </div>
 
                     {/* Pricing & Actions */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
-                          <span className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white font-mono tabular-nums truncate">
+                    <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 sm:space-y-2.5 min-w-0">
+                      <div className="flex items-baseline justify-between gap-1.5 min-w-0">
+                        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 min-w-0">
+                          <span
+                            className={
+                              knownPrice
+                                ? 'text-sm sm:text-base md:text-lg font-extrabold text-slate-900 dark:text-white font-mono tabular-nums truncate max-w-full'
+                                : 'text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 leading-tight truncate max-w-full'
+                            }
+                          >
                             {knownPrice
                               ? formatPrice(product.price, product.nativePrice, product.nativeCurrency)
                               : 'See Price on Partner'}
                           </span>
                           {hasDiscount && (
-                            <span className="text-xs font-mono text-slate-400 line-through tabular-nums">
+                            <span className="text-[10px] sm:text-xs font-mono text-slate-400 line-through tabular-nums">
                               {formatPrice(product.originalPrice!)}
                             </span>
                           )}
                           {knownPrice && (
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
+                            <span className="hidden sm:inline text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
                               Listed Price
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="text-[10px] bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70 dark:border-slate-700 font-semibold flex items-center justify-between gap-2">
-                        <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 truncate">
+                      <div className="text-[9px] sm:text-[10px] bg-slate-50 dark:bg-slate-800/80 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-200/70 dark:border-slate-700 font-semibold flex items-center justify-between gap-1.5 min-w-0">
+                        <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 truncate min-w-0">
                           <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span className="truncate">{product.deliveryEstimate}</span>
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-col gap-1.5 min-w-0">
                         <a
                           href={affiliateUrl}
                           target="_blank"
@@ -1412,65 +1418,67 @@ export const StoreSection: React.FC = () => {
                             e.stopPropagation();
                             recordAffiliateClick(product.id, product.originStore, product.category);
                           }}
-                          className={`flex-1 min-w-0 min-h-[44px] py-2 px-2.5 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs ${getStoreCtaClasses(
+                          className={`w-full min-w-0 min-h-[38px] sm:min-h-[42px] py-1.5 sm:py-2 px-2 sm:px-2.5 font-extrabold rounded-lg sm:rounded-xl text-[11px] sm:text-xs flex items-center justify-center gap-1 sm:gap-1.5 transition-colors cursor-pointer shadow-xs ${getStoreCtaClasses(
                             product.originStore
                           )}`}
                         >
-                          <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                          <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                           <span className="truncate">{getStoreCtaLabel(product)}</span>
-                          <ExternalLink className="w-3 h-3 shrink-0" />
+                          <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                         </a>
 
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveQuickViewProduct(product);
-                          }}
-                          title={`Quick look ${product.title}`}
-                          aria-label={`Quick look ${product.title}`}
-                          className="min-h-[44px] min-w-[44px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                        <div className="grid grid-cols-3 gap-1 sm:gap-1.5 min-w-0">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveQuickViewProduct(product);
+                            }}
+                            title={`Quick look ${product.title}`}
+                            aria-label={`Quick look ${product.title}`}
+                            className="min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg sm:rounded-xl transition-colors cursor-pointer flex items-center justify-center"
+                          >
+                            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </button>
 
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleCompare(product);
-                          }}
-                          title={isCompared ? 'Remove from comparison' : 'Compare product'}
-                          aria-label={isCompared ? `Remove ${product.title} from comparison` : `Compare ${product.title}`}
-                          className={`min-h-[44px] min-w-[44px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
-                            isCompared
-                              ? 'bg-amber-400 text-slate-950 font-bold'
-                              : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
-                          }`}
-                        >
-                          <Layers className="w-4 h-4" />
-                        </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleCompare(product);
+                            }}
+                            title={isCompared ? 'Remove from comparison' : 'Compare product'}
+                            aria-label={isCompared ? `Remove ${product.title} from comparison` : `Compare ${product.title}`}
+                            className={`min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-colors cursor-pointer flex items-center justify-center ${
+                              isCompared
+                                ? 'bg-amber-400 text-slate-950 font-bold'
+                                : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+                            }`}
+                          >
+                            <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </button>
 
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSaveProduct(product, affiliateUrl);
-                          }}
-                          className={`min-h-[44px] min-w-[44px] p-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
-                            savedIds.has(product.id)
-                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                              : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
-                          }`}
-                          title={savedIds.has(product.id) ? 'Saved in list' : 'Save to List'}
-                          aria-label={`Save ${product.title} to List`}
-                        >
-                          {savedIds.has(product.id) ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <ShoppingBag className="w-4 h-4" />
-                          )}
-                        </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSaveProduct(product, affiliateUrl);
+                            }}
+                            className={`min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-colors cursor-pointer flex items-center justify-center ${
+                              savedIds.has(product.id)
+                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                                : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                            }`}
+                            title={savedIds.has(product.id) ? 'Saved in list' : 'Save to List'}
+                            aria-label={`Save ${product.title} to List`}
+                          >
+                            {savedIds.has(product.id) ? (
+                              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            ) : (
+                              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

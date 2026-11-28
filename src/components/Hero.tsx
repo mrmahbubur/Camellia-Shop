@@ -657,7 +657,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
         </div>
 
         {/* Interactive Partner Coverage Strip (Clicks Jump & Filter Real Products) */}
-        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-5 gap-3">
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-5 items-stretch">
           {(
             [
               { store: 'Amazon' as const, label: 'Amazon', count: storeCounts.Amazon, sub: 'Tech & workspace' },
@@ -675,19 +675,21 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
               key={entry.store}
               type="button"
               onClick={() => handleJumpToStore(entry.store)}
-              className="responsive-card min-h-[44px] text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group"
+              className="responsive-card h-full min-w-0 min-h-[44px] text-left p-2.5 sm:p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group flex flex-col justify-between"
             >
               <div className="flex items-baseline justify-between gap-2">
-                <span className="text-xl font-extrabold font-mono tabular-nums text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                <span className="text-lg sm:text-xl font-extrabold font-mono tabular-nums text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                   {entry.count}
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors shrink-0" />
               </div>
-              <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5 truncate">
-                {entry.label}
-              </div>
-              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                {entry.sub}
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5 truncate">
+                  {entry.label}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  {entry.sub}
+                </div>
               </div>
             </button>
           ))}
@@ -695,19 +697,21 @@ export const Hero: React.FC<HeroProps> = ({ onExploreStore }) => {
           <button
             type="button"
             onClick={handleJumpToSponsors}
-            className="responsive-card min-h-[44px] text-left p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group"
+            className="responsive-card h-full min-w-0 min-h-[44px] text-left p-2.5 sm:p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/60 transition-all cursor-pointer group flex flex-col justify-between"
           >
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-xl font-extrabold font-mono tabular-nums text-amber-600 dark:text-amber-400">
+              <span className="text-lg sm:text-xl font-extrabold font-mono tabular-nums text-amber-600 dark:text-amber-400">
                 {sponsors.length}
               </span>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors shrink-0" />
             </div>
-            <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">
-              Sponsored
-            </div>
-            <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-              Partner promotions
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5 truncate">
+                Sponsored
+              </div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                Partner promotions
+              </div>
             </div>
           </button>
         </div>

@@ -107,7 +107,7 @@ export const AmazonShowcaseSection: React.FC = () => {
         </div>
 
         {/* Amazon Product Cards Grid */}
-        <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch mb-8">
           {filteredProducts.map((product) => {
             const fullProduct = resolveModalProduct(product);
             const isSaved = savedIds.has(product.id);
@@ -116,10 +116,10 @@ export const AmazonShowcaseSection: React.FC = () => {
               <article
                 key={product.id}
                 onClick={() => setModalProduct(fullProduct)}
-                className="h-full responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between overflow-hidden cursor-pointer"
+                className="h-full min-w-0 responsive-card group bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between overflow-hidden cursor-pointer"
               >
                 {/* Product Visual */}
-                <div className="relative w-full aspect-[4/3] bg-white p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                <div className="relative w-full aspect-[4/3] bg-white p-2 sm:p-3 overflow-hidden flex items-center justify-center border-b border-slate-100 dark:border-slate-800 shrink-0">
                   <ResilientImage
                     src={product.image}
                     alt={product.title}
@@ -129,28 +129,28 @@ export const AmazonShowcaseSection: React.FC = () => {
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4 flex-1 flex flex-col justify-between gap-3 min-w-0">
+                <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between gap-2 sm:gap-3 min-w-0">
                   <div className="min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
-                      <span className="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-wider truncate">
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 mb-1 sm:mb-2 min-w-0">
+                      <span className="bg-amber-500 text-slate-950 font-bold text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded uppercase tracking-wider truncate max-w-[60%]">
                         {product.badge || 'Amazon'}
                       </span>
-                      <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 shrink-0">
-                        ASIN: {product.asin}
+                      <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 dark:text-slate-500 truncate min-w-0">
+                        {product.asin}
                       </span>
                     </div>
 
-                    <div className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate mb-1">
+                    <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate mb-0.5 sm:mb-1">
                       {product.category}
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2.5 leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-1.5 sm:mb-2.5 leading-snug line-clamp-2 min-h-[2.125rem] sm:min-h-[2.5rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                       {product.title}
                     </h3>
 
-                    <ul className="space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
+                    <ul className="space-y-1 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
                       {product.features.slice(0, 2).map((f, i) => (
-                        <li key={i} className="flex items-start gap-1.5">
+                        <li key={i} className="flex items-start gap-1 sm:gap-1.5 min-w-0">
                           <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
                           <span className="line-clamp-1">{f}</span>
                         </li>
@@ -159,22 +159,22 @@ export const AmazonShowcaseSection: React.FC = () => {
                   </div>
 
                   {/* Pricing & Direct Purchase CTA */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm font-bold text-amber-800 dark:text-amber-300">
-                        Check live price on Amazon
+                  <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 sm:space-y-2.5 min-w-0">
+                    <div className="flex items-baseline justify-between gap-1.5 min-w-0">
+                      <span className="text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 truncate">
+                        Check live price
                       </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
+                      <span className="hidden sm:inline text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
                         Direct Checkout
                       </span>
                     </div>
 
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 min-w-0">
                       <Zap className="w-3 h-3 text-amber-500 shrink-0" />
                       <span className="truncate">{product.deliveryInfo}</span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-col gap-1.5 min-w-0">
                       <a
                         href={product.affiliateUrl}
                         target="_blank"
@@ -183,61 +183,63 @@ export const AmazonShowcaseSection: React.FC = () => {
                           e.stopPropagation();
                           recordAffiliateClick(product.id, 'Amazon', product.category);
                         }}
-                        className="flex-1 min-w-0 min-h-[44px] py-2 px-2.5 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                        className="w-full min-w-0 min-h-[38px] sm:min-h-[42px] py-1.5 sm:py-2 px-2 sm:px-2.5 bg-[#FF9900] hover:bg-[#e88b00] text-slate-950 font-bold rounded-lg text-[11px] sm:text-xs flex items-center justify-center gap-1 sm:gap-1.5 transition-colors cursor-pointer shadow-xs"
                       >
-                        <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                        <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                         <span className="truncate">View on Amazon</span>
-                        <ExternalLink className="w-3 h-3 shrink-0" />
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                       </a>
 
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setModalProduct(fullProduct);
-                        }}
-                        aria-label={`Inspect ${product.title} specs`}
-                        title={`Inspect ${product.title} specs`}
-                        className="min-h-[44px] min-w-[44px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="grid grid-cols-2 gap-1 sm:gap-1.5 min-w-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setModalProduct(fullProduct);
+                          }}
+                          aria-label={`Inspect ${product.title} specs`}
+                          title={`Inspect ${product.title} specs`}
+                          className="min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg transition-colors flex items-center justify-center cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(
-                            {
-                              id: fullProduct.id,
-                              asin: fullProduct.asin,
-                              title: fullProduct.title,
-                              category: fullProduct.category,
-                              price: 0,
-                              priceStatus: 'live-at-partner',
-                              imageIsIllustrative: fullProduct.imageIsIllustrative ?? false,
-                              urlKind: 'product',
-                              badge: fullProduct.badge,
-                              description: fullProduct.description,
-                              highlights: fullProduct.highlights,
-                              specs: fullProduct.specs,
-                              image: fullProduct.mainImage,
-                              originStore: 'Amazon',
-                              affiliateUrl: fullProduct.affiliateUrl
-                            },
-                            1
-                          );
-                        }}
-                        title={isSaved ? 'Saved in list (click to add another)' : 'Save to List'}
-                        aria-label={`Save ${product.title} to List`}
-                        className={`min-h-[44px] min-w-[44px] p-2 rounded-lg transition-colors cursor-pointer shrink-0 flex items-center justify-center ${
-                          isSaved
-                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                            : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
-                        }`}
-                      >
-                        {isSaved ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-                      </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(
+                              {
+                                id: fullProduct.id,
+                                asin: fullProduct.asin,
+                                title: fullProduct.title,
+                                category: fullProduct.category,
+                                price: 0,
+                                priceStatus: 'live-at-partner',
+                                imageIsIllustrative: fullProduct.imageIsIllustrative ?? false,
+                                urlKind: 'product',
+                                badge: fullProduct.badge,
+                                description: fullProduct.description,
+                                highlights: fullProduct.highlights,
+                                specs: fullProduct.specs,
+                                image: fullProduct.mainImage,
+                                originStore: 'Amazon',
+                                affiliateUrl: fullProduct.affiliateUrl
+                              },
+                              1
+                            );
+                          }}
+                          title={isSaved ? 'Saved in list (click to add another)' : 'Save to List'}
+                          aria-label={`Save ${product.title} to List`}
+                          className={`min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center ${
+                            isSaved
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                              : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                          }`}
+                        >
+                          {isSaved ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

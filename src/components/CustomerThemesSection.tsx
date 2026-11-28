@@ -553,7 +553,7 @@ export const CustomerThemesSection: React.FC = () => {
           </div>
 
           {/* Recommendations Grid */}
-          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch">
             {recommendations.map((rec) => {
               const product = rec.item;
               const buyUrl = getAffiliateBuyUrl(product);
@@ -563,14 +563,14 @@ export const CustomerThemesSection: React.FC = () => {
               return (
                 <article
                   key={`rec-${product.id}`}
-                  className="responsive-card h-full bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between gap-3.5"
+                  className="responsive-card h-full min-w-0 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-2.5 sm:p-4 flex flex-col justify-between gap-2 sm:gap-3.5 overflow-hidden"
                 >
-                  <div className="flex items-start gap-3.5">
+                  <div className="flex flex-col gap-2 sm:gap-3 min-w-0">
                     <button
                       type="button"
                       onClick={() => setModalProduct(product)}
                       aria-label={`Inspect ${product.title}`}
-                      className="w-24 sm:w-28 aspect-[4/3] rounded-lg overflow-hidden bg-white p-1.5 sm:p-2 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative flex items-center justify-center"
+                      className="w-full aspect-[4/3] rounded-lg overflow-hidden bg-white p-2 sm:p-2.5 border border-slate-200/80 dark:border-slate-700 shrink-0 cursor-pointer relative flex items-center justify-center"
                     >
                       <ResilientImage
                         src={product.mainImage}
@@ -581,24 +581,24 @@ export const CustomerThemesSection: React.FC = () => {
                     </button>
 
                     <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center justify-between gap-2 text-[11px]">
-                        <span className={`font-bold uppercase tracking-wider ${getStoreColorText(product.originStore)}`}>
+                      <div className="flex items-center justify-between gap-1.5 text-[10px] sm:text-[11px] min-w-0">
+                        <span className={`font-bold uppercase tracking-wider truncate ${getStoreColorText(product.originStore)}`}>
                           {product.originStore}
                         </span>
                       </div>
                       <h3
                         onClick={() => setModalProduct(product)}
-                        className="text-sm font-bold text-slate-900 dark:text-white leading-snug line-clamp-2 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                        className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug line-clamp-2 min-h-[2.125rem] sm:min-h-[2.5rem] cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
                       >
                         {product.title}
                       </h3>
-                      <div className="text-xs font-mono font-bold tabular-nums text-slate-800 dark:text-slate-100">
+                      <div className="text-xs sm:text-sm font-mono font-bold tabular-nums text-slate-800 dark:text-slate-100 truncate">
                         {hasPrice ? (
                           <span>
                             {formatPrice(product.price, product.nativePrice, product.nativeCurrency)}
                           </span>
                         ) : (
-                          <span className="font-sans text-emerald-700 dark:text-emerald-400">
+                          <span className="font-sans text-xs sm:text-sm text-emerald-700 dark:text-emerald-400">
                             Check Price on {product.originStore}
                           </span>
                         )}
@@ -606,14 +606,14 @@ export const CustomerThemesSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 rounded-lg px-2.5 py-2 border border-slate-200/70 dark:border-slate-800 leading-relaxed">
+                  <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 rounded-lg px-2 sm:px-2.5 py-1.5 sm:py-2 border border-slate-200/70 dark:border-slate-800 leading-snug sm:leading-relaxed line-clamp-3">
                     <span className="font-semibold text-slate-900 dark:text-slate-100">
                       Why recommended:{' '}
                     </span>
                     {rec.whyRecommended}
                   </p>
 
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex flex-col gap-1.5 pt-1 min-w-0">
                     <a
                       href={buyUrl}
                       target="_blank"
@@ -621,11 +621,11 @@ export const CustomerThemesSection: React.FC = () => {
                       onClick={() =>
                         recordAffiliateClick(product.id, product.originStore, product.category)
                       }
-                      className={`flex-1 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
+                      className={`w-full min-w-0 min-h-[38px] sm:min-h-[42px] py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-colors ${getStoreButtonClass(
                         product.originStore
                       )}`}
                     >
-                      <span>
+                      <span className="truncate">
                         {product.urlKind === 'portal'
                           ? `Open ${product.originStore}`
                           : `View on ${product.originStore}`}
@@ -633,31 +633,33 @@ export const CustomerThemesSection: React.FC = () => {
                       <ExternalLink className="w-3 h-3 shrink-0" />
                     </a>
 
-                    <button
-                      type="button"
-                      onClick={() => setModalProduct(product)}
-                      aria-label={`Inspect ${product.title}`}
-                      className="min-h-[44px] min-w-[44px] p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                    <div className="grid grid-cols-2 gap-1 sm:gap-1.5 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => setModalProduct(product)}
+                        aria-label={`Inspect ${product.title}`}
+                        className="min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors cursor-pointer flex items-center justify-center"
+                      >
+                        <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => handleSaveToCart(product)}
-                      aria-label={`Save ${product.title}`}
-                      className={`min-h-[44px] min-w-[44px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
-                        savedIds.has(product.id)
-                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                          : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
-                      }`}
-                    >
-                      {savedIds.has(product.id) ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <ShoppingBag className="w-4 h-4" />
-                      )}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveToCart(product)}
+                        aria-label={`Save ${product.title}`}
+                        className={`min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center ${
+                          savedIds.has(product.id)
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                            : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                        }`}
+                      >
+                        {savedIds.has(product.id) ? (
+                          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        ) : (
+                          <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </article>
               );
@@ -760,7 +762,7 @@ export const CustomerThemesSection: React.FC = () => {
           </div>
 
           {/* Responsive Customer Theme Product Grid */}
-          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-4 sm:gap-5 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 min-[1025px]:grid-cols-4 min-[1441px]:grid-cols-5 gap-2.5 sm:gap-4 min-[1025px]:gap-5 xl:gap-6 items-stretch mb-8">
             {themeProducts.map((product) => {
               const buyUrl = getAffiliateBuyUrl(product);
               const hasPrice =
@@ -769,13 +771,13 @@ export const CustomerThemesSection: React.FC = () => {
               return (
                 <article
                   key={product.id}
-                  className="responsive-card h-full bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between overflow-hidden"
+                  className="responsive-card h-full min-w-0 bg-slate-50/70 dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => setModalProduct(product)}
                     aria-label={`View details for ${product.title}`}
-                    className="relative w-full aspect-[4/3] bg-white p-2 sm:p-3 overflow-hidden cursor-pointer flex items-center justify-center border-b border-slate-100 dark:border-slate-800"
+                    className="relative w-full aspect-[4/3] bg-white p-2 sm:p-3 overflow-hidden cursor-pointer flex items-center justify-center border-b border-slate-100 dark:border-slate-800 shrink-0"
                   >
                     <ResilientImage
                       src={product.mainImage}
@@ -785,10 +787,10 @@ export const CustomerThemesSection: React.FC = () => {
                     />
                   </button>
 
-                  <div className="p-4 flex-1 flex flex-col justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 truncate">
-                        <span className={`font-bold ${getStoreColorText(product.originStore)}`}>
+                  <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between gap-2 sm:gap-4 min-w-0">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1 sm:mb-1.5 truncate min-w-0">
+                        <span className={`font-bold shrink-0 ${getStoreColorText(product.originStore)}`}>
                           {product.originStore}
                         </span>
                         <span aria-hidden="true">·</span>
@@ -797,39 +799,39 @@ export const CustomerThemesSection: React.FC = () => {
 
                       <h3
                         onClick={() => setModalProduct(product)}
-                        className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white leading-snug line-clamp-2 cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors mb-1.5"
+                        className="text-xs sm:text-sm md:text-base font-semibold text-slate-900 dark:text-white leading-snug line-clamp-2 min-h-[2.125rem] sm:min-h-[2.6rem] cursor-pointer hover:text-amber-700 dark:hover:text-amber-400 transition-colors mb-1 sm:mb-1.5"
                       >
                         {product.title}
                       </h3>
 
-                      <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-snug sm:leading-relaxed min-h-[1.875rem] sm:min-h-[2.4rem]">
                         {product.description}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 space-y-3">
-                      <div className="flex items-baseline justify-between gap-2">
+                    <div className="pt-2 sm:pt-3 border-t border-slate-200/80 dark:border-slate-800 space-y-2 sm:space-y-3 min-w-0">
+                      <div className="flex items-baseline justify-between gap-1.5 min-w-0">
                         {hasPrice ? (
-                          <div className="flex items-baseline gap-2 min-w-0">
-                            <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
+                          <div className="flex items-baseline gap-1.5 min-w-0">
+                            <span className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums truncate">
                               {formatPrice(product.price, product.nativePrice, product.nativeCurrency)}
                             </span>
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                            <span className="hidden sm:inline text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
                               Listed Price
                             </span>
                           </div>
                         ) : (
-                          <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                          <span className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 truncate">
                             See Price on Partner
                           </span>
                         )}
 
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate">
                           {product.brand}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1.5 min-w-0">
                         <a
                           href={buyUrl}
                           target="_blank"
@@ -837,45 +839,47 @@ export const CustomerThemesSection: React.FC = () => {
                           onClick={() =>
                             recordAffiliateClick(product.id, product.originStore, product.category)
                           }
-                          className={`flex-1 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap ${getStoreButtonClass(
+                          className={`w-full min-w-0 min-h-[38px] sm:min-h-[42px] py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-colors ${getStoreButtonClass(
                             product.originStore
                           )}`}
                         >
-                          <span>
+                          <span className="truncate">
                             {product.urlKind === 'portal'
                               ? `Open ${product.originStore}`
                               : `View on ${product.originStore}`}
                           </span>
-                          <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                          <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                         </a>
 
-                        <button
-                          type="button"
-                          onClick={() => setModalProduct(product)}
-                          title="Inspect specifications"
-                          aria-label={`Inspect ${product.title}`}
-                          className="min-h-[44px] min-w-[44px] p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                        <div className="grid grid-cols-2 gap-1 sm:gap-1.5 min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => setModalProduct(product)}
+                            title="Inspect specifications"
+                            aria-label={`Inspect ${product.title}`}
+                            className="min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer flex items-center justify-center"
+                          >
+                            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </button>
 
-                        <button
-                          type="button"
-                          onClick={() => handleSaveToCart(product)}
-                          title={savedIds.has(product.id) ? 'Saved in list' : 'Save to list'}
-                          aria-label={`Save ${product.title}`}
-                          className={`min-h-[44px] min-w-[44px] p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 ${
-                            savedIds.has(product.id)
-                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                              : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
-                          }`}
-                        >
-                          {savedIds.has(product.id) ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <ShoppingBag className="w-4 h-4" />
-                          )}
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSaveToCart(product)}
+                            title={savedIds.has(product.id) ? 'Saved in list' : 'Save to list'}
+                            aria-label={`Save ${product.title}`}
+                            className={`min-h-[36px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center ${
+                              savedIds.has(product.id)
+                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                                : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                            }`}
+                          >
+                            {savedIds.has(product.id) ? (
+                              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            ) : (
+                              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -936,7 +940,7 @@ export const CustomerThemesSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {regionProfile.storePriority.map((storeName) => {
               if (storeName === 'Amazon') {
                 return (
