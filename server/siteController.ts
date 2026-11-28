@@ -8,7 +8,10 @@ import { DEFAULT_SEO_DESCRIPTION } from '../src/utils/seoSchema.ts';
 import {
   isBlockedAffiliateUrl,
   resolveAliExpressAffiliateConfig,
-  sanitizeAliExpressAffiliateUrl
+  resolveStorefrontAffiliateConfig,
+  sanitizeAliExpressAffiliateUrl,
+  type StorefrontAffiliateConfig,
+  type StorefrontAffiliateOverride
 } from './affiliateConfig.ts';
 
 export interface ProductSpec {
@@ -63,6 +66,7 @@ export interface StorefrontConfig {
   storeSubtitle: string;
   checkoutNotice: string;
   seoDescription: string;
+  affiliateConfig: StorefrontAffiliateConfig;
   hiddenProductIds: string[];
   featuredProductIds: string[];
   priceOverrides: Record<string, PriceOverride>;
@@ -75,15 +79,16 @@ export const DEFAULT_STOREFRONT: StorefrontConfig = {
   siteName: 'Camellia Shop',
   announcementText:
     'Camellia Shop · Curated Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates & ExonHost',
-  heroTitle: 'Curated Workspace Tech, Smartwatches, Skincare, Appliances & Partner Stores.',
+  heroTitle: 'Curated Tech, Watches, Skincare, Fashion, Jewelry & Partner Stores.',
   heroSubtitle:
-    'Explore workspace electronics, COLMI smartwatches, skincare, home essentials, fashion, jewelry, toys, cloud hosting, and partner offers across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Home & Hosting',
+    'Explore workspace electronics, COLMI smartwatches, skincare, fashion, jewelry, toys, home essentials, cloud hosting, and partner offers across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
+  storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Fashion, Jewelry & Hosting',
   storeSubtitle:
     'Browse electronics, smartwatches, skincare, fashion, jewelry, toys, home essentials, and hosting portals across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost. Every order completes directly on the partner store.',
   checkoutNotice:
     'All checkout, live pricing, shipping coverage, buyer protection, and returns complete directly on Amazon, AliExpress, Shopz BD, Star Tech, BanglaShoppers, Illin BD, Releva BD, ExonHost, or Sohoj Affiliates.',
   seoDescription: DEFAULT_SEO_DESCRIPTION,
+  affiliateConfig: resolveStorefrontAffiliateConfig(),
   hiddenProductIds: [],
   featuredProductIds: [],
   priceOverrides: {},
@@ -250,6 +255,9 @@ function normalizeStorefront(raw?: Partial<StorefrontConfig> | null): Storefront
       src.seoDescription,
       DEFAULT_STOREFRONT.seoDescription
     ),
+    affiliateConfig: resolveStorefrontAffiliateConfig(
+      src.affiliateConfig as StorefrontAffiliateOverride | undefined
+    ),
     hiddenProductIds: Array.isArray(src.hiddenProductIds)
       ? Array.from(
           new Set(
@@ -308,6 +316,7 @@ interface ControlPatch {
   storeSubtitle?: string;
   checkoutNotice?: string;
   seoDescription?: string;
+  affiliateConfig?: StorefrontAffiliateOverride;
   hideProductIds?: string[];
   unhideProductIds?: string[];
   featuredProductIds?: string[];
@@ -388,6 +397,38 @@ async function callGeminiWithRetry(
               storeSubtitle: { type: Type.STRING },
               checkoutNotice: { type: Type.STRING },
               seoDescription: { type: Type.STRING },
+              affiliateConfig: {
+                type: Type.OBJECT,
+                properties: {
+                  aliexpress: {
+                    type: Type.OBJECT,
+                    properties: {
+                      enabled: { type: Type.BOOLEAN },
+                      portalUrl: { type: Type.STRING },
+                      eventUrl: { type: Type.STRING },
+                      squareEventUrl: { type: Type.STRING },
+                      categories: {
+                        type: Type.OBJECT,
+                        properties: {
+                          jewelry: { type: Type.STRING },
+                          beauty: { type: Type.STRING },
+                          toys: { type: Type.STRING },
+                          womensClothing: { type: Type.STRING }
+                        }
+                      }
+                    }
+                  },
+                  amazon: {
+                    type: Type.OBJECT,
+                    properties: {
+                      associateTag: { type: Type.STRING },
+                      linkId: { type: Type.STRING },
+                      storeUrl: { type: Type.STRING },
+                      shortUrl: { type: Type.STRING }
+                    }
+                  }
+                }
+              },
               hideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               unhideProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
               featuredProductIds: { type: Type.ARRAY, items: { type: Type.STRING } },
@@ -518,6 +559,22 @@ export async function executeBackendSiteControl(
       patch.seoDescription,
       DEFAULT_STOREFRONT.seoDescription
     );
+  }
+  if (patch.affiliateConfig && typeof patch.affiliateConfig === 'object') {
+    next.affiliateConfig = resolveStorefrontAffiliateConfig({
+      aliexpress: {
+        ...next.affiliateConfig.aliexpress,
+        ...patch.affiliateConfig.aliexpress,
+        categories: {
+          ...next.affiliateConfig.aliexpress.categories,
+          ...(patch.affiliateConfig.aliexpress?.categories || {})
+        }
+      },
+      amazon: {
+        ...next.affiliateConfig.amazon,
+        ...(patch.affiliateConfig.amazon || {})
+      }
+    });
   }
 
   if (Array.isArray(patch.hideProductIds)) {

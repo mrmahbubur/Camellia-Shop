@@ -29,8 +29,10 @@ import {
 } from '../src/data/catalogRecords.ts';
 import {
   resolveAliExpressAffiliateConfig,
+  resolveStorefrontAffiliateConfig,
   sanitizeAliExpressAffiliateUrl
 } from '../server/affiliateConfig.ts';
+import { sanitizeStorefrontConfig } from '../server/siteController.ts';
 import {
   REGION_ORDER,
   REGION_PROFILES,
@@ -889,6 +891,7 @@ test('Backend AliExpress affiliate configuration validates overrides, rejects bl
 
   // Accepts valid AliExpress override while rejecting Admitad/Fabrilife or untrusted domains
   const configured = resolveAliExpressAffiliateConfig({
+    ALIEXPRESS_ENABLED: 'true',
     ALIEXPRESS_PORTAL_URL: 'https://s.click.aliexpress.com/e/_c4oqIjxj',
     ALIEXPRESS_JEWELRY_URL: 'https://rzekl.com/g/bad-admitad-link',
     ALIEXPRESS_BEAUTY_URL: 'https://alitems.com/g/bad-link',
@@ -908,23 +911,72 @@ test('Backend AliExpress affiliate configuration validates overrides, rejects bl
     'https://s.click.aliexpress.com/e/_c3Nx9xUl'
   );
 
+  // Dynamic storefront schema includes validated affiliateConfig
+  const storefrontResolved = sanitizeStorefrontConfig({
+    seoDescription: 'Missing categories',
+    affiliateConfig: {
+      aliexpress: {
+        partner: 'AliExpress',
+        enabled: true,
+        portalUrl: 'https://s.click.aliexpress.com/e/_c3JF9Ep7',
+        eventUrl: 'https://s.click.aliexpress.com/e/_c3vfU2sh?bz=725*90',
+        squareEventUrl: 'https://s.click.aliexpress.com/e/_c3vfU2sh?bz=500*500',
+        allowedHosts: ['s.click.aliexpress.com'],
+        categories: {
+          jewelry: 'https://rzekl.com/g/bad-override',
+          beauty: ALIEXPRESS_BEAUTY_URL,
+          toys: ALIEXPRESS_TOYS_URL,
+          womensClothing: ALIEXPRESS_WOMENS_CLOTHING_URL
+        }
+      },
+      amazon: {
+        associateTag: AMAZON_ASSOCIATE_TAG,
+        linkId: AMAZON_LINK_ID,
+        storeUrl: AMAZON_STORE_URL,
+        shortUrl: AMAZON_LINK_SHORT
+      }
+    }
+  });
+  assert.ok(storefrontResolved.seoDescription.toLowerCase().includes('fashion'));
+  assert.ok(storefrontResolved.seoDescription.toLowerCase().includes('jewelry'));
+  assert.equal(
+    storefrontResolved.affiliateConfig.aliexpress.portalUrl,
+    'https://s.click.aliexpress.com/e/_c3JF9Ep7'
+  );
+  assert.equal(
+    storefrontResolved.affiliateConfig.aliexpress.categories.jewelry,
+    ALIEXPRESS_JEWELRY_URL
+  );
+  assert.equal(storefrontResolved.affiliateConfig.amazon.associateTag, AMAZON_ASSOCIATE_TAG);
+
+  const combinedResolved = resolveStorefrontAffiliateConfig(
+    { aliexpress: { enabled: false } },
+    { ALIEXPRESS_PORTAL_URL: 'https://s.click.aliexpress.com/e/_c4W9fhKh' }
+  );
+  assert.equal(combinedResolved.aliexpress.enabled, false);
+  assert.equal(
+    combinedResolved.aliexpress.portalUrl,
+    'https://s.click.aliexpress.com/e/_c4W9fhKh'
+  );
+
   const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
   assert.ok(
     serverTs.includes("app.get('/api/affiliate/config'") &&
-      serverTs.includes('resolveAliExpressAffiliateConfig'),
-    'Expected /api/affiliate/config and resolveAliExpressAffiliateConfig in server.ts'
+      serverTs.includes('resolveStorefrontAffiliateConfig'),
+    'Expected /api/affiliate/config and resolveStorefrontAffiliateConfig in server.ts'
   );
   const siteControllerTs = fs.readFileSync(path.join(ROOT, 'server/siteController.ts'), 'utf8');
   assert.ok(
     siteControllerTs.includes('seoDescription') &&
+      siteControllerTs.includes('affiliateConfig') &&
       siteControllerTs.includes('sanitizeAliExpressAffiliateUrl'),
-    'Expected seoDescription and sanitizeAliExpressAffiliateUrl in server/siteController.ts'
+    'Expected seoDescription, affiliateConfig, and sanitizeAliExpressAffiliateUrl in server/siteController.ts'
   );
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
   assert.ok(
     productsCtx.includes('storefrontCopy.seoDescription') &&
-      productsCtx.includes('partnerStores?.aliexpress?.portalUrl'),
-    'Expected ProductsContext.tsx to sync seoDescription and backend AliExpress config'
+      productsCtx.includes('affiliateConfig?.aliexpress?.portalUrl'),
+    'Expected ProductsContext.tsx to sync seoDescription and dynamic affiliateConfig'
   );
 });
 

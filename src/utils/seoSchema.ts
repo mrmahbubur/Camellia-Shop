@@ -5,6 +5,9 @@ export const DEFAULT_SEO_DESCRIPTION =
 
 export const DEFAULT_OG_IMAGE_PATH = 'images/camellia-og-showcase.jpg';
 
+export const DEFAULT_OG_IMAGE_ALT =
+  'Camellia Shop curated electronics, smartwatches, skincare, fashion, jewelry, and partner store catalog';
+
 export interface OnlineStoreSchemaOptions {
   baseUrl?: string;
   name?: string;
@@ -360,11 +363,9 @@ export function injectSeoMetadataIntoHtml(
   updated = upsertHeadMeta(updated, 'property', 'og:image:type', 'image/jpeg');
   updated = upsertHeadMeta(updated, 'property', 'og:image:width', '1376');
   updated = upsertHeadMeta(updated, 'property', 'og:image:height', '768');
-  const imageAlt =
-    'Camellia Shop curated electronics, smartwatches, skincare, fashion, jewelry, and partner store catalog';
-  updated = upsertHeadMeta(updated, 'property', 'og:image:alt', imageAlt);
+  updated = upsertHeadMeta(updated, 'property', 'og:image:alt', DEFAULT_OG_IMAGE_ALT);
   updated = upsertHeadMeta(updated, 'name', 'twitter:image', absoluteImageUrl);
-  updated = upsertHeadMeta(updated, 'name', 'twitter:image:alt', imageAlt);
+  updated = upsertHeadMeta(updated, 'name', 'twitter:image:alt', DEFAULT_OG_IMAGE_ALT);
 
   const schemaJson = JSON.stringify(
     buildOnlineStoreSchema({
@@ -495,9 +496,11 @@ export function applyDynamicSeoMetadata(options: {
   upsertClientMeta('property', 'og:title', nextTitle);
   upsertClientMeta('property', 'og:description', description);
   upsertClientMeta('property', 'og:image', absoluteImageUrl);
+  upsertClientMeta('property', 'og:image:alt', DEFAULT_OG_IMAGE_ALT);
   upsertClientMeta('name', 'twitter:title', nextTitle);
   upsertClientMeta('name', 'twitter:description', description);
   upsertClientMeta('name', 'twitter:image', absoluteImageUrl);
+  upsertClientMeta('name', 'twitter:image:alt', DEFAULT_OG_IMAGE_ALT);
 
   const schemaJson = JSON.stringify(
     buildOnlineStoreSchema({

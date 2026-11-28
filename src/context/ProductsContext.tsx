@@ -71,6 +71,26 @@ interface StorefrontResponse extends Partial<StorefrontCopyConfig> {
   priceOverrides?: Record<string, { price?: number; originalPrice?: number; badge?: string }>;
   customProducts?: EcomProduct[];
   sponsors?: Array<Omit<SponsorPlacement, 'image'> & { image?: string }>;
+  affiliateConfig?: {
+    aliexpress?: {
+      name?: string;
+      enabled?: boolean;
+      portalUrl?: string;
+      eventUrl?: string;
+      squareEventUrl?: string;
+      categories?: {
+        jewelry?: string;
+        beauty?: string;
+        toys?: string;
+        womensClothing?: string;
+      };
+    };
+    amazon?: {
+      associateTag?: string;
+      storeUrl?: string;
+      shortUrl?: string;
+    };
+  };
   partnerStores?: {
     aliexpress?: {
       name?: string;
@@ -86,10 +106,10 @@ const DEFAULT_STOREFRONT_COPY: StorefrontCopyConfig = {
   siteName: 'Camellia Shop',
   announcementText:
     'Camellia Shop · Curated Tech, Watches, Skincare, Jewelry, Fashion & Partner Stores incl. Amazon & AliExpress',
-  heroTitle: 'Curated Workspace Tech, Watches, Skincare & Partner Stores.',
+  heroTitle: 'Curated Tech, Watches, Skincare, Fashion, Jewelry & Partner Stores.',
   heroSubtitle:
     'Shop workspace electronics, COLMI smartwatches, skincare, home essentials, fashion, jewelry, toys, and cloud hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
-  storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare & Home Essentials',
+  storeTitle: 'Shop Workspace Gear, Smartwatches, Skincare, Fashion, Jewelry & Hosting',
   storeSubtitle:
     'Explore electronics, Bluetooth calling smartwatches, authentic skincare, fashion, jewelry, toys, home appliances, and hosting across Amazon, AliExpress, Shopz BD, Star Tech, Releva BD, BanglaShoppers, Illin BD, Sohoj Affiliates, and ExonHost.',
   checkoutNotice:
@@ -841,9 +861,13 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         amazonShortUrl: AMAZON_LINK_SHORT,
         amazonStoreUrl: AMAZON_STORE_URL,
         aliexpressStoreUrl:
-          storefrontData?.partnerStores?.aliexpress?.portalUrl || ALIEXPRESS_AFFILIATE_URL,
+          storefrontData?.affiliateConfig?.aliexpress?.portalUrl ||
+          storefrontData?.partnerStores?.aliexpress?.portalUrl ||
+          ALIEXPRESS_AFFILIATE_URL,
         aliexpressEventUrl:
-          storefrontData?.partnerStores?.aliexpress?.eventUrl || ALIEXPRESS_EVENT_PRIMARY_URL,
+          storefrontData?.affiliateConfig?.aliexpress?.eventUrl ||
+          storefrontData?.partnerStores?.aliexpress?.eventUrl ||
+          ALIEXPRESS_EVENT_PRIMARY_URL,
         eventPromos,
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,

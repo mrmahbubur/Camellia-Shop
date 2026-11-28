@@ -11,11 +11,8 @@ import {
   sanitizeStorefrontConfig,
   executeBackendSiteControl
 } from './server/siteController.ts';
-import { resolveAliExpressAffiliateConfig } from './server/affiliateConfig.ts';
+import { resolveStorefrontAffiliateConfig } from './server/affiliateConfig.ts';
 import {
-  AMAZON_ASSOCIATE_TAG,
-  AMAZON_LINK_SHORT,
-  AMAZON_STORE_URL,
   BANGLASHOPPERS_AFFILIATE_URL,
   CURATED_CATALOG_RECORDS,
   EXONHOST_AFFILIATE_URL,
@@ -695,17 +692,18 @@ async function startServer() {
   app.use(express.json({ limit: '256kb' }));
 
   app.get('/api/health', async (_req, res) => {
-    const [catalog, promos] = await Promise.all([
+    const [db, catalog, promos] = await Promise.all([
+      ensureDb(),
       getFullCatalogRecords(),
       getEventPromotions()
     ]);
-    const aliexpressConfig = resolveAliExpressAffiliateConfig();
+    const affiliateConfig = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
     res.json({
       status: 'ok',
       service: 'camellia-shop',
       catalogCount: catalog.length,
       promotionsCount: promos.length,
-      aliexpressConfigured: aliexpressConfig.enabled,
+      aliexpressConfigured: affiliateConfig.aliexpress.enabled,
       storesSupported: Array.from(VALID_STORES),
       regionsSupported: REGION_ORDER,
       persistence: {
@@ -734,18 +732,14 @@ async function startServer() {
   });
 
   app.get('/api/affiliate/config', async (_req, res) => {
-    const [promos] = await Promise.all([getEventPromotions()]);
-    const aliexpress = resolveAliExpressAffiliateConfig();
+    const [db, promos] = await Promise.all([ensureDb(), getEventPromotions()]);
+    const resolved = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
     res.json({
-      aliexpress,
+      aliexpress: resolved.aliexpress,
       promotionsCount: promos.length,
       partnerStores: {
-        aliexpress,
-        amazon: {
-          associateTag: AMAZON_ASSOCIATE_TAG,
-          storeUrl: AMAZON_STORE_URL,
-          shortUrl: AMAZON_LINK_SHORT
-        },
+        aliexpress: resolved.aliexpress,
+        amazon: resolved.amazon,
         shopzBd: { portalUrl: SHOPZ_REF_BASE },
         starTech: { portalUrl: STARTECH_AFFILIATE_URL },
         relevaBd: { portalUrl: RELEVA_HOME_URL },
@@ -759,25 +753,26 @@ async function startServer() {
 
   app.get('/api/storefront', async (_req, res) => {
     const db = await ensureDb();
-    const aliexpress = resolveAliExpressAffiliateConfig();
+    const resolved = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig);
     res.json({
       ...db.storefront,
+      affiliateConfig: resolved,
       partnerStores: {
         aliexpress: {
-          name: aliexpress.partner,
-          enabled: aliexpress.enabled,
-          portalUrl: aliexpress.portalUrl,
-          eventUrl: aliexpress.eventUrl,
-          squareEventUrl: aliexpress.squareEventUrl,
-          categories: aliexpress.categories
+          name: resolved.aliexpress.partner,
+          enabled: resolved.aliexpress.enabled,
+          portalUrl: resolved.aliexpress.portalUrl,
+          eventUrl: resolved.aliexpress.eventUrl,
+          squareEventUrl: resolved.aliexpress.squareEventUrl,
+          categories: resolved.aliexpress.categories
         }
       }
     });
   });
 
   app.get('/api/promotions', async (_req, res) => {
-    const promos = await getEventPromotions();
-    const aliexpress = resolveAliExpressAffiliateConfig();
+    const [db, promos] = await Promise.all([ensureDb(), getEventPromotions()]);
+    const aliexpress = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig).aliexpress;
     res.json({
       partner: aliexpress.partner,
       primaryEventUrl: aliexpress.eventUrl,
@@ -788,8 +783,8 @@ async function startServer() {
   });
 
   app.get('/api/catalog', async (req, res) => {
-    const ratesData = await getLiveUsdRates();
-    const aliexpress = resolveAliExpressAffiliateConfig();
+    const [db, ratesData] = await Promise.all([ensureDb(), getLiveUsdRates()]);
+    const aliexpress = resolveStorefrontAffiliateConfig(db.storefront.affiliateConfig).aliexpress;
     const records = (await getFullCatalogRecords(ratesData.rates.BDT)).map((item) => {
       if (item.originStore !== 'AliExpress') return item;
       if (item.id === 'aliexpress-jewelry-accessories') {
@@ -1131,8 +1126,12 @@ async function startServer() {
           expressProtocol: _req.protocol,
           appUrl: process.env.APP_URL
         });
+        const db = await ensureDb();
         if (canonicalOrigin) {
-          html = injectSeoMetadataIntoHtml(html, canonicalOrigin);
+          html = injectSeoMetadataIntoHtml(html, canonicalOrigin, {
+            name: db.storefront.siteName,
+            description: db.storefront.seoDescription
+          });
         }
         res.type('html').send(html);
       } catch {
