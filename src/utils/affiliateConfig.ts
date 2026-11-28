@@ -11,6 +11,7 @@ import {
   BANGLASHOPPERS_AFFILIATE_URL,
   EXONHOST_AFFILIATE_URL,
   ILLIN_AFFILIATE_URL,
+  RELEVA_HOME_URL,
   SHOPZ_REF_BASE,
   SOHOJ_AFFILIATE_URL,
   STARTECH_AFFILIATE_URL,
@@ -312,6 +313,18 @@ export function buildAmazonSearchUrl(
   const clean = query.trim();
   if (!clean) return amazon.storeUrl;
   return `https://www.amazon.com/s?k=${encodeURIComponent(clean)}&tag=${encodeURIComponent(amazon.associateTag)}&linkCode=ll2&linkId=${encodeURIComponent(amazon.linkId)}`;
+}
+
+export function buildShopzSearchUrl(query: string): string {
+  const clean = query.trim();
+  if (!clean) return SHOPZ_REF_BASE;
+  return `https://www.shopz.com.bd/?s=${encodeURIComponent(clean)}&post_type=product&ref=mahbubur-rahman-shahin`;
+}
+
+export function buildRelevaSearchUrl(query: string): string {
+  const clean = query.trim();
+  if (!clean) return RELEVA_HOME_URL;
+  return `https://releva.com.bd/index.php?route=product/search&search=${encodeURIComponent(clean)}`;
 }
 
 export interface ResolvePartnerProductUrlParams {

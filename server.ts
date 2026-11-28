@@ -786,6 +786,7 @@ async function startServer() {
     res.json({
       tenantId,
       aliexpress: resolved.aliexpress,
+      amazon: resolved.amazon,
       promotionsCount: promos.length,
       partnerStores: {
         aliexpress: resolved.aliexpress,
@@ -1123,8 +1124,8 @@ async function startServer() {
       return;
     }
 
-    const rawTenant = typeof body.tenantId === 'string' ? body.tenantId.trim().toLowerCase() : 'default';
-    const tenantId = /^[a-z0-9_-]{2,40}$/.test(rawTenant) ? rawTenant : 'default';
+    const rawTenant = typeof body.tenantId === 'string' ? body.tenantId.trim().toLowerCase() : '';
+    const tenantId = /^[a-z0-9_-]{2,40}$/.test(rawTenant) ? rawTenant : resolveTenantId(req);
 
     const updated = await withDbLock(async (db) => {
       const base = getTenantStorefront(db, tenantId);
@@ -1166,7 +1167,13 @@ async function startServer() {
       return;
     }
 
-    const body = req.body as { instruction?: unknown; command?: unknown };
+    const body = req.body as {
+      tenantId?: unknown;
+      instruction?: unknown;
+      command?: unknown;
+    };
+    const rawTenant = typeof body?.tenantId === 'string' ? body.tenantId.trim().toLowerCase() : '';
+    const tenantId = /^[a-z0-9_-]{2,40}$/.test(rawTenant) ? rawTenant : resolveTenantId(req);
     const instruction =
       typeof body?.instruction === 'string'
         ? body.instruction
@@ -1181,9 +1188,14 @@ async function startServer() {
 
     try {
       const result = await withDbLock(async (db) => {
-        const updated = await executeBackendSiteControl(instruction, db.storefront);
-        db.storefront = updated.storefront;
-        return { db, result: updated };
+        const baseStorefront = getTenantStorefront(db, tenantId);
+        const updated = await executeBackendSiteControl(instruction, baseStorefront);
+        if (tenantId === 'default') {
+          db.storefront = updated.storefront;
+        } else {
+          db.tenants = { ...(db.tenants || {}), [tenantId]: updated.storefront };
+        }
+        return { db, result: { tenantId, ...updated } };
       });
       res.json(result);
     } catch (err) {
@@ -1237,10 +1249,12 @@ async function startServer() {
           appUrl: process.env.APP_URL
         });
         const db = await ensureDb();
+        const tenantId = resolveTenantId(_req);
+        const storefront = getTenantStorefront(db, tenantId);
         if (canonicalOrigin) {
           html = injectSeoMetadataIntoHtml(html, canonicalOrigin, {
-            name: db.storefront.siteName,
-            description: db.storefront.seoDescription
+            name: storefront.siteName,
+            description: storefront.seoDescription
           });
         }
         res.type('html').send(html);

@@ -10,7 +10,7 @@ interface AliExpressEventBannerProps {
 export const AliExpressEventBanner: React.FC<AliExpressEventBannerProps> = ({
   variant = 'responsive-strip'
 }) => {
-  const { eventPromos: promos, recordAffiliateClick } = useProducts();
+  const { eventPromos: promos, aliexpressEnabled, recordAffiliateClick } = useProducts();
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [showAllPlacements, setShowAllPlacements] = useState(false);
 
@@ -26,6 +26,8 @@ export const AliExpressEventBanner: React.FC<AliExpressEventBannerProps> = ({
       (a, b) => (rank.get(a.size) ?? 99) - (rank.get(b.size) ?? 99)
     );
   }, [promos]);
+
+  if (!aliexpressEnabled) return null;
 
   const markImageFailed = (size: string) => {
     setFailedImages((prev) => ({ ...prev, [size]: true }));

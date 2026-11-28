@@ -13,6 +13,8 @@ import {
 } from '../data/unifiedProductsData';
 import {
   buildAmazonSearchUrl,
+  buildRelevaSearchUrl,
+  buildShopzSearchUrl,
   resolvePartnerProductUrl,
   resolveStorefrontAffiliateConfig
 } from '../utils/affiliateConfig';
@@ -42,7 +44,12 @@ import {
   type InteractionSignals,
   type RecommendedItem
 } from '../utils/recommendations';
-import { isStaticHostedWithoutApi, resolveApiUrl } from '../utils/apiClient';
+import {
+  isStaticHostedWithoutApi,
+  resolveActiveTenantId,
+  resolveApiUrl,
+  resolveTenantApiUrl
+} from '../utils/apiClient';
 import {
   DEFAULT_SEO_DESCRIPTION,
   applyDynamicSeoMetadata,
@@ -181,8 +188,10 @@ interface ProductsContextType {
   getRelevaSearchUrl: (query: string) => string;
   amazonShortUrl: string;
   amazonStoreUrl: string;
+  aliexpressEnabled: boolean;
   aliexpressStoreUrl: string;
   aliexpressEventUrl: string;
+  tenantId: string;
   eventPromos: EventPromoCreative[];
   shopzStoreUrl: string;
   relevaStoreUrl: string;
@@ -435,7 +444,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     if (!isStaticHostedWithoutApi()) {
-      fetch(resolveApiUrl('/api/promotions'))
+      fetch(resolveTenantApiUrl('/api/promotions'))
         .then((res) => (res.ok ? res.json() : null))
         .then((data: { items?: EventPromoCreative[] } | null) => {
           if (!cancelled && Array.isArray(data?.items) && data.items.length > 0) {
@@ -516,7 +525,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       });
 
-    fetch(resolveApiUrl('/api/storefront'))
+    fetch(resolveTenantApiUrl('/api/storefront'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data: StorefrontResponse | null) => {
         if (data && typeof data === 'object') {
@@ -721,19 +730,18 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
+  const activeTenantId = useMemo(() => resolveActiveTenantId(), []);
+
   const getAmazonSearchAffiliateUrl = (query: string): string => {
     return buildAmazonSearchUrl(query, resolvedAffiliateConfig.amazon);
   };
 
   const getShopzSearchAffiliateUrl = (query: string): string => {
-    const clean = query.trim() || 'gadgets';
-    return `https://www.shopz.com.bd/?s=${encodeURIComponent(clean)}&post_type=product&ref=mahbubur-rahman-shahin`;
+    return buildShopzSearchUrl(query);
   };
 
   const getRelevaSearchUrl = (query: string): string => {
-    const clean = query.trim();
-    if (!clean) return RELEVA_HOME_URL;
-    return `https://releva.com.bd/index.php?route=product/search&search=${encodeURIComponent(clean)}`;
+    return buildRelevaSearchUrl(query);
   };
 
   return (
@@ -775,8 +783,10 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getRelevaSearchUrl,
         amazonShortUrl: activeAmazonShortUrl,
         amazonStoreUrl: activeAmazonStoreUrl,
+        aliexpressEnabled: resolvedAffiliateConfig.aliexpress.enabled,
         aliexpressStoreUrl: activeAliExpressPortalUrl,
         aliexpressEventUrl: activeAliExpressEventUrl,
+        tenantId: activeTenantId,
         eventPromos,
         shopzStoreUrl: SHOPZ_REF_BASE,
         relevaStoreUrl: RELEVA_HOME_URL,

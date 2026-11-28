@@ -28,12 +28,19 @@ import {
   parseShopzCsvRecords
 } from '../src/data/catalogRecords.ts';
 import {
+  buildAmazonSearchUrl,
+  buildRelevaSearchUrl,
+  buildShopzSearchUrl,
   resolveAliExpressAffiliateConfig,
   resolvePartnerProductUrl,
   resolveStorefrontAffiliateConfig,
   sanitizeAliExpressAffiliateUrl,
   sanitizeAmazonAffiliateUrl
 } from '../src/utils/affiliateConfig.ts';
+import {
+  resolveActiveTenantId,
+  resolveTenantApiUrl
+} from '../src/utils/apiClient.ts';
 import { sanitizeStorefrontConfig } from '../server/siteController.ts';
 import {
   REGION_ORDER,
@@ -1023,10 +1030,58 @@ test('Backend affiliate configuration is driven by StorefrontConfig for AliExpre
   assert.ok(
     productsCtx.includes('storefrontCopy.seoDescription') &&
       productsCtx.includes('resolvePartnerProductUrl') &&
+      productsCtx.includes('resolveTenantApiUrl') &&
       productsCtx.includes('affiliateConfig?.amazon'),
-    'Expected ProductsContext.tsx to use centralized resolvePartnerProductUrl and DB-driven affiliateConfig'
+    'Expected ProductsContext.tsx to use centralized resolvePartnerProductUrl, tenant URLs, and DB-driven affiliateConfig'
   );
 });
+
+test('Shared search helpers and multi-tenant API routing behave deterministically across client and server', () => {
+  assert.equal(buildAmazonSearchUrl(''), AMAZON_STORE_URL);
+  assert.equal(
+    buildAmazonSearchUrl('usb hub', { associateTag: 'tenant-20', linkId: 'tenantlink1234' }),
+    'https://www.amazon.com/s?k=usb%20hub&tag=tenant-20&linkCode=ll2&linkId=tenantlink1234'
+  );
+  assert.equal(buildShopzSearchUrl(''), SHOPZ_REF_BASE);
+  assert.equal(
+    buildShopzSearchUrl('smart watch'),
+    'https://www.shopz.com.bd/?s=smart%20watch&post_type=product&ref=mahbubur-rahman-shahin'
+  );
+  assert.equal(buildRelevaSearchUrl(''), RELEVA_HOME_URL);
+  assert.equal(
+    buildRelevaSearchUrl('earbuds'),
+    'https://releva.com.bd/index.php?route=product/search&search=earbuds'
+  );
+  assert.equal(buildRelevaSearchUrl('earbuds').includes('tracking='), false);
+
+  assert.equal(resolveActiveTenantId(''), 'default');
+  assert.equal(resolveActiveTenantId('?tenant=Default'), 'default');
+  assert.equal(resolveActiveTenantId('?tenant=Partner-BD_01'), 'partner-bd_01');
+  assert.equal(resolveActiveTenantId('?storefrontId=jewelry_boutique'), 'jewelry_boutique');
+  assert.equal(resolveActiveTenantId('?tenant=../../evil'), 'default');
+
+  assert.equal(resolveTenantApiUrl('/api/storefront', 'default'), '/api/storefront');
+  assert.equal(resolveTenantApiUrl('/api/storefront', 'qa_tenant'), '/api/storefront?tenant=qa_tenant');
+  assert.equal(
+    resolveTenantApiUrl('/api/catalog?store=Amazon', 'qa_tenant'),
+    '/api/catalog?store=Amazon&tenant=qa_tenant'
+  );
+
+  const bannerTsx = fs.readFileSync(path.join(ROOT, 'src/components/AliExpressEventBanner.tsx'), 'utf8');
+  assert.ok(
+    bannerTsx.includes('aliexpressEnabled') && bannerTsx.includes('if (!aliexpressEnabled) return null;'),
+    'Expected AliExpressEventBanner to respect storefront aliexpressEnabled toggle'
+  );
+
+  const serverTs = fs.readFileSync(path.join(ROOT, 'server.ts'), 'utf8');
+  assert.ok(
+    serverTs.includes('resolveTenantId') &&
+      serverTs.includes('getTenantStorefront') &&
+      serverTs.includes('tenants?: Record<string, StorefrontConfig>'),
+    'Expected multi-tenant storefront storage and resolution helpers in server.ts'
+  );
+});
+
 
 
 
