@@ -560,22 +560,30 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, [clientTenantId]);
 
+  const activeStorefrontData = useMemo(() => {
+    if (!storefrontData) return null;
+    if (storefrontData.tenantId && storefrontData.tenantId !== clientTenantId) {
+      return null;
+    }
+    return storefrontData;
+  }, [storefrontData, clientTenantId]);
+
   const storefrontCopy = useMemo<StorefrontCopyConfig>(
     () => ({
-      siteName: storefrontData?.siteName || DEFAULT_STOREFRONT_COPY.siteName,
-      announcementText: storefrontData?.announcementText || DEFAULT_STOREFRONT_COPY.announcementText,
-      heroTitle: storefrontData?.heroTitle || DEFAULT_STOREFRONT_COPY.heroTitle,
-      heroSubtitle: storefrontData?.heroSubtitle || DEFAULT_STOREFRONT_COPY.heroSubtitle,
-      storeTitle: storefrontData?.storeTitle || DEFAULT_STOREFRONT_COPY.storeTitle,
-      storeSubtitle: storefrontData?.storeSubtitle || DEFAULT_STOREFRONT_COPY.storeSubtitle,
-      checkoutNotice: storefrontData?.checkoutNotice || DEFAULT_STOREFRONT_COPY.checkoutNotice,
-      seoDescription: storefrontData?.seoDescription || DEFAULT_STOREFRONT_COPY.seoDescription
+      siteName: activeStorefrontData?.siteName || DEFAULT_STOREFRONT_COPY.siteName,
+      announcementText: activeStorefrontData?.announcementText || DEFAULT_STOREFRONT_COPY.announcementText,
+      heroTitle: activeStorefrontData?.heroTitle || DEFAULT_STOREFRONT_COPY.heroTitle,
+      heroSubtitle: activeStorefrontData?.heroSubtitle || DEFAULT_STOREFRONT_COPY.heroSubtitle,
+      storeTitle: activeStorefrontData?.storeTitle || DEFAULT_STOREFRONT_COPY.storeTitle,
+      storeSubtitle: activeStorefrontData?.storeSubtitle || DEFAULT_STOREFRONT_COPY.storeSubtitle,
+      checkoutNotice: activeStorefrontData?.checkoutNotice || DEFAULT_STOREFRONT_COPY.checkoutNotice,
+      seoDescription: activeStorefrontData?.seoDescription || DEFAULT_STOREFRONT_COPY.seoDescription
     }),
-    [storefrontData]
+    [activeStorefrontData]
   );
 
   const products = useMemo<EcomProduct[]>(() => {
-    const customList = Array.isArray(storefrontData?.customProducts) ? storefrontData.customProducts : [];
+    const customList = Array.isArray(activeStorefrontData?.customProducts) ? activeStorefrontData.customProducts : [];
     const customMap = new Map(customList.map((p) => [p.id, p]));
 
     const baseCatalog: EcomProduct[] = UNIFIED_PRODUCTS.map((p) => ({
@@ -594,8 +602,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       .filter((p) => !knownIds.has(p.id))
       .map((p) => ({ ...p, sourceType: p.sourceType || ('linked-shop' as const) }));
 
-    const hiddenSet = new Set(Array.isArray(storefrontData?.hiddenProductIds) ? storefrontData.hiddenProductIds : []);
-    const overrides = storefrontData?.priceOverrides || {};
+    const hiddenSet = new Set(Array.isArray(activeStorefrontData?.hiddenProductIds) ? activeStorefrontData.hiddenProductIds : []);
+    const overrides = activeStorefrontData?.priceOverrides || {};
 
     const combined = [...extraCustom, ...mergedBase]
       .filter((p) => !hiddenSet.has(p.id) && !p.affiliateUrl.toLowerCase().includes('fabrilife.com'))
@@ -610,7 +618,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
       });
 
-    const featured = Array.isArray(storefrontData?.featuredProductIds) ? storefrontData.featuredProductIds : [];
+    const featured = Array.isArray(activeStorefrontData?.featuredProductIds) ? activeStorefrontData.featuredProductIds : [];
     const rank = new Map(featured.map((id, idx) => [id, idx]));
 
     return [...combined].sort((a, b) => {
@@ -622,7 +630,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const storeRankB = getStorePriorityRank(b.originStore, visitorRegion);
       return storeRankA - storeRankB;
     });
-  }, [storefrontData, csvProducts, visitorRegion]);
+  }, [activeStorefrontData, csvProducts, visitorRegion]);
 
   const recommendations = useMemo<RecommendedItem<EcomProduct>[]>(() => {
     return computeRecommendations({
@@ -659,7 +667,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 
   const sponsors = useMemo<SponsorPlacement[]>(() => {
-    const incoming = Array.isArray(storefrontData?.sponsors) ? storefrontData.sponsors : null;
+    const incoming = Array.isArray(activeStorefrontData?.sponsors) ? activeStorefrontData.sponsors : null;
     const defaultById = new Map(DEFAULT_SPONSORS.map((s) => [s.id, s]));
     const fallbackImg = DEFAULT_SPONSORS[0].image;
     const baseList: SponsorPlacement[] =
@@ -674,7 +682,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         : DEFAULT_SPONSORS;
 
     return baseList;
-  }, [storefrontData]);
+  }, [activeStorefrontData]);
 
   const recordAffiliateClick = (
     productId?: string,
@@ -728,20 +736,21 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     syncUrlSearchParam(searchQuery);
     applyDynamicSeoMetadata({
-      siteName: storefrontData?.siteName || 'Camellia Shop',
+      siteName: activeStorefrontData?.siteName || 'Camellia Shop',
       description: storefrontCopy.seoDescription,
       searchQuery
     });
-  }, [searchQuery, storefrontData?.siteName, storefrontCopy.seoDescription]);
+  }, [searchQuery, activeStorefrontData?.siteName, storefrontCopy.seoDescription]);
 
   const resolvedAffiliateConfig = useMemo(
     () =>
       resolveStorefrontAffiliateConfig({
         aliexpress:
-          storefrontData?.affiliateConfig?.aliexpress || storefrontData?.partnerStores?.aliexpress,
-        amazon: storefrontData?.affiliateConfig?.amazon
+          activeStorefrontData?.affiliateConfig?.aliexpress ||
+          activeStorefrontData?.partnerStores?.aliexpress,
+        amazon: activeStorefrontData?.affiliateConfig?.amazon
       }),
-    [storefrontData]
+    [activeStorefrontData]
   );
 
   const activeAmazonTag = resolvedAffiliateConfig.amazon.associateTag;
@@ -761,7 +770,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  const activeTenantId = storefrontData?.tenantId || clientTenantId;
+  const activeTenantId = activeStorefrontData?.tenantId || clientTenantId;
 
   const getAmazonSearchAffiliateUrl = (query: string): string => {
     return buildAmazonSearchUrl(query, resolvedAffiliateConfig.amazon);

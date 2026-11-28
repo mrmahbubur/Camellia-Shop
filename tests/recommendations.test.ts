@@ -1066,6 +1066,8 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   assert.equal(resolveActiveTenantId('/store?storefrontId=Path_Shop'), 'path_shop');
   assert.equal(resolveActiveTenantId('https://camellia.shop/deals?storefrontId=Full_Url_Shop'), 'full_url_shop');
   assert.equal(resolveActiveTenantId('https://camellia.shop/#/catalog?storefrontId=Hash_Shop'), 'hash_shop');
+  assert.equal(resolveActiveTenantId('?foo=1#/catalog?storefrontId=Combined_Hash'), 'combined_hash');
+  assert.equal(resolveActiveTenantId('#/deals?tenant=Hash_Only'), 'hash_only');
   assert.equal(resolveActiveTenantId('?tenant=../../evil'), 'default');
 
   assert.equal(resolveTenantApiUrl('/api/storefront', 'default'), '/api/storefront');
@@ -1175,11 +1177,11 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
 
   const productsCtx = fs.readFileSync(path.join(ROOT, 'src/context/ProductsContext.tsx'), 'utf8');
   assert.ok(
-    productsCtx.includes('storefrontData?.tenantId || clientTenantId') &&
+    productsCtx.includes('activeStorefrontData?.tenantId || clientTenantId') &&
       productsCtx.includes("resolveTenantApiUrl('/api/storefront', clientTenantId)") &&
       productsCtx.includes("resolveTenantApiUrl('/api/promotions', clientTenantId)") &&
       productsCtx.includes('resolveTenantFetchInit(clientTenantId'),
-    'Expected ProductsContext.tsx to track dynamic clientTenantId, send x-tenant-id headers, and sync with server tenantId'
+    'Expected ProductsContext.tsx to track dynamic clientTenantId, send x-tenant-id headers, and isolate activeStorefrontData across transitions'
   );
 });
 

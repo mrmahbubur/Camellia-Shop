@@ -48,7 +48,12 @@ export function resolveActiveTenantId(searchOrUrl?: string): string {
         : '';
     if (!rawInput) return 'default';
 
-    if (/^https?:\/\//i.test(rawInput) || rawInput.startsWith('/')) {
+    if (
+      /^https?:\/\//i.test(rawInput) ||
+      rawInput.startsWith('/') ||
+      rawInput.startsWith('?') ||
+      rawInput.startsWith('#')
+    ) {
       const parsed = new URL(rawInput, 'http://localhost');
       const queryTenant = extractTenantFromSearchParams(parsed.searchParams);
       if (queryTenant !== 'default') return queryTenant;
