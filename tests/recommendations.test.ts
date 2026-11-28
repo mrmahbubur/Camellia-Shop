@@ -1062,6 +1062,9 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   assert.equal(resolveActiveTenantId('?tenant=Default'), 'default');
   assert.equal(resolveActiveTenantId('?tenant=Partner-BD_01'), 'partner-bd_01');
   assert.equal(resolveActiveTenantId('?storefrontId=jewelry_boutique'), 'jewelry_boutique');
+  assert.equal(resolveActiveTenantId('?tenant=&storefrontId=Fallback_Shop'), 'fallback_shop');
+  assert.equal(resolveActiveTenantId('/store?storefrontId=Path_Shop'), 'path_shop');
+  assert.equal(resolveActiveTenantId('https://camellia.shop/deals?storefrontId=Full_Url_Shop'), 'full_url_shop');
   assert.equal(resolveActiveTenantId('?tenant=../../evil'), 'default');
 
   assert.equal(resolveTenantApiUrl('/api/storefront', 'default'), '/api/storefront');
@@ -1075,6 +1078,10 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
     '/api/catalog?store=Amazon&tenant=embedded_shop'
   );
   assert.equal(
+    resolveTenantApiUrl('/api/catalog?store=Amazon&tenant=&storefrontId=Embedded_Fallback'),
+    '/api/catalog?store=Amazon&tenant=embedded_fallback'
+  );
+  assert.equal(
     resolveTenantApiUrl('/api/catalog?store=Amazon&tenant=stale', 'qa_tenant'),
     '/api/catalog?store=Amazon&tenant=qa_tenant'
   );
@@ -1085,13 +1092,26 @@ test('Shared search helpers and multi-tenant API routing behave deterministicall
   assert.equal(normalizeTenantId('QA-Store_01'), 'qa-store_01');
   assert.equal(normalizeTenantId('../bad'), 'default');
   assert.deepEqual(buildTenantHeaders('default'), {});
-  assert.deepEqual(buildTenantHeaders('default', { 'X-Tenant-Id': 'stale', Accept: 'application/json' }), {
-    Accept: 'application/json'
-  });
-  assert.deepEqual(buildTenantHeaders('qa_tenant', { 'Content-Type': 'application/json' }), {
-    'Content-Type': 'application/json',
-    'x-tenant-id': 'qa_tenant'
-  });
+  assert.deepEqual(
+    buildTenantHeaders('default', {
+      'X-Tenant-Id': 'stale',
+      'X-Storefront-Id': 'stale-alias',
+      Accept: 'application/json'
+    }),
+    {
+      Accept: 'application/json'
+    }
+  );
+  assert.deepEqual(
+    buildTenantHeaders('qa_tenant', {
+      'Content-Type': 'application/json',
+      'X-Storefront-Id': 'stale-alias'
+    }),
+    {
+      'Content-Type': 'application/json',
+      'x-tenant-id': 'qa_tenant'
+    }
+  );
   const fetchInit = resolveTenantFetchInit('qa_tenant', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': 'stale' }

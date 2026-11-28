@@ -33,18 +33,35 @@ export function normalizeTenantId(candidate?: string | null): string {
   return clean;
 }
 
-export function resolveActiveTenantId(search?: string): string {
+function extractTenantFromSearchParams(params: URLSearchParams): string {
+  const raw = params.get('tenant')?.trim() || params.get('storefrontId')?.trim() || '';
+  return normalizeTenantId(raw);
+}
+
+export function resolveActiveTenantId(searchOrUrl?: string): string {
   try {
-    const rawSearch =
-      typeof search === 'string'
-        ? search
+    const rawInput =
+      typeof searchOrUrl === 'string'
+        ? searchOrUrl.trim()
         : typeof window !== 'undefined'
         ? window.location.search
         : '';
-    if (!rawSearch) return 'default';
-    const params = new URLSearchParams(rawSearch.startsWith('?') ? rawSearch : `?${rawSearch}`);
-    const candidate = params.get('tenant') ?? params.get('storefrontId');
-    return normalizeTenantId(candidate);
+    if (!rawInput) return 'default';
+
+    if (/^https?:\/\//i.test(rawInput) || rawInput.startsWith('/')) {
+      const parsed = new URL(rawInput, 'http://localhost');
+      const queryTenant = extractTenantFromSearchParams(parsed.searchParams);
+      if (queryTenant !== 'default') return queryTenant;
+      if (parsed.hash && parsed.hash.includes('?')) {
+        const hashQuery = parsed.hash.slice(parsed.hash.indexOf('?'));
+        return extractTenantFromSearchParams(new URLSearchParams(hashQuery));
+      }
+      return 'default';
+    }
+
+    const qIdx = rawInput.indexOf('?');
+    const querySegment = qIdx >= 0 ? rawInput.slice(qIdx) : `?${rawInput}`;
+    return extractTenantFromSearchParams(new URLSearchParams(querySegment));
   } catch {
     return 'default';
   }
@@ -62,9 +79,7 @@ export function resolveTenantApiUrl(path: string, tenantId?: string): string {
 
   try {
     const url = new URL(resolvedUrl, 'http://localhost');
-    const embeddedTenant = normalizeTenantId(
-      url.searchParams.get('tenant') ?? url.searchParams.get('storefrontId')
-    );
+    const embeddedTenant = extractTenantFromSearchParams(url.searchParams);
     const windowTenant = resolveActiveTenantId();
     const activeTenant =
       tenantId !== undefined
@@ -179,8 +194,10 @@ export function buildTenantHeaders(
   if (activeTenant === 'default') {
     if (tenantId !== undefined) {
       deleteHeaderCaseInsensitive(headers, 'x-tenant-id');
+      deleteHeaderCaseInsensitive(headers, 'x-storefront-id');
     }
   } else {
+    deleteHeaderCaseInsensitive(headers, 'x-storefront-id');
     setHeaderCaseInsensitive(headers, 'x-tenant-id', activeTenant);
   }
   return headers;
